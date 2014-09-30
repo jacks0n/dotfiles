@@ -1,0 +1,90 @@
+# ag / The Silver Searcher shortcuts
+a() { ag "$1" }
+al() { ag -l "$1" }
+ao() { ag -l "$1" 2>/dev/null | xargs open }
+
+
+# find shortcuts
+f() { find . -iname "*$1*" }                       # Wildcard find, matching *search*
+fo() { find . -iname "$1" | xagrs open }           # Open all results found
+ff() { find . -type f -iname "$1" }                # Only search for files
+fd() { find . -type d -iname "$1" }                # Only search for directories
+ffo() { find . -type f -iname "$1" | xargs open }  # Open files in search results
+ffd() { find . -type d -iname "$1" | xargs open }  # Open directories in search results
+
+
+# Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard
+pubkey() {
+    if [ -f ~/.ssh/id_rsa.pub ] ; then
+        cat ~/.ssh/id_rsa.pub | pbcopy
+        echo '=> Public key copied to clipboard.'
+        cat ~/.ssh/id_rsa.pub
+    else
+        echo '=> File ~/.ssh/id_rsa.pub missing'
+    fi
+}
+
+
+# Checks if a website is down - URL or raw domain
+down() {
+    wget -qO - "http://www.downforeveryoneorjustme.com/$1" | sed '/just you/!d;s/<[^>]*>//g'
+}
+
+
+# Show the HTTP headers of a given URL
+httpheaders() {
+    curl -s -D - "$@" -o /dev/null
+}
+
+
+# Performs a list of maintenance tasks
+maintain() {
+    # For later
+    sudo -v
+
+    # Remove duplicates in the "Open With" menu
+    echo '=> Removing "Open With" menu duplicated'
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+        -kill -r -domain local -domain system -domain user
+    killall Finder
+
+    # Empty trashes on all mounted volumes and the main HDD
+    sudo rm -rfv /Volumes/*/.Trashes
+    sudo rm -rfv ~/.Trash
+    sudo rm -rfv /private/var/log/asl/*.asl
+
+    # Runs the repair permissions function from the disk utility app
+    echo '=> Repairing file permissions globally'
+    diskutil repairPermissions /
+
+    # Download latest repo from Homebrew, and update all packages
+    echo '=> Homebrew cleanup, update, repair and link fixes'
+    brew cleanup -s --force
+    brew update
+    brew upgrade
+    brew tap --repair
+    brew unlinkapps
+    brew linkapps
+
+    # Flush the Directory Service / DNS cache
+    echo "=> Flushing the Directory Service / DNS cache"
+    dscacheutil -flushcache && killall -HUP mDNSResponder
+
+    # Update OS X
+    echo '=> Running OS X Software Update'
+    sudo softwareupdate -i -a
+
+    # Updating Node
+    npm update npm -g
+    npm update -g
+
+    # Updating Gem
+    sudo gem update --system
+    sudo gem update
+
+    # Fixes the permissions for Homebrew
+    echo '=> Fixing /usr/local permissions'
+    sudo chown -R "$(whoami):admin" /usr/local
+
+    echo '=> Done!'
+}
