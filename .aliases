@@ -1,79 +1,68 @@
-# Print top 10 used commands
-alias common_commands="$(print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10)"
-
-# Enable aliases to be sudo'ed
-alias sudo="sudo "
-
-# Obligatory https://xkcd.com/149/
-alias please="sudo"
-
-# Edit ~/.zshrc with the default $EDITOR
-alias="$EDITOR ~/.zshrc"
-
-# Easier navigation: .., ..., ...., and .....
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-
-# Shortcuts
-alias g="git"
-alias h="history"
-alias j="jobs"
+# Shortest shortcuts of them all!
 alias c='clear'
+alias g='git'
+alias h='history'
+alias j='jobs'
+alias v='mvim' # MacVim
+alias s='subl' # Sublime Text
 
 # Pretty file sizes
-alias du="du -h"
-alias df="df -h"
+alias du='du -h'
+alias df='df -h'
 
 # ls shortcuts
-alias l="ls -lF ${colorflag}"    # Files and directories in long format
-alias la="ls -laF ${colorflag}"  # Files and directories in long format, including dot files
-alias lf="ls -Fl --color=always ${colorflag} | grep -v '^d'"    # Only files
-alias lfa="ls -aFl --color=always ${colorflag} | grep -v '^d'"  # Only files, including dotfiles
-alias ld="ls -Fl --color=always ${colorflag} | grep '^d'"       # Only directories
-alias lda="ls -aFl --color=always ${colorflag} | grep '^d'"     # Only directories, including dotdirectories
+alias l='ls -lFh'    # Files and directories in long format
+alias la='ls -lAFh'  # Files and directories in long format, including dot files
+alias lf="ls -lFh | grep -v '^d'"    # Only files
+alias lfa="ls -lAFh | grep -v '^d'"  # Only files, including dotfiles
+alias ld="ls -Fl | grep '^d'"        # Only directories
+alias lda="ls -lAF | grep '^d'"      # Only directories, including dotdirectories
+
+# Print top 10 used commands from $history
+alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
+
+# Obligatory https://xkcd.com/149/
+alias please='sudo'
+
+# Edit ~/.zshrc with the default $VISUAL
+alias zshrc="$VISUAL $HOME/.zshrc"
+# Edit ~/.vimrc with the default $VISUAL
+alias vimrc="$VISUAL $HOME/.vimrc"
+
+# Easier navigation to move up directories
+alias ..='cd ..'
+alias ..2='cd ../..'
+alias ..3='cd ../../..'
+alias ..3='cd ../../../..'
 
 # Sublime Text binary
-alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
-
-# Map PHP to MAMP's version
-alias php="/Applications/MAMP/bin/php/php5.5.14/bin/php"
-
-# IP addresses
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias localip="ipconfig getifaddr en0"
-alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
 
 # Flush Directory Service cache
-alias flushdns="dscacheutil -flushcache && killall -HUP mDNSResponder"
+alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder'
 
 # OS X has no `md5sum`, so use `md5` as a fallback
-command -v md5sum > /dev/null || alias md5sum="md5"
+command -v md5sum > /dev/null || alias md5sum='md5'
 
 # OS X has no `sha1sum`, so use `shasum` as a fallback
-command -v sha1sum > /dev/null || alias sha1sum="shasum"
+command -v sha1sum > /dev/null || alias sha1sum='shasum'
 
 # URL-encode strings
 alias urlencode="python -c 'import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);'"
 
-# Kill all the tabs in Chrome to free up memory
-# [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
-alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+# Lock the screen
+alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
-# Lock the screen (when going AFK)
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
-
-# Reload the shell (i.e. invoke as a login shell)
+# Reload the shell (invokes the shell login)
 alias reload="exec $SHELL -l"
 
 # Watch logs with lnav
 # http://lnav.org/
-MAMP_LOG_PATH="/Applications/MAMP/logs"
-alias watch_php="lnav $MAMP_LOG_PATH/php_error.log"
-alias watch_mysql="lnav $MAMP_LOG_PATH/mysql_error_log.err"
-alias watch_apache="lnav $MAMP_LOG_PATH/apache_error.log"
+MAMP_LOG_PATH='/Applications/MAMP/logs'
+alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
+alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
+alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
 
 # Wine app to crawl site
 # http://home.snafu.de/tilman/xenulink.html
-alias xenu="wine '/Users/$USER/.wine/drive_c/Program Files/Xenu/Xenu.exe'"
+alias xenu="wine '/Users/Jackson/.wine/drive_c/Program Files/Xenu/Xenu.exe'"

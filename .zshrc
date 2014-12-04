@@ -9,13 +9,40 @@
 # Number of lines of history kept within the shell
 HISTSIZE=10000
 # File where history is saved
-HISTFILE="~/.zsh_history"
+HISTFILE="$HOME/.zsh_history"
 # Number of lines of history to save to $HISTFILE
 SAVEHIST=10000
 
-# Disable vi-mode when searching history
-bindkey '^R' history-incremental-search-backward
+setopt COMPLETE_IN_WORD    # Complete from both ends of a word.
+setopt ALWAYS_TO_END       # Move cursor to the end of a completed word.
+setopt PATH_DIRS           # Perform path search even on command names with slashes.
+setopt AUTO_MENU           # Show completion menu on a succesive tab press.
+setopt AUTO_LIST           # Automatically list choices on ambiguous completion.
+setopt AUTO_PARAM_SLASH    # If completed parameter is a directory, add a trailing slash.
+unsetopt FLOW_CONTROL      # Disable start/stop characters in shell editor.
 
+# Use caching to make completion for commands quicker.
+zstyle ':completion::complete:*' use-cache on
+zstyle ':completion::complete:*' cache-path "$HOME/.zcache"
+
+# Case-insensitive (all), partial-word, and then substring completion.
+if zstyle -t ':omz:completion:*' case-sensitive; then
+  zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+  setopt CASE_GLOB
+else
+  zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+  unsetopt CASE_GLOB
+fi
+
+# Enable menu for `kill`
+zstyle ':completion:*:*:*:*:processes' command 'ps -u $USER -o pid,user,comm -w'
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:kill:*' force-list always
+zstyle ':completion:*:*:kill:*' insert-ids single
+
+# Enable menu for `man`
+zstyle ':completion:*:*:man:*' menu yes select
 
 
 ##
@@ -25,79 +52,83 @@ bindkey '^R' history-incremental-search-backward
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-ZSH_THEME="robbyrussell"
+# Located in ~/.oh-my-zsh/themes/, can also use "random".
+ZSH_THEME='robbyrussell'
 
 # Case-sensitive completion.
-CASE_SENSITIVE="false"
+CASE_SENSITIVE='false'
 
 # Display red dots whilst waiting for completion.
-COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS='true'
 
-# Disable marking untracked files under VCS as dirty.
-# This makes repository status check for large repositories
-# much, much faster.
-DISABLE_UNTRACKED_FILES_DIRTY="true"
+# Disable marking untracked files under VCS as dirty, much faster for large repositories.
+DISABLE_UNTRACKED_FILES_DIRTY='true'
 
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git brew npm pip python sublime urltools web-search gnu-utils history-substring-search zsh-syntax-highlighting dircycle)
+# Plugins to load (plugins can be found in ~/.oh-my-zsh/plugins/*).
+plugins=(catimg git brew npm pip python gnu-utils history-substring-search zsh-syntax-highlighting)
+
 source "$ZSH/oh-my-zsh.sh"
 
 
+##
+#  Global variables - $PATH, $MANPATH, $EDITOR, $VISUAL, etc.
+##
 
-##
-#  $PATH, $EDITOR and $VISUAL exports
-##
+# Preferred editor for local and remote sessions
+export EDITOR='vim'
+export VISUAL='vim'
+
+# Homebrew base
+PATH="$(brew --prefix)/sbin:$PATH"
+PATH="$(brew --prefix)/bin:$PATH"
+MANPATH="$(brew --prefix)/man:$MANPATH"
+MANPATH="$(brew --prefix)/share/man:$MANPATH"
+
+# Homebrew GNU coreutils, sed & tar
+PATH="$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
+PATH="$(brew --prefix)/opt/gnu-tar/libexec/gnubin:$PATH"
+PATH="$(brew --prefix)/opt/gnu-sed/libexec/gnubin:$PATH"
+MANPATH="$(brew --prefix)/opt/coreutils/libexec/gnuman:$MANPATH"
+MANPATH="$(brew --prefix)/opt/gnu-sed/libexec/gnuman:$MANPATH"
+
+# Homebrew PHP
+PATH="$(brew --prefix php56)/bin:$PATH"
 
 # Node.js
-export NODE_PATH="$(brew --prefix)/lib/node_modules:$(brew --prefix)/share/npm/lib/node_modules:$NODE_PATH"
-export PATH="$(brew --prefix)/share/npm/bin:$PATH"
+NODE_PATH="$(brew --prefix)/lib/node_modules"
+NODE_PATH="$(brew --prefix)/share/npm/lib/node_modules:$NODE_PATH"
+PATH="$(brew --prefix)/share/npm/bin:$PATH"
 
-# Homebrew
-export PATH="$(brew --prefix)/sbin:$PATH"
-export PATH="$(brew --prefix)/bin:$PATH"
-export PATH="$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
+# Android emulator / SDK
+export ANDROID_HOME='/usr/local/opt/android-sdk'
 
-# ~/Scripts directory
-[ -d ~/bin ] && export PATH="$HOME/bin:$PATH"
-
-# MAMP's binaries - mysql, mysqldump, etc.
-[ -d "/Applications/MAMP/Library/bin" ] && export PATH="/Applications/MAMP/Library/bin:$PATH"
-
-# Extra man pages
-export MANPATH="/usr/local/man:/usr/local/mysql/man:/usr/local/git/man:$MANPATH"
+# ~/bin directory
+PATH="$HOME/bin:$PATH"
 
 # Golang
-export PATH="/usr/local/opt/go/libexec/bin:$PATH"
+export GOPATH="$HOME/bin/go"
+export GOROOT="$(go env GOROOT)"
 
+# ansiweather: https://github.com/fcambus/ansiweather
+if [ -x "$HOME/bin/ansiweather" ] ; then
+    PATH="$HOME/bin/ansiweather:$PATH"
+    alias weather="$HOME/bin/ansiweather/ansiweather"
+fi
+
+# Expose $PATH & $MANPATH to forked shells
+export PATH
+export MANPATH
 
 
 ##
 #  Includes
 ##
 
-[ -f ~/.functions ] && source ~/.functions
-[ -f ~/.aliases ] && source ~/.aliases
+source "$HOME/.aliases"
+source "$HOME/.functions"
 
 # GRC colorizes nifty unix tools all over the place
-# [ -f "$(brew --prefix)/etc/grc.bashrc" ] &&  source "$(brew --prefix)/etc/grc.bashrc"
-
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-    export EDITOR="subl"
-else
-    export EDITOR="vim"
-fi
-export VISUAL="subl"
-
-
-# iTerm 2 shell integration
-#
-[ -f ~/.iterm2_shell_integration.zsh ] && source ~/.iterm2_shell_integration.zsh
+source "$(brew --prefix)/etc/grc.bashrc"
 
 
 ##
@@ -107,7 +138,6 @@ export VISUAL="subl"
 export LC_CTYPE=C
 export LANG=C
 export LC_ALL=C
-
 
 
 ##
@@ -125,3 +155,17 @@ man() {
     LESS_TERMCAP_us=$'\E[04;38;5;146m' \
     man "$@"
 }
+
+
+##
+#  Miscellaneous
+##
+
+# z - https://github.com/rupa/z
+source "$(brew --prefix)/etc/profile.d/z.sh"
+
+# fzf - https://github.com/junegunn/fzf
+source "$HOME/.fzf.zsh"
+
+# Surpress Wine debugging info
+WINEDEBUG=
