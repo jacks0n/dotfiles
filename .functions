@@ -1,18 +1,28 @@
 # ag / The Silver Searcher shortcuts
 # https://github.com/ggreer/the_silver_searcher
-a()  { ag "$1" "${2:-.}" }
-al() { ag -l "$1" "${2:-.}" }
-ao() { ag -l "$1" "${2:-.}" --print0 | xargs -0 open }
+a()  { ag -i "$1" "${2:-.}" }
+al() { ag -il "$1" "${2:-.}" }
+ao() { ag -il "$1" "${2:-.}" --print0 | xargs -0 open }
 
 
 # find shortcuts, matches highlighted inline
 f_no_colour()   { find "${2:-.}" -iname "*$1*" ${*:3} }  # Wildcard find, matching *<keyword>*
-f() { f_no_colour $@ | grep "$1" } # Adds colour to the results
+f() { f_no_colour $@ | grep -i "$1" } # Adds colour to the results
 ff()  { f "$1" "${2:-.}" -type f } # Only search for files
 fd()  { f "$1" "${2:-.}" -type d } # Only search for directories
 fo()  { f_no_colour "$1" "${2:-.}" -print0 | xargs -0 open }         # Open all results found
 ffo() { f_no_colour "$1" "${2:-.}" -type f -print0 | xargs -0 open } # Open files in search results
 fdo() { f_no_colour "$1" "${2:-.}" -type d -print0 | xargs -0 open } # Open directories in search results
+
+
+# View `man` pages with Preview.app, fancy!
+gman() {
+    PS_FILEPATH='/tmp/man-to-ps.ps'
+
+    # Output `man` as Postscript to a temporary file
+    man -t "$@" > "$PS_FILEPATH"
+    open "$PS_FILEPATH"
+}
 
 
 # Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard
@@ -59,9 +69,12 @@ localip() {
 
 # Checks if a website is down with downforeveryoneorjustme.com (URL or raw domain)
 isdown() {
-    curl -s "http://www.downforeveryoneorjustme.com/$1" | \
+    # Strip scheme first
+    URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
+    curl -s "http://www.downforeveryoneorjustme.com/$URL" | \
         grep 'just you' | \
         php -r 'echo html_entity_decode(trim(strip_tags(fgets(STDIN))));'
+    echo
 }
 
 
