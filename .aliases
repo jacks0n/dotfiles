@@ -1,9 +1,15 @@
+# vim: filetype=sh
+
+# Let `sudo` be aliased, supporting chained aliases. eg. `sudo l .`
+# https://www.gnu.org/software/bash/manual/bashref.html#Aliases
+alias sudo='sudo '
+
 # Shortest shortcuts of them all!
 alias c='clear'
 alias g='git'
 alias h='history'
 alias j='jobs'
-alias v='mvim' # MacVim
+alias v='mvim --remote-tab-silent' # MacVim, in same window
 alias s='subl' # Sublime Text
 
 # Pretty file sizes
@@ -11,12 +17,12 @@ alias du='du -h'
 alias df='df -h'
 
 # ls shortcuts
-alias l='ls -lFh'    # Files and directories in long format
-alias la='ls -lAFh'  # Files and directories in long format, including dot files
-alias lf="ls -lFh | grep -v '^d'"    # Only files
-alias lfa="ls -lAFh | grep -v '^d'"  # Only files, including dotfiles
-alias ld="ls -Fl | grep '^d'"        # Only directories
-alias lda="ls -lAF | grep '^d'"      # Only directories, including dotdirectories
+alias l='ls -lFh'              # Files and directories in long format
+alias la='l -A'                # Files and directories in long format, including dotfiles
+alias lf='l | grep -v "^d"'    # Only files
+alias lfa='la | grep -v "^d"'  # Only files, including dotfiles
+alias ld='l | grep "^d"'       # Only directories
+alias lda='la| grep "^d"'      # Only directories, including dotdirectories
 
 # Print top 10 used commands from $history
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
@@ -24,9 +30,17 @@ alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head
 # Obligatory https://xkcd.com/149/
 alias please='sudo'
 
-# Edit ~/.zshrc with the default $VISUAL
+# Bye bye :)
+alias nuke='sudo rm -rf'
+
+# Disable history logging for the current shell, handy for `mysqldump` passwords as arguments
+alias incognito='unset HISTFILE'
+
+# List user-installed npm packages
+alias npm-ls='npm list -g --depth=0'
+
+# Edit ~/.zshrc and ~/.vimrc with the default visual editor
 alias zshrc="$VISUAL $HOME/.zshrc"
-# Edit ~/.vimrc with the default $VISUAL
 alias vimrc="$VISUAL $HOME/.vimrc"
 
 # Easier navigation to move up directories
@@ -53,16 +67,9 @@ alias urlencode="python -c 'import sys, urllib as ul; print ul.quote_plus(sys.ar
 # Lock the screen
 alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
-# Reload the shell (invokes the shell login)
-alias reload="exec $SHELL -l"
-
 # Watch logs with lnav
 # http://lnav.org/
 MAMP_LOG_PATH='/Applications/MAMP/logs'
 alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
 alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
 alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
-
-# Wine app to crawl site
-# http://home.snafu.de/tilman/xenulink.html
-alias xenu="wine '/Users/Jackson/.wine/drive_c/Program Files/Xenu/Xenu.exe'"
