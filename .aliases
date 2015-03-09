@@ -33,7 +33,7 @@ alias please='sudo'
 # Bye bye :)
 alias nuke='sudo rm -rf'
 
-# Disable history logging for the current shell, handy for `mysqldump` passwords as arguments
+# Disable history logging for the current shell
 alias incognito='unset HISTFILE'
 
 # List user-installed npm packages

@@ -67,7 +67,15 @@ DISABLE_UNTRACKED_FILES_DIRTY='true'
 # Plugins to load (plugins can be found in ~/.oh-my-zsh/plugins/*).
 plugins=(catimg git brew npm pip python gnu-utils history-substring-search zsh-syntax-highlighting)
 
+# Fish-like live syntax highlighting 
+# SEE: https://github.com/zsh-users/zsh-syntax-highlighting/tree/master/highlighters
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+
 source "$ZSH/oh-my-zsh.sh"
+
+# Depricated, still used in .oh-my-zsh/lib/grep.zsh
+unset GREP_OPTIONS
+
 
 
 ##
@@ -76,13 +84,16 @@ source "$ZSH/oh-my-zsh.sh"
 
 # Preferred editor for local and remote sessions
 export EDITOR='vim'
-export VISUAL='vim'
+export VISUAL='mvim'
 
 # Homebrew base
 PATH="$(brew --prefix)/sbin:$PATH"
 PATH="$(brew --prefix)/bin:$PATH"
 MANPATH="$(brew --prefix)/man:$MANPATH"
 MANPATH="$(brew --prefix)/share/man:$MANPATH"
+
+# Homebrew Cask - set default install directory to /Applications not ~/Applications
+export HOMEBREW_CASK_OPTS="--appdir='/Applications' --prefpanedir='/Library/PreferencePanes' --qlplugindir='/Library/QuickLook' --widgetdir='/Library/Widgets' --fontdir='/Library/Fonts' --input_methoddir='/Library/Input Methods' --screen_saverdir='/Library/Screen Savers'"
 
 # Homebrew GNU coreutils, sed & tar
 PATH="$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -92,7 +103,7 @@ MANPATH="$(brew --prefix)/opt/coreutils/libexec/gnuman:$MANPATH"
 MANPATH="$(brew --prefix)/opt/gnu-sed/libexec/gnuman:$MANPATH"
 
 # Homebrew PHP
-PATH="$(brew --prefix php56)/bin:$PATH"
+# PATH="$(brew --prefix php56)/bin:$PATH"
 
 # Node.js
 NODE_PATH="$(brew --prefix)/lib/node_modules"
@@ -169,3 +180,4 @@ source "$HOME/.fzf.zsh"
 
 # Surpress Wine debugging info
 WINEDEBUG=
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

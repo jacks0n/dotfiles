@@ -1,3 +1,6 @@
+# vim: filetype=sh
+
+
 # ag / The Silver Searcher shortcuts
 # https://github.com/ggreer/the_silver_searcher
 a()  { ag -i "$1" "${2:-.}" }
@@ -6,13 +9,53 @@ ao() { ag -il "$1" "${2:-.}" --print0 | xargs -0 open }
 
 
 # find shortcuts, matches highlighted inline
-f_no_colour()   { find "${2:-.}" -iname "*$1*" ${*:3} }  # Wildcard find, matching *<keyword>*
+f_no_colour() { find "${2:-.}" -iname "*$1*" ${*:3} }  # Wildcard find, matching *<keyword>*
 f() { f_no_colour $@ | grep -i "$1" } # Adds colour to the results
-ff()  { f "$1" "${2:-.}" -type f } # Only search for files
-fd()  { f "$1" "${2:-.}" -type d } # Only search for directories
-fo()  { f_no_colour "$1" "${2:-.}" -print0 | xargs -0 open }         # Open all results found
-ffo() { f_no_colour "$1" "${2:-.}" -type f -print0 | xargs -0 open } # Open files in search results
-fdo() { f_no_colour "$1" "${2:-.}" -type d -print0 | xargs -0 open } # Open directories in search results
+# ff()  { f "$1" "${2:-.}" -type f } # Only search for files
+# fd()  { f "$1" "${2:-.}" -type d } # Only search for directories
+# fo()  { f_no_colour "$1" "${2:-.}" -print0 | xargs -0 open }         # Open all results found
+# ffo() { f_no_colour "$1" "${2:-.}" -type f -print0 | xargs -0 open } # Open files in search results
+# fdo() { f_no_colour "$1" "${2:-.}" -type d -print0 | xargs -0 open } # Open directories in search results
+
+# fe [FUZZY PATTERN] - Open the selected file with `open`
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+#   - Enable multiple selection with <tab> and <shift-tab> (--multi)
+fo() {
+    local file
+    file=$(fzf --query="$1" --select-1 --multi --exit-0)
+    [ -n "$file" ] && open "$file"
+}
+
+# fd - cd to selected directory
+fd() {
+    local dir
+    dir=$(find ${1:-*} -path '*/\.*' -prune \
+                    -o -type d -print 2> /dev/null | fzf +m) &&
+    cd "$dir"
+}
+
+# fda - including hidden directories
+fda() {
+    local dir
+    dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m) && cd "$dir"
+}
+
+# cdf - cd into the directory of the selected file
+cdf() {
+    local file
+    local dir
+    file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
+}
+
+unalias z 2> /dev/null
+z() {
+    if [[ -z "$*" ]]; then
+        cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
+    else
+        _z "$@"
+    fi
+}
 
 
 # View `man` pages with Preview.app, fancy!
@@ -25,12 +68,29 @@ gman() {
 }
 
 
+# Reload shell - Zsh or Bash
+# Sources ~/.zshrc or ~/.profile by default. If the `--new` argument is given,
+# the current shell will be re-launched, disregarding any environment changes.
+reload() {
+    # Get current shell process name. Compatible with BSD and GNU `ps`.
+    ME="$(ps -p $$ -o 'comm=')" # zsh and bash usually prefixed with '-'
+
+    # `--new` specified. Lose changes, start new shell
+    if [[ $1 == '--new' ]] ; then
+        [[ $ME == *zsh  ]] && exec zsh -li
+        [[ $ME == *bash ]] && exec bash -li
+    else
+        [[ $ME == *zsh  ]] && source ~/.zshrc
+        [[ $ME == *bash ]] && source ~/.bashrc # assumes it sources .bash_profile
+    fi
+}
+
+
 # Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard
 pubkey() {
     if [ -f "$HOME/.ssh/id_rsa.pub" ] ; then
-        cat "$HOME/.ssh/id_rsa.pub" | pbcopy
         echo '=> Public key copied to clipboard.'
-        cat "$HOME/.ssh/id_rsa.pub"
+        cat "$HOME/.ssh/id_rsa.pub" | tee >(pbcopy)
     else
         echo '=> File ~/.ssh/id_rsa.pub is missing'
     fi
@@ -49,6 +109,13 @@ ip() {
     [ $? -ne 0 ] && return # dig will print the error to stderr
     echo $IP | pbcopy
     echo "=> Public IP: $IP copied to clipboard"
+}
+
+
+# Create directory and `cd` into it
+mkcd() {
+    [[ $1 == '' ]] && echo 'ERROR: No directory argument supplied.' && return 1
+    mkdir "$1" && cd "$1"
 }
 
 
@@ -93,13 +160,56 @@ httpheaders() {
 }
 
 
+# Delete shell history lines containing $1, in $HISTFILE (if set), ~/.zsh_history, ~/.bash_history
+rmhist() {
+    [ -z $1 ] && echo 'ERROR: No history string argument to delete.' ; return 1
+    for hist in ~/.zsh_history ~/.bash_history $HISTFILE ; do
+        echo "HIST: $hist"
+        continue
+        [ -f "$hist" ] && LC_ALL=C sed -i "/$1/d" "$hist"
+    done
+}
+
+
+# Automatically `cd` into last directory in ranger
+# Based on ranger/doc/examples/bash_automatic_cd.sh
+# http://ranger.nongnu.org/.
+rangercd() {
+    tempfile="/tmp/ranger-$$-chosendir"
+    ranger --choosedir="$tempfile" "${@:-.}"
+    test -f "$tempfile" &&
+    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+        cd -- "$(cat "$tempfile")"
+    fi
+    rm -f -- "$tempfile"
+}
+
+
+# Executes MAMP PRO's PHP binary with the given arguments.
+phpmamp() {
+    local HTTPDCONF_PATH="$HOME/Library/Application Support/appsolute/MAMP PRO/httpd.conf"
+    [ ! -f "$HTTPDCONF_PATH" ] && echo "ERROR: '$HTTPDCONF_PATH' not found." && return 1
+
+    local PHP_VERSION="$(awk -F '/' '/LoadModule php5_module/ { print $6 }' "$HTTPDCONF_PATH" 2>/dev/null)"
+    [ -z "$PHP_VERSION" ] && echo "ERROR: 'php5_module not found in '$HTTPDCONF_PATH'." && return 1
+
+    local PHP_PATH="/Applications/MAMP/bin/php/$PHP_VERSION/bin/php"
+    [ ! -f "$PHP_PATH" ] && echo "ERROR: PHP executable '$PHP_PATH' not found." && return 1
+
+    "$PHP_PATH" $@
+}
+
+
 # Performs several system-wide maintenance tasks`
 maintain() {
+    # For later
+    sudo -v
+
     # Remove duplicates in the "Open With" menu
     echo '=> Removing "Open With" menu duplicates'
-    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-        -kill -r -domain local -domain system -domain user
-    killall Finder
+    local LSREGISTER_BASE_PATH='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support'
+    sudo "$LSREGISTER_BASE_PATH/lsregister" -kill -r -domain local -domain system -domain user
+    sudo killall Finder
 
     # Empty trashes on all mounted volumes and the main HDD
     echo '=> Emptying trash'
@@ -107,12 +217,17 @@ maintain() {
     sudo rm -rfv "$HOME/.Trash"
     sudo rm -rfv /private/var/log/asl/*.asl
 
+    # Flush the Directory Service / DNS cache
+    echo '=> Flushing the Directory Service / DNS cache'
+    dscacheutil -flushcache
+    killall -HUP mDNSResponder
+
     # Runs the repair permissions function from the disk utility app
     echo '=> Repairing global file permissions'
-    diskutil repairPermissions /
+    sudo diskutil repairPermissions /
 
     # Fixes the permissions for Homebrew
-    echo '=> Restoring /usr/local permission defaults'
+    echo '=> Restoring /usr/local ownership to Jackson:admin'
     sudo chown -R 'Jackson:admin' /usr/local
 }
 
@@ -122,19 +237,23 @@ update() {
     # For later
     sudo -v
 
+    # Update Vim plugins
+    echo '=> Vim Plug install, update, upgrade, clean'
+    vim +PlugInstall +qall
+    vim +PlugUpdate +qall
+    vim +PlugUpgrade +qall
+    vim +PlugClean +qall
+
     # Download latest repo from Homebrew, and update all packages
     echo '=> Homebrew cleanup, update, repair and link fixes'
-    brew cleanup -s --force
     brew update
     brew upgrade
     brew tap --repair
     brew unlinkapps
     brew linkapps
-
-    # Flush the Directory Service / DNS cache
-    echo '=> Flushing the Directory Service / DNS cache'
-    dscacheutil -flushcache
-    killall -HUP mDNSResponder
+    brew cleanup -s --force
+    brew cask cleanup
+    brew prune
 
     # Update OS X
     echo '=> Running OS X Software Update'
@@ -142,13 +261,12 @@ update() {
 
     # Updating Node
     echo '=> Updating Node.js'
-    npm update npm -g
+    npm install npm -g
     npm update -g
 
     # Updating Gem
     echo '=> Updating Gem'
     sudo gem update --system
-    sudo gem update
 
     echo '=> Done!'
 }

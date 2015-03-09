@@ -31,9 +31,9 @@ echo "=> Linking dotfiles"
 ln -s --force "$DOTFILES_PATH/.aliases" ~/.aliases
 ln -s --force "$DOTFILES_PATH/.curlrc" ~/.curlrc
 ln -s --force "$DOTFILES_PATH/.functions" ~/.functions
-ln -s --force "$DOTFILES_PATH/.gitconfig" ~/.gitconfig
-ln -s --force "$DOTFILES_PATH/.gitconfig_system" ~/.gitconfig_system
-ln -s --force "$DOTFILES_PATH/.gitconfig_user" ~/.gitconfig_user
+#ln -s --force "$DOTFILES_PATH/.gitconfig" ~/.gitconfig
+#ln -s --force "$DOTFILES_PATH/.gitconfig_system" ~/.gitconfig_system
+#ln -s --force "$DOTFILES_PATH/.gitconfig_user" ~/.gitconfig_user
 ln -s --force "$DOTFILES_PATH/.osx" ~/.osx
 ln -s --force "$DOTFILES_PATH/.zshrc" ~/.zshrc
 ln -s --force "$DOTFILES_PATH/vendor/.iterm2_shell_integration.zsh" ~/.iterm2_shell_integration.zsh
