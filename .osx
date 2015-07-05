@@ -286,3 +286,6 @@ defaults write com.apple.dock minimize-to-application -bool true
 # Make Zsh the default shell
 chsh -s /usr/local/bin/zsh
 
+
+echo 'Fixing Vim copying in tmux'
+set-option -g default-command 'reattach-to-user-namespace -l bash'
