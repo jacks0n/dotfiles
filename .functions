@@ -1,272 +1,276 @@
 # vim: filetype=sh
 
+# ag / The Silver Searcher shortcuts.
+# https://github.com/ggreer/the_silver_searcher.
+a()  { ack -i  "$1" "${2:-.}" }
+al() { ack -il "$1" "${2:-.}" }
+ae() {
+  # --exclude={.sass-cache,css,js/contrib}
+  # grep --colour=always --exclude-dir=css --exclude=\*.{svg,scssc} --line-number --line-buffered -r "" "${2:-.}" | fzf --ansi --select-1 --query="$1" --extended --multi | \
+  ag --nobreak --nonumbers --noheading "${2:-.}" | fzf --ansi --select-1 --query="$1" --extended --multi | \
+    while read grep_line ; do
+      filepath="$(echo $grep_line | cut -d ':' -f 1)"
+      linenum="$(echo $grep_line | cut -d ':' -f 2)"
+      mvim --servername VIM --remote "${filepath}:${linenum}" 2>/dev/null
+    done
+}
 
-# ag / The Silver Searcher shortcuts
-# https://github.com/ggreer/the_silver_searcher
-a()  { ag -i "$1" "${2:-.}" }
-al() { ag -il "$1" "${2:-.}" }
-ao() { ag -il "$1" "${2:-.}" --print0 | xargs -0 open }
 
-
-# find shortcuts, matches highlighted inline
+# find shortcuts, matches highlighted inline.
 f_no_colour() { find "${2:-.}" -iname "*$1*" ${*:3} }  # Wildcard find, matching *<keyword>*
-f() { f_no_colour $@ | grep -i "$1" } # Adds colour to the results
-# ff()  { f "$1" "${2:-.}" -type f } # Only search for files
-# fd()  { f "$1" "${2:-.}" -type d } # Only search for directories
-# fo()  { f_no_colour "$1" "${2:-.}" -print0 | xargs -0 open }         # Open all results found
-# ffo() { f_no_colour "$1" "${2:-.}" -type f -print0 | xargs -0 open } # Open files in search results
-# fdo() { f_no_colour "$1" "${2:-.}" -type d -print0 | xargs -0 open } # Open directories in search results
+f() { f_no_colour $@ | grep -i "$1" }                  # Adds colour to the results.
 
-# fe [FUZZY PATTERN] - Open the selected file with `open`
-#   - Bypass fuzzy finder if there's only one match (--select-1)
-#   - Exit if there's no match (--exit-0)
-#   - Enable multiple selection with <tab> and <shift-tab> (--multi)
-fo() {
-    local file
-    file=$(fzf --query="$1" --select-1 --multi --exit-0)
-    [ -n "$file" ] && open "$file"
+
+# Edit the selected file(s). USAGE: e FUZZY_PATTERN
+e() {
+  fzf --query="$1" --select-1 --extended --multi | \
+    xargs -I{} open "{}"
 }
 
-# fd - cd to selected directory
-fd() {
-    local dir
-    dir=$(find ${1:-*} -path '*/\.*' -prune \
-                    -o -type d -print 2> /dev/null | fzf +m) &&
-    cd "$dir"
+
+# cd to selected directory (including hidden directories), or directory of selected file. USAGE: d FUZZY_PATTERN [DIRECTORY]
+unalias d 2>/dev/null
+d() {
+  find "${2:-.}" -not -path '*/.git/*' -type d 2>/dev/null | \
+    fzf --query="$1" --select-1 --extended | \
+    while read filepath ; do
+      if [ -f "$filepath" ] ; then
+        cd "$(dirname "$filepath")"
+      elif [ -d "$filepath" ] ; then
+        cd "$filepath"
+      else
+        echo "ERROR: Not a file or directory '$filepath'"
+      fi
+      ls -lFh
+    done
 }
 
-# fda - including hidden directories
-fda() {
-    local dir
-    dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m) && cd "$dir"
+
+# Recursively change ownerwhip of the path to $USER.
+chownme() {
+  sudo chown -R "${USER}:staff" "$@"
 }
 
-# cdf - cd into the directory of the selected file
-cdf() {
-    local file
-    local dir
-    file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
-}
 
-unalias z 2> /dev/null
+# cd to a previously visited directory matching FUZZY_PATTERN
+unalias z 2>/dev/null
 z() {
-    if [[ -z "$*" ]]; then
-        cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
-    else
-        _z "$@"
-    fi
+  if [[ -z "$@" ]]; then
+    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
+  else
+    _z "$@"
+  fi
+}
+
+
+# Open directory or file in GitHub.
+# Usage: gh [filepath] [branch]
+gh() {
+  local baseurl="$(git config --get "remote.$(git remote | head -n 1).url")" 
+  if [ -z "$baseurl" ] ; then
+    echo 'ERROR: Not a git repository or no remote URL set.'
+    return 1
+  fi
+  if [ -z "$2" ] ; then
+    local branch="$(git symbolic-ref HEAD | sed 's#refs/heads/##')"
+  else
+    local branch="$2"
+  fi
+  local filepath="${1:-.}"
+  local ghuri="$(git remote -v | head -n 1 | sed -E 's/.*:(.*)\.git.*/\1/')"
+  local repouri="${$(realpath "$filepath")##$(git rev-parse --show-toplevel)/}"
+  local url="https://github.com/$ghuri/tree/$branch/$repouri"
+  open "$url"
 }
 
 
 # View `man` pages with Preview.app, fancy!
 gman() {
-    PS_FILEPATH='/tmp/man-to-ps.ps'
+  PS_FILEPATH='/tmp/man-to-ps.ps'
 
-    # Output `man` as Postscript to a temporary file
-    man -t "$@" > "$PS_FILEPATH"
-    open "$PS_FILEPATH"
+  # Output `man` as Postscript to a temporary file.
+  man -t "$@" > "$PS_FILEPATH"
+  open "$PS_FILEPATH"
 }
 
 
-# Reload shell - Zsh or Bash
+# Reload shell - Zsh or Bash.
 # Sources ~/.zshrc or ~/.profile by default. If the `--new` argument is given,
 # the current shell will be re-launched, disregarding any environment changes.
 reload() {
-    # Get current shell process name. Compatible with BSD and GNU `ps`.
-    ME="$(ps -p $$ -o 'comm=')" # zsh and bash usually prefixed with '-'
+  # Get current shell process name. Compatible with BSD and GNU `ps`.
+  ME="$(ps -p $$ -o 'comm=')" # zsh and bash usually prefixed with '-'
 
-    # `--new` specified. Lose changes, start new shell
-    if [[ $1 == '--new' ]] ; then
-        [[ $ME == *zsh  ]] && exec zsh -li
-        [[ $ME == *bash ]] && exec bash -li
-    else
-        [[ $ME == *zsh  ]] && source ~/.zshrc
-        [[ $ME == *bash ]] && source ~/.bashrc # assumes it sources .bash_profile
-    fi
+  # `--new` specified. Lose changes, start new shell.
+  if [[ $1 == '--new' ]] ; then
+    [[ $ME == *zsh  ]] && exec zsh -li
+    [[ $ME == *bash ]] && exec bash -li
+  else
+    [[ $ME == *zsh  ]] && source ~/.zshrc
+    [[ $ME == *bash ]] && source ~/.bashrc  # Assumes it sources .bash_profile
+  fi
 }
 
 
-# Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard
+# Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard.
 pubkey() {
-    if [ -f "$HOME/.ssh/id_rsa.pub" ] ; then
-        echo '=> Public key copied to clipboard.'
-        cat "$HOME/.ssh/id_rsa.pub" | tee >(pbcopy)
-    else
-        echo '=> File ~/.ssh/id_rsa.pub is missing'
-    fi
+  if [ -f "$HOME/.ssh/id_rsa.pub" ] ; then
+    echo '=> Public key copied to clipboard.'
+    cat "$HOME/.ssh/id_rsa.pub" | tee >(pbcopy)
+  else
+    echo '=> File ~/.ssh/id_rsa.pub is missing'
+  fi
 }
 
 
-# Lists file & directory sizes (defaults to current path), sorted by size
+# Lists file & directory sizes (defaults to current path), sorted by size.
 dl() {
-    du --human-readable --total --max-depth=1 "${2:-.}" | sort --human-numeric-sort --reverse
+  du --human-readable --total --max-depth=1 "${1:-.}" | sort --human-numeric-sort --reverse
 }
 
 
-# Get the public IP address from OpenDNS, print it and copy to clipboard
+# Get the public IP address from OpenDNS, print it and copy to clipboard.
 ip() {
-    local IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-    [ $? -ne 0 ] && return # dig will print the error to stderr
-    echo $IP | pbcopy
-    echo "=> Public IP: $IP copied to clipboard"
+  local IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+  [ $? -ne 0 ] && return # dig will print the error to stderr.
+  echo $IP | pbcopy
+  echo "=> Public IP: $IP copied to clipboard"
 }
 
 
-# Create directory and `cd` into it
+# Create directory and `cd` into it.
 mkcd() {
-    [[ $1 == '' ]] && echo 'ERROR: No directory argument supplied.' && return 1
-    mkdir "$1" && cd "$1"
+  [[ $1 == '' ]] && echo 'ERROR: No directory argument supplied.' && return 1
+  mkdir -p "$1" && cd "$1"
 }
 
 
-# Get the local IPv4 addres(sses) from ifconfig, and copy to clipboard
+# Get the local IPv4 addres(sses) from ifconfig, and copy to clipboard.
 localip() {
-    local IPS="$(ifconfig | grep 'inet' | cut -d' ' -f2 | grep -v -e '127.0.0.1' -e '::1')"
-    [[ "$IPS" == '' ]] && echo '=> No local IP addresses found'
+  local IPS="$(ifconfig | grep 'inet' | cut -d' ' -f2 | grep -v -e '127.0.0.1' -e '::1')"
+  [[ "$IPS" == '' ]] && echo '=> No local IP addresses found'
 
-    # Print all if multiple found
-    if [ "$(echo $IPS | wc -l)" -ne 1 ] ; then
-        echo -e "=> Multiple IP addresses found:\n$IPS"
-    fi
+  # Print all if multiple found.
+  if [ "$(echo $IPS | wc -l)" -ne 1 ] ; then
+    echo -e "=> Multiple IP addresses found:\n$IPS"
+  fi
 
-    echo "$IPS" | pbcopy
-    echo "=> IP address $IPS copied to clipboard"
+  echo "$IPS" | pbcopy
+  echo "=> IP address $IPS copied to clipboard"
 }
 
 
-# Checks if a website is down with downforeveryoneorjustme.com (URL or raw domain)
+# Checks if a website is down with downforeveryoneorjustme.com (URL or raw domain).
 isdown() {
-    # Strip scheme first
-    URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
-    curl -s "http://www.downforeveryoneorjustme.com/$URL" | \
-        grep 'just you' | \
-        php -r 'echo html_entity_decode(trim(strip_tags(fgets(STDIN))));'
-    echo
+  # Strip scheme first.
+  URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
+  curl -s "http://www.downforeveryoneorjustme.com/$URL" | \
+    grep 'just you' | \
+    php -r 'echo html_entity_decode(trim(strip_tags(fgets(STDIN))));'
+  echo
 }
 
 
-# Kill all the tabs in Chrome to free up memory
+# Kill all the tabs in Chrome to free up memory.
 # http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 chromekill() {
-    ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
+  ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
 }
 
 
-# Show the HTTP headers of a given URL
+# Show the HTTP headers of a given URL.
 httpheaders() {
-    # Use a fake user-agent, some sites block cURL - Safari 8.0, OS X
-    CURL_USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25'
-    curl -s -A "$CURL_USER_AGENT" -D - "$1" -o /dev/null
+  # Use a fake user-agent, some sites block cURL - Safari 8.0, OS X.
+  CURL_USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25'
+  curl -s -A "$CURL_USER_AGENT" -D - "$1" -o /dev/null
 }
 
 
 # Delete shell history lines containing $1, in $HISTFILE (if set), ~/.zsh_history, ~/.bash_history
 rmhist() {
-    [ -z $1 ] && echo 'ERROR: No history string argument to delete.' ; return 1
-    for hist in ~/.zsh_history ~/.bash_history $HISTFILE ; do
-        echo "HIST: $hist"
-        continue
-        [ -f "$hist" ] && LC_ALL=C sed -i "/$1/d" "$hist"
-    done
+  [ -z $1 ] && echo 'ERROR: No history string argument to delete.' ; return 1
+  for hist in ~/.zsh_history ~/.bash_history $HISTFILE ; do
+    echo "HIST: $hist"
+    continue
+    [ -f "$hist" ] && LC_ALL=C sed -i "/$1/d" "$hist"
+  done
 }
 
 
-# Automatically `cd` into last directory in ranger
+# Automatically `cd` into last directory in ranger.
 # Based on ranger/doc/examples/bash_automatic_cd.sh
 # http://ranger.nongnu.org/.
 rangercd() {
-    tempfile="/tmp/ranger-$$-chosendir"
-    ranger --choosedir="$tempfile" "${@:-.}"
-    test -f "$tempfile" &&
-    if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
-        cd -- "$(cat "$tempfile")"
-    fi
-    rm -f -- "$tempfile"
+  tempfile="/tmp/ranger-$$-chosendir"
+  ranger --choosedir="$tempfile" "${@:-.}"
+  test -f "$tempfile" &&
+  if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
+    cd -- "$(cat "$tempfile")"
+  fi
+  rm -f -- "$tempfile"
 }
 
 
 # Executes MAMP PRO's PHP binary with the given arguments.
 phpmamp() {
-    local HTTPDCONF_PATH="$HOME/Library/Application Support/appsolute/MAMP PRO/httpd.conf"
-    [ ! -f "$HTTPDCONF_PATH" ] && echo "ERROR: '$HTTPDCONF_PATH' not found." && return 1
+  local HTTPDCONF_PATH="$HOME/Library/Application Support/appsolute/MAMP PRO/httpd.conf"
+  [ ! -f "$HTTPDCONF_PATH" ] && echo "ERROR: '$HTTPDCONF_PATH' not found." && return 1
 
-    local PHP_VERSION="$(awk -F '/' '/LoadModule php5_module/ { print $6 }' "$HTTPDCONF_PATH" 2>/dev/null)"
-    [ -z "$PHP_VERSION" ] && echo "ERROR: 'php5_module not found in '$HTTPDCONF_PATH'." && return 1
+  local PHP_VERSION="$(awk -F '/' '/LoadModule php5_module/ { print $6 }' "$HTTPDCONF_PATH" 2>/dev/null)"
+  [ -z "$PHP_VERSION" ] && echo "ERROR: 'php5_module not found in '$HTTPDCONF_PATH'." && return 1
 
-    local PHP_PATH="/Applications/MAMP/bin/php/$PHP_VERSION/bin/php"
-    [ ! -f "$PHP_PATH" ] && echo "ERROR: PHP executable '$PHP_PATH' not found." && return 1
+  local PHP_PATH="/Applications/MAMP/bin/php/$PHP_VERSION/bin/php"
+  [ ! -f "$PHP_PATH" ] && echo "ERROR: PHP executable '$PHP_PATH' not found." && return 1
 
-    "$PHP_PATH" $@
+  "$PHP_PATH" $@
 }
 
 
-# Performs several system-wide maintenance tasks`
+# Performs several system-wide maintenance tasks`.
 maintain() {
-    # For later
-    sudo -v
+  # Empty trashes on all mounted volumes and the main HDD.
+  echo '=> Emptying trash.'
+  sudo rm -rfv /Volumes/*/.Trashes
+  sudo rm -rfv "$HOME/.Trash"
+  sudo rm -rfv /private/var/log/asl/*.asl
 
-    # Remove duplicates in the "Open With" menu
-    echo '=> Removing "Open With" menu duplicates'
-    local LSREGISTER_BASE_PATH='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support'
-    sudo "$LSREGISTER_BASE_PATH/lsregister" -kill -r -domain local -domain system -domain user
-    sudo killall Finder
-
-    # Empty trashes on all mounted volumes and the main HDD
-    echo '=> Emptying trash'
-    sudo rm -rfv /Volumes/*/.Trashes
-    sudo rm -rfv "$HOME/.Trash"
-    sudo rm -rfv /private/var/log/asl/*.asl
-
-    # Flush the Directory Service / DNS cache
-    echo '=> Flushing the Directory Service / DNS cache'
-    dscacheutil -flushcache
-    killall -HUP mDNSResponder
-
-    # Runs the repair permissions function from the disk utility app
-    echo '=> Repairing global file permissions'
-    sudo diskutil repairPermissions /
-
-    # Fixes the permissions for Homebrew
-    echo '=> Restoring /usr/local ownership to Jackson:admin'
-    sudo chown -R 'Jackson:admin' /usr/local
+  # Runs the repair permissions function from the disk utility app,
+  echo '=> Repairing global file permissions.'
+  sudo diskutil repairPermissions /
 }
 
 
-# System-wide update
+# System-wide update,
 update() {
-    # For later
-    sudo -v
+  # For later.
+  sudo -v
 
-    # Update Vim plugins
-    echo '=> Vim Plug install, update, upgrade, clean'
-    vim +PlugInstall +qall
-    vim +PlugUpdate +qall
-    vim +PlugUpgrade +qall
-    vim +PlugClean +qall
+  # Update Vim plugins.
+  echo '=> Vim Plug install, update, upgrade, clean.'
+  vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
 
-    # Download latest repo from Homebrew, and update all packages
-    echo '=> Homebrew cleanup, update, repair and link fixes'
-    brew update
-    brew upgrade
-    brew tap --repair
-    brew unlinkapps
-    brew linkapps
-    brew cleanup -s --force
-    brew cask cleanup
-    brew prune
+  # Download latest repo from Homebrew, and update all packages.
+  echo '=> Homebrew cleanup, update, repair and link fixes.'
+  brew update
+  brew upgrade --all
+  brew tap --repair
+  brew cleanup --prune=now --force
+  brew cask cleanup
+  brew prune
+  ( cd "$(brew --cellar)" && gc --aggressive )
 
-    # Update OS X
-    echo '=> Running OS X Software Update'
-    sudo softwareupdate -i -a
+  # Update OS X.
+  echo '=> Running OS X Software Update.'
+  sudo softwareupdate -i -a
 
-    # Updating Node
-    echo '=> Updating Node.js'
-    npm install npm -g
-    npm update -g
+  # Updating Node.
+  echo '=> Updating Node.js'
+  npm install npm -g
+  npm update -g
 
-    # Updating Gem
-    echo '=> Updating Gem'
-    sudo gem update --system
+  # Updating Gem.
+  echo '=> Updating Gem.'
+  sudo gem update --system
 
-    echo '=> Done!'
+  echo '=> Done!.'
 }
