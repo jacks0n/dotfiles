@@ -1,4 +1,4 @@
-# vim: filetype=sh
+#!/usr/bin/env zsh
 
 # Let `sudo` be aliased, supporting chained aliases. eg. `sudo l .`
 # https://www.gnu.org/software/bash/manual/bashref.html#Aliases
@@ -7,24 +7,28 @@ alias sudo='sudo '
 # Shortest shortcuts of them all!
 alias c='clear'
 alias g='git'
-alias h='history'
-alias j='jobs'
-alias v='mvim --remote-tab-silent' # MacVim, in same window
-alias s='subl' # Sublime Text
+alias v='mvim --servername VIM --remote'
+alias s='subl'
+alias n='nvim'
+alias b='brew'
+alias o='open'
 
-# Pretty file sizes
+# Pretty file sizes.
 alias du='du -h'
 alias df='df -h'
 
-# ls shortcuts
-alias l='ls -lFh'              # Files and directories in long format
-alias la='l -A'                # Files and directories in long format, including dotfiles
-alias lf='l | grep -v "^d"'    # Only files
-alias lfa='la | grep -v "^d"'  # Only files, including dotfiles
-alias ld='l | grep "^d"'       # Only directories
-alias lda='la| grep "^d"'      # Only directories, including dotdirectories
+# ls shortcuts.
+alias l='ls -Fhl'              # Files and directories in long format.
+alias la='ls -AFhl'            # Files and directories in long format, including dotfiles.
+alias lf='l | grep -v "^d"'    # Only files.
+alias lfa='la | grep -v "^d"'  # Only files, including dotfiles.
+alias ld='l | grep "^d"'       # Only directories.
+alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
 
-# Print top 10 used commands from $history
+# git shortcuts.
+alias gstall='git status -uall'
+
+# Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
 # Obligatory https://xkcd.com/149/
@@ -33,43 +37,60 @@ alias please='sudo'
 # Bye bye :)
 alias nuke='sudo rm -rf'
 
-# Disable history logging for the current shell
+# Disable history logging for the current shell.
 alias incognito='unset HISTFILE'
 
-# List user-installed npm packages
-alias npm-ls='npm list -g --depth=0'
+# Regenerate zsh completions.
+alias zcompreload='rm -f ~/.zcompdump; compinit'
 
-# Edit ~/.zshrc and ~/.vimrc with the default visual editor
+# Edit ~/.zshrc and ~/.vimrc with the default visual editor.
 alias zshrc="$VISUAL $HOME/.zshrc"
 alias vimrc="$VISUAL $HOME/.vimrc"
 
-# Easier navigation to move up directories
+# Easier navigation to move up directories.
 alias ..='cd ..'
 alias ..2='cd ../..'
 alias ..3='cd ../../..'
 alias ..3='cd ../../../..'
 
-# Sublime Text binary
+# List user-installed npm packages
+alias npm-ls='npm list -g --depth=0'
+
+# Always run vagrant as sudo, to bind to restricted ports (80, 443, etc).
+alias vagrant='sudo -E vagrant'
+alias vhalt='vagrant halt'
+alias vreload='vagrant reload'
+alias vssh='vagrant ssh'
+alias vup='vagrant up'
+
+# Run ranger, `cd` into last working directory after exiting.
+alias rcd='rangercd'
+
+# Sublime Text binary.
 alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
 
-# Flush Directory Service cache
+# Flush Directory Service cache.
 alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder'
 
-# OS X has no `md5sum`, so use `md5` as a fallback
+# Run repair permissions in Disk Utility.
+[[ "$(uname)" == 'Darwin' ]] && alias repairpermissions='sudo diskutil repairPermissions /'
+
+# OS X has no `md5sum`, so use `md5` as a fallback.
 command -v md5sum > /dev/null || alias md5sum='md5'
 
-# OS X has no `sha1sum`, so use `shasum` as a fallback
+# OS X has no `sha1sum`, so use `shasum` as a fallback.
 command -v sha1sum > /dev/null || alias sha1sum='shasum'
 
-# URL-encode strings
+# URL-encode strings.
 alias urlencode="python -c 'import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);'"
 
-# Lock the screen
+# Lock the screen.
 alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
-# Watch logs with lnav
+# Watch logs with lnav.
 # http://lnav.org/
 MAMP_LOG_PATH='/Applications/MAMP/logs'
 alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
 alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
 alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
+
