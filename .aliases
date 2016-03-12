@@ -7,7 +7,7 @@ alias sudo='sudo '
 # Shortest shortcuts of them all!
 alias c='clear'
 alias g='git'
-alias v='mvim --servername VIM --remote'
+alias v='mvim --remote 2>/dev/null'
 alias s='subl'
 alias n='nvim'
 alias b='brew'
@@ -28,6 +28,12 @@ alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
 # git shortcuts.
 alias gstall='git status -uall'
 
+# Avoid permission errors.
+alias brew='sudo brew'
+alias gem='sudo gem'
+alias npm='sudo npm'
+alias pip='sudo pip'
+
 # Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
@@ -41,7 +47,7 @@ alias nuke='sudo rm -rf'
 alias incognito='unset HISTFILE'
 
 # Regenerate zsh completions.
-alias zcompreload='rm -f ~/.zcompdump; compinit'
+alias zcompreload='rm -f ~/.zcompdump*; compinit'
 
 # Edit ~/.zshrc and ~/.vimrc with the default visual editor.
 alias zshrc="$VISUAL $HOME/.zshrc"
@@ -66,11 +72,11 @@ alias vup='vagrant up'
 # Run ranger, `cd` into last working directory after exiting.
 alias rcd='rangercd'
 
-# Sublime Text binary.
-alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
-
 # Flush Directory Service cache.
 alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder'
+
+# Reset QuickLook.
+alias quicklook-reset='qlmanage -r'
 
 # Run repair permissions in Disk Utility.
 [[ "$(uname)" == 'Darwin' ]] && alias repairpermissions='sudo diskutil repairPermissions /'
@@ -85,12 +91,12 @@ command -v sha1sum > /dev/null || alias sha1sum='shasum'
 alias urlencode="python -c 'import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);'"
 
 # Lock the screen.
-alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+[[ "$(uname)" == "Darwin" ]] && \
+  alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
 # Watch logs with lnav.
-# http://lnav.org/
 MAMP_LOG_PATH='/Applications/MAMP/logs'
-alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
-alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
-alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
-
+type lnav &>/dev/null && \
+  alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
+  alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
+  alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
