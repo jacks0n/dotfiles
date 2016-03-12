@@ -13,7 +13,7 @@ export MANPATH="$(brew --prefix)/man:$MANPATH"
 export MANPATH="$(brew --prefix)/share/man:$MANPATH"
 
 # Homebrew Cask path preferences.
-export HOMEBREW_CASK_OPTS="--caskroom=/usr/local/Caskroom  --appdir=/Applications --prefpanedir=/Library/PreferencePanes --qlplugindir=/Library/QuickLook --colorpickerdir=/Library/ColorPickers --fontdir=/Library/Fonts --input_methoddir='/Library/Input Methods' --screen_saverdir='/Library/Screen Savers' --servicedir=/Library/Services"
+export HOMEBREW_CASK_OPTS="--appdir=/Applications --prefpanedir=/Library/PreferencePanes --qlplugindir=/Library/QuickLook --colorpickerdir=/Library/ColorPickers --fontdir=/Library/Fonts --input_methoddir='/Library/Input Methods' --screen_saverdir='/Library/Screen Savers' --servicedir=/Library/Services"
 
 # Homebrew GNU coreutils, sed & tar.
 export PATH="$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -33,20 +33,31 @@ export ANDROID_HOME='/usr/local/opt/android-sdk'
 # User ~/bin directories.
 export PATH="$HOME/bin:$PATH"
 
+# FCL flow.
+export PATH="$HOME/flow:$PATH"
+
+# Composer.
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Ruby.
+# export GEM_PATH="$(gem env gempath):$GEM_PATH"
+# export GEM_PATH="/Library/Ruby/Site/2.0.0/rubygems:/Library/Ruby/Gems/2.0.0/gems:$GEM_PATH"
+
 # Golang.
-export GOPATH="$HOME/bin/go"
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
 export GOROOT="$(go env GOROOT)"
 
-# Extra PHP includes.
-export PHP_INI_SCAN_DIR="$HOME/.config/php"
+# NeoVim
+export NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 # Depricated, still used in .oh-my-zsh/lib/grep.zsh
 unset GREP_OPTIONS
 
 #  OS X Unicode fix.
-export LC_CTYPE=C
-export LANG=C
-export LC_ALL=C
+# export LC_CTYPE=C
+# export LANG=C.UTF-8
+# export LC_ALL=C.UTF-8
 
 # Surpress Wine debugging info.
 export WINEDEBUG=

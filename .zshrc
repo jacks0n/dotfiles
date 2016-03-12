@@ -1,4 +1,4 @@
-# Not a tty
+# Not a tty.
 [ -z "$PS1" ] && return
 
 
@@ -65,7 +65,8 @@ COMPLETION_WAITING_DOTS='false'
 DISABLE_UNTRACKED_FILES_DIRTY='true'
 
 # Plugins to load (plugins can be found in ~/.oh-my-zsh/plugins/*).
-plugins=(gnu-utils history-substring-search git brew npm pip python zsh-syntax-highlighting)
+plugins=(gnu-utils history-substring-search git brew brew-cask npm pip python zsh-syntax-highlighting parallels)
+# https://github.com/tarruda/zsh-autosuggestions
 
 # Fish-like live syntax highlighting.
 # SEE: https://github.com/zsh-users/zsh-syntax-highlighting/tree/master/highlighters
@@ -78,37 +79,41 @@ fpath=(
   $fpath
 )
 
-source "$ZSH/oh-my-zsh.sh"
+[ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
 
 
 ##
 #  Custom Includes.
 ##
 
-[ -f "$HOME/.aliases" ]    && source "$HOME/.aliases"
-[ -f "$HOME/.functions" ]  && source "$HOME/.functions"
+[ -f "$HOME/.proxy"      ] && source "$HOME/.proxy"
+[ -f "$HOME/.aliases"    ] && source "$HOME/.aliases"
+[ -f "$HOME/.functions"  ] && source "$HOME/.functions"
 [ -f "$HOME/.shrc.local" ] && source "$HOME/.shrc.local"
 
-# Load proxy settings, if they exist.
-[ -f "$HOME/.proxy" ] && source "$HOME/.proxy"
-
-
 
 ##
-#  3rd-party Includes.
+#  3rd-party.
 ##
-
-# l - https://github.com/supercrabtree/k
-[ -f ~/.dotfiles/vendor/k/k.sh ] && source ~/.dotfiles/vendor/k/k.sh
 
 # GRC colorizes nifty unix tools all over the place
 [ -f '/usr/local/etc/grc.bashrc' ] && source '/usr/local/etc/grc.bashrc'
 
 # z - https://github.com/rupa/z
-[ -f /usr/local/etc/profile.d/z.sh ] && source /usr/local/etc/profile.d/z.sh
+[ -f '/usr/local/etc/profile.d/z.sh' ] && source '/usr/local/etc/profile.d/z.sh'
 
 # fzf - https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# auto-fu - https://github.com/hchbaw/auto-fu.zsh
+# [ -f ~/.zsh/auto-fu ] && source ~/.zsh/auto-fu && auto-fu-install
+# zstyle ':auto-fu:highlight' input bold
+# zstyle ':auto-fu:highlight' completion fg=black,bold
+# zstyle ':auto-fu:highlight' completion/one fg=white,bold,underline
+# zstyle ':auto-fu:var' postdisplay $'\n-azfu-'
+# zstyle ':auto-fu:var' track-keymap-skip opp
+# zle-line-init () {auto-fu-init;}; zle -N zle-line-init
+# zle -N zle-keymap-select auto-fu-zle-keymap-select
 
 
 ##
@@ -127,3 +132,11 @@ man() {
     man $@
 }
 
+
+##
+# Run on Startup.
+#
+
+cowjoke
+
+test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
