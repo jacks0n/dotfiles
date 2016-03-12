@@ -1,3 +1,5 @@
+# vim: filetype=sh
+
 [ $USER == 'root' ] && echo 'ERROR: Running as root!' && exit 1  # Must be run by user to set defaults
 
 
@@ -60,6 +62,7 @@ defaults write com.apple.LaunchServices LSQuarantine -bool NO
 
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
 
 # Enable automatic termination of inactive apps
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool false
@@ -67,14 +70,21 @@ defaults write NSGlobalDomain NSDisableAutomaticTermination -bool false
 # Increase window resize speed for Cocoa applications
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
-# Expand print panel by default
+# Expand print panel by default.
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 
-# Set mouse tracking speed to reasonably fast
+# Set mouse tracking speed to reasonably fast.
 defaults write NSGlobalDomain com.apple.mouse.scaling -float 2
 
-# Disable menu bar transparency
+# Disable menu bar transparency.
 defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
+
+# Check for software updates daily, not just once per week.
+defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+
+# Disable auto-correct.
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
 
 
