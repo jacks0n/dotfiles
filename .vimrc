@@ -1,19 +1,19 @@
-" vim: set ft=vim
-
 set nocompatible  " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 call plug#begin('~/.vim/plugged')
 
 " ==== Dependencies ====
-Plug 'vim-scripts/progressbar-widget' " Required for phpcd.
-Plug 'tpope/vim-dispatch'             " Required for ack.vim async support.
+Plug 'vim-scripts/progressbar-widget'        " Required for phpcd.
+Plug 'tpope/vim-dispatch'                    " Required for ack.vim async support.
+Plug 'Shougo/vimproc.vim', { 'do' : 'make' } " Required for Unite.vim.
 if has('nvim')
-  Plug 'rbgrouleff/bclose.vim'        " Required for ranger.vim on NeoVim.
+  Plug 'rbgrouleff/bclose.vim'               " Required for ranger.vim on NeoVim.
+  Plug 'Shougo/neomru.vim'                   " Required for Unite.vim.
 endif
 
 " === Un-organised ===
-Plug 'cohama/lexima.vim'            " Insert mode auto-complete quotes, parens, brackets, etc.
-Plug 'mhinz/vim-startify'           " Fancy start screen.
+Plug 'cohama/lexima.vim'  " Insert mode auto-complete quotes, parens, brackets, etc.
+Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
@@ -30,12 +30,22 @@ else
 endif
 
 " ==== Search ====
+Plug 'Shougo/unite.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'JazzCore/ctrlp-cmatcher'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': 'yes \| ./install' }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 Plug 'mileszs/ack.vim'
 Plug 'rking/ag.vim'
 " Plug 'wincent/command-t'
+
+" ==== Visual ====
+Plug 'airblade/vim-gitgutter'         " Git gutter column diff signs.
+Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
+Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results.
+Plug 'vim-scripts/ScrollColors'       " Colorsheme Scroller, Chooser, and Browser.
+Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
+Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 
 " ==== CSS/SASS ====
 Plug 'ap/vim-css-color',       { 'for': ['css', 'scss', 'sass', 'less'] } " Highlight CSS colours with the rule value.
@@ -63,14 +73,6 @@ Plug '2072/vim-syntax-for-PHP' " Fork of official Vim PHP syntax file.
 Plug 'StanAngeloff/php.vim', { 'for': 'php' }
 " Plug 'dsawardekar/wordpress.vim', { 'for': 'php' }   " WordPress API completion
 
-" ==== Visual ====
-Plug 'airblade/vim-gitgutter'         " Git gutter column diff signs.
-Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
-Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results.
-Plug 'vim-scripts/ScrollColors'       " Colorsheme Scroller, Chooser, and Browser.
-Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
-Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
-
 " === Themes ===
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 
@@ -82,9 +84,10 @@ Plug 'junegunn/vim-easy-align'
 Plug 'sjl/gundo.vim'               " Undo history.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'scrooloose/nerdtree'         " File browser.
-Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+" Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
 
 " ==== Functional ====
+Plug 'editorconfig/editorconfig-vim'      " Some default configs.
 Plug 'chrisbra/Recover.vim'               " Show a diff whenever recovering a buffer.
 Plug 'wincent/terminus'                   " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
 Plug 'sheerun/vim-polyglot'               " Language pack collection (syntax, indent, ftplugin, ftdetect).
@@ -94,7 +97,6 @@ Plug 'scrooloose/syntastic'               " Linter support.
 Plug 'alvinhuynh/vim-syntastic-scss-lint' " Sytastic `scsslint` integration.
 Plug 'vim-utils/vim-troll-stopper'        " Highlight Unicode trolls/homoglyph.
 Plug 'francoiscabrol/ranger.vim'          " Rander file manager integration.
-" Plug 'shuber/vim-promiscuous'
 
 call plug#end() " Required.
 
@@ -153,7 +155,8 @@ if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
 let g:airline_symbols.whitespace = 'Ξ'
-let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts                      = 1
+let g:airline_enable_syntastic                     = 1
 let g:airline#extensions#branch#enabled            = 1
 let g:airline#extensions#bufferline#enabled        = 1
 let g:airline#extensions#capslock#enabled          = 1
@@ -161,6 +164,7 @@ let g:airline#extensions#ctrlp#show_adjacent_modes = 1
 let g:airline#extensions#hunks#enabled             = 1
 let g:airline#extensions#syntastic#enabled         = 1
 let g:airline#extensions#tabline#enabled           = 1
+let g:airline#extensions#tabline#fnamemod          = ':t' " Only show filename.
 let g:airline#extensions#undotree#enabled          = 1
 let g:airline#extensions#unite#enabled             = 1
 let g:airline#extensions#whitespace#enabled        = 1
@@ -173,25 +177,27 @@ let NERDTreeChDirMode = 0
 " let NERDTreeKeepTreeInNewTab = 1
 
 " Syntastic
-" let g:syntastic_error_symbol = '✗'
+let g:syntastic_error_symbol = '✗'
 " let g:syntastic_warning_symbol = '⚠'
 let g:syntastic_aggregate_errors = 1         " Run all linters, even if first found errors.
 let g:syntastic_always_populate_loc_list = 1 " Add errors to location-list.
 let g:syntastic_auto_loc_list = 1            " Automatically open/close location-list if errors are found.
 let g:syntastic_check_on_open = 1
-let g:syntastic_css_checkers = ['csslint']
-let g:syntastic_javascript_checkers = ['jshint']
-let g:syntastic_javascript_jshint_args = '--config /Users/flightcentre/drupal-dev-env/web/docroot/.jshintrc'
-let g:syntastic_php_checkers = ['php', 'phpcs']
-let g:syntastic_php_phpcs_args = '--standard=Drupal'
-let g:syntastic_python_checkers = ['pylint']
-let g:syntastic_scss_checkers = ['scss-lint']
-let g:syntastic_scss_scss_lint_args = '--config /Users/flightcentre/drupal-dev-env/docroot-unison/docroot/.scss-lint.yml'
-let g:syntastic_text_checkers = ['proselint']
-let g:syntastic_json_checkers = ['jsonlint']
+let g:syntastic_css_checkers        = ['csslint']
+let g:syntastic_javascript_checkers = ['jshint', 'eslint', 'jscs']
+let g:syntastic_sh_checkers         = ['sh', 'shellcheck']
+let g:syntastic_sh_shellcheck_args  = '--exclude=SC2155,SC2032,SC1090,SC2033' " Ignore declare and assign on same line.
+let g:syntastic_php_checkers        = ['php', 'phpcs']
+let g:syntastic_php_phpcs_args      = '--standard=Drupal'
+let g:syntastic_python_checkers     = ['pylint', 'pep8', 'python']
+let g:syntastic_scss_checkers       = ['scss-lint']
+let g:syntastic_text_checkers       = ['proselint']
+let g:syntastic_json_checkers       = ['jsonlint', 'jsonval']
+" let g:syntastic_stl_format          = '[%E{E: %fe #%e}%B{, }%W{W: %fw #%w}]'
 
 " CtrlP
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+" let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+let g:ctrlp_use_caching = 0
 let g:ctrlp_match_window_bottom = 1 " Show match window at the top of the screen
 let g:ctrlp_max_files = 0           " No file list limit.
 let g:ctrlp_max_depth = 100         " Default 40.
@@ -204,6 +210,15 @@ let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\files\|tmp\|vendor$',
   \ 'file': '\.(DS_Store|.min.js|.min.css)$'
   \}
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --nocolor
+    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+else
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
+  let g:ctrlp_prompt_mappings = {
+    \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
+    \ }
+endif
 
 
 
@@ -215,11 +230,15 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip).
 nmap ga <Plug>(EasyAlign)
 
+" Unite.vim.
+nnoremap <C-f> :Unite -start-insert -auto-resize file file_rec/async file_mru everything<CR>
+
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
 vmap <Enter> <Plug>(EasyAlign)
 
 " Fire up FZF.
-map <Leader>f :FZF<CR>
+" nnoremap <C-f> :FZF<CR>
+nnoremap <C-g> :GitFiles<CR>
 
 " ranger.vim.
 nmap <Leader>r :call OpenRanger()<CR>
@@ -241,7 +260,7 @@ map <C-n> :NERDTreeToggle \| :silent NERDTreeMirror<CR>
 nmap <Leader>nt :NERDTreeFind<CR>
 
 " Syntastic.
-nmap <Leader>s :SyntasticToggle<CR>
+nmap <Leader>ts :SyntasticToggle<CR>
 nmap <Leader>sc :SyntasticCheck<CR>
 
 " Ack.
@@ -251,28 +270,34 @@ nnoremap <Leader>a :Ack<Space>
 nnoremap <Leader>tt :TagbarToggle<CR>
 
 " GitGutter.
-noremap <Leader>g :GitGutterToggle<CR>
+noremap <Leader>gg :GitGutterToggle<CR>
 
 
 
 " ================ Plugin Autocommands ================
 
-if has('autocmd')
-  " Close NERDTree when closing the last window/exiting Vim.
-  autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
+" Close NERDTree when closing the last window/exiting Vim.
+autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
 
-  " Open Tagbar by default for some filetypes.
-  " autocmd FileType php,javascript,python,vim nested :TagbarOpen
+" Open Tagbar by default for some filetypes.
+" autocmd FileType php,javascript,python,vim nested :TagbarOpen
 
-  " Strip whitespace on save.
-  autocmd BufWritePre * StripWhitespace
-endif
+" Strip whitespace on save.
+autocmd BufWritePre * StripWhitespace
+
+" vim-commentary.
+autocmd FileType php setlocal commentstring=//\ %s
 
 
 
 " ================ General Config ====================
 
-filetype plugin indent on  " Enable file type detection.
+if has('autocmd')
+  filetype plugin indent on
+  "           │     │    └──── Enable file type detection
+  "           │     └───────── Enable loading of indent file
+  "           └─────────────── Enable loading of plugin files
+endif
 
 let mapleader = ','
 let g:mapleader = ','
@@ -287,11 +312,13 @@ set autoread   " Re-load files on external modifications and none locally.
 set autowrite  " Automatically save before :next, :make etc.
 set whichwrap=b,s,h,l,<,>,[,] " Characters which wrap lines (b = <BS>, s = <Space>).
 
-" Disable audio & visual bells.
-set noerrorbells
-set novisualbell
 set t_vb=
-set visualbell
+set noerrorbells " Ring the bell (beep or screen flash) for error messages.
+set visualbell   " Use visual bell instead of beeping.
+set shortmess=aAI " ┐ Avoid all the hit-enter prompts.
+                  " | a: All abbreviations.
+                  " | A: No existing swap file 'ATTENTION' message.
+                  " ┘ I: No |:intro| starting message.
 
 set iskeyword+=/  " Include slashes as part of a word
 set so=7          " 7 lines to the cursor when moving vertically using j/k.
@@ -324,38 +351,47 @@ set wildchar=<Tab>
 set wildmode=longest,list,full
 set wildmenu
 
-set cursorline                  " Highlight line of the cursor.
-set showcmd                     " Show (partial) command in the last line of the screen.
+set nostartofline            " Don't reset cursor to start of line when moving around.
+set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
+                             " | a: All abbreviations.
+                             " | A: No existing swap file 'ATTENTION' message.
+                             " ┘ I: No |:intro| starting message.
+set spelllang=en_au          " Set the spellchecking language.
+set cursorline               " Highlight line of the cursor.
+set showcmd                  " Show (partial) command being typed.
+set showmode                 " Show current mode.
 set tags=./.tags,.tags;
-set clipboard=unnamed           " Use OS clipboard register.
-set history=10000               " Number of commands remembered.
-set smartindent                 " Smart auto-indenting when starting a new line.
-set autoindent                  " Auto-indent inserted lines.
-set copyindent                  " Use current line indenting when starting a new line.
-set hidden                      " Hide unsaved buffers instead of close on file open.
-set modeline                    " Enable modelines.
-set modelines=5                 " Look for modelines in the first and last X lines.
-set nowrap                      " Don't wrap lines.
-set textwidth=0                 " Disable wrapping when pasting text.
-" set linebreak                 " Wrap at convenient characters, set in 'breakat'.
-set ignorecase                  " Case insensitive searches.
-set smartcase                   " ... but not when search pattern contains an upper case character.
-set splitbelow                  " Puts new split windows to the bottom of the current.
-set splitright                  " Puts new vsplit windows to the right of the current.
-set incsearch                   " Search as characters are entered.
-set hlsearch                    " Highlight all search matches.
-set showmatch                   " Highlight matching [{()}].
-set winminheight=0              " Allow 0 line windows.
-set number                      " Show line numbers.
-set relativenumber              " Show relative line numbers.
-set nrformats-=octal            " Numbers beginning with '0' not considered.
-set shiftround                  " Round indents to nearest multiple of 'shiftwidth'.
-set tabpagemax=50               " Maximum number of tab pages to be opened by the |-p| command line argument.
-set ttimeout                    " Enable timout on key mappings and insert-mode <CTRL-*> commands.
-set scrolloff=1                 " Scroll offset lines.
-set sidescrolloff=5             " Minimal number of screen columns to keep.
-set ttimeoutlen=50              " Limit the timeout to 50 milliseconds.
-set fileformats=unix,dos,mac    " Prefer Unix over Windows over OS 9 EOLs.
+set clipboard=unnamed        " Use OS clipboard register by default.
+set history=10000            " Number of commands remembered.
+set smartindent              " Smart auto-indenting when starting a new line.
+set autoindent               " Auto-indent inserted lines.
+set magic                    " Enable extended regex.
+set copyindent               " Use current line indenting when starting a new line.
+set hidden                   " Hide unsaved buffers instead of close on file open.
+set modeline                 " Enable modelines.
+set modelines=5              " Look for modelines in the first and last X lines.
+set nowrap                   " Don't wrap lines.
+set textwidth=0              " Disable wrapping when pasting text.
+" set linebreak              " Wrap at convenient characters, set in 'breakat'.
+set ignorecase               " Case insensitive searches.
+set smartcase                " ... but not when search pattern contains an upper case character.
+set splitbelow               " Puts new split windows to the bottom of the current.
+set splitright               " Puts new vsplit windows to the right of the current.
+set incsearch                " Search as characters are entered.
+set hlsearch                 " Highlight all search matches.
+set showmatch                " Highlight matching [{()}].
+set winminheight=0           " Allow 0 line windows.
+set number                   " Show line numbers.
+set relativenumber           " Show relative line numbers.
+set nrformats-=octal         " Numbers beginning with '0' not considered.
+set shiftround               " Round indents to nearest multiple of 'shiftwidth'.
+set tabpagemax=50            " Maximum number of tab pages to be opened by the |-p| command line argument.
+set ttimeout                 " Enable timout on key mappings and insert-mode <CTRL-*> commands.
+set scrolloff=1              " Scroll offset lines.
+set sidescrolloff=5          " Minimal number of screen columns to keep.
+set ttimeoutlen=50           " Limit the timeout to 50 milliseconds.
+set fileformats=unix,dos,mac " Prefer Unix over Windows over OS 9 EOLs.
+set complete+=kspell         " Enable word completion.
 set completeopt=menu,menuone,longest,preview,noselect
 
 " More detailed and accurate insert mode completion.
@@ -375,9 +411,9 @@ set t_RV=                       " Temporary fix prevents unexpected keypresses o
 set lazyredraw                  " Don't redraw while executing macros (good performance config).
 set ttyfast                     " Send more characters for redraws.
 set mouse=ar                    " Enable mouse use in all modes.
-" set ttymouse=xterm2           " Name of the mouse-code supporting terminal. Incompatible with nvim?
 set backspace=indent,eol,start  " Allow backspacing over autoindent, line breaks and start of insert action.
 set gcr=a:blinkon0              " Disable cursor blink.
+set synmaxcol=500               " Don't try to highlight long lines.
 set foldlevelstart=99           " Open all folds by default.
 set nofoldenable                " Disable folding.
 
@@ -393,6 +429,9 @@ if has('vim_starting')
   " colorscheme monokain
   colorscheme molokai
   set guifont=Source\ Code\ Pro\ for\ Powerline:h15
+  " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
+  " set guifont=Inconsolata-dz\ for\ Powerline:h15
+ " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h17.5
 endif
 
 set antialias
@@ -404,7 +443,13 @@ if has('multi_byte')
   endif
   let &termencoding = &encoding
   setglobal fileencoding=UTF-8  " Change default file encoding when writing new files.
-  set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+  " Strings to use in `:ist` command.
+  set listchars=tab:▸\           " ┐
+  set listchars+=trail:·         " │ Use custom symbols to
+  set listchars+=eol:↲           " │ represent invisible characters.
+  set listchars+=extends:»       " |
+  set listchars+=precedes:«      " |
+  set listchars+=nbsp:+          " ┘
+  set showbreak=↪
 endif
 
 if v:version > 703 || v:version == 703 && has('patch541')
@@ -439,7 +484,7 @@ endif
 
 " Let MacVim control the shift key, for selecting with shift.
 if has('gui_macvim')
-  set macmeta " Use option (alt) as meta key.
+  set macmeta      " Use option (alt) as meta key.
 	let macvim_skip_colorscheme = 1
   let macvim_hig_shift_movement = 1
 
@@ -454,6 +499,9 @@ endif
 " New empty buffer.
 map <C-t> :enew<CR>
 map <Leader>e :enew<CR>
+
+" Insert newline.
+map <Leader><Enter> o<ESC>
 
 " Close buffer.
 map <Leader>d :lclose<CR>:bwipe!<CR>
@@ -540,9 +588,10 @@ endif
 highlight LineNr guifg=#FAFAFA
 
 " No current line number background.
-" highlight CursorLineNr ctermbg=NONE guibg=NONE
+highlight CursorLineNr ctermbg=NONE guibg=NONE
+
 " No sign column without symbol background. Many themes don't implement it.
-" highlight SignColumn ctermbg=NONE guibg=NONE
+highlight SignColumn ctermbg=NONE guibg=NONE
 
 let g:php_sync_method = -1 " Default, but it gives warnings without explicit `let`.
 
@@ -559,8 +608,8 @@ augroup drupal
   autocmd BufRead,BufNewFile *.profile set filetype=php
   autocmd BufRead,BufNewFile *.test    set filetype=php
   autocmd BufRead,BufNewFile *.theme   set filetype=php
+  autocmd BufRead,BufNewFile *.tpl.php set filetype=phtml
   autocmd BufRead,BufNewFile *.view    set filetype=php
-  " autocmd BufRead,BufNewFile *.tpl.php set filetype=phtml
 augroup END
 
 " Prevent stopping on - characters for CSS files.
@@ -605,9 +654,8 @@ augroup END
 " ================ Functions ================
 
 " Change to random colorscheme from a defined list of awesome ones.
-function! RandomColorscheme()
+function! NextColorScheme()
   let colorschemes = [
-    \'Monokai',
     \'Tomorrow-Night',
     \'apprentice',
     \'badwolf',
@@ -615,6 +663,7 @@ function! RandomColorscheme()
     \'bubblegum',
     \'candyman',
     \'codeschool',
+    \'distinguished',
     \'flattr',
     \'grb256',
     \'gruvbox',
@@ -622,18 +671,34 @@ function! RandomColorscheme()
     \'ir_black',
     \'jellybeans',
     \'molokai',
+    \'monokai',
     \'monokain',
   \]
-  let new_colorscheme = colorschemes[localtime() % len(colorschemes)]
+  try
+    let colorscheme_index = index(colorschemes, g:colors_name) + 1
+    echo 'colorscheme_index1: ' . colorscheme_index
+  catch /^Vim:E121/
+    let colorscheme_index = 0
+    echo 'colorscheme_index2: ' . colorscheme_index
+  endtry
+  if colorscheme_index > len(colorschemes)
+    echo 'if colorscheme_index >= len(colorschemes)'
+    let colorscheme_index = 0
+  endif
+  let new_colorscheme = colorschemes[colorscheme_index]
   execute ':colorscheme ' . new_colorscheme
+  " echo new_colorscheme
 endfunction
-command! -bar RandomColorscheme call RandomColorscheme()
+command! -bar NextColorScheme call NextColorScheme()
 
 " Change to random font from a defined list of awesome ones.
-function! RandomFont()
+function! NextFont()
   let guifonts = [
+    \'Consolas:h15.5',
+    \'Droid\ Sans\ Mono\ for\ Powerline:h15',
     \'Fira\ Code\ Retina:h15',
-    \'Inconsolata\ for\ Powerline:h17',
+    \'Hack:h15',
+    \'Inconsolata-dz\ for\ Powerline:h15',
     \'Input\ Mono:h15',
     \'Menlo\ for\ Powerline:h15.5',
     \'Meslo\ LG\ M\ DZ\ for\ Powerline:h15',
@@ -643,10 +708,12 @@ function! RandomFont()
     \'Source\ Code\ Pro\ for\ Powerline:h15',
     \'Ubuntu\ Mono\ derivative\ Powerline:h17',
   \]
-  let new_guifont = guifonts[localtime() % len(guifonts)]
+  let guifont_index = index(guifonts, &guifont) + 1
+  let new_guifont = guifonts[guifont_index]
   execute ':set guifont=' . new_guifont
+  echo new_guifont
 endfunction
-command! -bar RandomFont call RandomFont()
+command! -bar NextFont call NextFont()
 
 " Automatically fit a quickfix window height, depending on number of lines.
 " https://gist.github.com/juanpabloaj/5845848
@@ -672,3 +739,4 @@ endfunction
 if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
 endif
+
