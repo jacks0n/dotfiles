@@ -11,8 +11,7 @@ ae() {
     while read -r grep_line ; do
       filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
       linenum="$(echo "$grep_line" | cut -d ':' -f 2)"
-      mvim --servername VIM --remote "${filepath}:${linenum}" 2>/dev/null
-      # v "${filepath}:${linenum}"
+      nvim "${filepath}:${linenum}" 2>/dev/null
 
     done
 }
@@ -46,7 +45,7 @@ d() {
             return 1
         }
         elif [ -d "$filepath" ] ; then
-          cd "$filepath"
+          cd "$filepath" || exit 1
         else
           echo "ERROR: Not a file or directory '$filepath'"
         fi
@@ -67,8 +66,8 @@ cowjoke() {
   # Modes: Borg, appear dead, greedy, paranoid, stoned, tired, wired, youthful.
   local COWSAY_MODES='bdgpstwy'
   local RANDOM_COWSAY_MODE="${COWSAY_MODES[$RANDOM % ${#COWSAY_MODES[@]}]}"
-  # cowsay -$RANDOM_COWSAY_MODE "$(pyjoke -c all)"
-  fortune -sa -n 200 | cowsay -$RANDOM_COWSAY_MODE
+  cowsay -$RANDOM_COWSAY_MODE "$(pyjoke -c all)"
+  # fortune -sa -n 200 | cowsay -$RANDOM_COWSAY_MODE
 }
 
 
@@ -128,7 +127,7 @@ fix-zsh-permissions() {
 unalias z 2>/dev/null
 z() {
   if [[ -z "$@" ]]; then
-    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
+    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')" || exit 1
   else
     _z "$@"
   fi
@@ -162,26 +161,6 @@ git-assume-changed() {
   git ls-files -z "${1:-.}" | xargs -0 git update-index --assume-unchanged
   git ls-files -z "${1:-.}" | xargs -0 git update-index --skip-worktree
   git update-index --really-refresh
-}
-
-# Open directory or file in GitHub.
-# Usage: gh [filepath] [branch]
-gh() {
-  local baseurl="$(git config --get "remote.$(git remote | head -n 1).url")"
-  if [ -z "$baseurl" ] ; then
-    echo 'ERROR: Not a git repository or no remote URL set.'
-    return 1
-  fi
-  if [ -z "$2" ] ; then
-    local branch="$(git symbolic-ref HEAD | sed 's#refs/heads/##')"
-  else
-    local branch="$2"
-  fi
-  local filepath="${1:-.}"
-  local ghuri="$(git remote -v | head -n 1 | sed -E 's/.*:(.*)\.git.*/\1/')"
-  local repouri="${$(realpath "$filepath")##$(git rev-parse --show-toplevel)/}"
-  local url="https://github.com/$ghuri/tree/$branch/$repouri"
-  open "$url"
 }
 
 
@@ -231,7 +210,7 @@ dl() {
 
 
 todo() {
-  echo $@ >> ~/.todo
+  echo "$@" >> ~/.todo
 }
 
 
@@ -239,7 +218,7 @@ todo() {
 ip() {
   local IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
   [ $? -ne 0 ] && return # dig will print the error to stderr.
-  echo $IP | pbcopy
+  echo "$IP" | pbcopy
   echo "=> Public IP: $IP copied to clipboard"
 }
 
@@ -247,7 +226,7 @@ ip() {
 # Create directory and `cd` into it.
 mkcd() {
   [[ $1 == '' ]] && echo 'ERROR: No directory argument supplied.' && return 1
-  mkdir -p "$1" && cd "$1"
+  mkdir -p "$1" && cd "$1" || exit 1
 }
 
 
@@ -257,7 +236,7 @@ localip() {
   [[ "$IPS" == '' ]] && echo '=> No local IP addresses found'
 
   # Print all if multiple found.
-  if [ "$(echo $IPS | wc -l)" -ne 1 ] ; then
+  if [ "$(echo "$IPS" | wc -l)" -ne 1 ] ; then
     echo -e "=> Multiple IP addresses found:\n$IPS"
   fi
 
@@ -280,7 +259,7 @@ isdown() {
 # Kill all the tabs in Chrome to free up memory.
 # http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 chromekill() {
-  ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
+  pgrep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
 }
 
 
@@ -294,7 +273,7 @@ httpheaders() {
 
 # Delete shell history lines containing $1, in $HISTFILE (if set), ~/.zsh_history, ~/.bash_history
 rmhist() {
-  [ -z $1 ] && echo 'ERROR: No history string argument to delete.' ; return 1
+  [ -z "$1" ] && echo 'ERROR: No history string argument to delete.' ; return 1
   for hist in ~/.zsh_history ~/.bash_history $HISTFILE ; do
     echo "HIST: $hist"
     continue
@@ -310,8 +289,8 @@ rangercd() {
   tempfile="/tmp/ranger-$$-chosendir"
   ranger --choosedir="$tempfile" "${@:-.}"
   test -f "$tempfile" &&
-  if [ "$(cat -- "$tempfile")" != "$(echo -n `pwd`)" ]; then
-    cd -- "$(cat "$tempfile")"
+    if [ "$(cat -- "$tempfile")" != "$(echo -n "$(pwd)")" ]; then
+    cd -- "$(cat "$tempfile")" || exit 1
   fi
   rm -f -- "$tempfile"
 }
@@ -347,9 +326,9 @@ update() {
   echo '=> Vim Plug install, update, upgrade, clean.'
   (
     cd "$HOME/.vim/plugged" || exit 1
-    find . -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | while read VIM_PLUGIN_DIR ; do
+    find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
       ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit
-        cd "$VIM_PLUGIN_DIR"
+        cd "$VIM_PLUGIN_DIR" || exit 1
         git reset --hard > /dev/null
         git clean -fd    > /dev/null )
     done
@@ -367,16 +346,21 @@ update() {
 
   # Update OS X.
   echo '=> Running OS X Software Update.'
-  sudo softwareupdate -i -a
+  sudo softwareupdate --install --all
 
   # Update pip and pip packages.
-  # sudo -H pip install --upgrade pip
+  sudo -H pip install --upgrade pip
   sudo -H pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U
 
   # Updating Node.
   echo '=> Updating Node.js'
   sudo npm install npm -g
   sudo npm update -g
+
+  # Update Oh-My-Zsh.
+  if type upgrade_oh_my_zsh &>/dev/null ; then
+    upgrade_oh_my_zsh
+  fi
 
   # Updating Gem.
   echo '=> Updating Gem.'

@@ -1,6 +1,10 @@
 # vim: filetype=sh
 
-[ $USER == 'root' ] && echo 'ERROR: Running as root!' && exit 1  # Must be run by user to set defaults
+# Must be run by user to set defaults
+if [ "$USER" == 'root' ] ; then
+  echo 'ERROR: Running as root!'
+  exit 1
+fi
 
 
 # Ask for the administrator password upfront

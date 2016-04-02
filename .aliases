@@ -1,5 +1,3 @@
-#!/usr/bin/env zsh
-
 # Let `sudo` be aliased, supporting chained aliases. eg. `sudo l .`
 # https://www.gnu.org/software/bash/manual/bashref.html#Aliases
 alias sudo='sudo '
@@ -31,8 +29,7 @@ alias gstall='git status -uall'
 # Avoid permission errors.
 alias brew='sudo brew'
 alias gem='sudo gem'
-alias npm='sudo npm'
-alias pip='sudo pip'
+alias pip='sudo -H pip'
 
 # Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
