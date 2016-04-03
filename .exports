@@ -64,5 +64,3 @@ unset GREP_OPTIONS
 # Surpress Wine debugging info.
 export WINEDEBUG=
 
-export HOMEBREW_GITHUB_API_TOKEN='699ce95072600366c4864f4cd43ebf73673804c8'
-
