@@ -2,16 +2,13 @@ set nocompatible  " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 call plug#begin('~/.vim/plugged')
 
-Plug 'vim-scripts/progressbar-widget'        " Required for phpcd.
-Plug 'tpope/vim-dispatch'                    " Required for ack.vim async support.
-Plug 'Shougo/vimproc.vim', { 'do' : 'make' } " Required for Unite.vim.
 " ========================================================================
 " Plug: Dependencies.                                                    |
 " ========================================================================
 
 if has('nvim')
-  Plug 'rbgrouleff/bclose.vim'               " Required for ranger.vim on NeoVim.
-  Plug 'Shougo/neomru.vim'                   " Required for Unite.vim.
+  Plug 'rbgrouleff/bclose.vim' " Required for ranger.vim on NeoVim.
+  Plug 'Shougo/neomru.vim'     " Required for Unite.vim on NeoVim.
 endif
 
 
@@ -45,13 +42,15 @@ endif
 " ========================================================================
 
 Plug 'Shougo/unite.vim'
+  \| Plug 'Shougo/vimproc.vim', { 'do' : 'make' }
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'JazzCore/ctrlp-cmatcher'
+  \| Plug 'JazzCore/ctrlp-cmatcher'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
+  \| Plug 'junegunn/fzf.vim'
 Plug 'mileszs/ack.vim'
+  \| Plug 'tpope/vim-dispatch' " Required for async support.
 Plug 'rking/ag.vim'
-" Plug 'wincent/command-t'
+Plug 'wincent/command-t'
 
 
 " ========================================================================
@@ -65,10 +64,6 @@ Plug 'vim-scripts/ScrollColors'       " Colorsheme Scroller, Chooser, and Browse
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 
-Plug 'ap/vim-css-color',       { 'for': ['css', 'scss', 'sass', 'less'] } " Highlight CSS colours with the rule value.
-Plug 'hail2u/vim-css3-syntax', { 'for': ['css', 'scss', 'sass', 'less'] } " Enable CSS3 property awareness.
-Plug 'JulesWang/css.vim',      { 'for': ['css', 'scss', 'sass', 'less'] } " CSS syntax highlighting for @page, @media, @import, @keyframe, etc.
-Plug 'cakebaker/scss-syntax.vim'                                          " Syntax file for SCSS.
 
 " ========================================================================
 " Plug Language: CSS, SASS.                                              |
@@ -78,6 +73,9 @@ Plug 'cakebaker/scss-syntax.vim'                                          " Synt
 " Syntax.                                |
 " ----------------------------------------
 
+Plug 'JulesWang/css.vim'              " CSS syntax.
+  \| Plug 'hail2u/vim-css3-syntax'    " CSS3 syntax.
+  \| Plug 'cakebaker/scss-syntax.vim' " SASS syntax.
 
 " ----------------------------------------
 " Features.                              |
@@ -132,6 +130,8 @@ Plug 'StanAngeloff/php.vim', { 'for': 'php' }
 " Plug 'dsawardekar/wordpress.vim', { 'for': 'php' }   " WordPress API completion
 
 " === Themes ===
+Plug '2072/PHP-Indenting-for-VIm'
+  \| Plug 'captbaritone/better-indent-support-for-php-with-html'
 " ----------------------------------------
 " Completion.                            |
 " ----------------------------------------
