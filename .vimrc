@@ -163,17 +163,19 @@ Plug 'scrooloose/nerdtree'         " File browser.
 " Plug: Linting.                                                         |
 " ========================================================================
 
+Plug 'benekastah/neomake'          " Asynchronous.
+
+
 " ========================================================================
 " Plug: Functional.                                                      |
 " ========================================================================
+
 Plug 'editorconfig/editorconfig-vim'      " Some default configs.
 Plug 'chrisbra/Recover.vim'               " Show a diff whenever recovering a buffer.
 Plug 'wincent/terminus'                   " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
 Plug 'sheerun/vim-polyglot'               " Language pack collection (syntax, indent, ftplugin, ftdetect).
 Plug 'tpope/vim-eunuch'                   " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'                   " Enable repeating supported plugin maps with '.'.
-Plug 'scrooloose/syntastic'               " Linter support.
-Plug 'alvinhuynh/vim-syntastic-scss-lint' " Sytastic `scsslint` integration.
 Plug 'vim-utils/vim-troll-stopper'        " Highlight Unicode trolls/homoglyph.
 Plug 'francoiscabrol/ranger.vim'          " Rander file manager integration.
 
@@ -269,13 +271,11 @@ if !exists('g:airline_symbols')
 endif
 let g:airline_symbols.whitespace = 'Ξ'
 let g:airline_powerline_fonts                      = 1
-let g:airline_enable_syntastic                     = 1
 let g:airline#extensions#branch#enabled            = 1
 let g:airline#extensions#bufferline#enabled        = 1
 let g:airline#extensions#capslock#enabled          = 1
 let g:airline#extensions#ctrlp#show_adjacent_modes = 1
 let g:airline#extensions#hunks#enabled             = 1
-let g:airline#extensions#syntastic#enabled         = 1
 let g:airline#extensions#tabline#enabled           = 1
 let g:airline#extensions#tabline#fnamemod          = ':t' " Only show filename.
 let g:airline#extensions#undotree#enabled          = 1
@@ -289,24 +289,18 @@ let NERDTreeChDirMode = 0
 " let NERDTreeQuitOnOpen = 1
 " let NERDTreeKeepTreeInNewTab = 1
 
-" Syntastic
-let g:syntastic_error_symbol = '✗'
-" let g:syntastic_warning_symbol = '⚠'
-let g:syntastic_aggregate_errors = 1         " Run all linters, even if first found errors.
-let g:syntastic_always_populate_loc_list = 1 " Add errors to location-list.
-let g:syntastic_auto_loc_list = 1            " Automatically open/close location-list if errors are found.
-let g:syntastic_check_on_open = 1
-let g:syntastic_css_checkers        = ['csslint']
-let g:syntastic_javascript_checkers = ['jshint', 'eslint', 'jscs']
-let g:syntastic_sh_checkers         = ['sh', 'shellcheck']
-let g:syntastic_sh_shellcheck_args  = '--exclude=SC2155,SC2032,SC1090,SC2033' " Ignore declare and assign on same line.
-let g:syntastic_php_checkers        = ['php', 'phpcs']
-let g:syntastic_php_phpcs_args      = '--standard=Drupal'
-let g:syntastic_python_checkers     = ['pylint', 'pep8', 'python']
-let g:syntastic_scss_checkers       = ['scss-lint']
-let g:syntastic_text_checkers       = ['proselint']
-let g:syntastic_json_checkers       = ['jsonlint', 'jsonval']
-" let g:syntastic_stl_format          = '[%E{E: %fe #%e}%B{, }%W{W: %fw #%w}]'
+" Neomake.
+let g:neomake_open_list               = 2
+let g:neomake_css_makers              = ['csslint']
+let g:neomake_javascript_makers       = ['jshint', 'eslint', 'jscs']
+let g:neomake_sh_makers               = ['sh', 'shellcheck']
+" let g:neomake_sh_shellcheck_args      = ['--exclude=sc2155,sc2032,sc1090,sc2033']
+let g:neomake_php_makers              = ['php', 'phpcs']
+let g:neomake_php_phpcs_args_standard = 'Drupal'
+let g:neomake_python_makers           = ['pylint', 'pep8', 'python']
+let g:neomake_scss_makers             = ['scss-lint']
+let g:neomake_text_makers             = ['proselint']
+let g:neomake_json_makers             = ['jsonlint', 'jsonval']
 
 " CtrlP
 " let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
@@ -379,10 +373,6 @@ map <Leader>n :NERDTreeToggle \| :silent NERDTreeMirror<CR>
 map <C-n> :NERDTreeToggle \| :silent NERDTreeMirror<CR>
 nmap <Leader>nt :NERDTreeFind<CR>
 
-" Syntastic.
-nmap <Leader>ts :SyntasticToggle<CR>
-nmap <Leader>sc :SyntasticCheck<CR>
-
 " Ack.
 nnoremap <Leader>a :Ack<Space>
 
@@ -399,6 +389,9 @@ noremap <Leader>gg :GitGutterToggle<CR>
 
 " Close NERDTree when closing the last window/exiting Vim.
 autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
+
+" Lint when saving files.
+" autocmd! BufWritePost,BufEnter * Neomake
 
 " Open Tagbar by default for some filetypes.
 " autocmd FileType php,javascript,python,vim nested :TagbarOpen
