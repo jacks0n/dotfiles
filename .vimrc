@@ -2,25 +2,35 @@ set nocompatible  " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 call plug#begin('~/.vim/plugged')
 
-" ==== Dependencies ====
 Plug 'vim-scripts/progressbar-widget'        " Required for phpcd.
 Plug 'tpope/vim-dispatch'                    " Required for ack.vim async support.
 Plug 'Shougo/vimproc.vim', { 'do' : 'make' } " Required for Unite.vim.
+" ========================================================================
+" Plug: Dependencies.                                                    |
+" ========================================================================
+
 if has('nvim')
   Plug 'rbgrouleff/bclose.vim'               " Required for ranger.vim on NeoVim.
   Plug 'Shougo/neomru.vim'                   " Required for Unite.vim.
 endif
 
-" === Un-organised ===
+
+" ========================================================================
+" Plug: Un-Organised.                                                    |
+" ========================================================================
+
 Plug 'cohama/lexima.vim'  " Insert mode auto-complete quotes, parens, brackets, etc.
 Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+  \| Plug 'vim-airline/vim-airline-themes'
 
-" ==== Completion ====
+
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --tern-completer' }
+" ========================================================================
+" Plug: Completion.                                                      |
+" ========================================================================
 
 " PHP.
 if has('nvim')
@@ -29,7 +39,11 @@ else
   Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 endif
 
-" ==== Search ====
+
+" ========================================================================
+" Plug: Search.                                                          |
+" ========================================================================
+
 Plug 'Shougo/unite.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'JazzCore/ctrlp-cmatcher'
@@ -39,7 +53,11 @@ Plug 'mileszs/ack.vim'
 Plug 'rking/ag.vim'
 " Plug 'wincent/command-t'
 
-" ==== Visual ====
+
+" ========================================================================
+" Plug: Visual.                                                          |
+" ========================================================================
+
 Plug 'airblade/vim-gitgutter'         " Git gutter column diff signs.
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
 Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results.
@@ -47,46 +65,109 @@ Plug 'vim-scripts/ScrollColors'       " Colorsheme Scroller, Chooser, and Browse
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 
-" ==== CSS/SASS ====
 Plug 'ap/vim-css-color',       { 'for': ['css', 'scss', 'sass', 'less'] } " Highlight CSS colours with the rule value.
 Plug 'hail2u/vim-css3-syntax', { 'for': ['css', 'scss', 'sass', 'less'] } " Enable CSS3 property awareness.
 Plug 'JulesWang/css.vim',      { 'for': ['css', 'scss', 'sass', 'less'] } " CSS syntax highlighting for @page, @media, @import, @keyframe, etc.
 Plug 'cakebaker/scss-syntax.vim'                                          " Syntax file for SCSS.
 
-" ==== HTML ====
+" ========================================================================
+" Plug Language: CSS, SASS.                                              |
+" ========================================================================
+
+" ----------------------------------------
+" Syntax.                                |
+" ----------------------------------------
+
+
+" ----------------------------------------
+" Features.                              |
+" ----------------------------------------
+
+
+" ----------------------------------------
+" Omnicompletion.                        |
+" ----------------------------------------
+
+
+
+" ========================================================================
+" Plug Language: HTML, XML.                                              |
+" ========================================================================
+
 Plug 'Valloric/MatchTagAlways'        " Highlight outer cursor (X)HTML tags.
 Plug 'mattn/emmet-vim'                " Emmet for Vim.
 Plug 'othree/html5.vim'               " HTML 5 omnicomplete and syntax.
 Plug 'tylerbrazier/HTML-AutoCloseTag' " Auto close HTML tags.
 
-" ==== Javascript ====
 Plug 'jelera/vim-javascript-syntax'           " Enhanced Javascript Syntax.
 Plug 'vim-scripts/JavaScript-Indent'          " Javascript indentation (including in HTML).
 Plug 'pangloss/vim-javascript'                " Improved Javascript indentation and syntax.
 Plug 'othree/javascript-libraries-syntax.vim' " Popular Javascript library syntax.
 Plug 'ternjs/tern', { 'do': 'npm install' }   " JavaScript code analyzer for deep, cross-editor language support.
 
-" ==== PHP ====
 " Plug 'spf13/PIV'
 Plug 'StanAngeloff/php.vim'    " PHP syntax file.
 Plug '2072/vim-syntax-for-PHP' " Fork of official Vim PHP syntax file.
+" ========================================================================
+" Language: JavaScript, JSON.                                            |
+" ========================================================================
+
+" ----------------------------------------
+" Syntax.                                |
+" ----------------------------------------
+" ----------------------------------------
+" Syntax Addons.                         |
+" ----------------------------------------
+" ----------------------------------------
+" Completion.                            |
+" ----------------------------------------
+" ========================================================================
+" Plug Language: PHP.                                                    |
+" ========================================================================
+
+" ----------------------------------------
+" Syntax and Indent.                     |
+" ----------------------------------------
 Plug 'StanAngeloff/php.vim', { 'for': 'php' }
 " Plug 'dsawardekar/wordpress.vim', { 'for': 'php' }   " WordPress API completion
 
 " === Themes ===
+" ----------------------------------------
+" Completion.                            |
+" ----------------------------------------
+" ----------------------------------------
+" Extras.                                |
+" ----------------------------------------
+" ========================================================================
+" Plug Language: VimL.                                                   |
+" ========================================================================
+" ========================================================================
+" Plug: Themes.                                                          |
+" ========================================================================
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 
-" ==== Text Editing ====
+
+" ========================================================================
+" Plug: Text Editing.                                                    |
+" ========================================================================
 Plug 'tpope/vim-surround'
 Plug 'junegunn/vim-easy-align'
 
-" ==== Sidebars ====
+
+" ========================================================================
+" Plug: Sidebars.                                                        |
+" ========================================================================
 Plug 'sjl/gundo.vim'               " Undo history.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'scrooloose/nerdtree'         " File browser.
 " Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+" ========================================================================
+" Plug: Linting.                                                         |
+" ========================================================================
 
-" ==== Functional ====
+" ========================================================================
+" Plug: Functional.                                                      |
+" ========================================================================
 Plug 'editorconfig/editorconfig-vim'      " Some default configs.
 Plug 'chrisbra/Recover.vim'               " Show a diff whenever recovering a buffer.
 Plug 'wincent/terminus'                   " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
@@ -101,7 +182,9 @@ Plug 'francoiscabrol/ranger.vim'          " Rander file manager integration.
 call plug#end() " Required.
 
 
-" ================ Plugin Settings ================
+" ========================================================================
+" Plugin Settings.                                                       |
+" ========================================================================
 
 " gitgutter
 let g:gitgutter_max_signs = 1000
@@ -221,8 +304,15 @@ else
 endif
 
 
+" ========================================================================
+" Theme Settings.                                                        |
+" ========================================================================
 
-" ================ Plugin Mapping ================
+
+
+" ========================================================================
+" Plugin Mapping.                                                        |
+" ========================================================================
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
@@ -273,8 +363,9 @@ nnoremap <Leader>tt :TagbarToggle<CR>
 noremap <Leader>gg :GitGutterToggle<CR>
 
 
-
-" ================ Plugin Autocommands ================
+" ========================================================================
+" Plugin Autocommands.                                                   |
+" ========================================================================
 
 " Close NERDTree when closing the last window/exiting Vim.
 autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
@@ -289,8 +380,9 @@ autocmd BufWritePre * StripWhitespace
 autocmd FileType php setlocal commentstring=//\ %s
 
 
-
-" ================ General Config ====================
+" ========================================================================
+" General Config.                                                        |
+" ========================================================================
 
 if has('autocmd')
   filetype plugin indent on
@@ -466,14 +558,16 @@ if has('nvim')
 endif
 
 
-
-" ================ Shell Filetype ================
+" ========================================================================
+" Filetype Settings.                                                     |
+" ========================================================================
 
 let g:is_posix = 1 " Stop error highlighting `$()`.
 
 
-
-" ================ GUI Mode Specific ================
+" ========================================================================
+" GUI Mode Specific.                                                     |
+" ========================================================================
 
 if has('gui_running')
   set guioptions+=c " Use console dialogs instead of popup dialogs for simple choices.
@@ -493,8 +587,9 @@ if has('gui_macvim')
 endif
 
 
-
-" ================ Mappings ================
+" ========================================================================
+" Mappings.                                                              |
+" ========================================================================
 
 " New empty buffer.
 map <C-t> :enew<CR>
@@ -581,8 +676,9 @@ if has('nvim')
 endif
 
 
-
-" ================ Highlighting  ================
+" ========================================================================
+" Highlighting.                                                          |
+" ========================================================================
 
 " Brighten line numbers.
 highlight LineNr guifg=#FAFAFA
@@ -596,7 +692,9 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 let g:php_sync_method = -1 " Default, but it gives warnings without explicit `let`.
 
 
-" ================ Auto Commands ================
+" ========================================================================
+" Auto Commands.                                                         |
+" ========================================================================
 
 " Drupal PHP filetypes.
 augroup drupal
@@ -650,8 +748,9 @@ augroup restore_position
 augroup END
 
 
-
-" ================ Functions ================
+" ========================================================================
+" Functions.                                                             |
+" ========================================================================
 
 " Change to random colorscheme from a defined list of awesome ones.
 function! NextColorScheme()
@@ -733,8 +832,9 @@ function! AdjustWindowHeight(minheight, maxheight)
 endfunction
 
 
-
-" ================ Import local vimrc `~/.vimrc.local` ================
+" ========================================================================
+" Import local vimrc `~/.vimrc.local`.                                   |
+" ========================================================================
 
 if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
