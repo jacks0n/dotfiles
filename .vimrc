@@ -71,6 +71,9 @@ Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignmen
 " Syntax.                                |
 " ----------------------------------------
 
+" Runtime css.vim provides @media syntax highlighting where hail2u doesn't
+" JulesWang/css.vim is the active repo for the css.vim bundled with Vim.
+" hail2u extends vim's css highlighting
 Plug 'JulesWang/css.vim'              " CSS syntax.
   \| Plug 'hail2u/vim-css3-syntax'    " CSS3 syntax.
   \| Plug 'cakebaker/scss-syntax.vim' " SASS syntax.
@@ -79,11 +82,14 @@ Plug 'JulesWang/css.vim'              " CSS syntax.
 " Features.                              |
 " ----------------------------------------
 
+" Highlight CSS colours with the rule value.
+Plug 'ap/vim-css-color'
 
 " ----------------------------------------
 " Omnicompletion.                        |
 " ----------------------------------------
 
+Plug 'othree/csscomplete.vim'
 
 
 " ========================================================================
@@ -95,15 +101,7 @@ Plug 'mattn/emmet-vim'                " Emmet for Vim.
 Plug 'othree/html5.vim'               " HTML 5 omnicomplete and syntax.
 Plug 'tylerbrazier/HTML-AutoCloseTag' " Auto close HTML tags.
 
-Plug 'jelera/vim-javascript-syntax'           " Enhanced Javascript Syntax.
-Plug 'vim-scripts/JavaScript-Indent'          " Javascript indentation (including in HTML).
-Plug 'pangloss/vim-javascript'                " Improved Javascript indentation and syntax.
-Plug 'othree/javascript-libraries-syntax.vim' " Popular Javascript library syntax.
-Plug 'ternjs/tern', { 'do': 'npm install' }   " JavaScript code analyzer for deep, cross-editor language support.
 
-" Plug 'spf13/PIV'
-Plug 'StanAngeloff/php.vim'    " PHP syntax file.
-Plug '2072/vim-syntax-for-PHP' " Fork of official Vim PHP syntax file.
 " ========================================================================
 " Language: JavaScript, JSON.                                            |
 " ========================================================================
@@ -111,12 +109,39 @@ Plug '2072/vim-syntax-for-PHP' " Fork of official Vim PHP syntax file.
 " ----------------------------------------
 " Syntax.                                |
 " ----------------------------------------
+
+Plug 'elzr/vim-json'
+
+" Options:
+"  'jelera/vim-javascript-syntax' " No indent file.
+"  'pangloss/vim-javascript'      " Probably the oldest, lot of
+                                  " contributors but not up-to-date.
+                                  " Includes indent settings.
+"  'othree/yajs.vim'              " Latest support, no indent file, fork of Jelera.
+" The "for" is required so the syntax registers on filetype, otherwise
+" yajs has trouble overriding the default JS syntax due to runtime order.
+Plug 'othree/yajs.vim', { 'for': 'javascript' }
+
 " ----------------------------------------
 " Syntax Addons.                         |
 " ----------------------------------------
+
+" Options:
+"  'gavocanov/vim-js-indent'              " Indent from pangloss, works well with yajs.
+"  'jiangmiao/simple-javascript-indenter' " Alternative JS indent.
+"  'jason0x43/vim-js-indent'              " Use HTML's indenter with TypeScript support.
+Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' } " Indent.
+Plug 'othree/javascript-libraries-syntax.vim'           " Extends syntax for jQuery, Underscore, Backbone, etc.
+Plug 'mxw/vim-jsx'                                      " After syntax, ftplugin, indent for JSX.
+
 " ----------------------------------------
 " Completion.                            |
 " ----------------------------------------
+
+Plug 'othree/jspc.vim'                              " Parameter completion.
+Plug 'ternjs/tern_for_vim', { 'do': 'npm install' } " Completion.
+
+
 " ========================================================================
 " Plug Language: PHP.                                                    |
 " ========================================================================
@@ -124,30 +149,64 @@ Plug '2072/vim-syntax-for-PHP' " Fork of official Vim PHP syntax file.
 " ----------------------------------------
 " Syntax and Indent.                     |
 " ----------------------------------------
-Plug 'StanAngeloff/php.vim', { 'for': 'php' }
-" Plug 'dsawardekar/wordpress.vim', { 'for': 'php' }   " WordPress API completion
 
-" === Themes ===
+" Syntax.
+Plug 'StanAngeloff/php.vim', { 'for': 'php' }
+
+" Indent.
+" Fix indent of HTML in all PHP files -- basically
+" adds indent/html.vim when outside of PHP block.
 Plug '2072/PHP-Indenting-for-VIm'
   \| Plug 'captbaritone/better-indent-support-for-php-with-html'
+
 " ----------------------------------------
 " Completion.                            |
 " ----------------------------------------
+
+" Options:
+"  'm2mdas/phpcomplete-extended' - Fast via vimproc, un-maintained, composer projects only.
+"  'mkusher/padawan.php'         - Server based completion, composer projects only.
+"  'phpvim/phpcd.vim'            - Server based completion, NeoVim only, often crashes.
+"  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
+
+" Server-based PHP completion.
+if 0 && has('nvim') && executable('composer')
+  Plug 'phpvim/phpcd.vim', {
+        \   'do': 'composer update',
+        \   'for': 'php'
+        \ }
+    \| Plug 'vim-scripts/progressbar-widget'
+else
+  Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
+endif
+
 " ----------------------------------------
 " Extras.                                |
 " ----------------------------------------
+
+" Plug 'spf13/PIV'
+" Plug 'dsawardekar/wordpress.vim', { 'for': 'php' } " WordPress API completion
+
+
 " ========================================================================
 " Plug Language: VimL.                                                   |
 " ========================================================================
+
+" Completion.
+Plug 'Shougo/neco-vim', { 'for': ['vim'] }
+
+
 " ========================================================================
 " Plug: Themes.                                                          |
 " ========================================================================
+
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 
 
 " ========================================================================
 " Plug: Text Editing.                                                    |
 " ========================================================================
+
 Plug 'tpope/vim-surround'
 Plug 'junegunn/vim-easy-align'
 
@@ -155,10 +214,13 @@ Plug 'junegunn/vim-easy-align'
 " ========================================================================
 " Plug: Sidebars.                                                        |
 " ========================================================================
+
 Plug 'sjl/gundo.vim'               " Undo history.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'scrooloose/nerdtree'         " File browser.
 " Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+
+
 " ========================================================================
 " Plug: Linting.                                                         |
 " ========================================================================
@@ -186,8 +248,10 @@ call plug#end() " Required.
 " Plugin Settings.                                                       |
 " ========================================================================
 
-" gitgutter
-let g:gitgutter_max_signs = 1000
+" GitGutter.
+let g:gitgutter_max_signs    = 1000 " Bump up from default 500.
+
+
 " let g:gitgutter_override_sign_column_highlight = 0
 " highlight GitGutterAdd          ctermbg=NONE guibg=NONE
 " highlight GitGutterChange       ctermbg=NONE guibg=NONE
@@ -529,8 +593,8 @@ set mouse=ar                    " Enable mouse use in all modes.
 set backspace=indent,eol,start  " Allow backspacing over autoindent, line breaks and start of insert action.
 set gcr=a:blinkon0              " Disable cursor blink.
 set synmaxcol=500               " Don't try to highlight long lines.
-set foldlevelstart=99           " Open all folds by default.
 set nofoldenable                " Disable folding.
+set foldlevelstart=99           " Open all folds by default.
 
 " Set the screen title to the current filename.
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servername}
@@ -542,30 +606,34 @@ set laststatus=2 " 2=always, status line for the last window.
 " Set `colorscheme` and `guifont` only on startup.
 if has('vim_starting')
   " colorscheme monokain
-  colorscheme molokai
+  " colorscheme molokai
+  colorscheme gruvbox
+  set background=dark
   set guifont=Source\ Code\ Pro\ for\ Powerline:h15
+  " set guifont=Hack:h15
   " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
   " set guifont=Inconsolata-dz\ for\ Powerline:h15
- " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h17.5
+  " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h17.5
 endif
 
-set antialias
+" NeoVim doesn't support this?
+if !has('nvim')
+  set antialias
+endif
 
 " Encoding.
-if has('multi_byte')
-  if has('vim_starting')
-    set encoding=UTF-8 " Better default than latin1.
-  endif
-  let &termencoding = &encoding
-  setglobal fileencoding=UTF-8  " Change default file encoding when writing new files.
-  set listchars=tab:▸\           " ┐
-  set listchars+=trail:·         " │ Use custom symbols to
-  set listchars+=eol:↲           " │ represent invisible characters.
-  set listchars+=extends:»       " |
-  set listchars+=precedes:«      " |
-  set listchars+=nbsp:+          " ┘
-  set showbreak=↪
+if has('vim_starting')
+  set encoding=utf-8 nobomb " Better default than latin1.
 endif
+let &termencoding = &encoding
+setglobal fileencoding=UTF-8  " Change default file encoding when writing new files.
+set listchars=tab:→\          " ┐
+set listchars+=trail:·        " │ Use custom symbols to
+set listchars+=eol:↲          " │ represent invisible characters.
+set listchars+=extends:»      " |
+set listchars+=precedes:«     " |
+set listchars+=nbsp:⣿         " ┘
+set showbreak=↪
 
 if v:version > 703 || v:version == 703 && has('patch541')
   set formatoptions+=j  " Delete comment character when joining commented lines.
@@ -576,8 +644,8 @@ set colorcolumn=80
 
 " NeoVim Specific.
 if has('nvim')
-  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+  let $NVIM_TUI_ENABLE_TRUE_COLOR   = 1
+  let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
 endif
 
 
@@ -585,7 +653,8 @@ endif
 " Filetype Settings.                                                     |
 " ========================================================================
 
-let g:is_posix = 1 " Stop error highlighting `$()`.
+let g:is_posix         =  1 " Stop error highlighting `$()`.
+let g:php_sync_method  = -1 " Default, but it gives warnings without explicit `let`.
 
 
 " ========================================================================
@@ -602,7 +671,7 @@ endif
 " Let MacVim control the shift key, for selecting with shift.
 if has('gui_macvim')
   set macmeta      " Use option (alt) as meta key.
-	let macvim_skip_colorscheme = 1
+	let macvim_skip_colorscheme   = 1
   let macvim_hig_shift_movement = 1
 
   map <D-w> :bw<CR>
@@ -712,8 +781,6 @@ highlight CursorLineNr ctermbg=NONE guibg=NONE
 " No sign column without symbol background. Many themes don't implement it.
 highlight SignColumn ctermbg=NONE guibg=NONE
 
-let g:php_sync_method = -1 " Default, but it gives warnings without explicit `let`.
-
 
 " ========================================================================
 " Auto Commands.                                                         |
@@ -736,7 +803,7 @@ augroup END
 " Prevent stopping on - characters for CSS files.
 augroup iskeyword_mods
   autocmd!
-  autocmd FileType css,scss,sass  setlocal iskeyword+=-
+  autocmd FileType css,scss,sass setlocal iskeyword+=-
 augroup END
 
 " Other filetypes.
