@@ -24,16 +24,14 @@ Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
 
 
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --tern-completer' }
 " ========================================================================
 " Plug: Completion.                                                      |
 " ========================================================================
 
-" PHP.
 if has('nvim')
-  Plug 'phpvim/phpcd.vim', { 'for': 'php' }
+  Plug 'Shougo/deoplete.nvim'
 else
-  Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
+  Plug 'Shougo/neocomplete.vim'
 endif
 
 
@@ -210,10 +208,42 @@ let g:gitgutter_max_signs = 1000
 " indentLine
 let g:indentLine_char = '│'
 
-" YouCompleteMe.
-let g:ycm_auto_trigger                              = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_collect_identifiers_from_tags_files       = 1
+if has('nvim')
+  " deoplete.nvim.
+  let g:deoplete#enable_at_startup = 1
+  let g:deoplete#auto_completion_start_length = 1
+  let g:deoplete#delimiters = ['/', '.', '::', ':', '#', '->']
+  let g:deoplete#enable_camel_case = 1
+  let g:deoplete#enable_refresh_always = 1
+  if !exists('g:deoplete#omni_patterns')
+    let g:deoplete#omni_patterns = {}
+  endif
+  let g:deoplete#omni_patterns.php =
+    \ '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+  let g:deoplete#omni#input_patterns = {}
+  let g:deoplete#omni#input_patterns.php =
+    \ '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+  let g:deoplete#sources = {}
+  let g:deoplete#sources._ = ['omni', 'buffer', 'member', 'tag', 'ultisnips', 'file']
+else
+  " neocomplete.
+  let g:neocomplete#enable_at_startup                    = 1
+  let g:neocomplete#enable_auto_delimiter                = 1
+  let g:neocomplete#enable_fuzzy_completion              = 1
+  let g:neocomplete#force_overwrite_completefunc         = 1
+  let g:neocomplete#max_list                             = 20
+  let g:neocomplete#sources#syntax#min_keyword_length    = 2
+  let g:neocomplete_enable_fuzzy_completion_start_length = 2
+  if !exists('g:neocomplete#keyword_patterns')
+    let g:neocomplete#keyword_patterns = {}
+  endif
+  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+  if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
+  endif
+  let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+endif
+
 
 " phpcomplete.
 let g:phpcomplete_parse_docblock_comments = 1
