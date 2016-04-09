@@ -53,7 +53,7 @@ export GOROOT="$(go env GOROOT)"
 # NeoVim
 export NVIM_TUI_ENABLE_TRUE_COLOR=1
 
-# Depricated, still used in .oh-my-zsh/lib/grep.zsh
+# Depricated, still used in .oh-my-zsh/lib/grep.zsh.
 unset GREP_OPTIONS
 
 #  OS X Unicode fix.
