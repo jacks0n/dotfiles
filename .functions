@@ -66,8 +66,11 @@ cowjoke() {
   # Modes: Borg, appear dead, greedy, paranoid, stoned, tired, wired, youthful.
   local COWSAY_MODES='bdgpstwy'
   local RANDOM_COWSAY_MODE="${COWSAY_MODES[$RANDOM % ${#COWSAY_MODES[@]}]}"
-  cowsay -$RANDOM_COWSAY_MODE "$(pyjoke -c all)"
-  # fortune -sa -n 200 | cowsay -$RANDOM_COWSAY_MODE
+  if [[ $(($RANDOM % 2)) -eq 1 ]] ; then
+    fortune -a | cowsay -$RANDOM_COWSAY_MODE
+  else
+    cowsay -$RANDOM_COWSAY_MODE "$(pyjoke -c all)"
+  fi
 }
 
 
