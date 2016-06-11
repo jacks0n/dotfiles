@@ -930,3 +930,30 @@ if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
 endif
 
+
+
+" ========================================================================
+" Plugin Autocommands.                                                   |
+" ========================================================================
+
+" AutoClose. Disable for VimL files.
+autocmd FileType vim let b:AutoCloseOn = 0
+
+" Close NERDTree when closing the last window/exiting Vim.
+autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
+
+" Lint when saving files.
+" autocmd! BufWritePost,BufEnter * Neomake
+"                   \| Plug 'hello'
+
+" Open Tagbar by default for some filetypes.
+" autocmd FileType php,javascript,python,vim nested :TagbarOpen
+
+" startify. Disable folding on the start screen.
+autocmd FileType startify setlocal nofoldenable
+
+" Strip whitespace on save.
+autocmd BufWritePre * StripWhitespace
+
+" vim-commentary.
+autocmd FileType php setlocal commentstring=//\ %s
