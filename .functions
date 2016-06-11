@@ -327,13 +327,15 @@ update() {
   (
     cd "$HOME/.vim/plugged" || exit 1
     find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
-      ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit
+      ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
         cd "$VIM_PLUGIN_DIR" || exit 1
         git reset --hard > /dev/null
         git clean -fd    > /dev/null )
     done
   )
   vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  echo '=> NVim Plug install, update, upgrade, clean.'
+  nvim +UpdateRemotePlugins +PlugInstall +PlugUpdate +PlugUpgrade +qall
 
   # Download latest repo from Homebrew, and update all packages.
   echo '=> Homebrew cleanup, update, repair and link fixes.'
@@ -345,12 +347,14 @@ update() {
     sudo brew prune )
 
   # Update OS X.
-  echo '=> Running OS X Software Update.'
+  echo "\n\n=> Running OS X Software Update."
   sudo softwareupdate --install --all
 
   # Update pip and pip packages.
-  sudo -H pip install --upgrade pip
-  sudo -H pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U
+  sudo -H pip2 install --upgrade pip
+  sudo -H pip2 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install -U
+  sudo -H pip3 install --upgrade pip
+  sudo -H pip3 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U
 
   # Updating Node.
   echo '=> Updating Node.js'
@@ -363,10 +367,12 @@ update() {
   fi
 
   # Updating Gem.
-  echo '=> Updating Gem.'
+  echo "\n\n=> Updating Ruby Gems."
   sudo gem update --system
+  sudo gem update
+  sudo gem clean
 
-  echo '=> Done!.'
+  echo "\n\n=> Done!."
 }
 
 
