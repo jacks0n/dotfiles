@@ -94,10 +94,28 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
 
 ###############################################################################
+#  Security                                                                   #
+###############################################################################
+
+# Enable FileVault.
+sudo fdesetup enable
+
+# Enable the firewall.
+sudo defaults write /Library/Preferences/com.apple.alf globalstate -bool true
+
+# Enable the firewall stealth mode.
+sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -bool true
+
+# Allow signed software to receive incoming connections.
+sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
+
+
+
+###############################################################################
 #  Terminal                                                                   #
 ###############################################################################
 
-# Only use UTF-8 in Terminal.app
+# Only use UTF-8 in Terminal.app.
 defaults write com.apple.terminal StringEncodings -array 4
 
 defaults write com.apple.terminal 'Default Window Settings' -string 'Pro'
@@ -115,6 +133,20 @@ defaults write com.apple.Safari IncludeDevelopMenu                        -bool 
 defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
 defaults write NSGlobalDomain   WebKitDeveloperExtras                     -bool true
 defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled' -bool true
+
+
+
+###############################################################################
+#  Font Book                                                                  #
+###############################################################################
+
+# Default Install Loction.
+# 1 : Computer
+# 3 : User
+defaults write com.apple.FontBook FBDefaultInstallDomainRef -int 1
+
+# Resolve duplicates by moving files to the trash.
+defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool true
 
 
 
