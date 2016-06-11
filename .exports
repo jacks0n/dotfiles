@@ -11,6 +11,9 @@ export VISUAL='vim'
 # Don't clear the screen after quitting a manual page.
 export MANPAGER="less -X"
 
+# Homebrew no-GA.
+export HOMEBREW_NO_ANALYTICS=1
+
 # Homebrew paths.
 export PATH="$(brew --prefix)/sbin:$PATH"
 export PATH="$(brew --prefix)/bin:$PATH"
@@ -49,9 +52,6 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$PATH"
 export GOROOT="$(go env GOROOT)"
-
-# NeoVim
-export NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 # Depricated, still used in .oh-my-zsh/lib/grep.zsh.
 unset GREP_OPTIONS
