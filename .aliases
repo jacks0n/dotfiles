@@ -29,6 +29,7 @@ alias gstall='git status -uall'
 # Avoid permission errors.
 alias brew='sudo brew'
 alias gem='sudo gem'
+alias pear='sudo pear'
 alias pip='sudo -H pip'
 
 # Print top 10 used commands from $history.
