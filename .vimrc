@@ -3,25 +3,21 @@ filetype off
 call plug#begin('~/.vim/plugged')
 
 " ========================================================================
-" Plug: Dependencies.                                                    |
-" ========================================================================
-
-if has('nvim')
-  Plug 'rbgrouleff/bclose.vim' " Required for ranger.vim on NeoVim.
-  Plug 'Shougo/neomru.vim'     " Required for Unite.vim on NeoVim.
-endif
-
-
-" ========================================================================
 " Plug: Un-Organised.                                                    |
 " ========================================================================
 
-Plug 'cohama/lexima.vim'  " Insert mode auto-complete quotes, parens, brackets, etc.
+
+" Options:
+"  'cohama/lexima.vim' - Works well, always inserts closing character.
+Plug 'Townk/vim-autoclose' " More intelligent.
+
 Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
+Plug 'jreybert/vimagit'
 Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
+" Plug 'vhakulinen/neovim-intellij-complete-deoplete' " PhpStorm completion!
 
 
 " ========================================================================
@@ -29,26 +25,26 @@ Plug 'vim-airline/vim-airline'
 " ========================================================================
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim'
+  Plug 'Shougo/deoplete.nvim', { 'do': 'nvim +UpdateRemotePlugins +qall' }
 else
-  Plug 'Shougo/neocomplete.vim'
+  Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer --clang-completer' }
 endif
+
+" Plug 'dansomething/vim-eclim'
 
 
 " ========================================================================
 " Plug: Search.                                                          |
 " ========================================================================
 
-Plug 'Shougo/unite.vim'
-  \| Plug 'Shougo/vimproc.vim', { 'do' : 'make' }
 Plug 'ctrlpvim/ctrlp.vim'
-  \| Plug 'JazzCore/ctrlp-cmatcher'
+  \| Plug 'JazzCore/ctrlp-cmatcher', { 'do': './install.sh' }
+  \| Plug 'FelikZ/ctrlp-py-matcher'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   \| Plug 'junegunn/fzf.vim'
-Plug 'mileszs/ack.vim'
   \| Plug 'tpope/vim-dispatch' " Required for async support.
+Plug 'mhinz/vim-grepper'       " Asynchronous search.
 Plug 'rking/ag.vim'
-Plug 'wincent/command-t'
 
 
 " ========================================================================
@@ -61,6 +57,8 @@ Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results
 Plug 'vim-scripts/ScrollColors'       " Colorsheme Scroller, Chooser, and Browser.
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
+" Plug 'yonchu/accelerated-smooth-scroll' " Accelerated smooth-scrolling.
+" Plug 'terryma/vim-smooth-scroll'      " Smooth-scrolling.
 
 
 " ========================================================================
@@ -71,75 +69,82 @@ Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignmen
 " Syntax.                                |
 " ----------------------------------------
 
-" Runtime css.vim provides @media syntax highlighting where hail2u doesn't
-" JulesWang/css.vim is the active repo for the css.vim bundled with Vim.
-" hail2u extends vim's css highlighting
-Plug 'JulesWang/css.vim'              " CSS syntax.
-  \| Plug 'hail2u/vim-css3-syntax'    " CSS3 syntax.
-  \| Plug 'cakebaker/scss-syntax.vim' " SASS syntax.
+" Options:
+"  'JulesWang/css.vim'      - Cutting-edge vim css syntax file.
+"  'hail2u/vim-css3-syntax' - Adds CSS3 properties, except for @media.
+Plug 'JulesWang/css.vim',              { 'for': ['css', 'scss', 'sass'] } " CSS syntax.
+  \| Plug 'hail2u/vim-css3-syntax',    { 'for': ['css', 'scss', 'sass'] } " CSS3 syntax.
+  \| Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SASS syntax.
 
 " ----------------------------------------
 " Features.                              |
 " ----------------------------------------
 
 " Highlight CSS colours with the rule value.
-Plug 'ap/vim-css-color'
+Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
 
 " ----------------------------------------
 " Omnicompletion.                        |
 " ----------------------------------------
 
-Plug 'othree/csscomplete.vim'
+Plug 'othree/csscomplete.vim', { 'for': ['css', 'scss', 'sass'] }
 
 
 " ========================================================================
 " Plug Language: HTML, XML.                                              |
 " ========================================================================
 
-Plug 'Valloric/MatchTagAlways'        " Highlight outer cursor (X)HTML tags.
-Plug 'mattn/emmet-vim'                " Emmet for Vim.
-Plug 'othree/html5.vim'               " HTML 5 omnicomplete and syntax.
-Plug 'tylerbrazier/HTML-AutoCloseTag' " Auto close HTML tags.
+Plug 'Valloric/MatchTagAlways',        " Highlight outer cursor (X)HTML tags.
+  \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
+Plug 'mattn/emmet-vim',                " Emmet for Vim.
+  \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
+Plug 'othree/html5.vim',               " HTML 5 omnicomplete and syntax.
+  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
+
+" Options:
+"  'tylerbrazier/HTML-AutoCloseTag' - Unmaintained, extra <Esc> back to normal mode.
+Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
+  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
+Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
+  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 
 
 " ========================================================================
-" Language: JavaScript, JSON.                                            |
+" Plug Language: JavaScript, JSON.                                       |
 " ========================================================================
 
 " ----------------------------------------
 " Syntax.                                |
 " ----------------------------------------
 
-Plug 'elzr/vim-json'
+Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
 
 " Options:
-"  'jelera/vim-javascript-syntax' " No indent file.
-"  'pangloss/vim-javascript'      " Probably the oldest, lot of
-                                  " contributors but not up-to-date.
-                                  " Includes indent settings.
-"  'othree/yajs.vim'              " Latest support, no indent file, fork of Jelera.
-" The "for" is required so the syntax registers on filetype, otherwise
-" yajs has trouble overriding the default JS syntax due to runtime order.
-Plug 'othree/yajs.vim', { 'for': 'javascript' }
+"  'pangloss/vim-javascript'      " Maintained, active. Indentation & syntax.
+"  'jelera/vim-javascript-syntax' " Maintained, active. Syntax.
+"  'othree/yajs.vim'              " Maintained, active. No indent file, fork of Jelera.
+Plug 'pangloss/vim-javascript'
 
 " ----------------------------------------
 " Syntax Addons.                         |
 " ----------------------------------------
 
 " Options:
-"  'gavocanov/vim-js-indent'              " Indent from pangloss, works well with yajs.
 "  'jiangmiao/simple-javascript-indenter' " Alternative JS indent.
 "  'jason0x43/vim-js-indent'              " Use HTML's indenter with TypeScript support.
-Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' } " Indent.
-Plug 'othree/javascript-libraries-syntax.vim'           " Extends syntax for jQuery, Underscore, Backbone, etc.
-Plug 'mxw/vim-jsx'                                      " After syntax, ftplugin, indent for JSX.
+Plug 'othree/javascript-libraries-syntax.vim',          " Extends syntax for jQuery, Underscore, Backbone, etc.
+    \ { 'for': 'javascript' }
+" Plug 'mxw/vim-jsx', { 'for': 'jsx' }                    " After syntax, ftplugin, indent for JSX.
 
 " ----------------------------------------
 " Completion.                            |
 " ----------------------------------------
 
 Plug 'othree/jspc.vim'                              " Parameter completion.
-Plug 'ternjs/tern_for_vim', { 'do': 'npm install' } " Completion.
+" if has('nvim')
+"   Plug 'carlitux/deoplete-ternjs'                   " Async goodness.
+" endif
+" Plug 'ternjs/tern_for_vim', { 'do': 'npm install' } " Completion.
 
 
 " ========================================================================
@@ -147,17 +152,33 @@ Plug 'ternjs/tern_for_vim', { 'do': 'npm install' } " Completion.
 " ========================================================================
 
 " ----------------------------------------
-" Syntax and Indent.                     |
+" Syntax.                                |
 " ----------------------------------------
 
-" Syntax.
+" Options:
+"  '2072/vim-syntax-for-PHP'
+"    - Updated fork of the official Vim syntax file.
+"  'StanAngeloff/php.vim'
+"    - Updated fork of a fork of the official Vim synax file.
+"      More popular, not sure how different to 2072's?
+"  'pzich/phtmlSwitch-vim'
+"   - Automatically switching between HTML and PHP filetypes in PHP files.
+Plug '2072/vim-syntax-for-PHP', { 'for': 'php' }
 Plug 'StanAngeloff/php.vim', { 'for': 'php' }
+" Plug 'pzich/phtmlSwitch-vim', { 'for': 'php' }
 
-" Indent.
-" Fix indent of HTML in all PHP files -- basically
-" adds indent/html.vim when outside of PHP block.
-Plug '2072/PHP-Indenting-for-VIm'
-  \| Plug 'captbaritone/better-indent-support-for-php-with-html'
+
+" ----------------------------------------
+" Indent.                                |
+" ----------------------------------------
+
+" Options:
+"  '2072/PHP-Indenting-for-VIm'
+"    - Development version of the official indent.
+"  'captbaritone/better-indent-support-for-php-with-html'
+"    - Adds HTML indenting outside PHP blocks.
+Plug '2072/PHP-Indenting-for-VIm', { 'for': 'php' }
+Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 
 " ----------------------------------------
 " Completion.                            |
@@ -165,26 +186,31 @@ Plug '2072/PHP-Indenting-for-VIm'
 
 " Options:
 "  'm2mdas/phpcomplete-extended' - Fast via vimproc, un-maintained, composer projects only.
-"  'mkusher/padawan.php'         - Server based completion, composer projects only.
-"  'phpvim/phpcd.vim'            - Server based completion, NeoVim only, often crashes.
+"  'mkusher/padawan.vim'         - Server based completion, composer projects only.
+"  'phpvim/phpcd.vim'            - Server based completion, NeoVim only, composer projects only, often crashes.
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
 " Server-based PHP completion.
 if 0 && has('nvim') && executable('composer')
   Plug 'phpvim/phpcd.vim', {
-        \   'do': 'composer update',
+        \   'do': 'composer install',
         \   'for': 'php'
         \ }
     \| Plug 'vim-scripts/progressbar-widget'
-else
+elseif 0 && (has('python') || has('python3'))
+  Plug 'mkusher/padawan.vim', {
+        \   'do': 'composer global require mkusher/padawan',
+        \   'for': 'php',
+        \ }
+elseif !has_key(g:plugs, 'vim-eclim')
   Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 endif
 
-" ----------------------------------------
-" Extras.                                |
-" ----------------------------------------
 
-" Plug 'spf13/PIV'
+" ========================================================================
+" Plug: Extras.                                                          |
+" ========================================================================
+
 " Plug 'dsawardekar/wordpress.vim', { 'for': 'php' } " WordPress API completion
 
 
@@ -193,7 +219,7 @@ endif
 " ========================================================================
 
 " Completion.
-Plug 'Shougo/neco-vim', { 'for': ['vim'] }
+Plug 'Shougo/neco-vim', { 'for': 'vim' }
 
 
 " ========================================================================
@@ -207,276 +233,51 @@ Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 " Plug: Text Editing.                                                    |
 " ========================================================================
 
-Plug 'tpope/vim-surround'
 Plug 'junegunn/vim-easy-align'
+Plug 'tpope/vim-surround'
 
 
 " ========================================================================
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-Plug 'sjl/gundo.vim'               " Undo history.
+Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'scrooloose/nerdtree'         " File browser.
-" Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+Plug 'sjl/gundo.vim'               " Undo history.
 
 
 " ========================================================================
 " Plug: Linting.                                                         |
 " ========================================================================
 
-Plug 'benekastah/neomake'          " Asynchronous.
+if 0 && has('nvim')
+  Plug 'benekastah/neomake'   " Asynchronous.
+else
+  Plug 'scrooloose/syntastic' " Linter support.
+endif
 
 
 " ========================================================================
 " Plug: Functional.                                                      |
 " ========================================================================
 
-Plug 'editorconfig/editorconfig-vim'      " Some default configs.
-Plug 'chrisbra/Recover.vim'               " Show a diff whenever recovering a buffer.
-Plug 'wincent/terminus'                   " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
-Plug 'sheerun/vim-polyglot'               " Language pack collection (syntax, indent, ftplugin, ftdetect).
-Plug 'tpope/vim-eunuch'                   " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
-Plug 'tpope/vim-repeat'                   " Enable repeating supported plugin maps with '.'.
-Plug 'vim-utils/vim-troll-stopper'        " Highlight Unicode trolls/homoglyph.
-Plug 'francoiscabrol/ranger.vim'          " Rander file manager integration.
+Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
+Plug 'editorconfig/editorconfig-vim' " Some default configs.
+" Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
+Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
+Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
+Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
+Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
 
 call plug#end() " Required.
-
-
-" ========================================================================
-" Plugin Settings.                                                       |
-" ========================================================================
-
-" GitGutter.
-let g:gitgutter_max_signs    = 1000 " Bump up from default 500.
-
-
-" let g:gitgutter_override_sign_column_highlight = 0
-" highlight GitGutterAdd          ctermbg=NONE guibg=NONE
-" highlight GitGutterChange       ctermbg=NONE guibg=NONE
-" highlight GitGutterDelete       ctermbg=NONE guibg=NONE
-" highlight GitGutterChangeDelete ctermbg=NONE guibg=NONE
-
-" ack.vim
-" if executable('ag')
-"   let g:ackprg = 'ack --vimgrep'
-" endif
-" Show up to 50 lines
-" let g:ack_qhandler = 'botright copen 50'
-" let g:ack_lhandler = 'botright lopen 50'
-" let g:ackhighlight = 1
-" let g:ack_autoclose = 1
-" let g:ackpreview = 1
-" let g:ack_use_dispatch = 1
-" let g:ack_default_options = ' --smart-case --heading --column --follow'
-
-" indentLine
-let g:indentLine_char = '│'
-
-if has('nvim')
-  " deoplete.nvim.
-  let g:deoplete#enable_at_startup = 1
-  let g:deoplete#auto_completion_start_length = 1
-  let g:deoplete#delimiters = ['/', '.', '::', ':', '#', '->']
-  let g:deoplete#enable_camel_case = 1
-  let g:deoplete#enable_refresh_always = 1
-  if !exists('g:deoplete#omni_patterns')
-    let g:deoplete#omni_patterns = {}
-  endif
-  let g:deoplete#omni_patterns.php =
-    \ '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
-  let g:deoplete#omni#input_patterns = {}
-  let g:deoplete#omni#input_patterns.php =
-    \ '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
-  let g:deoplete#sources = {}
-  let g:deoplete#sources._ = ['omni', 'buffer', 'member', 'tag', 'ultisnips', 'file']
-else
-  " neocomplete.
-  let g:neocomplete#enable_at_startup                    = 1
-  let g:neocomplete#enable_auto_delimiter                = 1
-  let g:neocomplete#enable_fuzzy_completion              = 1
-  let g:neocomplete#force_overwrite_completefunc         = 1
-  let g:neocomplete#max_list                             = 20
-  let g:neocomplete#sources#syntax#min_keyword_length    = 2
-  let g:neocomplete_enable_fuzzy_completion_start_length = 2
-  if !exists('g:neocomplete#keyword_patterns')
-    let g:neocomplete#keyword_patterns = {}
-  endif
-  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-  if !exists('g:neocomplete#sources#omni#input_patterns')
-    let g:neocomplete#sources#omni#input_patterns = {}
-  endif
-  let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-endif
-
-
-" phpcomplete.
-let g:phpcomplete_parse_docblock_comments = 1
-
-" startify.
-let g:startify_change_to_dir          = 1 " Change to selected file or bookmark's directory.
-let g:startify_enable_special         = 0 " Don't show <empty buffer> and <quit>.
-let g:startify_relative_path          = 1 " Show relative filenames (directories by default).
-let g:startify_session_autoload       = 1 " Auto load `Session.vim` if present when opening Vim.
-let g:startify_session_delete_buffers = 1 " Delete open buffers before loading a new session.
-let g:startify_session_persistence    = 1 " Update session before closing Vim and loading session with `:SLoad`.
-let g:startify_custom_header  =
-  \ map(split(system('fortune -s | cowsay'), '\n'), '"   ". v:val') + ['','']
-
-" Airline
-let g:airline_theme = 'luna'
-" let g:airline_theme = 'bubblegum'
-" let g:airline_theme = 'badwolf'
-" let g:airline_theme = 'wombat'
-
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-let g:airline_symbols.whitespace = 'Ξ'
-let g:airline_powerline_fonts                      = 1
-let g:airline#extensions#branch#enabled            = 1
-let g:airline#extensions#bufferline#enabled        = 1
-let g:airline#extensions#capslock#enabled          = 1
-let g:airline#extensions#ctrlp#show_adjacent_modes = 1
-let g:airline#extensions#hunks#enabled             = 1
-let g:airline#extensions#tabline#enabled           = 1
-let g:airline#extensions#tabline#fnamemod          = ':t' " Only show filename.
-let g:airline#extensions#undotree#enabled          = 1
-let g:airline#extensions#unite#enabled             = 1
-let g:airline#extensions#whitespace#enabled        = 1
-
-" NerdTree
-let NERDTreeShowBookmarks = 1
-let NERDTreeIgnore = ['\\.pyc', '\\\~$', '\\.swo$', '\\.swp$', '\\.git', '\\.hg', '\\.svn', '\\.bzr']
-let NERDTreeChDirMode = 0
-" let NERDTreeQuitOnOpen = 1
-" let NERDTreeKeepTreeInNewTab = 1
-
-" Neomake.
-let g:neomake_open_list               = 2
-let g:neomake_css_makers              = ['csslint']
-let g:neomake_javascript_makers       = ['jshint', 'eslint', 'jscs']
-let g:neomake_sh_makers               = ['sh', 'shellcheck']
-" let g:neomake_sh_shellcheck_args      = ['--exclude=sc2155,sc2032,sc1090,sc2033']
-let g:neomake_php_makers              = ['php', 'phpcs']
-let g:neomake_php_phpcs_args_standard = 'Drupal'
-let g:neomake_python_makers           = ['pylint', 'pep8', 'python']
-let g:neomake_scss_makers             = ['scss-lint']
-let g:neomake_text_makers             = ['proselint']
-let g:neomake_json_makers             = ['jsonlint', 'jsonval']
-
-" CtrlP
-" let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
-let g:ctrlp_use_caching = 0
-let g:ctrlp_match_window_bottom = 1 " Show match window at the top of the screen
-let g:ctrlp_max_files = 0           " No file list limit.
-let g:ctrlp_max_depth = 100         " Default 40.
-let g:ctrlp_switch_buffer = 'et'    " Jump to a file if it's open already
-let g:ctrlp_clear_cache_on_exit = 0 " Speed up by not removing clearing cache evertime.
-let g:ctrlp_mruf_max = 250          " Number of recently opened files
-let g:ctrlp_map = '<C-p>'
-" Ignore some folders and files for CtrlP indexing
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\files\|tmp\|vendor$',
-  \ 'file': '\.(DS_Store|.min.js|.min.css)$'
-  \}
-if executable('ag')
-    set grepprg=ag\ --nogroup\ --nocolor
-    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-else
-  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
-  let g:ctrlp_prompt_mappings = {
-    \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
-    \ }
-endif
-
-
-" ========================================================================
-" Theme Settings.                                                        |
-" ========================================================================
-
-
-
-" ========================================================================
-" Plugin Mapping.                                                        |
-" ========================================================================
-
-" Start interactive EasyAlign in visual mode (e.g. vipga).
-xmap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object (e.g. gaip).
-nmap ga <Plug>(EasyAlign)
-
-" Unite.vim.
-nnoremap <C-f> :Unite -start-insert -auto-resize file file_rec/async file_mru everything<CR>
-
-" Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
-vmap <Enter> <Plug>(EasyAlign)
-
-" Fire up FZF.
-" nnoremap <C-f> :FZF<CR>
-nnoremap <C-g> :GitFiles<CR>
-
-" ranger.vim.
-nmap <Leader>r :call OpenRanger()<CR>
-
-" Choose file to edit from most recently opened.
-nmap <Leader>m :CtrlPMRUFiles<CR>
-nmap <silent> <C-m> :CtrlPMRUFiles<CR>
-
-" Incsearch.
-let g:incsearch#auto_nohlsearch = 1
-map / <Plug>(incsearch-forward)
-map ? <Plug>(incsearch-backward)
-map n <Plug>(incsearch-nohl-n)
-map N <Plug>(incsearch-nohl-N)
-
-" NERDTree.
-map <Leader>n :NERDTreeToggle \| :silent NERDTreeMirror<CR>
-map <C-n> :NERDTreeToggle \| :silent NERDTreeMirror<CR>
-nmap <Leader>nt :NERDTreeFind<CR>
-
-" Ack.
-nnoremap <Leader>a :Ack<Space>
-
-" Tagbar.
-nnoremap <Leader>tt :TagbarToggle<CR>
-
-" GitGutter.
-noremap <Leader>gg :GitGutterToggle<CR>
-
-
-" ========================================================================
-" Plugin Autocommands.                                                   |
-" ========================================================================
-
-" Close NERDTree when closing the last window/exiting Vim.
-autocmd BufEnter * if (winnr('$') == 1 && exists('b:NERDTreeType') && b:NERDTreeType == 'primary') | q | endif
-
-" Lint when saving files.
-" autocmd! BufWritePost,BufEnter * Neomake
-
-" Open Tagbar by default for some filetypes.
-" autocmd FileType php,javascript,python,vim nested :TagbarOpen
-
-" Strip whitespace on save.
-autocmd BufWritePre * StripWhitespace
-
-" vim-commentary.
-autocmd FileType php setlocal commentstring=//\ %s
 
 
 " ========================================================================
 " General Config.                                                        |
 " ========================================================================
 
-if has('autocmd')
-  filetype plugin indent on
-  "           │     │    └──── Enable file type detection
-  "           │     └───────── Enable loading of indent file
-  "           └─────────────── Enable loading of plugin files
-endif
+filetype plugin indent on
 
 let mapleader = ','
 let g:mapleader = ','
@@ -484,23 +285,23 @@ let g:mapleader = ','
 syntax enable  " Enable syntax highlighting.
 
 set background=dark
-set conceallevel=0 " Don't conceal quotes in JSON files.
+set conceallevel=0            " Don't conceal quotes in JSON files.
 
-set autochdir  " Automatically change to the directory of the file open.
-set autoread   " Re-load files on external modifications and none locally.
-set autowrite  " Automatically save before :next, :make etc.
+set autochdir                 " Automatically change to the directory of the file open.
+set autoread                  " Re-load files on external modifications and none locally.
+set autowrite                 " Automatically save before :next, :make etc.
 set whichwrap=b,s,h,l,<,>,[,] " Characters which wrap lines (b = <BS>, s = <Space>).
 
 set t_vb=
-set noerrorbells " Ring the bell (beep or screen flash) for error messages.
-set visualbell   " Use visual bell instead of beeping.
-set shortmess=aAI " ┐ Avoid all the hit-enter prompts.
-                  " | a: All abbreviations.
-                  " | A: No existing swap file 'ATTENTION' message.
-                  " ┘ I: No |:intro| starting message.
+set noerrorbells              " Ring the bell (beep or screen flash) for error messages.
+set visualbell                " Use visual bell instead of beeping.
+set shortmess=aAI             " ┐ Avoid all the hit-enter prompts.
+                              " | a: All abbreviations.
+                              " | A: No existing swap file 'ATTENTION' message.
+                              " ┘ I: No |:intro| starting message.
 
-set iskeyword+=/  " Include slashes as part of a word
-set so=7          " 7 lines to the cursor when moving vertically using j/k.
+set iskeyword+=/              " Include slashes as part of a word
+set so=7                      " 7 lines to the cursor when moving vertically using j/k.
 
 " Persistent undo.
 if has('persistent_undo')
@@ -529,11 +330,12 @@ set directory=~/.vim/swap//,/tmp//,~/tmp//
 set wildchar=<Tab>
 set wildmode=longest,list,full
 set wildmenu
+set pumheight=50 " Maximum number of items to show in the omnicomplete menu.
 
 set nostartofline            " Don't reset cursor to start of line when moving around.
 set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
-                             " | a: All abbreviations.
-                             " | A: No existing swap file 'ATTENTION' message.
+                             " │ a: All abbreviations.
+                             " │ A: No existing swap file 'ATTENTION' message.
                              " ┘ I: No |:intro| starting message.
 set spelllang=en_au          " Set the spellchecking language.
 set cursorline               " Highlight line of the cursor.
@@ -544,6 +346,7 @@ set clipboard=unnamed        " Use OS clipboard register by default.
 set history=10000            " Number of commands remembered.
 set smartindent              " Smart auto-indenting when starting a new line.
 set autoindent               " Auto-indent inserted lines.
+set smartindent              " Smart autoindenting when starting a new line.
 set magic                    " Enable extended regex.
 set copyindent               " Use current line indenting when starting a new line.
 set hidden                   " Hide unsaved buffers instead of close on file open.
@@ -553,6 +356,8 @@ set nowrap                   " Don't wrap lines.
 set textwidth=0              " Disable wrapping when pasting text.
 " set linebreak              " Wrap at convenient characters, set in 'breakat'.
 set ignorecase               " Case insensitive searches.
+set fileignorecase           " Ignore file and directory case sensitivity.
+set wildignorecase           " Ignore file and directory completion case sensitivity.
 set smartcase                " ... but not when search pattern contains an upper case character.
 set splitbelow               " Puts new split windows to the bottom of the current.
 set splitright               " Puts new vsplit windows to the right of the current.
@@ -565,17 +370,20 @@ set relativenumber           " Show relative line numbers.
 set nrformats-=octal         " Numbers beginning with '0' not considered.
 set shiftround               " Round indents to nearest multiple of 'shiftwidth'.
 set tabpagemax=50            " Maximum number of tab pages to be opened by the |-p| command line argument.
-set ttimeout                 " Enable timout on key mappings and insert-mode <CTRL-*> commands.
+" set ttimeout                 " Enable timout on key mappings and insert-mode <CTRL-*> commands.
+" set ttimeoutlen=50           " Limit the timeout to 50 milliseconds.
 set scrolloff=1              " Scroll offset lines.
-set sidescrolloff=5          " Minimal number of screen columns to keep.
-set ttimeoutlen=50           " Limit the timeout to 50 milliseconds.
+set sidescroll=5             " Minimal columns to show when `wrap` is set.
+set sidescrolloff=5          " Minimal columns to show when `nowrap` is set.
 set fileformats=unix,dos,mac " Prefer Unix over Windows over OS 9 EOLs.
 set complete+=kspell         " Enable word completion.
-set completeopt=menu,menuone,longest,preview,noselect
+set complete-=i              " Disable current and included file scanning, use tags instead.
+set completeopt=menu,menuone,longest,noselect
+" set completeopt+=preview
 
 " More detailed and accurate insert mode completion.
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*  " Completion ignore patterns.
-set wildignore+=*.min.css,*.min.js         " Completion ignore patterns.
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/* " Completion ignore patterns.
+set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
 
 set smarttab                    " Emulate tab behaviour with spaces.
 set expandtab                   " Tabs are spaces.
@@ -592,9 +400,10 @@ set ttyfast                     " Send more characters for redraws.
 set mouse=ar                    " Enable mouse use in all modes.
 set backspace=indent,eol,start  " Allow backspacing over autoindent, line breaks and start of insert action.
 set gcr=a:blinkon0              " Disable cursor blink.
-set synmaxcol=500               " Don't try to highlight long lines.
-set nofoldenable                " Disable folding.
-set foldlevelstart=99           " Open all folds by default.
+set synmaxcol=250               " Don't try to highlight long lines.
+" set nofoldenable                " Disable folding.
+set foldmethod=manual           " Manual folding - faster.
+set foldlevelstart=3            " Limit the fold level.
 
 " Set the screen title to the current filename.
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servername}
@@ -607,9 +416,13 @@ set laststatus=2 " 2=always, status line for the last window.
 if has('vim_starting')
   " colorscheme monokain
   " colorscheme molokai
-  colorscheme gruvbox
+  " colorscheme gruvbox
+  " colorscheme OceanicNext
+  " colorscheme onedark
+  colorscheme PaperColor
   set background=dark
-  set guifont=Source\ Code\ Pro\ for\ Powerline:h15
+  " set guifont=Source\ Code\ Pro\ for\ Powerline:h15
+  set guifont=mononoki:h16
   " set guifont=Hack:h15
   " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
   " set guifont=Inconsolata-dz\ for\ Powerline:h15
@@ -617,7 +430,7 @@ if has('vim_starting')
 endif
 
 " NeoVim doesn't support this?
-if !has('nvim')
+if has('antialias')
   set antialias
 endif
 
@@ -630,21 +443,42 @@ setglobal fileencoding=UTF-8  " Change default file encoding when writing new fi
 set listchars=tab:→\          " ┐
 set listchars+=trail:·        " │ Use custom symbols to
 set listchars+=eol:↲          " │ represent invisible characters.
-set listchars+=extends:»      " |
-set listchars+=precedes:«     " |
+set listchars+=extends:»      " │
+set listchars+=precedes:«     " │
 set listchars+=nbsp:⣿         " ┘
 set showbreak=↪
 
-if v:version > 703 || v:version == 703 && has('patch541')
-  set formatoptions+=j  " Delete comment character when joining commented lines.
-endif
+" Auto-formatting options.
+set formatoptions-=t " Don't auto-wrap text using textwidth...
+set formatoptions+=c " ... Unless it's a comment.
+set formatoptions+=r " Auto insert the current comment leader after hitting <Enter> in Insert mode.
+set formatoptions+=o " Auto insert the current comment leader after hitting 'o' or 'O' in Normal mode.
+set formatoptions+=q " Allow formatting of comments with 'gq" (not blank lines or only the comment leader).
+set formatoptions+=n " When formatting text, recognize numbered lists (see 'formatlistpat' for list kinds).
+set formatoptions+=j " Delete comment character when joining commented lines.
 
 " Visual.
 set colorcolumn=80
 
-" NeoVim Specific.
+" Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
+" If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support.
+" See http://sunaku.github.io/tmux-24bit-color.html#usage for more information.
+if empty($TMUX)
+  if has('nvim')
+    " For Neovim 0.1.3 and 0.1.4 (https://github.com/neovim/neovim/pull/2198).
+    let $NVIM_TUI_ENABLE_TRUE_COLOR = 1
+  endif
+
+  " For Neovim > 0.1.5 and Vim > patch 7.4.1799 (https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162).
+  " Based on Vim patch 7.4.1770 (`guicolors` option) (https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd).
+  " (https://github.com/neovim/neovim/wiki/Following-HEAD#20160511)
+  if has('termguicolors')
+    set termguicolors
+  endif
+endif
+
+" Neovim specific.
 if has('nvim')
-  let $NVIM_TUI_ENABLE_TRUE_COLOR   = 1
   let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
 endif
 
@@ -653,8 +487,10 @@ endif
 " Filetype Settings.                                                     |
 " ========================================================================
 
-let g:is_posix         =  1 " Stop error highlighting `$()`.
-let g:php_sync_method  = -1 " Default, but it gives warnings without explicit `let`.
+let g:is_posix          = 1 " Stop error highlighting `$()`.
+let g:php_sync_method   = -1 " Default, but it gives warnings without explicit `let`.
+let g:php_htmlInStrings = 1   " Enable HTML syntax highlighting inside strings.
+let g:php_folding       = 0 " Disable syntax folding for classes and functions.
 
 
 " ========================================================================
@@ -671,7 +507,7 @@ endif
 " Let MacVim control the shift key, for selecting with shift.
 if has('gui_macvim')
   set macmeta      " Use option (alt) as meta key.
-	let macvim_skip_colorscheme   = 1
+  let macvim_skip_colorscheme   = 1
   let macvim_hig_shift_movement = 1
 
   map <D-w> :bw<CR>
@@ -688,7 +524,7 @@ map <C-t> :enew<CR>
 map <Leader>e :enew<CR>
 
 " Insert newline.
-map <Leader><Enter> o<ESC>
+map <Leader><Enter> o<Esc>
 
 " Close buffer.
 map <Leader>d :lclose<CR>:bwipe!<CR>
@@ -697,13 +533,17 @@ map <Leader>d :lclose<CR>:bwipe!<CR>
 map <leader>ss :setlocal spell!<CR>
 
 " Toggle search highlighting.
-noremap <ESC> :set hlsearch! hlsearch?<CR>
+noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
+
+" Correct bad indent while pasting.
+" See: http://vim.wikia.com/wiki/Format_pasted_text_automatically
+nnoremap p p=`]
 
 " Strip trailing whitespace.
 nmap <Leader>sw :%s/\s\+$//e<CR>
 
 " Easier EX mode.
-nnoremap ; :
+map ; :
 
 " Jump between next and previous buffers.
 map <Leader>] :lclose<CR>:bprev<CR>
@@ -713,7 +553,7 @@ map <Leader>. :lclose<CR>:bnext<CR>
 noremap <C-Tab> :lclose<CR>:bnext<CR>
 noremap <C-S-Tab> :lclose<CR>:bprev<CR>
 
-" Don't exist Visual mode when shifting.
+" Don't exit Visual mode when shifting.
 xnoremap <  <gv
 xnoremap >  >gv
 
@@ -742,6 +582,9 @@ map <Down> <NOP>
 map <Left> <NOP>
 map <Right> <NOP>
 
+" Disable Ex mode.
+nnoremap Q <NOP>
+
 " Switch CWD to the directory of the open buffer.
 map <Leader>cd :cd %:p:h<cr>:pwd<cr>
 
@@ -762,8 +605,11 @@ noremap <silent><Leader>/ :noh<CR>
 nmap <Leader>w :w!<CR>
 cmap w!! %!sudo tee > /dev/null %
 
+" Keep cursor in same spot after a visual yank.
+vnoremap <expr>y "my\"" . v:register . "y`y"
+
 if has('nvim')
-  " Terminal to Normal mode with <ESC>.
+  " Terminal to Normal mode with <Esc>.
   tnoremap <Esc> <C-\><C-n>
 endif
 
@@ -774,6 +620,10 @@ endif
 
 " Brighten line numbers.
 highlight LineNr guifg=#FAFAFA
+augroup WhiteLineNumbers
+  autocmd!
+  autocmd ColorScheme * highlight LineNr guifg=#FAFAFA
+augroup END
 
 " No current line number background.
 highlight CursorLineNr ctermbg=NONE guibg=NONE
@@ -783,21 +633,22 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 
 
 " ========================================================================
-" Auto Commands.                                                         |
+" Autocommands.                                                          |
 " ========================================================================
 
 " Drupal PHP filetypes.
 augroup drupal
   autocmd!
-  autocmd BufRead,BufNewFile *.engine  set filetype=php
-  autocmd BufRead,BufNewFile *.inc     set filetype=php
-  autocmd BufRead,BufNewFile *.install set filetype=php
-  autocmd BufRead,BufNewFile *.module  set filetype=php
-  autocmd BufRead,BufNewFile *.profile set filetype=php
-  autocmd BufRead,BufNewFile *.test    set filetype=php
-  autocmd BufRead,BufNewFile *.theme   set filetype=php
-  autocmd BufRead,BufNewFile *.tpl.php set filetype=phtml
-  autocmd BufRead,BufNewFile *.view    set filetype=php
+  autocmd BufRead,BufNewFile *.engine  setlocal filetype=php
+  autocmd BufRead,BufNewFile *.inc     setlocal filetype=php
+  autocmd BufRead,BufNewFile *.install setlocal filetype=php
+  autocmd BufRead,BufNewFile *.module  setlocal filetype=php
+  autocmd BufRead,BufNewFile *.profile setlocal filetype=php
+  autocmd BufRead,BufNewFile *.test    setlocal filetype=php
+  autocmd BufRead,BufNewFile *.theme   setlocal filetype=php
+  autocmd BufRead,BufNewFile *.view    setlocal filetype=php
+  " autocmd BufRead,BufNewFile *.tpl.php set syntax=php.html
+  autocmd BufRead,BufNewFile *.tpl.php setlocal filetype=php.html " Needed?
 augroup END
 
 " Prevent stopping on - characters for CSS files.
@@ -809,23 +660,44 @@ augroup END
 " Other filetypes.
 augroup special_filetypes
   autocmd!
-  autocmd BufRead,BufNewFile *.scss set filetype=scss.css
+  " autocmd BufRead,BufNewFile *.scss  setlocal filetype=scss.css
+  autocmd BufRead,BufNewFile *.plist setlocal filetype=xml
 augroup END
 
 " Enable omni-completion.
-set omnifunc=syntaxcomplete#Complete
+if has_key(g:plugs, 'YouCompleteMe')
+  set omnifunc=youcompleteme#OmniComplete
+else
+  set omnifunc=syntaxcomplete#Complete
+endif
 augroup omnifuncs
   autocmd!
-  if has('nvim')
-    autocmd FileType php setlocal omnifunc=phpcd#CompletePHP
-  else
-    autocmd FileType php setlocal omnifunc=phpcomplete#CompletePHP
+
+  " PHP Omnicompletion.
+  if has_key(g:plugs, 'phpcd.vim')
+    autocmd FileType php,phtml setlocal omnifunc=phpcd#CompletePHP
+  elseif has_key(g:plugs, 'phpcomplete.vim')
+    autocmd FileType php,phtml setlocal omnifunc=phpcomplete#CompletePHP
   endif
-  autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
-  autocmd FileType xml           setlocal omnifunc=xmlcomplete#CompleteTags
-  autocmd FileType python        setlocal omnifunc=pythoncomplete#Complete
-  autocmd FileType javascript    setlocal omnifunc=tern#Complete
-  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+
+  " Javascript Omnicompletion.
+  if has_key(g:plugs, 'tern_for_vim')
+    autocmd FileType javascript setlocal omnifunc=tern#Complete
+  elseif has_key(g:plugs, 'YouCompleteMe')
+    autocmd FileType javascript setlocal omnifunc=youcompleteme#OmniComplete
+  elseif has_key(g:plugs, 'vim-eclim') " Must be set to avoid jspc conflict.
+    autocmd FileType javascript setlocal omnifunc=eclim#javascript#complete#CodeComplete
+  else
+    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+  endif
+
+  " Other Omnicompletion (ignore if Eclim is in use).
+  if 1 || !has_key(g:plugs, 'vim-eclim')
+    autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
+    autocmd FileType xml           setlocal omnifunc=xmlcomplete#CompleteTags
+    autocmd FileType python        setlocal omnifunc=pythoncomplete#Complete
+    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+  endif
 augroup END
 
 " Return to last edit position when opening files.
@@ -845,6 +717,7 @@ augroup END
 " Change to random colorscheme from a defined list of awesome ones.
 function! NextColorScheme()
   let colorschemes = [
+    \'OceanicNext',
     \'Tomorrow-Night',
     \'apprentice',
     \'badwolf',
@@ -892,6 +765,7 @@ function! NextFont()
     \'Menlo\ for\ Powerline:h15.5',
     \'Meslo\ LG\ M\ DZ\ for\ Powerline:h15',
     \'Monaco\ for\ Powerline:h15',
+    \'Mononoki:h16',
     \'Office\ Code\ Pro\ D:h15',
     \'PT\ Mono\ for\ Powerline:h16',
     \'Source\ Code\ Pro\ for\ Powerline:h15',
@@ -930,6 +804,323 @@ if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
 endif
 
+
+" ========================================================================
+" Plugin Settings.                                                       |
+" ========================================================================
+
+" delimitMate.
+let delimitMate_expand_cr            = 1
+let delimitMate_expand_space         = 1
+let delimitMate_expand_inside_quotes = 1
+let b:delimitMate_jump_expansion     = 1
+
+" Deoplete.
+let g:deoplete#enable_at_startup              = has_key(g:plugs, 'deoplete.nvim')
+let g:deoplete#delimiters                     = ['/', '.', '::', ':', '#', '->'] " Added '->'.
+let g:deoplete#sources                        = get(g:, 'deoplete#sources', {})
+" let g:deoplete#sources._                      = ['omni', 'buffer', 'member', 'tag', 'ultisnips', 'file', 'dictionary']
+let g:deoplete#sources._                      = ['tag', 'dictionary']
+" Deoplete-compatible (asynchronous) omnifuncs.
+let g:deoplete#omni#input_patterns            = get(g:, 'deoplete#omni#input_patterns', {})
+let g:deoplete#omni#input_patterns.javascript = '[^. \t]\.\w*'
+" let g:deoplete#omni#input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
+" set showfulltag
+let g:deoplete#keyword_patterns = get(g:, 'deoplete#keyword_patterns', {})
+let g:deoplete#keyword_patterns.default = '[a-zA-Z_]\w{2,}?'
+let g:deoplete#omni#input_patterns.javascript = '[^. \t]\.\%(\h\w*\)\?'
+" let g:deoplete#omni#input_patterns.php      = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" Regular (synchronous) omnifuncs.
+let g:deoplete#omni_patterns                = get(g:, 'deoplete#omni_patterns', {})
+" let g:deoplete#omni_patterns.php            = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+
+" Use partial fuzzy matches like YouCompleteMe.
+let g:deoplete#enable_camel_case = 1 " Smart-case for fuzzy matching.
+" call deoplete#custom#set('_',     'matchers', ['matcher_full_fuzzy'])
+" call deoplete#custom#set('omni', 'min_pattern_length', 9999)
+" call deoplete#custom#set('_',    'min_pattern_length', 9999)
+" call deoplete#custom#set('buffer',    'min_pattern_length', 9999)
+" call deoplete#custom#set('php',    'min_pattern_length', 9999)
+" let g:deoplete#enable_refresh_always = 1
+" let g:deoplete#disable_auto_complete = 0
+
+" let g:deoplete#omni_patterns            = {}
+" let g:deoplete#omni_patterns.c          = '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+" let g:deoplete#omni_patterns.cpp        = '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+" let g:deoplete#omni_patterns.css        = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]'
+" let g:deoplete#omni_patterns.go         = '[^.[:digit:] *\t]\.\w*'
+" let g:deoplete#omni_patterns.html       = '<[^>]*'
+" let g:deoplete#omni_patterns.javascript = '[^. \t]\.\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.md         = '<[^>]*'
+" let g:deoplete#omni_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.python     = ['[^. *\t]\.\h\w*\','\h\w*::']
+" let g:deoplete#omni_patterns.python3    = ['[^. *\t]\.\h\w*\','\h\w*::']
+" let g:deoplete#omni_patterns.ruby       = ['[^. *\t]\.\w*', '\h\w*::']
+" let g:deoplete#omni_patterns.sass       = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]'
+" let g:deoplete#omni_patterns.scss       = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]'
+" let g:deoplete#omni_patterns.xml        = '<[^>]*'
+
+" Eclim.
+let g:EclimCompletionMethod = 'omnifunc'
+
+" elzr/vim-json.
+let g:vim_json_syntax_conceal = 0 " Show quotes in JSON files.
+
+" GitGutter.
+let g:gitgutter_max_signs               = 1000 " Bump up from default 500.
+let g:gitgutter_sign_added              = '┃+'
+let g:gitgutter_sign_modified           = '┃…'
+let g:gitgutter_sign_modified_removed   = '┃±'
+let g:gitgutter_sign_removed            = '┃−'
+let g:gitgutter_sign_removed_first_line = '┃⇈'
+" let g:gitgutter_sign_added              = '+'
+" let g:gitgutter_sign_modified           = '~'
+" let g:gitgutter_sign_modified_removed   = '±'
+" let g:gitgutter_sign_removed            = '−'
+" let g:gitgutter_sign_removed_first_line = '¯'
+" let g:gitgutter_override_sign_column_highlight = 0
+" highlight GitGutterAdd          ctermbg=NONE guibg=NONE
+" highlight GitGutterChange       ctermbg=NONE guibg=NONE
+" highlight GitGutterDelete       ctermbg=NONE guibg=NONE
+" highlight GitGutterChangeDelete ctermbg=NONE guibg=NONE
+
+let g:grepper = {
+    \ 'tools': ['ag', 'ack', 'git', 'grep'],
+    \ 'open':  0,
+    \ 'jump':  1,
+    \ }
+command! -nargs=* -complete=file GG Grepper -tool git -query <args>
+command! -nargs=* AG Grepper -noprompt -tool ag -grepprg ag --vimgrep <args> %
+
+" indentLine.
+let g:indentLine_char            = '│'
+let g:indentLine_fileTypeExclude = ['help']
+
+" PHP Documentor.
+let g:pdv_template_dir = g:plug_home . '/pdv/templates'
+
+" phpcomplete.
+let g:phpcomplete_parse_docblock_comments = 1
+
+" startify.
+let g:startify_change_to_dir          = 1 " Change to selected file or bookmark's directory.
+let g:startify_enable_special         = 0 " Don't show <empty buffer> and <quit>.
+let g:startify_relative_path          = 1 " Show relative filenames (directories by default).
+let g:startify_session_autoload       = 1 " Auto load `Session.vim` if present when opening Vim.
+let g:startify_session_delete_buffers = 1 " Delete open buffers before loading a new session.
+let g:startify_session_persistence    = 1 " Update session before closing Vim and loading session with `:SLoad`.
+if executable('fortune') && executable('cowsay')
+  let g:startify_custom_header  =
+    \ map(split(system('fortune -s | cowsay'), '\n'), '"   ". v:val') + ['','']
+endif
+
+" Airline
+let g:airline_theme = 'luna'
+" let g:airline_theme = 'bubblegum'
+" let g:airline_theme = 'badwolf'
+" let g:airline_theme = 'wombat'
+
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.whitespace = 'Ξ'
+let g:airline_powerline_fonts                      = 1
+let g:airline_enable_syntastic                     = exists(':SyntasticCheck')
+let g:airline#extensions#syntastic#enabled         = exists(':SyntasticCheck')
+let g:airline#extensions#branch#enabled            = 1
+let g:airline#extensions#bufferline#enabled        = 1
+let g:airline#extensions#capslock#enabled          = 1
+let g:airline#extensions#ctrlp#show_adjacent_modes = 1
+let g:airline#extensions#hunks#enabled             = 1
+let g:airline#extensions#tabline#enabled           = 1
+let g:airline#extensions#tabline#fnamemod          = ':t' " Only show filename.
+let g:airline#extensions#undotree#enabled          = 1
+let g:airline#extensions#whitespace#enabled        = 1
+
+" NerdTree
+let NERDTreeShowBookmarks = 1
+let NERDTreeIgnore = ['\\.pyc', '\\\~$', '\\.swo$', '\\.swp$', '\\.git', '\\.hg', '\\.svn', '\\.bzr']
+let NERDTreeChDirMode = 0
+" let NERDTreeQuitOnOpen = 1
+" let NERDTreeKeepTreeInNewTab = 1
+
+" Neomake.
+let g:neomake_serialize               = 1
+let g:neomake_open_list               = 2
+let g:neomake_css_makers              = ['csslint']
+let g:neomake_javascript_makers       = ['jshint', 'eslint', 'jscs']
+let g:neomake_sh_makers               = ['sh', 'shellcheck']
+" let g:neomake_sh_shellcheck_args      = ['--exclude=sc2155,sc2032,sc1090,sc2033']
+let g:neomake_php_makers              = ['php', 'phpcs']
+let g:neomake_php_phpcs_args_standard = 'Drupal'
+let g:neomake_python_makers           = ['pylint', 'pep8', 'python']
+let g:neomake_scss_makers             = ['scss-lint']
+let g:neomake_text_makers             = ['proselint']
+let g:neomake_json_makers             = ['jsonlint', 'jsonval']
+
+" Supertab.
+let g:SuperTabDefaultCompletionType = 'context'
+
+" Syntastic
+" let g:syntastic_filetype_map = { 'phtml': 'php' }
+" let g:syntastic_error_symbol             = '✗'
+let g:syntastic_mode_map = { 'mode': 'passive' } " Disable active mode by default.
+let g:syntastic_error_symbol             = '😭'
+let g:syntastic_warning_symbol           = '😢'
+let g:syntastic_aggregate_errors         = 1 " Run all linters, even if first found errors.
+let g:syntastic_always_populate_loc_list = 1 " Add errors to location-list.
+let g:syntastic_auto_loc_list            = 1 " Automatically open/close location-list if errors are found.
+" let g:syntastic_check_on_open            = 1
+let g:syntastic_css_checkers             = ['csslint']
+" let g:syntastic_javascript_checkers = ['jshint', 'eslint', 'jscs']
+let g:syntastic_html_checkers            = [] " Disable HTML checkers.
+let g:syntastic_javascript_checkers      = ['jshint']
+let g:syntastic_sh_checkers              = ['sh', 'shellcheck']
+let g:syntastic_sh_shellcheck_args       = '--exclude=SC2155,SC2032,SC1090,SC2033' " Ignore declare and assign on same line.
+let g:syntastic_php_checkers             = ['php', 'phpcs']
+let g:syntastic_python_checkers          = ['pylint', 'pep8', 'python']
+let g:syntastic_scss_checkers            = ['scss_lint']
+let g:syntastic_text_checkers            = ['proselint']
+let g:syntastic_json_checkers            = ['jsonlint', 'jsonval']
+let g:syntastic_stl_format               = '[%E{E: %fe #%e}%B{, }%W{W: %fw #%w}]'
+
+" PHPCD.
+let g:phpcd_php_cli_executable = '/usr/local/bin/php'
+
+" deoplete-ternjs.
+" let g:tern_request_timeout     = 2
+let g:tern_show_signature_in_pum          = 1         " Show function signatures in the completion menu.
+let g:tern_show_argument_hints            = 'on_move' " When to update argument hints. Default is 0.
+let g:tern#is_show_argument_hints_enabled = 1
+let g:tern#command                        = ['tern'] " Use tern_for_vim.
+let g:tern#arguments                      = ['--persistent']
+
+" YouCompleteMe.
+let g:ycm_complete_in_comments                      = 1
+let g:ycm_collect_identifiers_from_tags_files       = 1 " Crashes when enabling tags...
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_autoclose_preview_window_after_insertion  = 1
+let g:ycm_add_preview_to_completeopt                = 1
+let g:ycm_min_num_of_chars_for_completion           = 1
+" Default values, not being set by YCM. Crashes Neovim when too aggressive.
+" if !has('nvim')
+"   if !exists('g:ycm_semantic_triggers')
+"     let g:ycm_semantic_triggers = {}
+"   endif
+"   let g:ycm_semantic_triggers = {
+"     \ 'c' : ['->', '.'],
+"     \ 'objc' : ['->', '.', 're!\[[_a-zA-Z]+\w*\s', 're!^\s*[^\W\d]\w*\s',
+"     \           're!\[.*\]\s'],
+"     \ 'ocaml' : ['.', '#'],
+"     \ 'cpp,objcpp' : ['->', '.', '::'],
+"     \ 'perl' : ['->'],
+"     \ 'php' : ['->', '::', 're!(?=[a-zA-Z_])'],
+"     \ 'cs,java,javascript,typescript,d,python,perl6,scala,vb,elixir,go' : ['.'],
+"     \ 'ruby' : ['.', '::'],
+"     \ 'lua' : ['.', ':'],
+"     \ 'erlang' : [':'],
+"     \ }
+" endif
+
+" CtrlP.
+let g:ctrlp_clear_cache_on_exit = 0    " Speed up by not removing clearing cache evertime.
+" Options:
+"   'FelikZ/ctrlp-py-matcher' - More accurate than cmatch, similar speed, no tags support.
+"   'JazzCore/ctrlp-cmatcher' - Faster, still notable lag, no tags support.
+let g:ctrlp_match_func          = {'match' : 'pymatcher#PyMatch' }
+" let g:ctrlp_match_func          = {'match' : 'matcher#cmatch' }
+let g:ctrlp_match_window_bottom = 1    " Show match window at the top of the screen
+let g:ctrlp_max_depth           = 100  " Default 40.
+let g:ctrlp_max_files           = 0    " No file list limit.
+let g:ctrlp_mruf_max            = 500  " Number of recently opened files
+let g:ctrlp_switch_buffer       = 'et' " Jump to a file if it's open already.
+let g:ctrlp_use_caching         = 1
+let g:ctrlp_working_path_mode   = 'ra'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\.git$\|\files\|tmp\|vendor$',
+  \ 'file': '\.(DS_Store|.min.js|.min.css)$'
+  \}
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+  let g:ctrlp_user_command = 'ag %s --files-with-matches --ignore-case --nocolor --file-search-regex'
+endif
+
+" pangloss/vim-javascript.
+let g:javascript_enable_domhtmlcss = 1
+
+
+" ========================================================================
+" Theme Settings.                                                        |
+" ========================================================================
+
+" Gruvbox.
+let g:gruvbox_contrast_dark = 'hard'
+
+
+" ========================================================================
+" Plugin Mapping.                                                        |
+" ========================================================================
+
+" Start interactive EasyAlign in visual mode (e.g. vipga).
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip).
+nmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
+vmap <Enter> <Plug>(EasyAlign)
+
+" Fugitive.
+nmap <Leader>gs :Gstatus<CR>
+nmap <Leader>gd :Gdiff<CR>
+
+" Fire up FZF.
+nnoremap <C-f> :FZF<space>
+nnoremap <Leader>f :FZF<space>
+nnoremap <C-g> :GitFiles<CR>
+nnoremap <Leader>g :GitFiles<CR>
+
+" Choose file to edit from most recently opened.
+nmap <Leader>m :CtrlPMRUFiles<CR>
+nmap <silent> <C-m> :CtrlPMRUFiles<CR>
+nmap <Leader>t :CtrlPTag<CR>
+nmap <silent> <C-t> :CtrlPTag<CR>
+
+" Incsearch.
+let g:incsearch#auto_nohlsearch = 1
+map / <Plug>(incsearch-forward)
+map ? <Plug>(incsearch-backward)
+map n <Plug>(incsearch-nohl-n)
+map N <Plug>(incsearch-nohl-N)
+
+" NERDTree.
+map <Leader>n :NERDTreeToggle \| :silent NERDTreeMirror<CR>
+map <C-n> :NERDTreeToggle \| :silent NERDTreeMirror<CR>
+nmap <Leader>nt :NERDTreeFind<CR>
+
+" indentLine.
+map <Leader>il <silent> :IndentLinesToggle<CR>
+
+" Ag.
+nnoremap <Leader>a :Ag<Space>
+
+" Tagbar.
+nnoremap <Leader>tt :TagbarToggle<CR>
+
+" GitGutter.
+noremap <Leader>gg :GitGutterToggle<CR>
+
+
+" Lint with Syntastic.
+nmap <Leader>st :SyntasticToggle<CR>
+nmap <Leader>sc :SyntasticCheck<CR>
+
+" Linting.
+if exists(':Neomake')
+  nnoremap <Leader>l :Neomake<CR>
+elseif exists(':SyntasticCheck')
+  nnoremap <Leader>l :SyntasticCheck<CR>
+endif
 
 
 " ========================================================================
