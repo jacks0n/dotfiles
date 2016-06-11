@@ -1,13 +1,13 @@
 # vim: filetype=sh
 
-# Must be run by user to set defaults
+# Must be run by user to set defaults.
 if [ "$USER" == 'root' ] ; then
   echo 'ERROR: Running as root!'
   exit 1
 fi
 
 
-# Ask for the administrator password upfront
+# Ask for the administrator password upfront.
 sudo -v
 
 
@@ -15,63 +15,64 @@ sudo -v
 #  General OS X                                                               #
 ###############################################################################
 
-# Set computer name, hostname, and NetBIOS name (via System Preferences => Sharing)
-sudo scutil --set ComputerName 'Jackson'   # User-friendly name for system
-sudo scutil --set LocalHostName 'jackson'  # For multicast-DNS (Bonjour)
-sudo scutil --set HostName 'jackson'
+# Set computer name, hostname, and NetBIOS name (via System Preferences => Sharing).
+sudo scutil --set ComputerName  'Jackson' # User-friendly name for system.
+sudo scutil --set LocalHostName 'jackson' # For multicast-DNS (Bonjour).
+sudo scutil --set HostName      'jackson'
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string 'jackson'
-# Disable startup chime
+
+# Disable startup chime.
 sudo nvram SystemAudioVolume=' '
 
-# Disable Dashboard
+# Disable Dashboard.
 defaults write com.apple.dashboard mcx-disabled -bool true
 
 # Use AirDrop over every interface. srsly this should be a default.
 defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
 
-# Save to disk (not to iCloud) by default
+# Save to disk (not to iCloud) by default.
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-# Restart automatically if the computer freezes
+# Restart automatically if the computer freezes.
 sudo systemsetup -setrestartfreeze on
-# Reveal IP address, hostname, OS version, etc. when clicking the clock
-# in the login window
+
+# Reveal IP address, hostname, OS version, etc. when clicking the clock in the login window.
 sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
 
-# Disable the "Are you sure you want to open this application?" dialog
+# Disable the "Are you sure you want to open this application?" dialog.
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
-# Disable smart quotes as they're annoying when typing code
+# Disable smart quotes as they're annoying when typing code.
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool false
 
-# Require password immediately after sleep or screen saver begins
-defaults write com.apple.screensaver askForPassword -int 1
+# Require password immediately after sleep or screen saver begins.
+defaults write com.apple.screensaver askForPassword      -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
-# Save screenshots to the desktop
+# Save screenshots to the desktop.
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
 
-# Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
+# Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF).
 defaults write com.apple.screencapture type -string 'JPG'
 
-# Enable subpixel font rendering on non-Apple LCDs
+# Enable subpixel font rendering on non-Apple LCDs.
 defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
-# Enable HiDPI display modes (requires restart)
+# Enable HiDPI display modes (requires restart).
 sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
 
-# Disable quarantining of downloaded files
+# Disable quarantining of downloaded files.
 defaults write com.apple.LaunchServices LSQuarantine -bool NO
 
-# Expand save panel by default
+# Expand save panel by default.
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
 
-# Enable automatic termination of inactive apps
+# Enable automatic termination of inactive apps.
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool false
 
-# Increase window resize speed for Cocoa applications
+# Increase window resize speed for Cocoa applications.
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
 # Expand print panel by default.
@@ -109,11 +110,11 @@ defaults write com.apple.terminal 'Startup Window Settings' -string 'Pro'
 ###############################################################################
 
 # Set up Safari for development.
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari IncludeInternalDebugMenu                  -bool true
+defaults write com.apple.Safari IncludeDevelopMenu                        -bool true
 defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+defaults write NSGlobalDomain   WebKitDeveloperExtras                     -bool true
 defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled' -bool true
-defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
 
 
@@ -121,81 +122,82 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 #  Finder                                                                     #
 ###############################################################################
 
-# Show full POSIX path as Finder window title
+# Show full POSIX path as Finder window title.
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
-# Disable the warning before emptying the Trash
+# Disable the warning before emptying the Trash.
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
-# Set Desktop as the default location for new Finder windows
+# Set Desktop as the default location for new Finder windows.
 # For other paths, use `PfLo` and `file:///full/path/here/`
-defaults write com.apple.finder NewWindowTarget -string 'PfDe'
+defaults write com.apple.finder NewWindowTarget     -string 'PfDe'
 defaults write com.apple.finder NewWindowTargetPath -string "file://$HOME/Desktop/"
 
 # Show the ~/Library folder.
 chflags nohidden ~/Library
 
 # Expand the following File Info panes:
-# "General", "Open with", and "Sharing & Permissions"
+# "General", "Open with", and "Sharing & Permissions".
 defaults write com.apple.finder FXInfoPanesExpanded -dict \
-    General -bool true \
-    OpenWith -bool true \
-    Privileges -bool true
+  General    -bool true \
+  OpenWith   -bool true \
+  Privileges -bool true
 
-# Show path bar by default
+# Show path bar by default.
 defaults write com.apple.finder ShowPathbar -bool true
 
-# Show status bar by default
+# Show status bar by default.
 defaults write com.apple.finder ShowStatusBar -bool true
 
-# Allow text selection in the Quick Look window
+# Allow text selection in the Quick Look window.
 defaults write com.apple.finder QLEnableTextSelection -bool true
 
-# Show icons for hard drives, servers, and removable media on the desktop
+# Show icons for hard drives, servers, and removable media on the desktop.
+defaults write com.apple.finder ShowHardDrivesOnDesktop         -bool true
+defaults write com.apple.finder ShowMountedServersOnDesktop     -bool true
+defaults write com.apple.finder ShowRemovableMediaOnDesktop     -bool true
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
-defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
-defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
-defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
-# Automatically open a new Finder window when a volume is mounted
+# Automatically open a new Finder window when a volume is mounted.
 defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true
 defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool true
 defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
 
-# Enable snap-to-grid for icons on the desktop and in other icon views
+# Enable snap-to-grid for icons on the desktop and in other icon views.
 /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:arrangeBy grid' "$HOME/Library/Preferences/com.apple.finder.plist"
 /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid' "$HOME/Library/Preferences/com.apple.finder.plist"
 /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:arrangeBy grid' "$HOME/Library/Preferences/com.apple.finder.plist"
 
-# Increase grid spacing for icons on the desktop and in other icon views
+# Increase grid spacing for icons on the desktop and in other icon views.
 /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:gridSpacing 100' ~/Library/Preferences/com.apple.finder.plist
 /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:gridSpacing 100' ~/Library/Preferences/com.apple.finder.plist
 /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:gridSpacing 100' ~/Library/Preferences/com.apple.finder.plist
 
-# When performing a search, search the current folder by default
+# When performing a search, search the current folder by default.
 defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'
 
-# Disable the warning when changing a file extension
+# Disable the warning when changing a file extension.
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Avoid creating .DS_Store files on network volumes
+# Avoid creating .DS_Store files on network volumes.
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 
 
 ###############################################################################
-#  SSD-specific tweaks                                                        #
+#  SSD-specific Tweaks                                                        #
 ###############################################################################
 
-# Disable local Time Machine snapshots
+# Disable local Time Machine snapshots.
 sudo tmutil disablelocal
 
-# Disable hibernation (speeds up entering sleep mode)
+# Disable hibernation (speeds up entering sleep mode).
 sudo pmset -a hibernatemode 0
-# Remove sleep image file, if present
+
+# Remove sleep image file, if present.
 [ -f /var/vm/sleepimage ] && sudo rm /var/vm/sleepimage
 
-# Disable the sudden motion sensor as it's not useful for SSDs
+# Disable the sudden motion sensor as it's not useful for SSDs.
 sudo pmset -a sms 0
 
 
@@ -204,11 +206,11 @@ sudo pmset -a sms 0
 #  Trackpad, mouse, keyboard, Bluetooth accessories, and input                #
 ###############################################################################
 
-# Enable full keyboard access for all controls
+# Enable full keyboard access for all controls.
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Set language and text formats
+# Set language and text formats.
 # Note: if you're in the US, replace `EUR` with `USD`, `Centimeters` with
 # `Inches`, `en_GB` with `en_US`, and `true` with `false`.
 defaults write NSGlobalDomain AppleLanguages -array 'en'
@@ -216,23 +218,23 @@ defaults write NSGlobalDomain AppleLocale -string 'en_AU@currency=AUD'
 defaults write NSGlobalDomain AppleMeasurementUnits -string 'Centimeters'
 defaults write NSGlobalDomain AppleMetricUnits -bool true
 
-# Set the timezone; see `systemsetup -listtimezones` for other values
+# Set the timezone; see `systemsetup -listtimezones` for other values.
 systemsetup -settimezone 'Australia/Brisbane' > /dev/null
 
-# Increase sound quality for Bluetooth headphones/headsets
+# Increase sound quality for Bluetooth headphones/headsets.
 defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
 
-# Enable full keyboard access for all controls
+# Enable full keyboard access for all controls.
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Set a really fast key repeat
+# Set a really fast key repeat.
 defaults write NSGlobalDomain KeyRepeat -int 0
 
-# Shorter delay until key repeat
+# Shorter delay until key repeat.
 defaults write NSGlobalDomain InitialKeyRepeat -int 14
 
-# Enable key-repeat
+# Enable key-repeat.
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 
@@ -241,16 +243,16 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 #  Activity Monitor                                                           #
 ###############################################################################
 
-# Show the main window when launching Activity Monitor
+# Show the main window when launching Activity Monitor.
 defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
 
-# Visualize CPU usage in the Activity Monitor Dock icon
+# Visualize CPU usage in the Activity Monitor Dock icon.
 defaults write com.apple.ActivityMonitor IconType -int 5
 
-# Show all processes in Activity Monitor
+# Show all processes in Activity Monitor.
 defaults write com.apple.ActivityMonitor ShowCategory -int 0
 
-# Sort Activity Monitor results by CPU usage
+# Sort Activity Monitor results by CPU usage.
 defaults write com.apple.ActivityMonitor SortColumn -string 'CPUUsage'
 
 
@@ -259,10 +261,10 @@ defaults write com.apple.ActivityMonitor SortColumn -string 'CPUUsage'
 #  iTunes                                                                     #
 ###############################################################################
 
-# Disable the Ping sidebar
+# Disable the Ping sidebar.
 defaults write com.apple.iTunes disablePingSidebar -bool true
 
-# Disable all the other Ping stuff
+# Disable all the other Ping stuff.
 defaults write com.apple.iTunes disablePing -bool true
 
 
@@ -271,11 +273,11 @@ defaults write com.apple.iTunes disablePing -bool true
 #  TextEdit                                                                   #
 ###############################################################################
 
-# Use plain text mode for new TextEdit documents
+# Use plain text mode for new TextEdit documents.
 defaults write com.apple.TextEdit RichText -int 0
 
-# Open and save files as UTF-8 in TextEdit
-defaults write com.apple.TextEdit PlainTextEncoding -int 4
+# Open and save files as UTF-8 in TextEdit.
+defaults write com.apple.TextEdit PlainTextEncoding         -int 4
 defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 
 
@@ -284,11 +286,11 @@ defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 #  Dock                                                                       $
 ###############################################################################
 
-# Hide Dock by default, with instant show / hide speed
-defaults write com.apple.Dock autohide-delay -float 0
+# Hide Dock by default, with instant show / hide speed.
+defaults write com.apple.Dock autohide-delay         -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
 
-# Minimize windows into their application's icon
+# Minimize windows into their application's icon.
 defaults write com.apple.dock minimize-to-application -bool true
 
 
@@ -297,7 +299,7 @@ defaults write com.apple.dock minimize-to-application -bool true
 #  Other                                                                      #
 ###############################################################################
 
-# Make Zsh the default shell
+# Make Zsh the default shell.
 chsh -s /usr/local/bin/zsh
 
 
