@@ -95,9 +95,6 @@ else
   bindkey "$terminfo[kcud1]" history-substring-search-down
 fi
 
-# GRC colorizes nifty unix tools all over the place
-[ -f '/usr/local/etc/grc.bashrc' ] && source '/usr/local/etc/grc.bashrc'
-
 # z - https://github.com/rupa/z
 [ -f '/usr/local/etc/profile.d/z.sh' ] && source '/usr/local/etc/profile.d/z.sh'
 
