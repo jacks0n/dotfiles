@@ -46,33 +46,34 @@ zstyle ':completion:*:*:man:*' menu yes select
 
 
 ##
-#  Oh My Zsh.
+#  zplug.
 ##
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+export ZPLUG_HOME="$HOME/.zplug"
 
-# Located in ~/.oh-my-zsh/themes/, can also use "random".
-# agnoster, miloshadzic, bullet-train, schminitz
-# ZSH_THEME='random'
+# Install zplug if it's not installed.
+if [ ! -f "$ZPLUG_HOME/init.zsh" ] ; then
+  echo '=> Installing zplug'
+  mkdir "$ZPLUG_HOME"
+  git clone https://github.com/zplug/zplug "$ZPLUG_HOME"
+fi
 
-# Case-sensitive completion.
-CASE_SENSITIVE='false'
+source "$ZPLUG_HOME/init.zsh"
 
-# Display red dots whilst waiting for completion.
-COMPLETION_WAITING_DOTS='false'
+zplug "$HOME", from:local, use:'{.exports,.aliases,.functions,.shrc.local}'
+# zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
+# zplug 'plugins/npm', from:oh-my-zsh, ignore:oh-my-zsh.sh
+zplug 'mafredri/zsh-async', on:sindresorhus/pure
+zplug 'sindresorhus/pure'
+zplug 'zsh-users/zsh-completions'
+zplug 'zsh-users/zsh-autosuggestions'
+zplug 'zsh-users/zsh-syntax-highlighting', nice:18
+zplug 'zsh-users/zsh-history-substring-search', nice:19
 
-# Disable marking untracked files under VCS as dirty, much faster for large repositories.
-DISABLE_UNTRACKED_FILES_DIRTY='true'
+# Install missing plugins.
+zplug check || zplug install
 
-# Zsh completions from brew.
-fpath=(
-  /usr/local/share/zsh-completions
-  /usr/local/share/zsh/site-functions
-  $fpath
-)
-
-# source "$HOME/.oh-my-zsh/oh-my-zsh.sh"
+zplug load
 
 
 ##
@@ -98,35 +99,8 @@ fpath=(
 # fzf - https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Antigen.
-if [ -f "$(brew --prefix)/share/antigen.zsh" ] ; then
-  # Fish-like live syntax highlighting.
-  # SEE: https://github.com/zsh-users/zsh-syntax-highlighting/tree/master/highlighters
-  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
-
-  source "$(brew --prefix)/share/antigen.zsh"
-
-  antigen use oh-my-zsh
-
-  antigen bundle brew
-  antigen bundle git
-  antigen bundle gnu-utils
-  antigen bundle history-substring-search
-  antigen bundle npm
-  antigen bundle pip
-  antigen bundle python
-
-  # antigen theme robbyrussell
-  # antigen theme oskarkrawczyk/honukai-iterm-zsh honukai
-  # antigen theme wezm
-  antigen bundle mafredri/zsh-async
-  antigen bundle sindresorhus/pure
-
-  antigen apply
 fi
 
-# source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
 
