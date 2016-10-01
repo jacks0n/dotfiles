@@ -15,26 +15,16 @@
 # Add JavaScript kinds:
 # - v: Global variables.
 --JavaScript-kinds=+v
+
+# Excludes.
+--exclude=*.map
+--exclude=*.min.css
+--exclude=*.min.js
 --exclude=.git
---exclude=.svn
 --exclude=.hg
---exclude=bundle
---exclude=min
+--exclude=.sass-cache
+--exclude=.svn
+--exclude=jspm_packages
+--exclude=node_modules
 --exclude=vendor
---exclude=\*.min.\*
---exclude=\*.map
---exclude=\*.swp
---exclude=\*.bak
---exclude=\*.pyc
---exclude=\*.class
---exclude=\*.sln
---exclude=\*.Master
---exclude=\*.csproj
---exclude=\*.csproj.user
---exclude=\*.cache
---exclude=\*.dll
---exclude=\*.pdb
---exclude=tags
---exclude=cscope.\*
---exclude=\*.tar.\*
 
