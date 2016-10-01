@@ -16,7 +16,6 @@ ae() {
     done
 }
 
-
 # find shortcuts, matches highlighted inline.
 # Wildcard find, matching *<keyword>*
 f() {
@@ -26,10 +25,12 @@ f() {
     pbcopy
 }
 
+
 # Edit the selected file(s). USAGE: e FUZZY_PATTERN
 e() {
-  local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --multi)"
-  [ -n "$SELECTED_FILE" ] && open "$SELECTED_FILE"
+  local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --multi ${2:-.})"
+  [ -n "$SELECTED_FILE" ] && "$EDITOR" "$SELECTED_FILE"
+}
 }
 
 
@@ -83,7 +84,8 @@ z() {
   fi
 }
 
-git-maintain() {
+
+git_maintain() {
   # Verifies the connectivity and validity of the objects in the database.
   git fsck —unreachable
 
@@ -100,23 +102,25 @@ git-maintain() {
   git gc —aggressive
 }
 
-git-no-assume-changed() {
+
+git_no_assume_changed() {
   # TDOO: check input, combine with `git-assume-changed()`.
-  git ls-files -z "${1:-.}" | xargs -0 git update-index --no-assume-unchanged
-  git ls-files -z "${1:-.}" | xargs -0 git update-index --no-skip-worktree
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-assume-unchanged
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-skip-worktree
   git update-index --really-refresh
 }
 
-git-assume-changed() {
-  git ls-files -z "${1:-.}" | xargs -0 git update-index --assume-unchanged
-  git ls-files -z "${1:-.}" | xargs -0 git update-index --skip-worktree
+
+git_assume_changed() {
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --assume-unchanged
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --skip-worktree
   git update-index --really-refresh
 }
 
 
 # View `man` pages with Preview.app, fancy!
 gman() {
-  PS_FILEPATH='/tmp/man-to-ps.ps'
+  local PS_FILEPATH='/tmp/man-to-ps.ps'
 
   # Output `man` as Postscript to a temporary file.
   man -t "$@" > "$PS_FILEPATH"
@@ -211,7 +215,7 @@ localip() {
 # Checks if a website is down with downforeveryoneorjustme.com (URL or raw domain).
 isdown() {
   # Strip scheme first.
-  URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
+  local URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
   curl -s "http://www.downforeveryoneorjustme.com/$URL" | \
     grep 'just you' | \
     php -r 'echo html_entity_decode(trim(strip_tags(fgets(STDIN))));'
@@ -220,7 +224,6 @@ isdown() {
 
 
 # Kill all the tabs in Chrome to free up memory.
-# http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 chromekill() {
   pgrep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
 }
@@ -229,8 +232,8 @@ chromekill() {
 # Show the HTTP headers of a given URL.
 httpheaders() {
   # Use a fake user-agent (Safari 8.0, OS X), some sites block cURL.
-  CURL_USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25'
-  curl -s -A "$CURL_USER_AGENT" -D - "$1" -o /dev/null
+  local CURL_USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25'
+  curl --silent --user-agent "$CURL_USER_AGENT" --dump-header - "$1" --output /dev/null
 }
 
 
@@ -249,13 +252,13 @@ rmhist() {
 # Based on ranger/doc/examples/bash_automatic_cd.sh
 # http://ranger.nongnu.org/.
 rangercd() {
-  tempfile="/tmp/ranger-$$-chosendir"
-  ranger --choosedir="$tempfile" "${@:-.}"
-  test -f "$tempfile" &&
-    if [ "$(cat -- "$tempfile")" != "$(echo -n "$(pwd)")" ]; then
-    cd -- "$(cat "$tempfile")" || exit 1
+  local TEMPFILE="/tmp/ranger-$$-chosendir"
+  ranger --choosedir="$TEMPFILE" "${@:-.}"
+  test -f "$TEMPFILE" &&
+    if [ "$(cat -- "$TEMPFILE")" != "$(echo -n "$(pwd)")" ]; then
+    cd -- "$(cat "$TEMPFILE")" || exit 1
   fi
-  rm -f -- "$tempfile"
+  rm -f -- "$TEMPFILE"
 }
 
 
@@ -291,46 +294,78 @@ update() {
     done
   )
   vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+
   echo '=> NVim Plug install, update, upgrade, clean.'
-  nvim +UpdateRemotePlugins +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
 
   # Download latest repo from Homebrew, and update all packages.
   echo '=> Homebrew cleanup, update, repair and link fixes.'
-  # fix-brew-perms
-  ( sudo brew update &&
-    sudo brew upgrade --all
-    sudo brew cask cleanup
-    sudo brew cleanup -s --prune=now --force &&
-    sudo brew prune )
+  ( brew update
+    brew upgrade --all
+    brew cask cleanup
+    brew cleanup -s --prune=now --force
+    brew prune )
 
   # Update OS X.
   echo "\n\n=> Running OS X Software Update."
   sudo softwareupdate --install --all
 
-  # Update pip and pip packages.
-  sudo -H pip2 install --upgrade pip
-  sudo -H pip2 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install -U
-  sudo -H pip3 install --upgrade pip
-  sudo -H pip3 freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U
+  # Update pip (2 and 3) core and packages.
+  for PIP in pip2 pip3 ; do
+    echo "\n\n=> Updating $PIP."
+    sudo -H "$PIP" install --upgrade pip | \
+      grep -v 'Requirement already up-to-date'
+    sudo -H "$PIP" freeze --local | \
+      grep -v '^\-e' | \
+      cut -d = -f 1  | \
+      xargs -n1 sudo -H "$PIP" install --upgrade | \
+      grep -v 'Requirement already up-to-date'
+  done
 
-  # Updating Node.
-  echo '=> Updating Node.js'
+  # Update npm and npm packages.
+  echo "\n\n=> Updating npm and npm packages."
   sudo npm install npm -g
   sudo npm update -g
 
   # Update Oh-My-Zsh.
+  echo "\n\n=> Updating Oh My Zsh."
   if type upgrade_oh_my_zsh &>/dev/null ; then
     upgrade_oh_my_zsh
   fi
 
-  # Updating Gem.
+  # Update zplug and packages.
+  command -v zplug &>/dev/null && {
+    echo "\n\n=> Updating zplug."
+    zplug update --self
+    echo "\n\n=> Updating zplug packages."
+    zplug update
+  }
+
+  # Update Gem and Gems.
   echo "\n\n=> Updating Ruby Gems."
   sudo gem update --system
   sudo gem update
   sudo gem clean
 
-  echo "\n\n=> Done!."
-}
+  # Update Composer packages.
+  echo "\n\n=> Updating Composer packages."
+  composer global update
 
+  # Update Go packages.
+  echo "\n\n=> Updating Go packages."
+  go get -u all
 
+  # Update `~/bin/vendor` repositories.
+  echo "\n\n=> Updating ~/bin/vendor repositories."
+  if [ -d "$HOME/bin/vendor" ] ; then
+    for VENDOR in $(ls "$HOME/bin/vendor") ; do
+      if [ -d "$HOME/bin/vendor/$VENDOR/.git" ] ; then
+        echo "\n=> Updating '$HOME/bin/vendor/$VENDOR'"
+        ( cd "$HOME/bin/vendor/$VENDOR"
+          git pull )
+      fi
+    done
+  fi
+
+  echo "\n\n=> Done!"
 }
