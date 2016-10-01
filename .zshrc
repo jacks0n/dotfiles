@@ -13,36 +13,35 @@ HISTFILE="$HOME/.zsh_history"
 # Number of lines of history to save to $HISTFILE
 SAVEHIST=10000
 
-setopt COMPLETE_IN_WORD    # Complete from both ends of a word.
-setopt ALWAYS_TO_END       # Move cursor to the end of a completed word.
-setopt PATH_DIRS           # Perform path search even on command names with slashes.
-setopt AUTO_MENU           # Show completion menu on a succesive tab press.
-setopt AUTO_LIST           # Automatically list choices on ambiguous completion.
-setopt AUTO_PARAM_SLASH    # If completed parameter is a directory, add a trailing slash.
-unsetopt FLOW_CONTROL      # Disable start/stop characters in shell editor.
+setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
+setopt APPEND_HISTORY       # Sessions will append their history list to the history file, rather than replace it.
+setopt AUTO_CD              # `cd` into directories.
+setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
+setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
+setopt AUTO_PARAM_SLASH     # If completed parameter is a directory, add a trailing slash.
+setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
+setopt EXTENDED_GLOB        # Treat the '#', '~' and '^' characters as part of patterns for filename generation, etc.
+setopt EXTENDED_HISTORY     # Save each command's beginning Unix timestamp and the duration (in seconds) to the history file.
+setopt HIST_IGNORE_ALL_DUPS # Prevent duplicate history items.
+setopt HIST_IGNORE_SPACE    # Don't add commands beginning with a space to the history.
+setopt HIST_REDUCE_BLANKS   # Remove superfluous blanks from each command line being added to the history list.
+setopt INC_APPEND_HISTORY   # Incrementally add to the history file after each command, instead of until the shell exists.
+setopt INTERACTIVE_COMMENTS # Allow comments in interactive shells.
+setopt NO_BEEP              # Beeps are annoying.
+setopt NO_FLOW_CONTROL      # No c-s/c-q output freezing.
+setopt PATH_DIRS            # Perform path search even on command names with slashes.
+setopt PROMPT_SUBST         # Perform parameter expansion, command substitution and arithmetic expansion in prompts.
+setopt SHARE_HISTORY        # Share history between shell instances.
 
-# Use caching to make completion for commands quicker.
-zstyle ':completion::complete:*' use-cache on
-zstyle ':completion::complete:*' cache-path "$HOME/.zcache"
+zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
+zstyle ':completion:*' menu select                          # Enable menu-driven completion.
+zstyle ':completion::complete:*' cache-path $ZSH_CACHE_DIR  # Set the completion caching directory.
+zstyle ':completion::complete:*' use-cache 1                # Enable completion caching.
 
-# Case-insensitive (all), partial-word, and then substring completion.
-if zstyle -t ':omz:completion:*' case-sensitive; then
-  zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-  setopt CASE_GLOB
-else
-  zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-  unsetopt CASE_GLOB
-fi
-
-# Enable menu for `kill`.
-zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w"
-zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:*:kill:*' force-list always
-zstyle ':completion:*:*:kill:*' insert-ids single
-
-# Enable menu for `man`.
-zstyle ':completion:*:*:man:*' menu yes select
+# Reduce Vim mode change to 0.1 seconds.
+# How long to wait (in hundredths of a second) for additional characters in sequence.
+export KEYTIMEOUT=1
 
 
 ##
@@ -77,18 +76,24 @@ zplug load
 
 
 ##
-#  Custom Includes.
+#  Package Settings.
 ##
 
-[ -f "$HOME/.proxy"      ] && source "$HOME/.proxy"
-[ -f "$HOME/.aliases"    ] && source "$HOME/.aliases"
-[ -f "$HOME/.functions"  ] && source "$HOME/.functions"
-[ -f "$HOME/.shrc.local" ] && source "$HOME/.shrc.local"
+# Pure.
+export PURE_GIT_PULL=0 # Disable checking Git remote update status.
 
+# zsh-syntax-highlighting.
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
 
-##
-#  3rd-party.
-##
+# zsh-history-substring-search.
+zmodload zsh/terminfo
+if [[ "$TERM_PROGRAM" == 'iTerm.app' ]] ; then
+  bindkey "$terminfo[cuu1]" history-substring-search-up
+  bindkey "$terminfo[cud1]" history-substring-search-down
+else
+  bindkey "$terminfo[kcuu1]" history-substring-search-up
+  bindkey "$terminfo[kcud1]" history-substring-search-down
+fi
 
 # GRC colorizes nifty unix tools all over the place
 [ -f '/usr/local/etc/grc.bashrc' ] && source '/usr/local/etc/grc.bashrc'
@@ -97,14 +102,10 @@ zplug load
 [ -f '/usr/local/etc/profile.d/z.sh' ] && source '/usr/local/etc/profile.d/z.sh'
 
 # fzf - https://github.com/junegunn/fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
+if [ $(command -v ag) ] ; then
+  # Use ag as the default source for fzf.
+  export FZF_DEFAULT_COMMAND='ag -g ""'
 fi
-
-test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
-
-
-
 ##
 #  Colour Tweaks.
 ##
@@ -120,10 +121,6 @@ man() {
   LESS_TERMCAP_us=$'\E[04;38;5;146m' \
   man $@
 }
-
-
-##
-# Run on Startup.
-#
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 cowjoke
