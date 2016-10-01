@@ -1,0 +1,2 @@
+# Disable the bell on tab completion.
+set bell-style off
