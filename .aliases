@@ -25,12 +25,14 @@ alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
 
 # git shortcuts.
 alias gstall='git status -uall'
+alias gst='git status'
 
 # Avoid permission errors.
-alias brew='sudo brew'
 alias gem='sudo gem'
 alias pear='sudo pear'
 alias pip='sudo -H pip'
+alias pip2='sudo -H pip2'
+alias pip3='sudo -H pip3'
 
 # Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
 alias fix_zsh_permissions='compaudit 2>/dev/null | sudo xargs chmod g-w'
@@ -101,3 +103,6 @@ type lnav &>/dev/null && \
   alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
   alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
   alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
+
+# https://github.com/tomnomnom/gron.
+alias ungron='gron --ungron'
