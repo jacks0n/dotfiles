@@ -115,17 +115,6 @@ fix-brew-perms() {
 gitkeep() {
   touch "$1/.gitkeep"
 }
-
-
-# Fix Zsh permission errors.
-fix-zsh-permissions() {
-  compaudit | xargs -I % sudo chmod g-w "%"
-  compaudit | xargs -I % sudo chown root "%"
-  rm -f ~/.zcomp*
-  compinit
-}
-
-
 # cd to a previously visited directory matching FUZZY_PATTERN
 unalias z 2>/dev/null
 z() {

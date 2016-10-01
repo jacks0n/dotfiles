@@ -32,6 +32,9 @@ alias gem='sudo gem'
 alias pear='sudo pear'
 alias pip='sudo -H pip'
 
+# Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
+alias fix_zsh_permissions='compaudit 2>/dev/null | sudo xargs chmod g-w'
+
 # Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
