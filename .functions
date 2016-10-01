@@ -54,13 +54,6 @@ d() {
 }
 
 
-# `source` the file, if it exists.
-source_if_exists() {
-  [[ -f "$1" ]] && source "$1"
-}
-
-
-
 # Say a random joke, with a cow ASCII.
 cowjoke() {
   # Modes: Borg, appear dead, greedy, paranoid, stoned, tired, wired, youthful.
@@ -80,41 +73,6 @@ chownme() {
 }
 
 
-# Fix Homebrew permission errors.
-fix-brew-perms() {
-  local BREW_DIR="$(brew --repo)"
-  [ -z "$BREW_DIR" ] && {
-    echo 'ERROR: Brew not found.'
-    return 1
-  }
-
-  sudo chown -R Jackson:admin /usr/local
-  sudo chown -R Jackson:staff /Library/Caches/Homebrew
-
-  find "$BREW_DIR" -type d -name .git | \
-    while read -r GIT_DIR; do (
-      local DIR="$(realpath "$GIT_DIR/..")"
-
-      if [[ "$DIR" == "$(brew --repo)" ]] ; then
-        echo "Resetting Brew repo: $(brew --repo)"
-      elif [[ "$DIR" == *"Taps/"* ]] ; then
-        echo "Resetting tap: ${DIR#*Taps/}"
-      else
-        echo "Resetting: $DIR"
-      fi
-
-      ( cd "$DIR" || exit 1
-        sudo git reset --hard
-        sudo git clean -fd )
-    )
-  done
-}
-
-
-# Commit empty directory workaround for Git.
-gitkeep() {
-  touch "$1/.gitkeep"
-}
 # cd to a previously visited directory matching FUZZY_PATTERN
 unalias z 2>/dev/null
 z() {
@@ -319,12 +277,6 @@ maintain() {
 }
 
 
-# Markdown preview. https://github.com/axiros/terminal_markdown_viewer
-mdv() {
-  "$HOME/bin/vendor/terminal_markdown_viewer/mdv.py" "$@" | less
-}
-
-
 # System-wide update,
 update() {
   # Update Vim plugins.
@@ -381,11 +333,4 @@ update() {
 }
 
 
-ctags-drupal() {
-  ctags \
-    --exclude='modules/features/*'  \
-    --exclude='files/js/js_*.js'    \
-    --exclude='contrib'             \
-    --languages=-css                \
-    --languages=-json
 }
