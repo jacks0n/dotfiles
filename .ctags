@@ -1,3 +1,20 @@
+# General.
+--tag-relative=yes
+
+# Add extra fields:
+# - a: Access (or export) of class members.
+# - i: Inheritance information.
+# - m: Implementation information.
+# - n: Line number of tag definition.
+# - l: Language of source file containing tag.
+# - S: Signature of routine (e.g. prototype or parameter list).
+# - z: Kind.
+# - Z: Scope.
+--fields=+aimnlSzZ
+
+# Add JavaScript kinds:
+# - v: Global variables.
+--JavaScript-kinds=+v
 --exclude=.git
 --exclude=.svn
 --exclude=.hg
