@@ -50,6 +50,9 @@ defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool false
 defaults write com.apple.screensaver askForPassword      -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
+# Disable Photos.app from starting everytime a device is plugged in.
+defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
+
 # Save screenshots to the desktop.
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
 
@@ -79,8 +82,8 @@ defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
 defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 
-# Set mouse tracking speed to reasonably fast.
-defaults write NSGlobalDomain com.apple.mouse.scaling -float 2
+# Automatically quit the printer app once the print jobs complete.
+defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true
 
 # Disable menu bar transparency.
 defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
@@ -157,6 +160,12 @@ defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool true
 # Show full POSIX path as Finder window title.
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 
+# Use column view in all Finder windows by default.
+defaults write com.apple.finder FXPreferredViewStyle clmv
+
+# Avoid creation of .DS_Store files on network volumes.
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
 # Disable the warning before emptying the Trash.
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
@@ -180,6 +189,9 @@ defaults write com.apple.finder ShowPathbar -bool true
 
 # Show status bar by default.
 defaults write com.apple.finder ShowStatusBar -bool true
+
+# Disable the warning when changing a file extension.
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 # Allow text selection in the Quick Look window.
 defaults write com.apple.finder QLEnableTextSelection -bool true
@@ -220,14 +232,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 #  SSD-specific Tweaks                                                        #
 ###############################################################################
 
-# Disable local Time Machine snapshots.
-sudo tmutil disablelocal
-
 # Disable hibernation (speeds up entering sleep mode).
 sudo pmset -a hibernatemode 0
-
-# Remove sleep image file, if present.
-[ -f /var/vm/sleepimage ] && sudo rm /var/vm/sleepimage
 
 # Disable the sudden motion sensor as it's not useful for SSDs.
 sudo pmset -a sms 0
@@ -235,11 +241,29 @@ sudo pmset -a sms 0
 
 
 ###############################################################################
+#  Time Machine                                                               #
+###############################################################################
+
+# Disable local Time Machine snapshots.
+sudo tmutil disablelocal
+
+# Prevent Time Machine from prompting to use new hard drives as a backup volume.
+defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+
+
+###############################################################################
 #  Trackpad, mouse, keyboard, Bluetooth accessories, and input                #
 ###############################################################################
 
-# Enable full keyboard access for all controls.
-# (e.g. enable Tab in modal dialogs)
+# Turn off keyboard illumination when computer is not used for 5 minutes.
+defaults write com.apple.BezelServices kDimTime -int 300
+
+# Set mouse and trackpad speed to be reasonably fast.
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 2
+defaults write NSGlobalDomain com.apple.trackpad.scaling -float .875
+
+# Enable full keyboard access for all controls.  (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 # Set language and text formats.
@@ -255,10 +279,6 @@ systemsetup -settimezone 'Australia/Brisbane' > /dev/null
 
 # Increase sound quality for Bluetooth headphones/headsets.
 defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
-
-# Enable full keyboard access for all controls.
-# (e.g. enable Tab in modal dialogs)
-defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 # Set a really fast key repeat.
 defaults write NSGlobalDomain KeyRepeat -int 0
@@ -319,6 +339,7 @@ defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 ###############################################################################
 
 # Hide Dock by default, with instant show / hide speed.
+defaults write com.apple.dock autohide               -bool true
 defaults write com.apple.Dock autohide-delay         -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
 
@@ -333,7 +354,6 @@ defaults write com.apple.dock minimize-to-application -bool true
 
 # Make Zsh the default shell.
 chsh -s /usr/local/bin/zsh
-
 
 echo 'Fixing Vim copying in tmux'
 set-option -g default-command 'reattach-to-user-namespace -l bash'
