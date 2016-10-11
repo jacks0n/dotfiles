@@ -625,6 +625,9 @@ noremap <C-S-Tab> :lclose<CR>:bprev<CR>
 
 " Omnifunc.
 inoremap <C-@> <C-x><C-o>
+if has('gui_vimr')
+  inoremap <C-Space> <C-x><C-o>
+endif
 
 " Code folding options.
 nmap <Leader>fl0 :set foldlevel=0<CR>
