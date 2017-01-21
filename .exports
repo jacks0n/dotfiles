@@ -17,11 +17,15 @@ export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 ##
 
 # Preferred editor for local and remote sessions.
-export EDITOR="${$(command -v nvim):-vim}"
-export VISUAL="${$(command -v nvim):-vim}"
+export EDITOR='vim'
+export VISUAL='vim'
+if [ $(command -v nvim) ] ; then
+  export EDITOR='nvim'
+  export VISUAL='nvim'
+fi
 
 # Don't clear the screen after quitting a manual page.
-export MANPAGER="less -X"
+export MANPAGER='less -X'
 
 # Homebrew no-GA.
 export HOMEBREW_NO_ANALYTICS=1
@@ -58,7 +62,6 @@ export ANDROID_HOME='/usr/local/opt/android-sdk'
 
 # User ~/bin directories.
 export PATH="$HOME/bin:$PATH"
-export PATH="$HOME/bin/github-markdown-toc:$PATH"
 
 # Composer.
 export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -71,14 +74,6 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$PATH"
 export GOROOT="$(go env GOROOT)"
-
-# Depricated, still used in .oh-my-zsh/lib/grep.zsh.
-unset GREP_OPTIONS
-
-#  OS X Unicode fix.
-# export LC_CTYPE=C
-# export LANG=C.UTF-8
-# export LC_ALL=C.UTF-8
 
 # Surpress Wine debugging info.
 export WINEDEBUG=
