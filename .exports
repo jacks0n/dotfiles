@@ -8,7 +8,6 @@ export PATH="/opt/X11/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="/usr/local/share/npm/bin:$PATH"
 export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
@@ -47,6 +46,12 @@ export MANPATH="$(brew --prefix)/opt/gnu-sed/libexec/gnuman:$MANPATH"
 export NODE_PATH="$(brew --prefix)/lib/node_modules"
 export NODE_PATH="$(brew --prefix)/share/npm/lib/node_modules:$NODE_PATH"
 export PATH="$(brew --prefix)/share/npm/bin:$PATH"
+
+# Yarn.
+if hash yarn 2>/dev/null ; then
+  export PATH="/Users/Jackson/.yarn-config/global/node_modules/.bin:$PATH"
+  export PATH="$(yarn global bin):$PATH"
+fi
 
 # Android emulator / SDK.
 export ANDROID_HOME='/usr/local/opt/android-sdk'
