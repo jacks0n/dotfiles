@@ -1,19 +1,23 @@
 # vim: filetype=sh
 
+# Helper function to check if a command exists.
+command_exists() {
+  type "$1" &>/dev/null
+  return $?
+}
+
 # ag / The Silver Searcher shortcuts.
 # https://github.com/ggreer/the_silver_searcher.
 a()  { ag "$1" "${2:-.}"; }
 al() { ag -l "$1" "${2:-.}"; }
 ae() {
-  # --exclude={.sass-cache,css,js/contrib}
-  # grep --colour=always --exclude-dir=css --exclude=\*.{svg,scssc} --line-number --line-buffered -r "" "${2:-.}" | fzf --ansi --select-1 --query="$1" --extended --multi | \
-  ag --nobreak --nonumbers --noheading "${2:-.}" | fzf --ansi --select-1 --query="$1" --extended --multi | \
-    while read -r grep_line ; do
-      filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
-      linenum="$(echo "$grep_line" | cut -d ':' -f 2)"
-      nvim "${filepath}:${linenum}" 2>/dev/null
-
-    done
+  ag --nobreak --nonumbers --noheading "${2:-.}" | \
+    fzf --ansi --select-1 --query="$1" --extended --multi | \
+      while read -r grep_line ; do
+        filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
+        linenum="$(echo "$grep_line" | cut -d ':' -f 2)"
+        $EDITOR "${filepath}:${linenum}" 2>/dev/null
+      done
 }
 
 # find shortcuts, matches highlighted inline.
@@ -28,42 +32,49 @@ f() {
 
 # Edit the selected file(s). USAGE: e FUZZY_PATTERN
 e() {
-  local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --multi ${2:-.})"
-  [ -n "$SELECTED_FILE" ] && "$EDITOR" "$SELECTED_FILE"
-}
-}
-
-
-# cd to selected directory (including hidden directories), or directory of selected file. USAGE: d FUZZY_PATTERN [DIRECTORY]
-unalias d 2>/dev/null
-d() {
-  find "${2:-.}" -not -path '*/.git/*' -type d 2>/dev/null | \
-    fzf --query="$1" --select-1 --extended | \
-      while read -r filepath ; do
-        if [ -f "$filepath" ] ; then
-          cd "$(dirname "$filepath")" || {
-            echo "ERROR: Cannod \`cd\` into '$(dirname "$filepath")'."
-            return 1
-        }
-        elif [ -d "$filepath" ] ; then
-          cd "$filepath" || exit 1
-        else
-          echo "ERROR: Not a file or directory '$filepath'"
-        fi
-        ls -lFh
-      done
+  local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --cycle $2)"
+  [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
 }
 
 
-# Say a random joke, with a cow ASCII.
+# Fuzzy find and edit a file in a Git repo.
+ge() {
+  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+  if [ ! -d "$GIT_ROOT_DIR" ] ; then
+    echo 'ERROR: Not in a Git repo.' >&2
+    return 1
+  fi
+
+  local SELECTED_FILE="$(git ls-files --full-name | fzf --query="$1" --select-1 --extended --cycle)"
+  [ -f "$GIT_ROOT_DIR/$SELECTED_FILE" ] && "$VISUAL" "$GIT_ROOT_DIR/$SELECTED_FILE"
+}
+
+
+
+# Fuzzy find and `cd` into a Git repo directory.
+gcd() {
+  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+  if [ ! -d "$GIT_ROOT_DIR" ] ; then
+    echo 'ERROR: Not in a Git repo.' >&2
+    return 1
+  fi
+
+  local DIR="$GIT_ROOT_DIR/$(
+    find ~/drupal-dev-env/web -mindepth 1 -type d -printf '%P\n' | \
+      fzf --query="$@"
+  )"
+  if [ -d "$DIR" ] ; then
+    echo "DIR EXISTS!"
+    cd "$DIR"
+  fi
+}
+
+
+# Random joke, with random rainbow coloured ASCII art.
 cowjoke() {
-  # Modes: Borg, appear dead, greedy, paranoid, stoned, tired, wired, youthful.
-  local COWSAY_MODES='bdgpstwy'
-  local RANDOM_COWSAY_MODE="${COWSAY_MODES[$RANDOM % ${#COWSAY_MODES[@]}]}"
-  if [[ $(($RANDOM % 2)) -eq 1 ]] ; then
-    fortune -a | cowsay -$RANDOM_COWSAY_MODE
-  else
-    cowsay -$RANDOM_COWSAY_MODE "$(pyjoke -c all)"
+  if command_exists cowsay && command_exists pyjoke && command_exists lolcat ; then
+    local COWSAY_FILE="$(shuf -n1 -e $(cowsay -l | tail -n +2))"
+    pyjoke -c all | cowsay -f "$COWSAY_FILE" | lolcat
   fi
 }
 
@@ -86,34 +97,35 @@ z() {
 
 
 git_maintain() {
-  # Verifies the connectivity and validity of the objects in the database.
-  git fsck —unreachable
+  # Remove dangling commits/blobs.
+  git reflog expire --expire=now --all
 
-  # Clear reflog information.
-  git reflog expire —expire=0 —all
+  # Verify connectivity and validity of the DB objects.
+  git fsck --full --unreachable
 
-  # Pack unpacked objects.
-  git repack -a -d -l
+  # Cleanup unused branches.
+  git remote | xargs --no-run-if-empty git remote prune
 
-  # Prune all unreachable objects from the object database.
-  git prune
+  # Re-pack repository objects.
+  # @see https://gcc.gnu.org/ml/gcc/2007-12/msg00165.html
+  git repack -a -d --depth=250 --window=250
 
-  # Cleanup unnecessary files and optimize the local repository.
-  git gc —aggressive
+  # Garbage collection.
+  git gc --prune=now
 }
 
 
-git_no_assume_changed() {
+git_assume_unchanged() {
   # TDOO: check input, combine with `git-assume-changed()`.
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-assume-unchanged
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-skip-worktree
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --assume-unchanged
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --skip-worktree
   git update-index --really-refresh
 }
 
 
-git_assume_changed() {
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --assume-unchanged
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --skip-worktree
+git_no_assume_unchanged() {
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-assume-unchanged
+  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-skip-worktree
   git update-index --really-refresh
 }
 
@@ -283,81 +295,95 @@ maintain() {
 # System-wide update,
 update() {
   # Update Vim plugins.
-  echo '=> Vim Plug install, update, upgrade, clean.'
-  (
-    cd "$HOME/.vim/plugged" || exit 1
-    find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
-      ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
-        cd "$VIM_PLUGIN_DIR" || exit 1
-        git reset --hard > /dev/null
-        git clean -fd    > /dev/null )
-    done
-  )
-  vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  if command_exists vim ; then
+    echo '=> Vim Plug install, update, upgrade, clean.'
+    (
+      cd "$HOME/.vim/plugged" || exit 1
+      find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
+        ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
+          cd "$VIM_PLUGIN_DIR" || exit 1
+          git reset --hard > /dev/null
+          git clean -fd    > /dev/null )
+      done
+    )
+    vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  fi
 
-  echo '=> NVim Plug install, update, upgrade, clean.'
-  nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
+  # Update NeoVim plugins.
+  if command_exists nvim ; then
+    echo '=> NVim Plug install, update, upgrade, clean.'
+    nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
+  fi
 
   # Download latest repo from Homebrew, and update all packages.
-  echo '=> Homebrew cleanup, update, repair and link fixes.'
-  ( brew update
-    brew upgrade --all
-    brew cask cleanup
-    brew cleanup -s --prune=now --force
-    brew prune )
+  if command_exists brew ; then
+    echo '=> Homebrew cleanup, update, repair and link fixes.'
+    ( brew update
+      brew upgrade
+      brew cask cleanup
+      brew cleanup -s --prune=now --force
+      brew prune )
+  fi
 
   # Update OS X.
-  echo "\n\n=> Running OS X Software Update."
-  sudo softwareupdate --install --all
+  if command_exists softwareupdate ; then
+    echo "\n\n=> Running OS X Software Update."
+    sudo softwareupdate --install --all
+  fi
 
   # Update pip (2 and 3) core and packages.
-  for PIP in pip2 pip3 ; do
-    echo "\n\n=> Updating $PIP."
-    sudo -H "$PIP" install --upgrade pip | \
-      grep -v 'Requirement already up-to-date'
-    sudo -H "$PIP" freeze --local | \
-      grep -v '^\-e' | \
-      cut -d = -f 1  | \
-      xargs -n1 sudo -H "$PIP" install --upgrade | \
-      grep -v 'Requirement already up-to-date'
+  for PIP in pip pip3 ; do
+    if command_exists "$PIP" ; then
+      echo "\n\n=> Updating $PIP."
+      sudo -H "$PIP" install --upgrade pip | \
+        grep -v 'Requirement already up-to-date'
+      sudo -H "$PIP" freeze --local | \
+        grep -v '^\-e' | \
+        cut -d = -f 1  | \
+        xargs -n1 sudo -H "$PIP" install --upgrade | \
+        grep -v 'Requirement already up-to-date'
+    fi
   done
 
   # Update npm and npm packages.
-  echo "\n\n=> Updating npm and npm packages."
-  sudo npm install npm -g
-  sudo npm update -g
-
-  # Update Oh-My-Zsh.
-  echo "\n\n=> Updating Oh My Zsh."
-  if type upgrade_oh_my_zsh &>/dev/null ; then
-    upgrade_oh_my_zsh
+  if command_exists npm ; then
+    echo "\n\n=> Updating npm and npm packages."
+    npm install npm -g
+    npm update -g
   fi
 
   # Update zplug and packages.
-  command -v zplug &>/dev/null && {
+  if command_exists zplug ; then
     echo "\n\n=> Updating zplug."
     zplug update --self
+
     echo "\n\n=> Updating zplug packages."
     zplug update
-  }
+  fi
 
   # Update Gem and Gems.
-  echo "\n\n=> Updating Ruby Gems."
-  sudo gem update --system
-  sudo gem update
-  sudo gem clean
+  if hash gem 2>/dev/null ; then
+    echo "\n\n=> Updating Ruby Gems."
+    sudo gem update --system
+    sudo gem update
+    sudo gem clean
+  fi
 
   # Update Composer packages.
-  echo "\n\n=> Updating Composer packages."
-  composer global update
+  if hash composer 2>/dev/null ; then
+    echo "\n\n=> Updating Composer packages."
+    composer global update
+  fi
 
   # Update Go packages.
-  echo "\n\n=> Updating Go packages."
-  go get -u all
+  if hash go 2>/dev/null ; then
+    echo "\n\n=> Updating Go packages."
+    go get -u all
+  fi
 
   # Update `~/bin/vendor` repositories.
-  echo "\n\n=> Updating ~/bin/vendor repositories."
   if [ -d "$HOME/bin/vendor" ] ; then
+    echo "\n\n=> Updating ~/bin/vendor repositories."
     for VENDOR in $(ls "$HOME/bin/vendor") ; do
       if [ -d "$HOME/bin/vendor/$VENDOR/.git" ] ; then
         echo "\n=> Updating '$HOME/bin/vendor/$VENDOR'"
