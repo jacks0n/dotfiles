@@ -3,13 +3,15 @@
 
 
 ##
-#  Zsh
+# Zsh
 ##
 
 # Number of lines of history kept within the shell.
 HISTSIZE=10000
+
 # File where history is saved.
 HISTFILE="$HOME/.zsh_history"
+
 # Number of lines of history to save to $HISTFILE
 SAVEHIST=10000
 
@@ -45,7 +47,7 @@ export KEYTIMEOUT=1
 
 
 ##
-#  zplug.
+# zplug.
 ##
 
 export ZPLUG_HOME="$HOME/.zplug"
@@ -59,15 +61,15 @@ fi
 
 source "$ZPLUG_HOME/init.zsh"
 
-zplug "$HOME", from:local, use:'{.exports,.aliases,.functions,.shrc.local}'
 # zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
 # zplug 'plugins/npm', from:oh-my-zsh, ignore:oh-my-zsh.sh
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug 'mafredri/zsh-async', on:sindresorhus/pure
 zplug 'sindresorhus/pure'
 zplug 'zsh-users/zsh-completions'
 zplug 'zsh-users/zsh-autosuggestions'
-zplug 'zsh-users/zsh-syntax-highlighting', nice:18
-zplug 'zsh-users/zsh-history-substring-search', nice:19
+zplug 'zsh-users/zsh-syntax-highlighting', defer:2
+zplug 'zsh-users/zsh-history-substring-search', defer:3
 
 # Install missing plugins.
 zplug check || zplug install
@@ -76,7 +78,7 @@ zplug load
 
 
 ##
-#  Package Settings.
+# Package Settings.
 ##
 
 # Pure.
@@ -95,14 +97,16 @@ else
   bindkey "$terminfo[kcud1]" history-substring-search-down
 fi
 
-# z - https://github.com/rupa/z
-[ -f '/usr/local/etc/profile.d/z.sh' ] && source '/usr/local/etc/profile.d/z.sh'
 
-# fzf - https://github.com/junegunn/fzf
-if [ $(command -v ag) ] ; then
-  # Use ag as the default source for fzf.
-  export FZF_DEFAULT_COMMAND='ag -g ""'
-fi
+##
+# Shell Includes.
+##
+
+source "$HOME/.shrc"
+
+
+##
+# 3rd Party.
+##
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-cowjoke
