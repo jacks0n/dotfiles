@@ -6,6 +6,7 @@
 
 dotfiles=(.exports .aliases .functions .shrc.local)
 for dotfile in "${dotfiles[@]}" ; do
+  dotfile="$HOME/$dotfile"
   if [ -f "$dotfile" ] ; then
     source "$dotfile"
   fi
@@ -55,4 +56,6 @@ fi
 # Other.
 ##
 
-cowjoke
+if hash cowjoke 2>/dev/null ; then
+  cowjoke
+fi
