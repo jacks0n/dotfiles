@@ -166,7 +166,7 @@ endif
 " ----------------------------------------
 
 Plug 'othree/javascript-libraries-syntax.vim', " Extends syntax for jQuery, Underscore, Backbone, etc.
-    \ { 'for': 'javascript' }
+  \ { 'for': 'javascript' }
 Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent for JSX.
 " Plug 'bigfish/vim-js-context-coloring'         " Highlight based on context.
 
@@ -246,9 +246,9 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 " Server-based PHP completion.
 if 0 && has('nvim')
   Plug 'phpvim/phpcd.vim', {
-        \   'do': 'composer install',
-        \   'for': 'php'
-        \ }
+    \ 'do': 'composer update',
+    \ 'for': 'php'
+    \ }
     \| Plug 'vim-scripts/progressbar-widget'
 elseif 0 && (has('python') || has('python3'))
   Plug 'mkusher/padawan.vim', {
@@ -847,25 +847,25 @@ augroup END
 " Change to random colorscheme from a defined list of awesome ones.
 function! NextColorScheme()
   let colorschemes = [
-    \'OceanicNext',
-    \'Tomorrow-Night',
-    \'apprentice',
-    \'badwolf',
-    \'bluechia',
-    \'bubblegum',
-    \'candyman',
-    \'codeschool',
-    \'distinguished',
-    \'flattr',
-    \'grb256',
-    \'gruvbox',
-    \'hybrid',
-    \'ir_black',
-    \'jellybeans',
-    \'molokai',
-    \'monokai',
-    \'monokain',
-    \]
+    \ 'OceanicNext',
+    \ 'Tomorrow-Night',
+    \ 'apprentice',
+    \ 'badwolf',
+    \ 'bluechia',
+    \ 'bubblegum',
+    \ 'candyman',
+    \ 'codeschool',
+    \ 'distinguished',
+    \ 'flattr',
+    \ 'grb256',
+    \ 'gruvbox',
+    \ 'hybrid',
+    \ 'ir_black',
+    \ 'jellybeans',
+    \ 'molokai',
+    \ 'monokai',
+    \ 'monokain',
+  \ ]
   try
     let colorscheme_index = index(colorschemes, g:colors_name) + 1
     echo 'colorscheme_index1: ' . colorscheme_index
@@ -1052,8 +1052,8 @@ let g:instant_markdown_autostart = 0
 
 " Tagbar.
 let g:tagbar_type_php = {
-\   'kinds' : [
-\     'c:Classes:0',
+\ 'kinds': [
+\    'c:Classes:0',
 \     'd:Constants:0:0',
 \     'f:Functions:1',
 \     'i:Interfaces:0',
@@ -1061,8 +1061,8 @@ let g:tagbar_type_php = {
 \     't:Traits:0',
 \     'v:Variables:0:0',
 \   ],
-\   'sro' : '::',
-\   'kind2scope' : {
+\   'sro': '::',
+\   'kind2scope': {
 \     'c': 'class',
 \     'd': 'constant',
 \     'f': 'function',
@@ -1071,7 +1071,7 @@ let g:tagbar_type_php = {
 \     't': 'trait',
 \     'v': 'variable',
 \   },
-\   'scope2kind' : {
+\   'scope2kind': {
 \     'class'    : 'c',
 \     'constant' : 'd',
 \     'function' : 'f',
@@ -1082,8 +1082,8 @@ let g:tagbar_type_php = {
 \   }
 \ }
 let g:tagbar_type_css = {
-\   'ctagstype' : 'css',
-\   'kinds' : [
+\   'ctagstype': 'css',
+\   'kinds': [
 \     'f:functions',
 \     'm:mixins',
 \     'm:medias',
