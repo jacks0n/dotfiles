@@ -1,3 +1,7 @@
+#
+# Universal ctags format.
+#
+
 # General.
 --tag-relative=yes
 
@@ -26,7 +30,6 @@
 --exclude=.svn
 --exclude=jspm_packages
 --exclude=node_modules
---exclude=vendor
 
 # SCSS Support.
 --langdef=scss
@@ -36,5 +39,18 @@
 --regex-scss=/^[ \t]*@function ([A-Za-z0-9_-]+)/\1/f,function,functions/
 --regex-scss=/^[ \t]*\$([A-Za-z0-9_-]+)/\1/v,variable,variables/
 
+# Symfony.
+--exclude=cache
+
 # Drupal.
 --langmap=php:+.engine.inc.install.module.profile.test.theme.view
+
+# Language ignores.
+--languages=-Asp
+--languages=-CSS
+--languages=-HTML
+--languages=-JSON
+--languages=-SQL
+--languages=-Sh
+--languages=-SVG
+--languages=-reStructuredText
