@@ -42,7 +42,12 @@ else
 endif
 
 Plug 'SirVer/ultisnips'
-  \| Plug 'honza/vim-snippets'
+  \| Plug 'honza/vim-snippets'           " Common snippets for many language.
+  \| Plug 'sniphpets/sniphpets'          " Helper functions to ceate snippets.
+  \| Plug 'sniphpets/sniphpets-common'   " Common PHP snippets.
+  \| Plug 'sniphpets/sniphpets-symfony'  " Common Symfony snippets.
+  \| Plug 'algotech/ultisnips-php'       " Common PHP, PHPUnit, and Symnfony snippets.
+  \| Plug 'sniphpets/sniphpets-doctrine' " Common Doctrine snippets.
 
 " Plug 'vhakulinen/neovim-intellij-complete-deoplete' " PhpStorm completion!
 " Plug 'dansomething/vim-eclim'
