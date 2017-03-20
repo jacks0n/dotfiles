@@ -1205,8 +1205,9 @@ let g:polyglot_disabled = ['css', 'html5', 'javascript', 'json', 'jsx', 'php']
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
 let g:vdebug_options               = get(g:, 'vdebug_options', {})
-let g:vdebug_options.break_on_open = 0   " Don't stop on the first line of the script.
-let g:vdebug_options.timeout       = 120 " Seconds to wait for when listening for a connection (default 20).
+let g:vdebug_options.break_on_open = 0        " Don't stop on the first line of the script.
+let g:vdebug_options.timeout       = 120      " Seconds to wait for when listening for a connection (default 20).
+let g:vdebug_options.ide_key       = 'vdebug' " Xdebug client identifier.
 let g:vdebug_features = {
 \   'max_depth': 2048,
 \   'max_children': 1024
