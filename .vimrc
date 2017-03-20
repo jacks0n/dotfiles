@@ -347,7 +347,6 @@ Plug 'wincent/terminus'              " Terminal improvements. Cursor shape chang
 Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
 Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-Plug 'jaxbot/browserlink.vim'
 
 call plug#end() " Required.
 
