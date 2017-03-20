@@ -633,12 +633,12 @@ noremap \ ;
 nmap ; :
 
 " Jump between next and previous buffers.
-map <Leader>] :lclose<CR>:bprev<CR>
-map <Leader>[ :lclose<CR>:bnext<CR>
-map <Leader>, :lclose<CR>:bprev<CR>
-map <Leader>. :lclose<CR>:bnext<CR>
-noremap <C-Tab> :lclose<CR>:bnext<CR>
-noremap <C-S-Tab> :lclose<CR>:bprev<CR>
+map <Leader>] :lclose<CR>:silent bprev<CR>
+map <Leader>[ :lclose<CR>:silent bnext<CR>
+map <Leader>, :lclose<CR>:silent bprev<CR>
+map <Leader>. :lclose<CR>:silent bnext<CR>
+noremap <C-Tab> :lclose<CR>:silent bnext<CR>
+noremap <C-S-Tab> :lclose<CR>:silent bprev<CR>
 
 " Omnifunc.
 inoremap <C-@> <C-x><C-o>
