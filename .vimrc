@@ -27,7 +27,6 @@ Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
 Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
-Plug 'jacks0n/Drupal-Hook-Generator.vim', { 'for': 'php', 'frozen': 1 }
 Plug 'embear/vim-localvimrc'
 
 
