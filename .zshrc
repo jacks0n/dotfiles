@@ -111,7 +111,7 @@ source "$HOME/.shrc"
 ##
 
 # Alias Symfony completions to `sc`.
-compdef console=sc
+compdef sc=console
 
 
 ##
