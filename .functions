@@ -20,6 +20,7 @@ ae() {
       done
 }
 
+
 # find shortcuts, matches highlighted inline.
 # Wildcard find, matching *<keyword>*
 f() {
@@ -50,6 +51,26 @@ ge() {
 }
 
 
+# Alias for the nearest Symfony `bin/console`.
+sc() {
+  (
+    while true ; do
+      local SEARCH_DIR="$(pwd)"
+      if [[ $SEARCH_DIR == "$HOME" || $SEARCH_DIR == '/' ]] ; then
+        echo 'ERROR: Could not find `bin/console`.' 2>&1
+        return 1
+      fi
+
+      if [ -f 'bin/console' ] ; then
+        bin/console $@
+        return
+      fi
+
+      cd ..
+    done
+  )
+}
+
 
 # Fuzzy find and `cd` into a Git repo directory.
 gcd() {
@@ -70,6 +91,110 @@ gcd() {
 }
 
 
+backup() {
+  if hash composer 2>/dev/null ; then
+    echo '=> Backing up composer packages.'
+    composer global show --name-only --tree 2>/dev/null | \
+      grep -v '^[├ │└]' | \
+      cut -d' ' -f1 > "$BACKUP_DIR/composer-packages.list"
+  fi
+
+  if hash npm 2>/dev/null ; then
+    echo '=> Backing up NPM package list.'
+    npm list --global --depth=0 | \
+      sed 1d | \
+      cut -d'@' -f1 | \
+      cut -d' ' -f2 | \
+      sed '/^$/d' > "$BACKUP_DIR/npm-packags.list"
+  fi
+
+  if hash brew 2>/dev/null ; then
+    (
+      cd "$BACKUP_DIR"
+
+      rm -f Brewfile
+      brew bundle dump
+
+      # Backup all packages (with arguments), taps, and casks.
+      echo '=> Creating Brewfile bundle.'
+      brew bundle --force dump
+
+      # Remove non-top level installed packages (e.g. dependencies).
+      # Top-level packages needed on their own that other packages depend on.
+      local package_whitelist=(homebrew/php/composer homebrew/php/php-code-sniffer neovim/neovim/neovim homebrew/php/php70)
+      local brew_leaves="$(brew leaves)"
+      grep '^brew' Brewfile | while read brewfile_line ; do
+        local package="$(echo $brewfile_line | cut -d"'" -f2)"
+        local package_escaped="$(echo $package | sed -e 's/[\/&]/\\&/g')"
+        if [[ ! $(echo "$brew_leaves" | grep "^$package_escaped$") && ! $package_whitelist =~ $package ]] ; then
+          echo "=> Removing '$package'"
+          sed -i -e "/^brew '$package_escaped'/d" Brewfile
+        fi
+      done
+    )
+  fi
+}
+
+
+init() {
+  local OS="$(uname --operating-system)"
+
+  # Homebrew.
+  if [[ $OS == 'Darwin' && ! $(hash brew 2>/dev/null) ]] ; then
+    echo -n 'Install Homebrew (y/n)? '
+    read install_homebrew
+    if [[ $install_homebrew == 'y' ]] ; then
+      echo '=> Installing Homebrew.'
+      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    fi
+  fi
+
+  # Composer.
+  if ! hash composer 2>/dev/null ; then
+    echo '=> Installing Composer.'
+    if [[ $OS == 'Darwin' && $(hash brew 2>/dev/null) ]] ; then
+      brew tap homebrew/php
+      brew install composer
+    else
+      wget https://getcomposer.org/installer -O - -q | php -- --quiet
+    fi
+  fi
+
+  # Node / NPM.
+  if [[ $OS == 'Darwin' && ! $(hash node 2>/dev/null) ]] ; then
+    echo '=> Installing Node.'
+    brew install node
+  fi
+}
+
+
+restore() {
+  if hash composer 2>/dev/null ; then
+    echo '=> Installing global composer packages.'
+    cat "$BACKUP_DIR/npm-packages.list" | while read composer_package ; do
+      echo "=> Installing '$composer_package'"
+      composer global install "$composer_package"
+    done
+  fi
+
+  if hash npm 2>/dev/null ; then
+    echo '=> Installing NPM packages.'
+    cat "$BACKUP_DIR/npm-packages.list" | while read npm_package ; do
+      echo "=> Installing '$npm_package'"
+      npm --global install "$npm_package"
+    done
+  fi
+
+  if hash brew 2>/dev/null ; then
+    (
+      echo '=> Installing Brew tabs, packages and casks.'
+      cd "$BACKUP_DIR" && \
+      brew bundle
+    )
+  fi
+}
+
+
 # Random joke, with random rainbow coloured ASCII art.
 cowjoke() {
   if command_exists cowsay && command_exists pyjoke && command_exists lolcat ; then
@@ -85,12 +210,27 @@ chownme() {
 }
 
 
+# Generate the ctags file at the top of a Git repo.
+generate-ctags() {
+  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+  if [ ! -d "$GIT_ROOT_DIR" ] ; then
+    echo 'ERROR: Not in a Git repo.' >&2
+    return 1
+  fi
+
+  cd "$GIT_ROOT_DIR"
+  rm tags
+  ctags -R -f tags
+}
+
+
 # cd to a previously visited directory matching FUZZY_PATTERN
 unalias z 2>/dev/null
 z() {
-  if [[ -z "$@" ]]; then
-    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')" || exit 1
+  if [[ -z "$*" ]]; then
+    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
   else
+    _last_z_args="$@"
     _z "$@"
   fi
 }
@@ -354,15 +494,12 @@ update() {
 
   # Update zplug and packages.
   if command_exists zplug ; then
-    echo "\n\n=> Updating zplug."
-    zplug update --self
-
-    echo "\n\n=> Updating zplug packages."
+    echo "\n\n=> Updating zplug and packages."
     zplug update
   fi
 
   # Update Gem and Gems.
-  if hash gem 2>/dev/null ; then
+  if command_exists gem ; then
     echo "\n\n=> Updating Ruby Gems."
     sudo gem update --system
     sudo gem update
@@ -370,13 +507,13 @@ update() {
   fi
 
   # Update Composer packages.
-  if hash composer 2>/dev/null ; then
+  if command_exists composer ; then
     echo "\n\n=> Updating Composer packages."
     composer global update
   fi
 
   # Update Go packages.
-  if hash go 2>/dev/null ; then
+  if command_exists go ; then
     echo "\n\n=> Updating Go packages."
     go get -u all
   fi
