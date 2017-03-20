@@ -99,6 +99,8 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SCSS synt
 
 " Highlight CSS colours with the rule value.
 Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
+" Auto-complete properties and values.
+Plug 'rstacruz/vim-hyperstyle', { 'for': ['css', 'scss', 'sass'] }
 
 
 " ----------------------------------------
