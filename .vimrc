@@ -1243,7 +1243,7 @@ if has_key(g:plugs, 'deoplete.nvim')
 endif
 
 " Execute the buffer contents.
-nmap <Leader>r :RunCode<CR>
+nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
