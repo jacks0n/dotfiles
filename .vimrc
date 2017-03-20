@@ -1338,6 +1338,7 @@ autocmd BufWritePre * StripWhitespace
 " vim-commentary.
 autocmd FileType php setlocal commentstring=//\ %s
 autocmd FileType css.scss setlocal commentstring=//\ %s
+autocmd FileType apache setlocal commentstring=#\ %s
 
 
 " ========================================================================
