@@ -1259,11 +1259,15 @@ nmap <Leader>gd :Gdiff<CR>
 nmap <Leader>gh :Gbrowse<CR>
 nmap <Leader>gs :Gstatus<CR>
 
-" Fire up FZF.
-nnoremap <C-f> :FZF<CR>
-nnoremap <Leader>f :FZF<CR>
-nnoremap <C-g> :GitFiles<CR>
-nnoremap <Leader>g :GitFiles<CR>
+" FZF or Skim.
+if (executable('fzf') && has_key(g:plugs, 'fzf.vim')) || (executable('sk') && has_key(g:plugs, 'skim.vim'))
+  nnoremap <C-f> :Files<CR>
+  nnoremap <Leader>f :Files<CR>
+  nnoremap <C-g> :GFiles<CR>
+  nnoremap <Leader>g :GFiles<CR>
+  nnoremap <Leader>c :Colors<CR>
+  nnoremap <Leader>h :History<CR>
+endif
 
 " Incsearch.
 let g:incsearch#auto_nohlsearch = 1
