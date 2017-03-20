@@ -11,13 +11,13 @@ call plug#begin('~/.vim/plugged')
 " ========================================================================
 
 " Options:
-"  'Townk/vim-autoclose'  - Works well. Gets stuck in insert mode with YouCompleteMe.
+"  'Townk/vim-autoclose'  - Works well. Gets stuck in insert mode with YouCompleteMe. Unmaintained.
 "  'cohama/lexima.vim'    - Works well, inserts closing character, not that intelligent.
 "  'jiangmiao/auto-pairs' - Seems the most intelligent, can get slow.
 " Plug 'cohama/lexima.vim'
-" Plug 'jiangmiao/auto-pairs'
-" Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
-"       \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
+Plug 'jiangmiao/auto-pairs'
+Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
+  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -28,14 +28,19 @@ Plug 'vim-airline/vim-airline'
 Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
 Plug 'embear/vim-localvimrc'
-
+Plug 'wakatime/vim-wakatime'
 
 " ========================================================================
 " Plug: Completion.                                                      |
 " ========================================================================
 
 if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  " Plug 'Shougo/denite.nvim'
+  " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'roxma/nvim-completion-manager', { 'do': 'npm install' }
+  Plug 'roxma/LanguageServer-php-neovim',  { 'do': 'composer install && composer run-script parse-stubs'}
+  Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
 else
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
@@ -58,6 +63,8 @@ Plug 'SirVer/ultisnips'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   \| Plug 'junegunn/fzf.vim'
+" Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
+"  \| Plug 'lotabout/skim.vim'
 " Plug 'mhinz/vim-grepper'       " Asynchronous search.
 Plug 'rking/ag.vim'
 
@@ -85,10 +92,9 @@ Plug 'matze/vim-move'                 " Move lines and selections up and down.
 " ----------------------------------------
 
 " Options:
-"  'JulesWang/css.vim'         - Cutting-edge CSS syntax file.
-"  'hail2u/vim-css3-syntax'    - Adds CSS3 properties, except for @media.
+"  'JulesWang/css.vim'         - Cutting-edge CSS syntax file. In vim-polyglot.
+"  'hail2u/vim-css3-syntax'    - Adds CSS 3 properties, except for @media.
 "  'cakebaker/scss-syntax.vim' - SCSS syntax.
-Plug 'JulesWang/css.vim', { 'for': ['css', 'scss', 'sass'] }
 Plug 'hail2u/vim-css3-syntax',    { 'for': ['css', 'scss', 'sass'] } " CSS3 syntax.
 Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SCSS syntax.
 
@@ -143,18 +149,20 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 
 Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
 
-" Options:
-"  'jiangmiao/simple-javascript-indenter' - Indent, unmaintained.
-"  'pangloss/vim-javascript'              - Indent and syntax, maintained.
-"                                           Not great at docblock indentation.
-"  'gavocanov/vim-js-indent'              - Indent part of pangloss/vim-javascript.
+" Indent and Syntax Options:
+"  'pangloss/vim-javascript'              - Maintained. Indents `*` wrongly for
+"                                           docblocks that start with `/**`.
+" Indent Options:
+"  'jiangmiao/simple-javascript-indenter' - Unmaintained.
+"  'gavocanov/vim-js-indent'              - Indent part of pangloss/vim-javascript. Unmaintained.
+"  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript.
+" Syntax Options:
 "  'jelera/vim-javascript-syntax'         - Syntax, maintained.
 "  'othree/yajs.vim'                      - Syntax, maintained, fork of Jelera. Recognises
 "                                         - web API and DOM keywords, supports ES6 syntax.
 "  'othree/jsdoc-syntax.vim'              - JSDoc syntax.
-"  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript.
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-" Plug 'othree/yajs.vim',         { 'for': 'javascript' }
+" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'othree/yajs.vim', { 'for': 'javascript' }
 if has_key(g:plugs, 'yajs.vim')
   Plug 'othree/jsdoc-syntax.vim', { 'for': 'javascript' }
   Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' }
@@ -251,12 +259,42 @@ if 0 && has('nvim')
     \ }
     \| Plug 'vim-scripts/progressbar-widget'
 elseif 0 && (has('python') || has('python3'))
-  Plug 'mkusher/padawan.vim', {
-        \   'do': 'composer global require mkusher/padawan',
-        \   'for': 'php',
-        \ }
+  " Deoplete Padawan plugin.
+  if has_key(g:plugs, 'deoplete.nvim')
+    Plug 'padawan-php/deoplete-padawan'
+    let g:deoplete#sources#padawan#add_parentheses = 1
+  " Regular Vim Padawan plugin.
+  else
+    Plug 'padawan-php/padawan.vim'
+  endif
+
+  " Register the completion source with NVim completion manager.
+  if has_key(g:plugs, 'nvim-completion-manager')
+    au User CmSetup call cm#register_source({'name': 'cm-php',
+      \ 'priority': 9,
+      \ 'scopes': ['php'],
+      \ 'abbreviation': 'php',
+      \ 'cm_refresh_patterns': ['\w{2,}$'],
+      \ 'cm_refresh': {'omnifunc': 'padawan#Complete'},
+      \ })
+  endif
+
+  " Padawan options.
+  let $PATH=$PATH . ':' . expand('~/.composer/vendor/bin')
+  let g:padawan#composer_command = '/usr/local/bin/composer'
 elseif !has_key(g:plugs, 'vim-eclim') && !has_key(g:plugs, 'neovim-intellij-complete-deoplete')
   Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
+
+  " Register the completion source with NVim completion manager.
+  if has_key(g:plugs, 'nvim-completion-manager')
+    au User CmSetup call cm#register_source({'name': 'cm-php',
+      \ 'priority': 9,
+      \ 'scopes': ['php'],
+      \ 'abbreviation': 'php',
+      \ 'cm_refresh_patterns':['\w{2,}$'],
+      \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'},
+      \ })
+  endif
 endif
 
 
@@ -532,7 +570,7 @@ set formatoptions+=c " ... Unless it's a comment.
 set formatoptions+=r " Auto insert the current comment leader after hitting <Enter> in Insert mode.
 set formatoptions+=o " Auto insert the current comment leader after hitting 'o' or 'O' in Normal mode.
 set formatoptions+=q " Allow formatting of comments with 'gq" (not blank lines or only the comment leader).
-set formatoptions+=n " When formatting text, recognize numbered lists (see 'formatlistpat' for list kinds).
+set formatoptions+=n " When formatting text, recognise numbered lists (see 'formatlistpat' for list kinds).
 set formatoptions+=j " Delete comment character when joining commented lines.
 
 " Visual.
@@ -548,8 +586,8 @@ endif
 " Neovim specific.
 if has('nvim')
   let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
-  let g:python_host_prog = '/usr/local/bin/python2'
-  let g:python3_host_prog = '/usr/local/opt/python3/bin/python3'
+  let g:python_host_prog = '/usr/local/bin/python'
+  let g:python3_host_prog = '/usr/local/bin/python3'
 endif
 
 if exists('&inccommand')
@@ -621,10 +659,6 @@ map <leader>ss :setlocal spell!<CR>
 " Toggle search highlighting.
 noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
 
-" Correct bad indent while pasting.
-" See: http://vim.wikia.com/wiki/Format_pasted_text_automatically
-nnoremap p p=`]
-
 " Strip trailing whitespace.
 nmap <Leader>sw :%s/\s\+$//e<CR>
 
@@ -649,6 +683,8 @@ if has('gui_vimr')
 endif
 
 " Code folding options.
+nmap <Leader>fl- :setlocal nofoldenable<CR>
+nmap <Leader>fl+ :setlocal foldenable<CR>
 nmap <Leader>fl0 :setlocal foldlevel=0<CR>
 nmap <Leader>fl1 :setlocal foldlevel=1<CR>
 nmap <Leader>fl2 :setlocal foldlevel=2<CR>
@@ -739,8 +775,8 @@ augroup writing_mode
   " wrapmargin
   " linebreak
   " Enable soft wrapping.
-  autocmd FileType text,markdown setlocal textwidth=80
-  autocmd FileType text,markdown setlocal wrap
+  " autocmd FileType text,markdown setlocal textwidth=80
+  " autocmd FileType text,markdown setlocal wrap
   " Wrap long lines at a character in 'breakat'.
   " autocmd FileType text,markdown setlocal linebreak
   " autocmd FileType text,markdown setlocal nolist
@@ -960,13 +996,16 @@ let g:deoplete#omni#functions.javascript      = ['jspc#omni', 'tern#Complete']
 let g:deoplete#omni#input_patterns            = get(g:, 'deoplete#omni#_input_patterns', {})
 " let g:deoplete#omni#input_patterns.javascript = '\h\w*\|{3,}'
 let g:deoplete#omni#input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
+" let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+let g:deoplete#omni#input_patterns.php =
+            \ '\w+|[^. \t]->\w*\|\w+::\w*'
 let g:deoplete#omni#input_patterns.python     = '\h\w*'
 " Regular (synchronous) omnifuncs.
 let g:deoplete#omni_patterns                  = get(g:, 'deoplete#_omni_patterns', {})
 let g:deoplete#omni_patterns.css              = ['{3,}', '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]']
 let g:deoplete#omni_patterns.html             = '<[^>]*'
 " let g:deoplete#omni_patterns.php              = '\h\w'
-" let g:deoplete#omni_patterns.php              = '\h\w\{5,}'
+let g:deoplete#omni_patterns.php              = '\h\w\{4,}'
 " let g:deoplete#omni_patterns.php              = '[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
 " let g:deoplete#omni_patterns.python           = ['[^. *\t]\.\h\w*\','\h\w*::']
 " let g:deoplete#omni_patterns.python3          = ['[^. *\t]\.\h\w*\','\h\w*::']
@@ -1031,9 +1070,15 @@ let g:jedi#rename_command           = '' " Disable the rename mapping.
 let g:jedi#usages_command           = '' " Disable the usage mapping.
 let g:jedi#completions_command      = '' " Disable the completion mapping.
 
+" Nvim Completion Manager.
+let g:cm_matcher = {'module': 'cm_matchers.fuzzy_matcher', 'case': 'smartcase'}
+
 " UltiSnips.
 let g:UltiSnipsJumpForwardTrigger  = '<C-j>'
 let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+
+" Wakatime.
+let g:wakatime_PythonBinary = '/usr/local/bin/python'
 
 " PHP Documentor.
 let g:pdv_template_dir = g:plug_home . '/pdv/templates'
@@ -1202,7 +1247,7 @@ let g:ycm_semantic_triggers = get(g:, 'g:ycm_semantic_triggers', {
 let g:javascript_enable_domhtmlcss = 1
 
 " vim-polyglot.
-let g:polyglot_disabled = ['css', 'html5', 'javascript', 'json', 'jsx', 'php']
+let g:polyglot_disabled = ['html5', 'javascript', 'json', 'jsx', 'php']
 
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
@@ -1317,6 +1362,9 @@ augroup pencil
   autocmd!
   autocmd FileType markdown,text :PencilSoft " Enable soft-wrapping.
 augroup END
+
+" LanguageClient-neovim.
+autocmd FileType php LanguageClientStart
 
 " Lint when saving files.
 " if has_key(g:plugs, 'neomake')
