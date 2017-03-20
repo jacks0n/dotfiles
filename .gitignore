@@ -3,3 +3,6 @@
 .tern-port
 Icon
 tags
+.vimrc.local
+.padawan/
+.phpcd/
