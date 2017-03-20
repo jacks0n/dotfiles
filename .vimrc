@@ -57,10 +57,6 @@ Plug 'SirVer/ultisnips'
 " Plug: Search.                                                          |
 " ========================================================================
 
-" Plug 'ctrlpvim/ctrlp.vim'
-"   \| Plug 'nixprime/cpsm', { 'do': './install.sh' }
-"   \| Plug 'JazzCore/ctrlp-cmatcher', { 'do': './install.sh' }
-"   \| Plug 'FelikZ/ctrlp-py-matcher'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   \| Plug 'junegunn/fzf.vim'
 " Plug 'mhinz/vim-grepper'       " Asynchronous search.
