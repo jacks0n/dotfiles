@@ -17,6 +17,7 @@ done
 # GPG Agent.
 ##
 
+export GPG_TTY=$(tty)
 if [ -f ~/.gnupg/.gpg-agent-info ] ; then
   if [ -n "$(pgrep gpg-agent)" ]; then
     source ~/.gnupg/.gpg-agent-info
@@ -38,14 +39,6 @@ if [ -f '/usr/local/etc/profile.d/z.sh' ] ; then
   source '/usr/local/etc/profile.d/z.sh'
 fi
 
-# fzf - https://github.com/junegunn/fzf
-# --inline-info: Display the result number besides the query.
-export FZF_DEFAULT_OPTS='--inline-info'
-if [ $(command -v ag) ] ; then
-  # Use ag as the default source for fzf.
-  export FZF_DEFAULT_COMMAND='ag -g ""'
-fi
-
 # thefuck - https://github.com/nvbn/thefuck
 if hash thefuck 2>/dev/null ; then
   eval "$(thefuck --alias)"
@@ -56,6 +49,4 @@ fi
 # Other.
 ##
 
-if hash cowjoke 2>/dev/null ; then
-  cowjoke
-fi
+cowjoke
