@@ -34,6 +34,7 @@ setopt NO_FLOW_CONTROL      # No c-s/c-q output freezing.
 setopt PATH_DIRS            # Perform path search even on command names with slashes.
 setopt PROMPT_SUBST         # Perform parameter expansion, command substitution and arithmetic expansion in prompts.
 setopt SHARE_HISTORY        # Share history between shell instances.
+setopt COMPLETE_ALIASES     # Enable completion for aliases.
 
 zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
@@ -103,6 +104,14 @@ fi
 ##
 
 source "$HOME/.shrc"
+
+
+##
+# Other.
+##
+
+# Alias Symfony completions to `sc`.
+compdef console=sc
 
 
 ##
