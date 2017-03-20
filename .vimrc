@@ -296,6 +296,7 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' }
 " ========================================================================
 
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
+Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'alessandroyorba/despacio'
 
 
@@ -493,6 +494,7 @@ if has('vim_starting')
   " colorscheme hybrid
   colorscheme OceanicNext
   " colorscheme gruvbox
+  " colorscheme onehalfdark
   set background=dark
   if has('gui')
     " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
@@ -1101,6 +1103,7 @@ let g:airline_theme = 'badwolf'
 " let g:airline_theme = 'luna'
 " let g:airline_theme = 'bubblegum'
 " let g:airline_theme = 'wombat'
+" let g:airline_theme = 'onehalfdark'
 let g:airline_symbols = extend(get(g:, 'airline_symbols', {}), {
 \   'paste': 'ρ',
 \   'whitespace': 'Ξ',
