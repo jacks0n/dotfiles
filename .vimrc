@@ -36,10 +36,10 @@ Plug 'wakatime/vim-wakatime'
 
 if has('nvim')
   " Plug 'Shougo/denite.nvim'
+  " Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
   " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
-  Plug 'roxma/nvim-completion-manager', { 'do': 'npm install' }
-  Plug 'roxma/LanguageServer-php-neovim',  { 'do': 'composer install && composer run-script parse-stubs'}
+  Plug 'roxma/nvim-completion-manager'
+  " Plug 'roxma/LanguageServer-php-neovim',  { 'do': 'composer install && composer run-script parse-stubs'}
   Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
 else
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
@@ -52,9 +52,6 @@ Plug 'SirVer/ultisnips'
   \| Plug 'sniphpets/sniphpets-symfony'  " Common Symfony snippets.
   \| Plug 'algotech/ultisnips-php'       " Common PHP, PHPUnit, and Symnfony snippets.
   \| Plug 'sniphpets/sniphpets-doctrine' " Common Doctrine snippets.
-
-" Plug 'vhakulinen/neovim-intellij-complete-deoplete' " PhpStorm completion!
-" Plug 'dansomething/vim-eclim'
 
 
 " ========================================================================
@@ -252,17 +249,27 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
 " Server-based PHP completion.
-if 0 && has('nvim')
+if has('nvim')
   Plug 'phpvim/phpcd.vim', {
     \ 'do': 'composer update',
     \ 'for': 'php'
     \ }
     \| Plug 'vim-scripts/progressbar-widget'
+
+  " Register the completion source with NVim completion manager.
+  if has_key(g:plugs, 'nvim-completion-manager')
+    au User CmSetup call cm#register_source({'name': 'cm-php',
+      \ 'priority': 9,
+      \ 'scopes': ['php'],
+      \ 'abbreviation': 'php',
+      \ 'cm_refresh_patterns': ['\h\w{2,}', '\h\w*', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+      \ 'cm_refresh': {'omnifunc': 'phpcd#CompletePHP'},
+      \ })
+  endif
 elseif 0 && (has('python') || has('python3'))
   " Deoplete Padawan plugin.
   if has_key(g:plugs, 'deoplete.nvim')
     Plug 'padawan-php/deoplete-padawan'
-    let g:deoplete#sources#padawan#add_parentheses = 1
   " Regular Vim Padawan plugin.
   else
     Plug 'padawan-php/padawan.vim'
@@ -282,7 +289,7 @@ elseif 0 && (has('python') || has('python3'))
   " Padawan options.
   let $PATH=$PATH . ':' . expand('~/.composer/vendor/bin')
   let g:padawan#composer_command = '/usr/local/bin/composer'
-elseif !has_key(g:plugs, 'vim-eclim') && !has_key(g:plugs, 'neovim-intellij-complete-deoplete')
+else
   Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 
   " Register the completion source with NVim completion manager.
@@ -504,9 +511,9 @@ set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
 
 set smarttab                    " Emulate tab behaviour with spaces.
 set expandtab                   " Tabs are spaces.
-set shiftwidth=2                " 4 spaces per tab.
-set softtabstop=2               " Number of spaces in tab when editing.
-set tabstop=2                   " Number of visual spaces per tab.
+set shiftwidth=4                " Spaces per tab.
+set softtabstop=4               " Number of spaces in tab when editing.
+set tabstop=4                   " Number of visual spaces per tab.
 set cindent                     " Indent from previous line, with C syntax.
 set display+=lastline           " Display as much as possible of last line in window, '@@@' when truncated.
 set ruler                       " Show the line and column number of the cursor position.
@@ -846,8 +853,6 @@ augroup omnifuncs
     autocmd FileType javascript setlocal omnifunc=tern#Complete
   elseif has_key(g:plugs, 'YouCompleteMe')
     autocmd FileType javascript setlocal omnifunc=youcompleteme#OmniComplete
-  elseif has_key(g:plugs, 'vim-eclim') " Must be set to avoid jspc conflict.
-    autocmd FileType javascript setlocal omnifunc=eclim#javascript#complete#CodeComplete
   else
     autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
   endif
@@ -860,12 +865,10 @@ augroup omnifuncs
     autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
   endif
 
-  " Other Omnicompletion (ignore if Eclim is in use).
-  if !has_key(g:plugs, 'vim-eclim')
-    autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType xml           setlocal omnifunc=xmlcomplete#CompleteTags
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-  endif
+  " Other Omnicompletion.
+  autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
+  autocmd FileType xml           setlocal omnifunc=xmlcomplete#CompleteTags
+  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 augroup END
 
 " Return to last edit position when opening files.
@@ -986,7 +989,6 @@ let g:deoplete#enable_camel_case              = 1 " Smart-case for fuzzy matchin
 let g:deoplete#delimiters                     = ['/', '.', '::', ':', '#', '->'] " Added '->'.
 let g:deoplete#sources                        = get(g:, 'deoplete#sources', {})
 let g:deoplete#sources._                      = ['omni', 'buffer', 'member', 'tag', 'ultisnips', 'file', 'dictionary']
-" let g:deoplete#sources.javascript           = ['ternjs'] + g:deoplete#sources._
 let g:deoplete#sources.javascript             = ['ternjs', 'ultisnips', 'file']
 let g:deoplete#keyword_patterns               = get(g:, 'deoplete#keyword_patterns', {})
 let g:deoplete#keyword_patterns.default       = '[a-zA-Z_]\w?'
@@ -997,16 +999,17 @@ let g:deoplete#omni#input_patterns            = get(g:, 'deoplete#omni#_input_pa
 " let g:deoplete#omni#input_patterns.javascript = '\h\w*\|{3,}'
 let g:deoplete#omni#input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
 " let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
-let g:deoplete#omni#input_patterns.php =
-            \ '\w+|[^. \t]->\w*\|\w+::\w*'
+" let g:deoplete#omni#input_patterns.php =
+"             \ '\w+|[^. \t]->\w*\|\w+::\w*'
 let g:deoplete#omni#input_patterns.python     = '\h\w*'
 " Regular (synchronous) omnifuncs.
 let g:deoplete#omni_patterns                  = get(g:, 'deoplete#_omni_patterns', {})
 let g:deoplete#omni_patterns.css              = ['{3,}', '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]']
 let g:deoplete#omni_patterns.html             = '<[^>]*'
 " let g:deoplete#omni_patterns.php              = '\h\w'
-let g:deoplete#omni_patterns.php              = '\h\w\{4,}'
-" let g:deoplete#omni_patterns.php              = '[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.php              = '\h\w\{4,}'
+let g:deoplete#omni_patterns.php              = '\h\w\{$,}\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.php              = ['\h\w\{$,}', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?']
 " let g:deoplete#omni_patterns.python           = ['[^. *\t]\.\h\w*\','\h\w*::']
 " let g:deoplete#omni_patterns.python3          = ['[^. *\t]\.\h\w*\','\h\w*::']
 let g:deoplete#omni_patterns.ruby             = ['[^. *\t]\.\w*', '\h\w*::']
@@ -1014,9 +1017,6 @@ let g:deoplete#omni_patterns.sass             = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|
 let g:deoplete#omni_patterns.scss             = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]'
 let g:deoplete#omni_patterns.xml              = '<[^>]*'
 let g:deoplete#sources#jedi#show_docstring    = 1
-
-" Eclim.
-let g:EclimCompletionMethod = 'omnifunc'
 
 " elzr/vim-json.
 let g:vim_json_syntax_conceal = 0 " Show quotes in JSON files.
@@ -1362,9 +1362,6 @@ augroup pencil
   autocmd!
   autocmd FileType markdown,text :PencilSoft " Enable soft-wrapping.
 augroup END
-
-" LanguageClient-neovim.
-autocmd FileType php LanguageClientStart
 
 " Lint when saving files.
 " if has_key(g:plugs, 'neomake')
