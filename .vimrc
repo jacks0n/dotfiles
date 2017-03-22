@@ -16,8 +16,8 @@ call plug#begin('~/.vim/plugged')
 "  'jiangmiao/auto-pairs' - Seems the most intelligent, can get slow.
 " Plug 'cohama/lexima.vim'
 Plug 'jiangmiao/auto-pairs'
-Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
-  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
+" Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
+"   \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
