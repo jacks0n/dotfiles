@@ -32,6 +32,11 @@ alias gem='sudo gem'
 alias pear='sudo pear'
 alias pip='sudo -H pip'
 
+# Composer.
+alias ci='composer install'
+alias cr='composer require'
+alias cu='composer update'
+
 # Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
 alias fix_zsh_permissions='compaudit 2>/dev/null | sudo xargs chmod g-w'
 
@@ -66,8 +71,7 @@ alias npm-ls='npm list -g --depth=0'
 # Re-install all the things.
 alias npm-reinstall='rm -rf node_modules && npm cache clean && npm install && npm dedupe'
 
-# Always run vagrant as sudo, to bind to restricted ports (80, 443, etc).
-alias vagrant='sudo -E vagrant'
+# Vagrant.
 alias vhalt='vagrant halt'
 alias vreload='vagrant reload'
 alias vssh='vagrant ssh'
