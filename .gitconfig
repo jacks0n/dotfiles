@@ -5,13 +5,15 @@
 
 [alias]
   d  = diff
-  g  = grep
   dc = diff --cached
   ds = diff --stat
+  g  = grep
   ls = ls-files
   rt = remote
   ss = stash
   st = status
+  stash-all = stash save --include-untracked
+  undo = reset --soft HEAD^
 
 [branch]
   ; Auto track remote branches on local branch creation.
@@ -33,6 +35,8 @@
   ; Git for Windows uses this to bulk-read and cache lstat data of
   ; entire directories (instead of doing lstat file by file).
   fscache = true
+  ; Don't ignore case changes.
+  ignorecase = false
 
 [credential]
   ; Cache authentication credentials in OS X's keychain.
@@ -64,7 +68,10 @@
   user = jacks0n
 
 [gpg]
-  program = gpg2
+  program = /usr/local/bin/gpg2
+
+[log]
+  date = relative
 
 [merge]
   tool = Kaleidoscope
@@ -87,6 +94,9 @@
 [pager]
   diff = diff-so-fancy | less --tabs=1,5 -RFX
   show = diff-so-fancy | less --tabs=1,5 -RFX
+
+[push]
+  default = current
 
 [rerere]
   enabled = true
