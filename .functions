@@ -51,18 +51,48 @@ ge() {
 }
 
 
+# Print all commits in the last day for all Git repositories under the current directory.
+git-standup() {
+  local ORIGINAL_WORKING_DIRECTORY="$(pwd)"
+  local GIT_AUTHOR="$(git config user.name)"
+
+  local DAYS_AGO='1'
+  if [[ "$(date '+%a')" == 'Mon' ]] ; then
+      DAYS_AGO='3'
+  fi
+
+  find "$(pwd)" -type d -name .git | while read GIT_DIR_PATH ; do
+    cd "$GIT_DIR_PATH/.."
+    local AUTHOR_COMMITS="$(
+      git log \
+        --graph \
+        --pretty=format:'%C(yellow)%h %Cblue%>(12)%ad %Cgreen%<(7)%aN%Cred%d %Creset%s' \
+        --since=$DAYS_AGO.days.ago \
+        --author="$GIT_AUTHOR" \
+        --all
+    )"
+    if [ ! -z "$AUTHOR_COMMITS" ] ; then
+      echo -e "\n=> $(pwd)"
+      echo "$AUTHOR_COMMITS"
+    fi
+  done
+
+  cd "$ORIGINAL_WORKING_DIRECTORY"
+}
+
+
 # Alias for the nearest Symfony `bin/console`.
 sc() {
   (
     while true ; do
       local SEARCH_DIR="$(pwd)"
       if [[ $SEARCH_DIR == "$HOME" || $SEARCH_DIR == '/' ]] ; then
-        echo 'ERROR: Could not find `bin/console`.' 2>&1
+        echo 'ERROR: Could not find `app/console`.' 2>&1
         return 1
       fi
 
-      if [ -f 'bin/console' ] ; then
-        bin/console $@
+      if [ -f 'app/console' ] ; then
+        app/console $@
         return
       fi
 
