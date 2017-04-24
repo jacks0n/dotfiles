@@ -7,7 +7,7 @@ root = true
 [*]
 charset = utf-8
 end_of_line = LF
-indent_size = 2
+indent_size = 4
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
@@ -16,3 +16,6 @@ trim_trailing_whitespace = true
 # Markdown uses the trailing whitespaces
 # https://daringfireball.net/projects/markdown/syntax#block
 trim_trailing_whitespace = false
+
+[{*.vim,.vimrc}]
+indent_size = 2
