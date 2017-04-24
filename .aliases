@@ -23,9 +23,13 @@ alias lfa='la | grep -v "^d"'  # Only files, including dotfiles.
 alias ld='l | grep "^d"'       # Only directories.
 alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
 
-# git shortcuts.
-alias gstall='git status -uall'
+# Git.
+alias ga='git add -A .'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gs='git status'
 alias gst='git status'
+alias gsta='git status -uall'
 
 # Avoid permission errors.
 alias gem='sudo gem'
