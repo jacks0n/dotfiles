@@ -38,7 +38,7 @@ if hash brew 2>/dev/null ; then
   export MANPATH="/usr/local/share/man:$MANPATH"
 
   # Homebrew Cask path preferences.
-  # export HOMEBREW_CASK_OPTS="--appdir=/Applications --prefpanedir=/Library/PreferencePanes --qlplugindir=/Library/QuickLook --colorpickerdir=/Library/ColorPickers --fontdir=/Library/Fonts --input_methoddir='/Library/Input Methods' --screen_saverdir='/Library/Screen Savers' --servicedir=/Library/Services"
+  export HOMEBREW_CASK_OPTS='--fontdir=/Library/Fonts'
 
   # Homebrew GNU coreutils, sed & tar.
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
