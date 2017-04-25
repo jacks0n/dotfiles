@@ -3,6 +3,8 @@
 .tern-port
 Icon
 tags
+tags.temp
+tags.lock
 .vimrc.local
 .padawan/
 .phpcd/
