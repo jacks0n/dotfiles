@@ -71,6 +71,7 @@
   program = /usr/local/bin/gpg2
 
 [help]
+  ; Automatically correct and execute mistyped commands.
   autoCorrect = 1
 
 [log]
