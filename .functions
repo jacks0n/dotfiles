@@ -9,6 +9,7 @@ command_exists() {
 # ag / The Silver Searcher shortcuts.
 # https://github.com/ggreer/the_silver_searcher.
 a()  { ag "$1" "${2:-.}"; }
+au() { ag -u "$1" "${2:-.}"; }
 al() { ag -l "$1" "${2:-.}"; }
 ae() {
   ag --nobreak --nonumbers --noheading "${2:-.}" | \
