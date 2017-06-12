@@ -511,9 +511,9 @@ set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
 
 set smarttab                    " Emulate tab behaviour with spaces.
 set expandtab                   " Tabs are spaces.
-set shiftwidth=4                " Spaces per tab.
-set softtabstop=4               " Number of spaces in tab when editing.
-set tabstop=4                   " Number of visual spaces per tab.
+set shiftwidth=2                " Spaces per tab.
+set softtabstop=2               " Number of spaces in tab when editing.
+set tabstop=2                   " Number of visual spaces per tab.
 set cindent                     " Indent from previous line, with C syntax.
 set display+=lastline           " Display as much as possible of last line in window, '@@@' when truncated.
 set ruler                       " Show the line and column number of the cursor position.
