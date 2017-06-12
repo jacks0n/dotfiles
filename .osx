@@ -1,16 +1,5 @@
 # vim: filetype=sh
 
-# Must be run by user to set defaults.
-if [ "$USER" == 'root' ] ; then
-  echo 'ERROR: Running as root!'
-  exit 1
-fi
-
-
-# Ask for the administrator password upfront.
-sudo -v
-
-
 ###############################################################################
 #  General OS X                                                               #
 ###############################################################################
@@ -65,9 +54,6 @@ defaults write NSGlobalDomain AppleFontSmoothing -int 2
 # Enable HiDPI display modes (requires restart).
 sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
 
-# Disable quarantining of downloaded files.
-defaults write com.apple.LaunchServices LSQuarantine -bool NO
-
 # Expand save panel by default.
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
@@ -88,12 +74,17 @@ defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true
 # Disable menu bar transparency.
 defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
 
+# Use a dark menu bar / dock.
+defaults write NSGlobalDomain AppleInterfaceStyle -string 'Dark'
+
 # Check for software updates daily, not just once per week.
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 # Disable auto-correct.
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
+# Don't show Siri in the menu bar.
+defaults write com.apple.Siri StatusMenuVisible -bool false
 
 
 ###############################################################################
@@ -102,7 +93,6 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
 sudo sysctl -w kern.maxfiles=300000        # Defaults to 12288.
 sudo sysctl -w kern.maxfilesperproc=100000 # Defaults to 10240.
-
 
 
 ###############################################################################
@@ -122,7 +112,6 @@ sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -bool true
 sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
 
 
-
 ###############################################################################
 #  Terminal                                                                   #
 ###############################################################################
@@ -132,7 +121,6 @@ defaults write com.apple.terminal StringEncodings -array 4
 
 defaults write com.apple.terminal 'Default Window Settings' -string 'Pro'
 defaults write com.apple.terminal 'Startup Window Settings' -string 'Pro'
-
 
 
 ###############################################################################
@@ -145,7 +133,6 @@ defaults write com.apple.Safari IncludeDevelopMenu                        -bool 
 defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
 defaults write NSGlobalDomain   WebKitDeveloperExtras                     -bool true
 defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled' -bool true
-
 
 
 ###############################################################################
@@ -161,7 +148,6 @@ defaults write com.apple.FontBook FBDefaultInstallDomainRef -int 1
 defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool true
 
 
-
 ###############################################################################
 #  Finder                                                                     #
 ###############################################################################
@@ -175,11 +161,17 @@ defaults write com.apple.finder FXPreferredViewStyle clmv
 # Avoid creation of .DS_Store files on network volumes.
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+# Disable the warning when changing a file extension.
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
 # Disable the warning before emptying the Trash.
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
+# Show the status bar.
+defaults write com.apple.finder ShowStatusBar -bool true
+
 # Set Desktop as the default location for new Finder windows.
-# For other paths, use `PfLo` and `file:///full/path/here/`
+# For other paths, use `PfLo` and `file:///full/path/here/`.
 defaults write com.apple.finder NewWindowTarget     -string 'PfDe'
 defaults write com.apple.finder NewWindowTargetPath -string "file://$HOME/Desktop/"
 
@@ -198,9 +190,6 @@ defaults write com.apple.finder ShowPathbar -bool true
 
 # Show status bar by default.
 defaults write com.apple.finder ShowStatusBar -bool true
-
-# Disable the warning when changing a file extension.
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 # Allow text selection in the Quick Look window.
 defaults write com.apple.finder QLEnableTextSelection -bool true
@@ -232,10 +221,6 @@ defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'
 # Disable the warning when changing a file extension.
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Avoid creating .DS_Store files on network volumes.
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-
-
 
 ###############################################################################
 #  SSD-specific Tweaks                                                        #
@@ -246,7 +231,6 @@ sudo pmset -a hibernatemode 0
 
 # Disable the sudden motion sensor as it's not useful for SSDs.
 sudo pmset -a sms 0
-
 
 
 ###############################################################################
@@ -260,9 +244,8 @@ sudo tmutil disablelocal
 defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
 
-
 ###############################################################################
-#  Trackpad, mouse, keyboard, Bluetooth accessories, and input                #
+#  Trackpad, Mouse, Keyboard, Bluetooth Accessories, and Input                #
 ###############################################################################
 
 # Turn off keyboard illumination when computer is not used for 5 minutes.
@@ -272,7 +255,16 @@ defaults write com.apple.BezelServices kDimTime -int 300
 defaults write NSGlobalDomain com.apple.mouse.scaling -float 2
 defaults write NSGlobalDomain com.apple.trackpad.scaling -float .875
 
-# Enable full keyboard access for all controls.  (e.g. enable Tab in modal dialogs)
+# Allow tap to click for Apple trackpad devices.
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+
+# Enable right click.
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode TwoButton
+
+# Enable full keyboard access for all controls.  (e.g. enable Tab in modal dialogs).
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 # Set language and text formats.
@@ -299,7 +291,6 @@ defaults write NSGlobalDomain InitialKeyRepeat -int 14
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 
-
 ###############################################################################
 #  Activity Monitor                                                           #
 ###############################################################################
@@ -317,7 +308,6 @@ defaults write com.apple.ActivityMonitor ShowCategory -int 0
 defaults write com.apple.ActivityMonitor SortColumn -string 'CPUUsage'
 
 
-
 ###############################################################################
 #  iTunes                                                                     #
 ###############################################################################
@@ -327,7 +317,6 @@ defaults write com.apple.iTunes disablePingSidebar -bool true
 
 # Disable all the other Ping stuff.
 defaults write com.apple.iTunes disablePing -bool true
-
 
 
 ###############################################################################
@@ -342,9 +331,8 @@ defaults write com.apple.TextEdit PlainTextEncoding         -int 4
 defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 
 
-
 ###############################################################################
-#  Dock                                                                       $
+#  Dock                                                                       #
 ###############################################################################
 
 # Hide Dock by default, with instant show / hide speed.
@@ -356,13 +344,9 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 defaults write com.apple.dock minimize-to-application -bool true
 
 
-
 ###############################################################################
 #  Other                                                                      #
 ###############################################################################
 
 # Make Zsh the default shell.
 chsh -s /usr/local/bin/zsh
-
-echo 'Fixing Vim copying in tmux'
-set-option -g default-command 'reattach-to-user-namespace -l bash'
