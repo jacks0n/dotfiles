@@ -6,6 +6,7 @@ set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 call plug#begin('~/.vim/plugged')
 
+
 " ========================================================================
 " Plug: Un-Organised.                                                    |
 " ========================================================================
@@ -29,6 +30,8 @@ Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
 Plug 'embear/vim-localvimrc'
 Plug 'wakatime/vim-wakatime'
+Plug 'DataWraith/auto_mkdir'
+
 
 " ========================================================================
 " Plug: Completion.                                                      |
@@ -36,11 +39,9 @@ Plug 'wakatime/vim-wakatime'
 
 if has('nvim')
   " Plug 'Shougo/denite.nvim'
-  " Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
   " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'roxma/nvim-completion-manager'
-  " Plug 'roxma/LanguageServer-php-neovim',  { 'do': 'composer install && composer run-script parse-stubs'}
-  Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
 else
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
@@ -104,13 +105,11 @@ Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
 " Auto-complete properties and values.
 Plug 'rstacruz/vim-hyperstyle', { 'for': ['css', 'scss', 'sass'] }
 
-
 " ----------------------------------------
 " Omnicompletion.                        |
 " ----------------------------------------
 
 Plug 'othree/csscomplete.vim', { 'for': ['css', 'scss', 'sass'] }
-
 
 " ========================================================================
 " Plug Language: CSV.                                                    |
@@ -181,7 +180,10 @@ Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent 
 
 Plug '1995eaton/vim-better-javascript-completion', { 'for': 'javascript' } " Adds more recent browser API support.
 Plug 'othree/jspc.vim', { 'for': 'javascript' }                            " Parameter completion.
-if !has_key(g:plugs, 'YouCompleteMe')                                      " YouCompleteMe provides TernJS.
+if has_key(g:plugs, 'nvim-completion-manager')
+  Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
+" YouCompleteMe provides TernJS.
+elseif !has_key(g:plugs, 'YouCompleteMe')
   Plug 'ternjs/tern_for_vim',
     \ { 'do': 'npm install; npm update', 'for': 'javascript' }
 endif
@@ -225,7 +227,6 @@ Plug '2072/vim-syntax-for-PHP', { 'for': 'php' }
 Plug 'StanAngeloff/php.vim', { 'for': 'php' }
 " Plug 'pzich/phtmlSwitch-vim', { 'for': 'php' }
 
-
 " ----------------------------------------
 " Indent.                                |
 " ----------------------------------------
@@ -245,11 +246,30 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 " Options:
 "  'm2mdas/phpcomplete-extended' - Fast via vimproc, un-maintained, composer projects only.
 "  'mkusher/padawan.vim'         - Server based, composer projects only.
-"  'phpvim/phpcd.vim'            - Server based, NeoVim only, composer projects only, often crashes.
+"  'phpvim/phpcd.vim'            - Server based, NeoVim only, composer projects only.
+"                                  Jump to use statement definition doesn't work.
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
 " Server-based PHP completion.
-if has('nvim')
+Plug 'roxma/LanguageServer-php-neovim', { 'do': 'composer update && composer run-script parse-stubs' }
+autocmd FileType php LanguageClientStart
+autocmd FileType php nnoremap <silent> <buffer> <C-\> :call LanguageClient_textDocument_definition()<CR>
+if 0
+  if has_key(g:plugs, 'nvim-completion-manager')
+    au User CmSetup call cm#register_source({
+      \ 'name': 'cm-php-language-client',
+      \ 'priority': 10,
+      \ 'scopes': ['php'],
+      \ 'abbreviation': 'php',
+      \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+      \ 'cm_refresh': {'omnifunc': 'LanguageClient#complete'},
+      \ })
+    let g:cm_sources_override = {
+      \ 'cm-tags': { 'enable': 0 }
+      \ }
+  endif
+endif
+if 0 && has('nvim')
   Plug 'phpvim/phpcd.vim', {
     \ 'do': 'composer update',
     \ 'for': 'php'
@@ -258,51 +278,69 @@ if has('nvim')
 
   " Register the completion source with NVim completion manager.
   if has_key(g:plugs, 'nvim-completion-manager')
-    au User CmSetup call cm#register_source({'name': 'cm-php',
+    au User CmSetup call cm#register_source({
+      \ 'name': 'cm-php-phpcd',
       \ 'priority': 9,
       \ 'scopes': ['php'],
       \ 'abbreviation': 'php',
-      \ 'cm_refresh_patterns': ['\h\w{2,}', '\h\w*', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+      \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
       \ 'cm_refresh': {'omnifunc': 'phpcd#CompletePHP'},
       \ })
+    let g:cm_sources_override = {
+      \ 'cm-tags': { 'enable': 0 }
+      \ }
   endif
-elseif 0 && (has('python') || has('python3'))
+elseif (has('python') || has('python3'))
   " Deoplete Padawan plugin.
   if has_key(g:plugs, 'deoplete.nvim')
     Plug 'padawan-php/deoplete-padawan'
+    let g:deoplete#sources#padawan#add_parentheses = 1
+    let g:deoplete#sources#padawan#auto_update     = 1
   " Regular Vim Padawan plugin.
   else
     Plug 'padawan-php/padawan.vim'
+    " autocmd! User padawan.vim :call padawan#StartServer()
   endif
 
   " Register the completion source with NVim completion manager.
   if has_key(g:plugs, 'nvim-completion-manager')
-    au User CmSetup call cm#register_source({'name': 'cm-php',
+    au User CmSetup call cm#register_source({
+      \ 'name': 'cm-php-padawan',
       \ 'priority': 9,
       \ 'scopes': ['php'],
+      \ 'early_cache': 1,
       \ 'abbreviation': 'php',
-      \ 'cm_refresh_patterns': ['\w{2,}$'],
+      \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
       \ 'cm_refresh': {'omnifunc': 'padawan#Complete'},
       \ })
+
+    let g:cm_sources_override = {
+      \ 'cm-tags': { 'enable': 0 }
+      \ }
   endif
 
   " Padawan options.
   let $PATH=$PATH . ':' . expand('~/.composer/vendor/bin')
+  let $PATH=$PATH . ':/Users/Jackson/bin/padawan-dist/vendor/bin'
   let g:padawan#composer_command = '/usr/local/bin/composer'
-else
-  Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
-
-  " Register the completion source with NVim completion manager.
-  if has_key(g:plugs, 'nvim-completion-manager')
-    au User CmSetup call cm#register_source({'name': 'cm-php',
-      \ 'priority': 9,
-      \ 'scopes': ['php'],
-      \ 'abbreviation': 'php',
-      \ 'cm_refresh_patterns':['\w{2,}$'],
-      \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'},
-      \ })
-  endif
 endif
+" elseif 0
+  " Completion for the standard library.
+  " Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
+
+  " " Register the completion source with NVim completion manager.
+  " if has_key(g:plugs, 'nvim-completion-manager')
+  "   au User CmSetup call cm#register_source({
+  "     \ 'name': 'cm-php-phpcomplete',
+  "     \ 'priority': 8,
+  "     \ 'scopes': ['php'],
+  "     \ 'early_cache': 1,
+  "     \ 'abbreviation': 'php',
+  "     \ 'cm_refresh_patterns': ['\h\w{4,}'],
+  "     \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'}
+  "     \ })
+  " endif
+" endif
 
 
 " ========================================================================
@@ -676,8 +714,6 @@ noremap \ ;
 nmap ; :
 
 " Jump between next and previous buffers.
-map <Leader>] :lclose<CR>:silent bprev<CR>
-map <Leader>[ :lclose<CR>:silent bnext<CR>
 map <Leader>, :lclose<CR>:silent bprev<CR>
 map <Leader>. :lclose<CR>:silent bnext<CR>
 noremap <C-Tab> :lclose<CR>:silent bnext<CR>
@@ -844,7 +880,7 @@ augroup omnifuncs
   " PHP Omnicompletion.
   if has_key(g:plugs, 'phpcd.vim')
     autocmd FileType php,phtml setlocal omnifunc=phpcd#CompletePHP
-  elseif has_key(g:plugs, 'phpcomplete.vim')
+  elseif has_key(g:plugs, 'phpcomplete.vim') && !has_key(g:plugs, 'padawan.vim')
     autocmd FileType php,phtml setlocal omnifunc=phpcomplete#CompletePHP
   endif
 
@@ -971,6 +1007,7 @@ endfunction
 command! -bar NextFont call NextFont()
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar FormatJSON :%!python -m json.tool
+command! -bar References call LanguageClient_textDocument_references()
 
 
 " ========================================================================
@@ -1006,9 +1043,10 @@ let g:deoplete#omni#input_patterns.python     = '\h\w*'
 let g:deoplete#omni_patterns                  = get(g:, 'deoplete#_omni_patterns', {})
 let g:deoplete#omni_patterns.css              = ['{3,}', '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]']
 let g:deoplete#omni_patterns.html             = '<[^>]*'
-" let g:deoplete#omni_patterns.php              = '\h\w'
+" let g:deoplete#omni_patterns.php              = '\w*'
 " let g:deoplete#omni_patterns.php              = '\h\w\{4,}'
-let g:deoplete#omni_patterns.php              = '\h\w\{$,}\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.php              = '\h\w\{$,}\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+" let g:deoplete#omni_patterns.php              = '\h\w\*|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
 " let g:deoplete#omni_patterns.php              = ['\h\w\{$,}', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?']
 " let g:deoplete#omni_patterns.python           = ['[^. *\t]\.\h\w*\','\h\w*::']
 " let g:deoplete#omni_patterns.python3          = ['[^. *\t]\.\h\w*\','\h\w*::']
@@ -1091,7 +1129,8 @@ let g:startify_session_autoload       = 1 " Auto load `Session.vim` if present w
 let g:startify_session_delete_buffers = 1 " Delete open buffers before loading a new session.
 let g:startify_session_persistence    = 1 " Update session before closing Vim and loading session with `:SLoad`.
 if executable('fortune') && executable('cowsay')
-  let g:startify_custom_header = startify#fortune#cowsay()
+  let g:startify_custom_header       = startify#fortune#cowsay()
+  let g:startify_fortune_use_unicode = 1
 endif
 
 " vim-instant-markdown.
@@ -1159,7 +1198,7 @@ let g:airline_symbols = extend(get(g:, 'airline_symbols', {}), {
 \ })
 let g:airline_powerline_fonts               = 1
 let g:airline#extensions#syntastic#enabled  = exists(':SyntasticCheck')
-let g:airline#extensions#branch#enabled     = 0
+let g:airline#extensions#branch#enabled     = 1
 let g:airline#extensions#bufferline#enabled = 1
 let g:airline#extensions#capslock#enabled   = 1
 let g:airline#extensions#hunks#enabled      = 1
@@ -1173,7 +1212,8 @@ let g:neomake_open_list                 = 2
 let g:neomake_serialize                 = 1
 let g:neomake_css_enabled_makers        = ['csslint']
 let g:neomake_json_enabled_makers       = ['jsonlint']
-let g:neomake_php_enabled_makers        = ['php', 'phpcs']
+let g:neomake_php_enabled_makers        = ['php', 'phpcs', 'phpmd']
+let g:neomake_php_phpcs_args_standard   = 'PSR2'
 let g:neomake_javascript_enabled_makers = ['eslint']
 " let g:neomake_python_enabled_makers     = ['python', 'pylint', 'pep8']
 " let g:neomake_scss_enabled_makers       = ['scss-lint']
