@@ -17,7 +17,7 @@
 
 [branch]
   ; Auto track remote branches on local branch creation.
-  autosetupmerge = true
+  autoSetupMerge = always
 
 [color]
   ui = auto
@@ -69,6 +69,9 @@
 
 [gpg]
   program = /usr/local/bin/gpg2
+
+[help]
+  autoCorrect = 1
 
 [log]
   date = relative
