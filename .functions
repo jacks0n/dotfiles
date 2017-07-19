@@ -3,7 +3,6 @@
 # Helper function to check if a command exists.
 command_exists() {
   type "$1" &>/dev/null
-  return $?
 }
 
 # ag / The Silver Searcher shortcuts.
@@ -25,10 +24,7 @@ ae() {
 # find shortcuts, matches highlighted inline.
 # Wildcard find, matching *<keyword>*
 f() {
-  sudo find "${2:-.}" -iname "*$1*" 2>/dev/null | \
-    grep -i "$1" | \
-    tee /dev/tty | \
-    pbcopy
+  sudo find "${2:-.}" -iname "*$1*" 2>/dev/null
 }
 
 
@@ -123,6 +119,11 @@ gcd() {
 
 
 backup() {
+  if [ -z "$BACKUP_DIR" ] ; then
+    echo '=> ERROR: Environmental variable "$BACKUP_DIR" not set!' >&2
+    return 1
+  fi
+
   if hash composer 2>/dev/null ; then
     echo '=> Backing up composer packages.'
     composer global show --name-only --tree 2>/dev/null | \
@@ -200,6 +201,11 @@ init() {
 
 
 restore() {
+  if [ -z "$BACKUP_DIR" ] ; then
+    echo '=> ERROR: Environmental variable "$BACKUP_DIR" not set!' >&2
+    return 1
+  fi
+
   if hash composer 2>/dev/null ; then
     echo '=> Installing global composer packages.'
     cat "$BACKUP_DIR/npm-packages.list" | while read composer_package ; do
@@ -348,7 +354,7 @@ pubkey() {
     echo '=> Public key copied to clipboard.'
     tee >(pbcopy) < "$HOME/.ssh/id_rsa.pub"
   else
-    echo '=> File ~/.ssh/id_rsa.pub is missing'
+    echo '=> ERROR: `~/.ssh/id_rsa.pub` is missing'
   fi
 }
 
@@ -442,24 +448,6 @@ rangercd() {
     cd -- "$(cat "$TEMPFILE")" || exit 1
   fi
   rm -f -- "$TEMPFILE"
-}
-
-
-# Performs several system-wide maintenance tasks`.
-maintain() {
-  # Empty trashes on all mounted volumes and the main HDD.
-  echo '=> Emptying trash.'
-  sudo rm -rfv /Volumes/*/.Trashes
-  sudo rm -rfv "$HOME/.Trash"
-  sudo rm -rfv /private/var/log/asl/*.asl
-
-  # Clear uTorrent `.torrent` cache.
-  echo '=> Clearing uTorrent cache'
-  find "$HOME/Library/Application Support/uTorrent" -name '*.torrent' -delete
-
-  # Runs the repair permissions function from the disk utility app,
-  echo '=> Repairing global file permissions.'
-  sudo diskutil repairPermissions /
 }
 
 

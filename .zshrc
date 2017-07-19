@@ -90,14 +90,10 @@ export PURE_GIT_PULL=0 # Disable checking Git remote update status.
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
 
 # zsh-history-substring-search.
-zmodload zsh/terminfo
-if [[ "$TERM_PROGRAM" == 'iTerm.app' ]] ; then
-  bindkey "$terminfo[cuu1]" history-substring-search-up
-  bindkey "$terminfo[cud1]" history-substring-search-down
-else
-  bindkey "$terminfo[kcuu1]" history-substring-search-up
-  bindkey "$terminfo[kcud1]" history-substring-search-down
-fi
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
 
 
 ##

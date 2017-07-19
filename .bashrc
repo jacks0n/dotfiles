@@ -1,5 +1,3 @@
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
 # Case insentivie completion.
 set completion-ignore-case on
 
@@ -9,3 +7,10 @@ set completion-ignore-case on
 ##
 
 source "$HOME/.shrc"
+
+
+##
+# 3rd Party.
+##
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
