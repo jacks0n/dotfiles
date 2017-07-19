@@ -29,6 +29,9 @@ fi
 # Don't clear the screen after quitting a manual page.
 export MANPAGER='less -X'
 
+# Cross filesystem boundaries if the current directory isn't a Git repo.
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+
 # Homebrew no-GA.
 export HOMEBREW_NO_ANALYTICS=1
 
@@ -61,10 +64,6 @@ export PATH="$HOME/bin:$PATH"
 
 # Composer.
 export PATH="$HOME/.composer/vendor/bin:$PATH"
-
-# Ruby.
-# export GEM_PATH="$(gem env gempath):$GEM_PATH"
-# export GEM_PATH="/Library/Ruby/Site/2.0.0/rubygems:/Library/Ruby/Gems/2.0.0/gems:$GEM_PATH"
 
 # Golang.
 if hash go 2>/dev/null ; then
