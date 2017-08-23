@@ -68,7 +68,7 @@
   user = jacks0n
 
 [gpg]
-  program = /usr/local/bin/gpg2
+  program = /usr/local/bin/gpg
 
 [help]
   ; Automatically correct and execute mistyped commands.
