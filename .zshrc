@@ -15,26 +15,35 @@ HISTFILE="$HOME/.zsh_history"
 # Number of lines of history to save to $HISTFILE
 SAVEHIST=10000
 
-setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
+# History.
 setopt APPEND_HISTORY       # Sessions will append their history list to the history file, rather than replace it.
-setopt AUTO_CD              # `cd` into directories.
-setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
-setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
-setopt AUTO_PARAM_SLASH     # If completed parameter is a directory, add a trailing slash.
-setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
-setopt EXTENDED_GLOB        # Treat the '#', '~' and '^' characters as part of patterns for filename generation, etc.
 setopt EXTENDED_HISTORY     # Save each command's beginning Unix timestamp and the duration (in seconds) to the history file.
 setopt HIST_IGNORE_ALL_DUPS # Prevent duplicate history items.
 setopt HIST_IGNORE_SPACE    # Don't add commands beginning with a space to the history.
 setopt HIST_REDUCE_BLANKS   # Remove superfluous blanks from each command line being added to the history list.
 setopt INC_APPEND_HISTORY   # Incrementally add to the history file after each command, instead of until the shell exists.
+setopt SHARE_HISTORY        # Share history between shell instances.
+
+# Completion.
+setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
+setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
+setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
+setopt COMPLETE_ALIASES     # Enable completion for aliases.
+setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
+zstyle ':completion:*' use-cache true             # Enable the completion cache.
+zstyle ':completion:*' cache-path "$HOME/.zcache" # Set the completion cache path.
+zstyle ':completion:*' list-dirs-first yes        # Show directories first.
+zstyle ':completion:*' verbose yes                # Show descriptions for options.
+
+# Other.
+setopt AUTO_CD              # `cd` into directories.
+setopt AUTO_PARAM_SLASH     # If completed parameter is a directory, add a trailing slash.
+setopt EXTENDED_GLOB        # Treat the '#', '~' and '^' characters as part of patterns for filename generation, etc.
 setopt INTERACTIVE_COMMENTS # Allow comments in interactive shells.
 setopt NO_BEEP              # Beeps are annoying.
 setopt NO_FLOW_CONTROL      # No c-s/c-q output freezing.
 setopt PATH_DIRS            # Perform path search even on command names with slashes.
 setopt PROMPT_SUBST         # Perform parameter expansion, command substitution and arithmetic expansion in prompts.
-setopt SHARE_HISTORY        # Share history between shell instances.
-setopt COMPLETE_ALIASES     # Enable completion for aliases.
 
 zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
@@ -68,10 +77,14 @@ zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug 'mafredri/zsh-async', on:sindresorhus/pure
 zplug 'sindresorhus/pure'
 zplug 'zsh-users/zsh-completions'
+zplug 'changyuheng/fz', defer:1
+zplug 'rupa/z', use:z.sh
 zplug 'zsh-users/zsh-autosuggestions'
+zplug 'lukechilds/zsh-better-npm-completion'
+zplug 'plugins/phing', from:oh-my-zsh
 zplug 'zsh-users/zsh-syntax-highlighting', defer:2
 zplug 'zsh-users/zsh-history-substring-search', defer:3
-zplug 'plugins/phing', from:oh-my-zsh
+zplug 'hlissner/zsh-autopair', defer:3
 
 # Install missing plugins.
 zplug check || zplug install
