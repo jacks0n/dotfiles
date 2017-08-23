@@ -143,9 +143,7 @@ backup() {
   if hash brew 2>/dev/null ; then
     (
       cd "$BACKUP_DIR"
-
       rm -f Brewfile
-      brew bundle dump
 
       # Backup all packages (with arguments), taps, and casks.
       echo '=> Creating Brewfile bundle.'
