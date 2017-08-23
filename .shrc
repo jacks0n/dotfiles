@@ -18,26 +18,11 @@ done
 ##
 
 export GPG_TTY=$(tty)
-if [ -f ~/.gnupg/.gpg-agent-info ] ; then
-  if [ -n "$(pgrep gpg-agent)" ]; then
-    source ~/.gnupg/.gpg-agent-info
-    export GPG_AGENT_INFO
-  else
-    eval $(gpg-agent --daemon \
-            --options ~/.gnupg/gpg-agent.conf \
-            --write-env-file ~/.gnupg/.gpg-agent-info)
-  fi
-fi
 
 
 ##
 # 3rd Party.
 ##
-
-# z - https://github.com/rupa/z
-if [ -f '/usr/local/etc/profile.d/z.sh' ] ; then
-  source '/usr/local/etc/profile.d/z.sh'
-fi
 
 # thefuck - https://github.com/nvbn/thefuck
 if hash thefuck 2>/dev/null ; then
