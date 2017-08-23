@@ -1,9 +1,14 @@
-" Good References:
-"  - https://github.com/davidosomething/dotfiles/blob/master/vim/vimrc
-"  - https://github.com/bling/dotvim/blob/master/vimrc
-
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
+
+" @todo Create ~/.vim/backup if not exists.
+
+" Install vim-plug if it's not already.
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall | source $MYVIMRC
+endif
 call plug#begin('~/.vim/plugged')
 
 
@@ -16,7 +21,7 @@ call plug#begin('~/.vim/plugged')
 "  'cohama/lexima.vim'    - Works well, inserts closing character, not that intelligent.
 "  'jiangmiao/auto-pairs' - Seems the most intelligent, can get slow.
 " Plug 'cohama/lexima.vim'
-Plug 'jiangmiao/auto-pairs'
+" Plug 'jiangmiao/auto-pairs'
 " Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
 "   \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 Plug 'mhinz/vim-startify' " Fancy start screen.
@@ -29,8 +34,10 @@ Plug 'vim-airline/vim-airline'
 Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
 Plug 'embear/vim-localvimrc'
-Plug 'wakatime/vim-wakatime'
+" Plug 'wakatime/vim-wakatime'
+Plug 'janko-m/vim-test'
 Plug 'DataWraith/auto_mkdir'
+Plug 'chr4/nginx.vim'
 
 
 " ========================================================================
@@ -42,7 +49,7 @@ if has('nvim')
   Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
   " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   Plug 'roxma/nvim-completion-manager'
-else
+elseif v:version >= 704 && has('patch1578')
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
 
@@ -324,23 +331,23 @@ elseif (has('python') || has('python3'))
   let $PATH=$PATH . ':/Users/Jackson/bin/padawan-dist/vendor/bin'
   let g:padawan#composer_command = '/usr/local/bin/composer'
 endif
-" elseif 0
-  " Completion for the standard library.
-  " Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
+if 1
+  " Completion for the PHP standard library.
+  Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 
-  " " Register the completion source with NVim completion manager.
-  " if has_key(g:plugs, 'nvim-completion-manager')
-  "   au User CmSetup call cm#register_source({
-  "     \ 'name': 'cm-php-phpcomplete',
-  "     \ 'priority': 8,
-  "     \ 'scopes': ['php'],
-  "     \ 'early_cache': 1,
-  "     \ 'abbreviation': 'php',
-  "     \ 'cm_refresh_patterns': ['\h\w{4,}'],
-  "     \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'}
-  "     \ })
-  " endif
-" endif
+  " Register the completion source with NVim completion manager.
+  if has_key(g:plugs, 'nvim-completion-manager')
+    au User CmSetup call cm#register_source({
+      \ 'name': 'cm-php-phpcomplete',
+      \ 'priority': 8,
+      \ 'scopes': ['php'],
+      \ 'early_cache': 1,
+      \ 'abbreviation': 'php',
+      \ 'cm_refresh_patterns': ['(\w|_){4,}'],
+      \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'}
+      \ })
+  endif
+endif
 
 
 " ========================================================================
@@ -364,6 +371,25 @@ endif
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'reedes/vim-pencil'
+
+
+" ========================================================================
+" Plug Language: Twig.                                                   |
+" ========================================================================
+
+Plug 'nelsyeung/twig.vim'
+
+if has_key(g:plugs, 'nvim-completion-manager')
+  au User CmSetup call cm#register_source({
+    \ 'name': 'cm-html',
+    \ 'priority': 9,
+    \ 'scopes': ['html', 'twig', 'html.twig.js.css'],
+    \ 'early_cache': 1,
+    \ 'abbreviation': 'html',
+    \ 'cm_refresh_patterns': ['<[^>]*'],
+    \ 'cm_refresh': {'omnifunc': 'htmlcomplete#CompleteTags'},
+    \ })
+endif
 
 
 " ========================================================================
@@ -395,8 +421,8 @@ Plug 'tpope/vim-surround'
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-" Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
-" Plug 'scrooloose/nerdtree'         " File browser.
+Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+Plug 'scrooloose/nerdtree'         " File browser.
 Plug 'majutsushi/tagbar'      " Sidebar for tags.
 Plug 'hari-rangarajan/CCTree' " Symbol dependency tree.
 Plug 'sjl/gundo.vim'          " Undo history.
@@ -428,9 +454,11 @@ Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :C
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
 Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
-Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
 Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
+if executable('gutentags')
+  Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
+endif
 
 call plug#end() " Required.
 
@@ -654,6 +682,9 @@ let g:PHP_vintage_case_default_indent = 1  " Enable indenting `case` statements.
 let g:php_folding                     = 0  " Disable syntax folding for classes and functions.
 let g:php_htmlInStrings               = 1  " Enable HTML syntax highlighting inside strings.
 let g:php_sync_method                 = -1 " Default, but it gives warnings without explicit `let`.
+let php_sql_query = 1 " Enable SQL syntax highlighting inside strings.
+" StanAngeloff/php.
+let php_html_in_strings = 1 " Enable HTML syntax highlighting inside strings.
 
 
 " ========================================================================
@@ -826,9 +857,11 @@ augroup writing_mode
   " autocmd FileType text,markdown setlocal formatoptions+=t " Enable wrapping on paste.
 augroup END
 
-" Drupal PHP filetypes.
-augroup drupal
+" Custom filetypes.
+augroup custom_filetypes
   autocmd!
+
+  " Drupal.
   autocmd BufRead,BufNewFile *.info    setlocal filetype=dosini
   autocmd BufRead,BufNewFile *.engine  setlocal filetype=php
   autocmd BufRead,BufNewFile *.inc     setlocal filetype=php
@@ -840,19 +873,18 @@ augroup drupal
   autocmd BufRead,BufNewFile *.view    setlocal filetype=php
   " autocmd BufRead,BufNewFile *.tpl.php set syntax=php.html
   autocmd BufRead,BufNewFile *.tpl.php setlocal filetype=php.html " Needed?
+
+  " Other.
+  autocmd BufRead,BufNewFile *.plist     setlocal filetype=xml
+  autocmd BufRead,BufNewFile *.scss      setlocal filetype=scss.css
+  autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
+  autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
 augroup END
 
 " Prevent stopping on - characters for CSS files.
 augroup iskeyword_mods
   autocmd!
   autocmd FileType css,scss,sass setlocal iskeyword+=-
-augroup END
-
-" Other filetypes.
-augroup special_filetypes
-  autocmd!
-  autocmd BufRead,BufNewFile *.scss  setlocal filetype=scss.css
-  autocmd BufRead,BufNewFile *.plist setlocal filetype=xml
 augroup END
 
 " Formatters.
@@ -882,6 +914,8 @@ augroup omnifuncs
     autocmd FileType php,phtml setlocal omnifunc=phpcd#CompletePHP
   elseif has_key(g:plugs, 'phpcomplete.vim') && !has_key(g:plugs, 'padawan.vim')
     autocmd FileType php,phtml setlocal omnifunc=phpcomplete#CompletePHP
+  elseif has_key(g:plugs, 'LanguageServer-php-neovim')
+    " autocmd FileType php,phtml setlocal omnifunc=LanguageClient#complete
   endif
 
   " Javascript Omnicompletion.
@@ -1035,7 +1069,7 @@ let g:deoplete#omni#functions.javascript      = ['jspc#omni', 'tern#Complete']
 let g:deoplete#omni#input_patterns            = get(g:, 'deoplete#omni#_input_patterns', {})
 " let g:deoplete#omni#input_patterns.javascript = '\h\w*\|{3,}'
 let g:deoplete#omni#input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
-" let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
 " let g:deoplete#omni#input_patterns.php =
 "             \ '\w+|[^. \t]->\w*\|\w+::\w*'
 let g:deoplete#omni#input_patterns.python     = '\h\w*'
@@ -1055,6 +1089,14 @@ let g:deoplete#omni_patterns.sass             = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|
 let g:deoplete#omni_patterns.scss             = '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]'
 let g:deoplete#omni_patterns.xml              = '<[^>]*'
 let g:deoplete#sources#jedi#show_docstring    = 1
+" if has_key(g:plugs, 'phpcd.vim')
+let g:deoplete#ignore_sources = extend(get(g:, 'deoplete#ignore_sources', {}), {
+  \ 'php': ['omni'],
+  \ })
+" endif
+
+" FZF.
+let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 " elzr/vim-json.
 let g:vim_json_syntax_conceal = 0 " Show quotes in JSON files.
@@ -1064,6 +1106,11 @@ let g:jsdoc_allow_input_prompt = 1 " Allow prompt for interactive input.
 let g:jsdoc_input_description  = 1 " Prompt for a function description.
 let g:jsdoc_underscore_private = 1 " Detect private functions starting with an underscore.
 let g:jsdoc_enable_es6         = 1 " Enable ECMAScript6 shorthand function, arrow function.
+
+" vim-test
+if has_key(g:plugs, 'neomake')
+  let test#strategy = 'neomake'
+endif
 
 " GitGutter.
 let g:gitgutter_max_signs               = 1000 " Bump up from default 500.
@@ -1216,7 +1263,7 @@ let g:neomake_php_enabled_makers        = ['php', 'phpcs', 'phpmd']
 let g:neomake_php_phpcs_args_standard   = 'PSR2'
 let g:neomake_javascript_enabled_makers = ['eslint']
 " let g:neomake_python_enabled_makers     = ['python', 'pylint', 'pep8']
-" let g:neomake_scss_enabled_makers       = ['scss-lint']
+let g:neomake_scss_enabled_makers       = ['scsslint']
 " let g:neomake_sh_enabled_makers         = ['sh', 'shellcheck']
 " let g:neomake_sh_shellcheck_args      = ['--exclude=sc2155,sc2032,sc1090,sc2033']
 let g:neomake_text_enabled_makers       = ['proselint']
@@ -1287,7 +1334,8 @@ let g:ycm_semantic_triggers = get(g:, 'g:ycm_semantic_triggers', {
 let g:javascript_enable_domhtmlcss = 1
 
 " vim-polyglot.
-let g:polyglot_disabled = ['html5', 'javascript', 'json', 'jsx', 'php']
+" Twig: `lumiliet/vim-twig` doesn't set the correct indentation or highlight HTML.
+let g:polyglot_disabled = ['html5', 'javascript', 'json', 'jsx', 'php', 'twig']
 
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
@@ -1332,6 +1380,8 @@ endif
 " Execute the buffer contents.
 nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
 
+nmap <C-n> :NERDTreeToggle<CR>
+
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
 
@@ -1349,9 +1399,10 @@ nmap <Leader>gs :Gstatus<CR>
 
 " FZF or Skim.
 if (executable('fzf') && has_key(g:plugs, 'fzf.vim')) || (executable('sk') && has_key(g:plugs, 'skim.vim'))
-  nnoremap <C-f> :Files<CR>
+  " nnoremap <C-f> :Files<CR>
   nnoremap <Leader>f :Files<CR>
-  nnoremap <C-g> :GFiles<CR>
+  nnoremap <Leader>b :Buffers<CR>
+  nnoremap <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <Leader>g :GFiles<CR>
   nnoremap <Leader>c :Colors<CR>
   nnoremap <Leader>h :History<CR>
