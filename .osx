@@ -6,11 +6,23 @@
 #  General OS X                                                               #
 ###############################################################################
 
-# Set computer name, hostname, and NetBIOS name (via System Preferences => Sharing).
-sudo scutil --set ComputerName  'Jackson' # User-friendly name for system.
-sudo scutil --set LocalHostName 'jackson' # For multicast-DNS (Bonjour).
-sudo scutil --set HostName      'jackson'
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string 'jackson'
+echo 'Set computer, host, and Samba name to Jackson?'
+select option in 'Yes' 'No' ; do
+  case $option in
+    Yes)
+      # Set computer name, hostname, and NetBIOS name (via System Preferences => Sharing).
+      sudo scutil --set ComputerName  'Jackson' # User-friendly name for system.
+      sudo scutil --set LocalHostName 'jackson' # For multicast-DNS (Bonjour).
+      sudo scutil --set HostName      'jackson'
+      sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string 'jackson'
+      break
+      ;;
+    No)
+      echo 'ah okay.. well this is awkward'
+      break
+      ;;
+  esac
+done
 
 # Disable startup chime.
 sudo nvram SystemAudioVolume=' '
