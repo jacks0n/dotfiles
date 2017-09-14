@@ -16,12 +16,23 @@ alias du='du -h'
 alias df='df -h'
 
 # ls shortcuts.
-alias l='ls -Fhl'              # Files and directories in long format.
-alias la='ls -AFhl'            # Files and directories in long format, including dotfiles.
-alias lf='l | grep -v "^d"'    # Only files.
-alias lfa='la | grep -v "^d"'  # Only files, including dotfiles.
-alias ld='l | grep "^d"'       # Only directories.
-alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
+# @see https://the.exa.website/
+if hash exa 2>/dev/null ; then
+  alias l='exa --long --binary --header --git'        # Files and directories in long format.
+  alias la='exa --long --binary --all --header --git' # Files and directories in long format, including dotfiles.
+  alias lf='l | grep -v "^d"'                         # Only files.
+  alias lfa='la | grep -v "^d"'                       # Only files, including dotfiles.
+  alias ld='l | grep "^d"'                            # Only directories.
+  alias lda='la | grep "^d"'                          # Only directories, including dotdirectories.
+
+else
+  alias l='ls -Fhl'              # Files and directories in long format.
+  alias la='ls -AFhl'            # Files and directories in long format, including dotfiles.
+  alias lf='l | grep -v "^d"'    # Only files.
+  alias lfa='la | grep -v "^d"'  # Only files, including dotfiles.
+  alias ld='l | grep "^d"'       # Only directories.
+  alias lda='la | grep "^d"'     # Only directories, including dotdirectories.
+fi
 
 # Git.
 alias ga='git add -A .'
