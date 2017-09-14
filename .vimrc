@@ -34,7 +34,6 @@ Plug 'vim-airline/vim-airline'
 Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
 Plug 'embear/vim-localvimrc'
-" Plug 'wakatime/vim-wakatime'
 Plug 'janko-m/vim-test'
 Plug 'DataWraith/auto_mkdir'
 Plug 'chr4/nginx.vim'
@@ -258,9 +257,9 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
 " Server-based PHP completion.
-Plug 'roxma/LanguageServer-php-neovim', { 'do': 'composer update && composer run-script parse-stubs' }
-autocmd FileType php LanguageClientStart
-autocmd FileType php nnoremap <silent> <buffer> <C-\> :call LanguageClient_textDocument_definition()<CR>
+" Plug 'roxma/LanguageServer-php-neovim', { 'do': 'composer update && composer run-script parse-stubs' }
+" autocmd FileType php LanguageClientStart
+" autocmd FileType php nnoremap <silent> <buffer> <C-\> :call LanguageClient_textDocument_definition()<CR>
 if 0
   if has_key(g:plugs, 'nvim-completion-manager')
     au User CmSetup call cm#register_source({
@@ -348,6 +347,18 @@ if 1
       \ })
   endif
 endif
+
+
+" ----------------------------------------
+" Features.                              |
+" ----------------------------------------
+
+" TODO: Checkout.
+" Plug 'Rican7/php-doc-modded'
+" TODO: Checkout.
+" Plug 'docteurklein/vim-symfony'
+Plug 'tobyS/pdv' " , { 'for': 'php' }
+Plug 'adoy/vim-php-refactoring-toolbox', { 'for': 'php' }
 
 
 " ========================================================================
@@ -526,7 +537,7 @@ set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
                              " │ a: All abbreviations.
                              " │ A: No existing swap file 'ATTENTION' message.
                              " ┘ I: No |:intro| starting message.
-set spell                    " Enable spell checking.
+" set spell                    " Enable spell checking.
 set spelllang=en_au          " Set the spell checking language.
 set cursorline               " Highlight line of the cursor.
 set showcmd                  " Show (partial) command being typed.
@@ -599,13 +610,11 @@ set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servernam
 
 " Set `colorscheme` and `guifont` only on startup.
 if has('vim_starting')
-  " colorscheme monokain
   " colorscheme molokai
   " colorscheme flattr
   " colorscheme hybrid
   colorscheme OceanicNext
   " colorscheme gruvbox
-  " colorscheme onehalfdark
   set background=dark
   if has('gui')
     " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
@@ -915,7 +924,7 @@ augroup omnifuncs
   elseif has_key(g:plugs, 'phpcomplete.vim') && !has_key(g:plugs, 'padawan.vim')
     autocmd FileType php,phtml setlocal omnifunc=phpcomplete#CompletePHP
   elseif has_key(g:plugs, 'LanguageServer-php-neovim')
-    " autocmd FileType php,phtml setlocal omnifunc=LanguageClient#complete
+    autocmd FileType php,phtml setlocal omnifunc=LanguageClient#complete
   endif
 
   " Javascript Omnicompletion.
@@ -1069,15 +1078,15 @@ let g:deoplete#omni#functions.javascript      = ['jspc#omni', 'tern#Complete']
 let g:deoplete#omni#input_patterns            = get(g:, 'deoplete#omni#_input_patterns', {})
 " let g:deoplete#omni#input_patterns.javascript = '\h\w*\|{3,}'
 let g:deoplete#omni#input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
-let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
-" let g:deoplete#omni#input_patterns.php =
-"             \ '\w+|[^. \t]->\w*\|\w+::\w*'
+" let g:deoplete#omni#input_patterns.php        = '\h\w*\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
+let g:deoplete#omni#input_patterns.php =
+            \ '\w+|[^. \t]->\w*\|\w+::\w*'
 let g:deoplete#omni#input_patterns.python     = '\h\w*'
 " Regular (synchronous) omnifuncs.
 let g:deoplete#omni_patterns                  = get(g:, 'deoplete#_omni_patterns', {})
 let g:deoplete#omni_patterns.css              = ['{3,}', '^\s\+\w\+\|\w\+[):;]\?\s\+\w*\|[@!]']
 let g:deoplete#omni_patterns.html             = '<[^>]*'
-" let g:deoplete#omni_patterns.php              = '\w*'
+let g:deoplete#omni_patterns.php              = '\w*'
 " let g:deoplete#omni_patterns.php              = '\h\w\{4,}'
 " let g:deoplete#omni_patterns.php              = '\h\w\{$,}\|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
 " let g:deoplete#omni_patterns.php              = '\h\w\*|[^. \t]->\%(\h\w*\)\?\|\h\w*::\%(\h\w*\)\?'
@@ -1182,6 +1191,13 @@ endif
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
+
+" vim-php-refactoring-toolbox.
+let g:vim_php_refactoring_use_default_mapping = 0
+let g:vim_php_refactoring_make_setter_fluent  = 1
+
+" tobyS/pdv.
+let g:pdv_template_dir = $HOME . '/.vim/bundle/pdv/templates_snip'
 
 " Tagbar.
 let g:tagbar_type_php = {
