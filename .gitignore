@@ -8,3 +8,4 @@ tags.lock
 .vimrc.local
 .padawan/
 .phpcd/
+vendor/
