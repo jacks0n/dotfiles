@@ -229,12 +229,23 @@ restore() {
   fi
 }
 
+random-joke() {
+  local jokes_path="$HOME/.config/jokes.py"
+  if [ ! -f "$jokes_path" ] ; then
+    mkdir -p "$HOME/.config"
+    curl 'https://raw.githubusercontent.com/pyjokes/pyjokes/master/pyjokes/jokes_en.py' -o "$jokes_path"
+  fi
+  echo "
+    $(cat ~/.config/jokes.py); import random; print(random.choice(jokes_en['all']))
+  " | python -
+}
+
 
 # Random joke, with random rainbow coloured ASCII art.
 cowjoke() {
-  if command_exists cowsay && command_exists pyjoke && command_exists lolcat ; then
+  if command_exists cowsay && command_exists random-joke && command_exists lolcat ; then
     local COWSAY_FILE="$(shuf -n1 -e $(cowsay -l | tail -n +2))"
-    pyjoke -c all | cowsay -f "$COWSAY_FILE" | lolcat
+    random-joke| cowsay -f "$COWSAY_FILE" | lolcat
   fi
 }
 
