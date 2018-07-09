@@ -449,8 +449,15 @@ rangercd() {
 }
 
 
-# System-wide update,
+# Global and user updates.
 update() {
+  update-global
+  update-user
+}
+
+
+# User wide update.
+update-user() {
   # Update Vim plugins.
   if command_exists vim ; then
     echo '=> Vim Plug install, update, upgrade, clean.'
@@ -472,14 +479,64 @@ update() {
     nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
   fi
 
+  # Update zplug and packages.
+  if command_exists zplug ; then
+    echo "\n\n=> Updating zplug and packages."
+    zplug update
+  fi
+
+  # Update Composer packages.
+  if command_exists composer ; then
+    echo "\n\n=> Updating Composer packages."
+    composer global update
+  fi
+
+  # Update Go packages.
+  if command_exists go ; then
+    echo "\n\n=> Updating Go packages."
+    go get -u all
+  fi
+
+  # Update `~/bin` repositories.
+  find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR ; do
+    (
+      cd "$BIN_DIR"
+      if [ -d .git ] ; then
+        echo "\n=> Updating Git repository in '$(pwd)'."
+        git fetch --all
+        git pull origin --rebase
+      fi
+      if [ -f composer.json ] ; then
+        echo "\n=> Updating Composer packages in '$(pwd)'."
+        composer update --quiet
+      fi
+      if [ -f package.json ] ; then
+        echo "\n=> Updating npm packages in '$(pwd)'."
+        npm update
+      fi
+    )
+  done
+
+  # Execute the local update function, if it exists.
+  if hash _update &>/dev/null ; then
+    _update
+  fi
+}
+
+
+# Global update.
+update-global() {
   # Download latest repo from Homebrew, and update all packages.
   if command_exists brew ; then
     echo '=> Homebrew cleanup, update, repair and link fixes.'
-    ( brew update
+    (
+      brew update
       brew upgrade
+      brew cask upgrade
       brew cask cleanup
       brew cleanup -s --prune=now --force
-      brew prune )
+      brew prune
+    )
   fi
 
   # Update OS X.
@@ -488,8 +545,16 @@ update() {
     sudo softwareupdate --install --all
   fi
 
+  # Update Gem and Gems.
+  if command_exists gem ; then
+    echo "\n\n=> Updating Ruby Gems."
+    sudo gem update --system
+    sudo gem update
+    sudo gem clean
+  fi
+
   # Update pip (2 and 3) core and packages.
-  for PIP in pip pip3 ; do
+  for PIP in pip2 pip3 ; do
     if command_exists "$PIP" ; then
       echo "\n\n=> Updating $PIP."
       sudo -H "$PIP" install --upgrade pip | \
@@ -507,44 +572,6 @@ update() {
     echo "\n\n=> Updating npm and npm packages."
     npm install npm -g
     npm update -g
-  fi
-
-  # Update zplug and packages.
-  if command_exists zplug ; then
-    echo "\n\n=> Updating zplug and packages."
-    zplug update
-  fi
-
-  # Update Gem and Gems.
-  if command_exists gem ; then
-    echo "\n\n=> Updating Ruby Gems."
-    sudo gem update --system
-    sudo gem update
-    sudo gem clean
-  fi
-
-  # Update Composer packages.
-  if command_exists composer ; then
-    echo "\n\n=> Updating Composer packages."
-    composer global update
-  fi
-
-  # Update Go packages.
-  if command_exists go ; then
-    echo "\n\n=> Updating Go packages."
-    go get -u all
-  fi
-
-  # Update `~/bin/vendor` repositories.
-  if [ -d "$HOME/bin/vendor" ] ; then
-    echo "\n\n=> Updating ~/bin/vendor repositories."
-    for VENDOR in $(ls "$HOME/bin/vendor") ; do
-      if [ -d "$HOME/bin/vendor/$VENDOR/.git" ] ; then
-        echo "\n=> Updating '$HOME/bin/vendor/$VENDOR'"
-        ( cd "$HOME/bin/vendor/$VENDOR"
-          git pull )
-      fi
-    done
   fi
 
   echo "\n\n=> Done!"
