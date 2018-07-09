@@ -82,6 +82,8 @@ zplug 'rupa/z', use:z.sh
 zplug 'zsh-users/zsh-autosuggestions'
 zplug 'lukechilds/zsh-better-npm-completion'
 zplug 'plugins/phing', from:oh-my-zsh
+zplug 'docker/cli', use:contrib/completion/zsh
+zplug 'docker/compose', use:contrib/completion/zsh
 zplug 'zsh-users/zsh-syntax-highlighting', defer:2
 zplug 'zsh-users/zsh-history-substring-search', defer:3
 zplug 'hlissner/zsh-autopair', defer:3
