@@ -41,7 +41,16 @@ if hash brew 2>/dev/null ; then
   export MANPATH="/usr/local/share/man:$MANPATH"
 
   # Homebrew Cask path preferences.
-  export HOMEBREW_CASK_OPTS='--fontdir=/Library/Fonts'
+  HOMEBREW_CASK_OPTIONS=(
+    --fontdir=/Library/Fonts
+    --colorpickerdir=/Library/ColorPickers
+    --prefpanedir=/Library/PreferencePanes
+    --qlplugindir=/Library/QuickLook
+    --dictionarydir=/Library/Dictionaries
+    --fontdir=/Library/Fonts
+    --servicedir=/Library/Services
+  )
+  export HOMEBREW_CASK_OPTS="$(IFS=' '; echo ${HOMEBREW_CASK_OPTIONS[@]})"
 
   # Homebrew GNU coreutils, sed & tar.
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
