@@ -39,9 +39,6 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 # Restart automatically if the computer freezes.
 sudo systemsetup -setrestartfreeze on
 
-# Reveal IP address, hostname, OS version, etc. when clicking the clock in the login window.
-sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
-
 # Disable the "Are you sure you want to open this application?" dialog.
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
@@ -102,6 +99,22 @@ defaults write com.apple.Siri StatusMenuVisible -bool false
 
 
 ###############################################################################
+#  Login                                                                      #
+###############################################################################
+
+# Reveal IP address, hostname, OS version, etc. when clicking the clock in the login window.
+sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
+
+# Disable the guest user.
+defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
+defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool false
+defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool false
+
+# Disable showing of password hints.
+sudo defaults write /Library/Preferences/com.apple.loginwindow 'RetriesUntilHint' -int 0
+
+
+###############################################################################
 #  Kernel                                                                     #
 ###############################################################################
 
@@ -124,6 +137,63 @@ sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -bool true
 
 # Allow signed software to receive incoming connections.
 sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
+
+# Disable Gatekeeper.
+sudo spctl --master-disable
+
+# Prevent Gatekeeper from auto-rearming (every 30 days).
+sudo defaults write /Library/Preferences/com.apple.security GKAutoRearm -bool NO
+
+# Destroy FileVault keys when on standby.
+sudo pmset destroyfvkeyonstandby 1
+
+# Set the RSA maximum key size to 32768 bits (32 kilobits) to
+# provide future-proofing against larger TLS certificate key sizes.
+# @see http://blog.shiz.me/post/67305143330/8192-bit-rsa-keys-in-os-x
+defaults write /Library/Preferences/com.apple.security RSAMaxKeySize -int 32768
+
+
+###############################################################################
+#  Setup Assistant                                                            #
+###############################################################################
+
+# Determine OS version and build version.
+OS_VERSION=$(OS_VERSION -productVersion)
+OS_VERSION_MINOR=$(OS_VERSION -productVersion | awk -F. '{print $2}')
+OS_BUILD=$(OS_VERSION -buildVersion)
+
+# Is OSX is >= 10.7.0.
+if [[ ${OS_VERSION_MINOR} -ge 7 ]]; then
+  # Disable the iCloud, Diagnostic, and Siri pop-ups in the user templates.
+  for USER_TEMPLATE in '/System/Library/User Template'/* ; do
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${OS_VERSION}"
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${OS_BUILD}"
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+  done
+
+  # Disable the iCloud, Diagnostic, and Siri pop-ups for current users.
+  for USER_HOME in /Users/* ; do
+    USER_UID=$(basename "${USER_HOME}")
+    if [ ! "${USER_UID}" = 'Shared' ] ; then
+      if [ ! -d "${USER_HOME}"/Library/Preferences ] ; then
+        mkdir -p "${USER_HOME}"/Library/Preferences
+        chown "${USER_UID}" "${USER_HOME}"/Library
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+      fi
+
+      if [ -d "${USER_HOME}"/Library/Preferences ] ; then
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${OS_VERSION}"
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${OS_BUILD}"
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
+      fi
+    fi
+  done
+fi
 
 
 ###############################################################################
@@ -174,6 +244,9 @@ defaults write com.apple.finder FXPreferredViewStyle clmv
 
 # Avoid creation of .DS_Store files on network volumes.
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+# Avoid creation of .DS_Store files on USB drives.
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # Disable the warning when changing a file extension.
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
@@ -240,7 +313,7 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 #  SSD-specific Tweaks                                                        #
 ###############################################################################
 
-# Disable hibernation (speeds up entering sleep mode).
+# Plain old sleep, doesn't backup to persistent storage.
 sudo pmset -a hibernatemode 0
 
 # Disable the sudden motion sensor as it's not useful for SSDs.
