@@ -101,3 +101,9 @@ export WINEPREFIX="$HOME/.wine"
 
 # z - https://github.com/rupa/z
 export _Z_NO_RESOLVE_SYMLINKS=1
+
+# Python 2.
+export PATH="/usr/local/opt/python@2/bin:$PATH"
+
+# Cargo packages.
+export PATH="/Users/Jackson/.cargo/bin:$PATH"
