@@ -93,6 +93,7 @@ alias vhalt='vagrant halt'
 alias vreload='vagrant reload'
 alias vssh='vagrant ssh'
 alias vup='vagrant up'
+alias vdestroy='vagrant destroy'
 
 # Run ranger, `cd` into last working directory after exiting.
 alias rcd='rangercd'
