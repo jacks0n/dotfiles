@@ -57,6 +57,13 @@ export KEYTIMEOUT=1
 
 
 ##
+# Key Bindings.
+##
+
+bindkey -e
+
+
+##
 # zplug.
 ##
 
