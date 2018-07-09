@@ -9,3 +9,7 @@ tags.lock
 .padawan/
 .phpcd/
 vendor/
+*.iml
+.ac-php-conf.json
+build/
+node_modules/
