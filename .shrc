@@ -4,7 +4,7 @@
 # Dotfiles.
 ##
 
-dotfiles=(.exports .aliases .functions .shrc.local)
+dotfiles=(.aliases .functions .shrc.local)
 for dotfile in "${dotfiles[@]}" ; do
   dotfile="$HOME/$dotfile"
   if [ -f "$dotfile" ] ; then
