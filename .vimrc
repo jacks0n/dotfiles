@@ -631,7 +631,9 @@ set sidescrolloff=5          " Minimal columns to show when `nowrap` is set.
 set fileformats=unix,dos,mac " Prefer Unix over Windows over OS 9 EOLs.
 set complete+=kspell         " Enable word completion.
 set complete-=i              " Disable current and included file scanning, use tags instead.
-set completeopt=menu,menuone,longest,noselect
+" set completeopt=menu,menuone,longest,noselect
+" set completeopt=menu,menuone,longest,noselect,noinsert
+set completeopt=noinsert,menuone,noselect
 " set completeopt+=preview
 
 " More detailed and accurate insert mode completion.
@@ -721,7 +723,7 @@ endif
 if has('nvim')
   let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
   let g:python3_host_prog = '/usr/local/bin/python3'
-  let g:python_host_prog = '/usr/local/opt/python@2/bin/python2'
+  let g:python_host_prog = '/usr/local/bin/python'
 endif
 
 if exists('&inccommand')
@@ -830,13 +832,6 @@ nmap <Leader>fl6 :setlocal foldlevel=6<CR>
 nmap <Leader>fl7 :setlocal foldlevel=7<CR>
 nmap <Leader>fl8 :setlocal foldlevel=8<CR>
 nmap <Leader>fl9 :setlocal foldlevel=9<CR>
-
-" DWIM shift keys.
-cmap W w
-cmap WQ wq
-cmap wQ wq
-cmap Q q
-cmap Tabe tabe
 
 " Disable arrow keys. Get off my lawn.
 map <Up> <NOP>
@@ -1497,6 +1492,7 @@ vmap <Enter> <Plug>(EasyAlign)
 if (executable('fzf') && has_key(g:plugs, 'fzf.vim')) || (executable('sk') && has_key(g:plugs, 'skim.vim'))
   " nnoremap <C-f> :Files<CR>
   nnoremap <Leader>f :Files<CR>
+  nnoremap <Leader>ff :Files<CR>
   nnoremap <Leader>b :Buffers<CR>
   nnoremap <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <Leader>g :GFiles<CR>
