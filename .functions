@@ -512,6 +512,12 @@ update-user() {
     go get -u all
   fi
 
+  # Update Ruby Gems.
+  if command_exists gem ; then
+    echo "\n\n Updating Gem packages."
+    sudo gem update $(gem list | cut -d ' ' -f 1)
+  fi
+
   # Update `~/bin` repositories.
   find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR ; do
     (
