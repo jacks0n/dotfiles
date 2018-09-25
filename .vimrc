@@ -53,12 +53,18 @@ if has('nvim')
   "    \ 'cmd': {server_info->['']},
   "    \ 'whitelist': ['php'],
   "    \ })
-  " Plug 'autozimu/LanguageClient-neovim', {
-  "   \ 'branch': 'next',
-  "   \ 'do': './install.sh'
-  "   \ }
+  Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': './install.sh'
+    \ }
   " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  Plug 'roxma/nvim-completion-manager'
+  Plug 'ncm2/ncm2'
+  Plug 'roxma/nvim-yarp'
+  Plug 'ncm2/ncm2-bufword'
+  Plug 'ncm2/ncm2-path'
+  " Plug 'ncm2/ncm2-tern'
+  " Plug 'mhartington/nvim-typescript'
+  " Plug 'ncm2/ncm2-jedi'
 elseif v:version >= 704 && has('patch1578')
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
@@ -198,7 +204,7 @@ Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent 
 
 Plug '1995eaton/vim-better-javascript-completion', { 'for': 'javascript' } " Adds more recent browser API support.
 Plug 'othree/jspc.vim', { 'for': 'javascript' }                            " Parameter completion.
-if has_key(g:plugs, 'nvim-completion-manager')
+if has_key(g:plugs, 'ncm2')
   Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
 " YouCompleteMe provides TernJS.
 elseif !has_key(g:plugs, 'YouCompleteMe')
@@ -269,26 +275,31 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
 Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
-if has_key(g:plugs, 'phpactor') && has_key(g:plugs, 'nvim-completion-manager')
+" if has_key(g:plugs, 'ncm2') && has_key(g:plugs, 'phpactor')
+"   Plug 'phpactor/ncm2-phpactor'
+" endif
+if has_key(g:plugs, 'phpactor') && has_key(g:plugs, 'ncm2')
   au User CmSetup call cm#register_source({
-    \ 'name': 'cm-php-phpactor',
-    \ 'priority': 10,
-    \ 'scopes': ['php'],
-    \ 'abbreviation': 'php',
-    \ 'early_cache': 1,
-    \ 'cm_refresh_patterns': ['\w|_', '\w*{4,}', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
-    \ 'cm_refresh': {'omnifunc': 'phpactor#Complete'},
-    \ })
+  \ 'name': 'cm-php-phpactor',
+  \ 'priority': 10,
+  \ 'scopes': ['php'],
+  \ 'abbreviation': 'php',
+  \ 'early_cache': 1,
+  \ 'cm_refresh_patterns': ['\w|_', '\w*{4,}', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+  \ 'cm_refresh': {'omnifunc': 'phpactor#Complete'},
+  \ })
   let g:cm_sources_override = {
-    \ 'cm-tags': { 'enable': 0 }
-    \ }
+  \ 'cm-tags': { 'enable': 0 }
+  \ }
+elseif has_key(g:plugs, 'phpactor') && has_key(g:plugs, 'deoplete')
+  Plug 'kristijanhusak/deoplete-phpactor'
 endif
 
 " Server-based PHP completion.
 if 0 && has_key(g:plugs, 'LanguageClient-neovim')
   Plug 'roxma/LanguageServer-php-neovim', { 'do': 'composer update && composer run-script parse-stubs' }
   autocmd FileType php nnoremap <silent> <buffer> <C-\> :call LanguageClient_textDocument_definition()<CR>
-  if has_key(g:plugs, 'nvim-completion-manager')
+  if has_key(g:plugs, 'ncm2')
     au User CmSetup call cm#register_source({
       \ 'name': 'cm-php-language-client',
       \ 'priority': 10,
@@ -315,15 +326,15 @@ if 0 && has('nvim')
     \| Plug 'vim-scripts/progressbar-widget'
 
   " Register the completion source with NVim completion manager.
-  if has_key(g:plugs, 'nvim-completion-manager')
-    au User CmSetup call cm#register_source({
-      \ 'name': 'cm-php-phpcd',
-      \ 'priority': 1,
-      \ 'scopes': ['php'],
-      \ 'abbreviation': 'php',
-      \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
-      \ 'cm_refresh': {'omnifunc': 'phpcd#CompletePHP'},
-      \ })
+  if has_key(g:plugs, 'ncm2')
+    " au User CmSetup call cm#register_source({
+    "   \ 'name': 'cm-php-phpcd',
+    "   \ 'priority': 1,
+    "   \ 'scopes': ['php'],
+    "   \ 'abbreviation': 'php',
+    "   \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+    "   \ 'cm_refresh': {'omnifunc': 'phpcd#CompletePHP'},
+    "   \ })
     " let g:cm_sources_override = {
     "   \ 'cm-tags': { 'enable': 0 }
     "   \ }
@@ -343,7 +354,7 @@ if 0 && (has('python') || has('python3'))
   endif
 
   " Register the completion source with NVim completion manager.
-  if has_key(g:plugs, 'nvim-completion-manager')
+  if has_key(g:plugs, 'ncm2')
     au User CmSetup call cm#register_source({
       \ 'name': 'cm-php-padawan',
       \ 'priority': 2,
@@ -364,12 +375,12 @@ if 0 && (has('python') || has('python3'))
   let $PATH=$PATH . ':/Users/Jackson/bin/padawan-dist/vendor/bin'
   let g:padawan#composer_command = '/usr/local/bin/composer'
 endif
-if 0
+if 1
   " Completion for the PHP standard library.
   Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 
   " Register the completion source with NVim completion manager.
-  if has_key(g:plugs, 'nvim-completion-manager')
+  if has_key(g:plugs, 'ncm2')
     au User CmSetup call cm#register_source({
       \ 'name': 'cm-php-phpcomplete',
       \ 'priority': 3,
@@ -427,7 +438,7 @@ Plug 'reedes/vim-pencil'
 
 Plug 'nelsyeung/twig.vim'
 
-if has_key(g:plugs, 'nvim-completion-manager')
+if has_key(g:plugs, 'ncm2')
   au User CmSetup call cm#register_source({
     \ 'name': 'cm-html',
     \ 'priority': 9,
@@ -471,9 +482,16 @@ Plug 'tpope/vim-surround'
 
 Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
 Plug 'scrooloose/nerdtree'         " File browser.
-Plug 'majutsushi/tagbar'      " Sidebar for tags.
-Plug 'hari-rangarajan/CCTree' " Symbol dependency tree.
-Plug 'sjl/gundo.vim'          " Undo history.
+Plug 'majutsushi/tagbar'           " Sidebar for tags.
+Plug 'hari-rangarajan/CCTree'      " Symbol dependency tree.
+Plug 'sjl/gundo.vim'               " Undo history.
+
+
+" ========================================================================
+" Plug Language: SQL.                                                    |
+" ========================================================================
+
+Plug 'joereynolds/SQHell.vim'
 
 
 " ========================================================================
@@ -482,7 +500,8 @@ Plug 'sjl/gundo.vim'          " Undo history.
 
 if has('nvim')
   " Asynchronous.
-  Plug 'w0rp/ale'
+  " Plug 'w0rp/ale'
+  Plug 'neomake/neomake'
 else
   Plug 'vim-syntastic/syntastic' " Linter support.
 endif
@@ -876,6 +895,14 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Autocommands.                                                          |
 " ========================================================================
 
+" Enable ncm2.
+if has_key(g:plugs, 'ncm2')
+  augroup ncm2
+    autocmd!
+    autocmd BufEnter * call ncm2#enable_for_buffer()
+  augroup END
+endif
+
 " Folding.
 augroup fold_level
   autocmd!
@@ -1175,6 +1202,7 @@ command! -nargs=* AG Grepper -noprompt -tool ag -grepprg ag --vimgrep <args>
 
 " Gutentags.
 let g:gutentags_ctags_executable = '/usr/local/bin/ctags'
+let g:gutentags_project_root     = ['index.php', '.git', '.hg', '.bzr', '_darcs']
 if has_key(g:plugs, 'vim-gutentags')
   set statusline+=%{gutentags#statusline()}
 endif
@@ -1224,8 +1252,22 @@ endif
 "   \ 'php': ['/usr/local/bin/php', $HOME . '/bin/php-language-server/bin/php-language-server.php'],
 "   \ }
 let g:LanguageClient_serverCommands = {
-  \ 'php': ['tcp://127.0.0.1:8080']
+  \ 'php': ['tcp://127.0.0.1:11111']
   \ }
+if has_key(g:plugs, 'ncm2')
+  au User CmSetup call cm#register_source({
+    \ 'name': 'serenata-php-language-client',
+    \ 'priority': 10,
+    \ 'scopes': ['php'],
+    \ 'abbreviation': 'php',
+    \ 'early_cache': 1,
+    \ 'cm_refresh_patterns': ['\w|_', '\w*{4,}', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
+    \ 'cm_refresh': {'omnifunc': 'LanguageClient#complete'},
+    \ })
+  let g:cm_sources_override = {
+    \ 'cm-tags': { 'enable': 0 }
+    \ }
+endif
 let g:LanguageClient_autoStart = 1
 
 " vim-instant-markdown.
@@ -1485,6 +1527,8 @@ noremap <Leader>gg :GitGutterToggle<CR>
 if has_key(g:plugs, 'ale')
   nnoremap <Leader>l :ALELint<CR>
   nnoremap <Leader>ni :ALEInfo<CR>
+elseif has_key(g:plugs, 'neomake')
+  nnoremap <Leader>l :Neomake<CR>
 elseif exists(':SyntasticCheck')
   nnoremap <Leader>l :SyntasticCheck<CR>
   nnoremap <Leader>lt :SyntasticToggle<CR>
@@ -1509,12 +1553,12 @@ augroup pencil
 augroup END
 
 " Lint when saving files.
-" if has_key(g:plugs, 'neomake')
-"   augroup neomake
-"     autocmd BufWritePost,BufEnter * Neomake
-"     autocmd InsertChange,TextChanged * update | Neomake
-"   augroup END
-" endif
+if has_key(g:plugs, 'neomake')
+  augroup neomake
+    autocmd BufWritePost,BufEnter * Neomake
+    autocmd InsertChange,TextChanged * update | Neomake
+  augroup END
+endif
 
 " autocmd BufWritePost,BufEnter * Neomake
 " autocmd InsertChange,TextChanged * update | Neomake
