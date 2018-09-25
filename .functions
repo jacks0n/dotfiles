@@ -554,8 +554,7 @@ update-global() {
       brew update
       brew upgrade
       brew cask upgrade
-      brew cask cleanup
-      brew cleanup -s --prune=now --force
+      brew cleanup -s --prune=now
       brew prune
     )
   fi
