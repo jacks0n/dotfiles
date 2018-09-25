@@ -233,7 +233,11 @@ random-joke() {
   local jokes_path="$HOME/.config/jokes.py"
   if [ ! -f "$jokes_path" ] ; then
     mkdir -p "$HOME/.config"
-    curl 'https://raw.githubusercontent.com/pyjokes/pyjokes/master/pyjokes/jokes_en.py' -o "$jokes_path"
+    local curl_output="$(curl 'https://raw.githubusercontent.com/pyjokes/pyjokes/master/pyjokes/jokes_en.py' --silent -o "$jokes_path")"
+    if [ $? -ne 0 ] ; then
+      echo "=> ERROR: Failed to fetch jokes. $curl_output"
+      return 1
+    fi
   fi
   echo "
     $(cat ~/.config/jokes.py); import random; print(random.choice(jokes_en['all']))
