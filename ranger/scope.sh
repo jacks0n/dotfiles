@@ -100,6 +100,7 @@ case "$mimetype" in
             pygmentize_format=terminal
             highlight_format=ansi
         fi
+        try bat --paging never "$path" && { dump | trim; exit 5; }
         # Pygmentize themes:
         # - native
         # - monokai
