@@ -66,6 +66,9 @@ alias please='sudo'
 # Bye bye :)
 alias nuke='sudo rm -rf'
 
+# Change path ownership to the current user's.
+alias chme=chownme
+
 # Disable history logging for the current shell.
 alias incognito='unset HISTFILE'
 
