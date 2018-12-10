@@ -1,7 +1,10 @@
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
-" @todo Create ~/.vim/backup if not exists.
+" Create the backup directory, if it doesn't already exist.
+if !isdirectory(expand('~/.vim/backup'))
+  call mkdir(expand('~/.vim/backup'), 'p')
+endif
 
 " Install vim-plug if it's not already.
 if empty(glob('~/.vim/autoload/plug.vim'))
