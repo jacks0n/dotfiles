@@ -48,6 +48,31 @@ ge() {
 }
 
 
+# Clone a Git repository, cd into the directory,
+# and checkout a branch/tag/commit if specified.
+gclone() {
+  local REPO="$1"
+  local CHECKOUT_ID="$2"
+  if [ -z "$REPO" ] ; then
+    echo '=> ERROR: No repository provided.' >&2
+    return 1
+  fi
+
+  git clone "$REPO" || {
+    echo "=> ERROR: Could not clone '$REPO'." >&2
+    return 1
+  }
+  repo_dir="$(basename "$REPO" | sed 's/\.git$//g')"
+  cd "$repo_dir" 2>/dev/null || {
+    echo "=> ERROR: Could not 'cd' into '$repo_dir'." >&2
+    return 1
+  }
+  if [ ! -z "$CHECKOUT_ID" ] ; then
+    git checkout "$CHECKOUT_ID"
+  fi
+}
+
+
 # Print all commits in the last day for all Git repositories under the current directory.
 git-standup() {
   local ORIGINAL_WORKING_DIRECTORY="$(pwd)"
