@@ -54,9 +54,6 @@ alias ci='composer install'
 alias cr='composer require'
 alias cu='composer update'
 
-# Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
-alias fix_zsh_permissions='compaudit 2>/dev/null | sudo xargs chmod g-w'
-
 # Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
