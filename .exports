@@ -63,6 +63,9 @@ if hash brew 2>/dev/null ; then
   export NODE_PATH="/usr/local/lib/node_modules"
   export NODE_PATH="/usr/local/share/npm/lib/node_modules:$NODE_PATH"
   export PATH="/usr/local/share/npm/bin:$PATH"
+
+  # Ruby.
+  export PATH="/usr/local/opt/ruby/bin:$PATH"
 fi
 
 # Android emulator / SDK.
