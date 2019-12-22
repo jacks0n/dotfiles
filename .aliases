@@ -129,3 +129,6 @@ type lnav &>/dev/null && \
 
 # https://github.com/tomnomnom/gron.
 alias ungron='gron --ungron'
+
+# https://github.com/sharkdp/bat
+# alias cat='bat'
