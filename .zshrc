@@ -45,6 +45,9 @@ setopt NO_FLOW_CONTROL      # No c-s/c-q output freezing.
 setopt PATH_DIRS            # Perform path search even on command names with slashes.
 setopt PROMPT_SUBST         # Perform parameter expansion, command substitution and arithmetic expansion in prompts.
 
+# Break at '/' on CTRL-W.
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
 zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
 zstyle ':completion:*' menu select                          # Enable menu-driven completion.
@@ -60,6 +63,7 @@ export KEYTIMEOUT=1
 # Key Bindings.
 ##
 
+# Use Emacs bindings.
 bindkey -e
 
 
@@ -78,8 +82,7 @@ fi
 
 source "$ZPLUG_HOME/init.zsh"
 
-# zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
-# zplug 'plugins/npm', from:oh-my-zsh, ignore:oh-my-zsh.sh
+zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug 'mafredri/zsh-async', on:sindresorhus/pure
 zplug 'sindresorhus/pure'
@@ -126,15 +129,45 @@ source "$HOME/.shrc"
 
 
 ##
-# Other.
-##
-
-# Alias Symfony completions to `sc`.
-compdef sc=console
-
-
-##
 # 3rd Party.
 ##
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Completion source for serverless package.
+if [ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ] ; then
+  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
+fi
+# Completion source for sls package.
+if [[ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] ; then
+  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
+fi
+# Completion source for slss package.
+if [[ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] ; then
+  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh
+fi
+if [ -f $HOME/.config/cani/completions/_cani.zsh ] ; then
+  source $HOME/.config/cani/completions/_cani.zsh
+fi
+
+# Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local node_version="$(nvm version)"
+  local nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$node_version" ]; then
+      nvm use
+    fi
+  elif [ "$node_version" != "$(nvm version default)" ]; then
+    echo "Reverting to nvm default version"
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc

@@ -369,10 +369,10 @@ systemsetup -settimezone 'Australia/Brisbane' > /dev/null
 defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
 
 # Set a really fast key repeat.
-defaults write NSGlobalDomain KeyRepeat -int 0
+defaults write NSGlobalDomain KeyRepeat -int 2
 
 # Shorter delay until key repeat.
-defaults write NSGlobalDomain InitialKeyRepeat -int 14
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
 # Enable key-repeat.
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
@@ -459,3 +459,6 @@ defaults write com.microsoft.Powerpoint UseOnlineContent -integer 0
 
 # Make Zsh the default shell.
 chsh -s /usr/local/bin/zsh
+
+ xcode-select --install
+

@@ -1,3 +1,5 @@
+# vim: filetype=sh
+
 # Let `sudo` be aliased, supporting chained aliases. eg. `sudo l .`
 # https://www.gnu.org/software/bash/manual/bashref.html#Aliases
 alias sudo='sudo '
@@ -47,12 +49,14 @@ alias gsta='git status -uall'
 # Avoid permission errors.
 alias gem='sudo gem'
 alias pear='sudo pear'
-alias pip='sudo -H pip'
 
 # Composer.
 alias ci='composer install'
 alias cr='composer require'
 alias cu='composer update'
+
+# Symfony console.
+alias sc=symfony-console-closet
 
 # Print top 10 used commands from $history.
 alias common_commands='print -l -- ${(o)history%% *} | uniq -c | sort -nr | head -n 10'

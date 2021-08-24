@@ -1,4 +1,6 @@
 # vim: filetype=sh
+#
+# Note that /etc/paths will override $PATH after this file is execute.
 
 ##
 # Base - required when `login` isn't used.
@@ -7,10 +9,7 @@
 export PATH="/opt/X11/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="/sbin:$PATH"
 
 ##
 #  Global variables - $PATH, $MANPATH, $EDITOR, $VISUAL, etc.
@@ -54,18 +53,30 @@ if hash brew 2>/dev/null ; then
 
   # Homebrew GNU coreutils, sed & tar.
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
+  export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
+  export PATH="/usr/local/opt/gawk/libexec/gnubin:$PATH"
   export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-  export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
-  export MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH"
+  export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
+  export PATH="/usr/local/opt/gnu-getopt:$PATH"
+  export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+  export MANPATH="/usr/local/opt/coreutils/libexec/gnubin:$MANMANPATH"
+  export MANPATH="/usr/local/opt/findutils/libexec/gnubin:$MANMANPATH"
+  export MANPATH="/usr/local/opt/gawk/libexec/gnubin:$MANMANPATH"
+  export MANPATH="/usr/local/opt/gnu-sed/libexec/gnubin:$MANMANPATH"
+  export MANPATH="/usr/local/opt/gnu-tar/libexec/gnubin:$MANMANPATH"
+  export MANPATH="/usr/local/opt/grep/libexec/gnubin:$MANMANPATH"
 
   # Node.js
-  export NODE_PATH="/usr/local/lib/node_modules"
+  export NODE_PATH='/usr/local/lib/node_modules'
   export NODE_PATH="/usr/local/share/npm/lib/node_modules:$NODE_PATH"
   export PATH="/usr/local/share/npm/bin:$PATH"
 
   # Ruby.
   export PATH="/usr/local/opt/ruby/bin:$PATH"
+  export PATH="/usr/local/lib/ruby/gems/2.6.0/bin:$PATH"
+
+  # Java.
+  export PATH="/usr/local/opt/openjdk/bin:$PATH"
 fi
 
 # Android emulator / SDK.
@@ -102,11 +113,21 @@ export FZF_ALT_C_OPTS="--select-1 --exit-0 --preview '(highlight -O ansi -l {} 2
 export WINEDEBUG=
 export WINEPREFIX="$HOME/.wine"
 
+export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT='1'
+
 # z - https://github.com/rupa/z
 export _Z_NO_RESOLVE_SYMLINKS=1
 
-# Python 2.
-export PATH="/usr/local/opt/python@2/bin:$PATH"
+# Python 3.
+export PATH="/usr/local/opt/python@3/bin:$PATH"
 
 # Cargo packages.
-export PATH="/Users/Jackson/.cargo/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# NVM.
+export NVM_DIR="$HOME/.nvm"
+
+# Local paths.
+export PATH="./vendor/bin:$PATH"
+export PATH="./node_modules/.bin:$PATH"
+export PATH="bin:$PATH"
