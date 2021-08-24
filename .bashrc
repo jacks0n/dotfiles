@@ -14,3 +14,4 @@ source "$HOME/.shrc"
 ##
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f $HOME/.config/cani/completions/_cani.bash ] && source $HOME/.config/cani/completions/_cani.bash

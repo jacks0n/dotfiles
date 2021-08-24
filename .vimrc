@@ -1,6 +1,13 @@
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
+let $NVIM_PYTHON_LOG_FILE = $HOME . '/Desktop/nvim-python.log'
+
+function! SynGroup()
+    let l:s = synID(line('.'), col('.'), 1)
+    echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
+endfun
+
 " Create the backup directory, if it doesn't already exist.
 if !isdirectory(expand('~/.vim/backup'))
   call mkdir(expand('~/.vim/backup'), 'p')
@@ -23,6 +30,7 @@ call plug#begin('~/.vim/plugged')
 "  'Townk/vim-autoclose'  - Works well. Gets stuck in insert mode with YouCompleteMe. Unmaintained.
 "  'cohama/lexima.vim'    - Works well, inserts closing character, not that intelligent.
 "  'jiangmiao/auto-pairs' - Seems the most intelligent, can get slow.
+"  'chr4/nginx.vim'       - Nginx config syntax highlighting, in vim-polyglot.
 " Plug 'cohama/lexima.vim'
 " Plug 'jiangmiao/auto-pairs'
 " Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
@@ -32,14 +40,16 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 Plug 'jreybert/vimagit'
+" Plug 'itchyny/lightline.vim'
 Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
 Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
-Plug 'embear/vim-localvimrc'
+" Plug 'embear/vim-localvimrc'
 Plug 'DataWraith/auto_mkdir'
-Plug 'chr4/nginx.vim'
 Plug 'tpope/vim-db'
+" Where every variable is a different color.
+Plug 'jaxbot/semantic-highlight.vim'
 
 
 " ========================================================================
@@ -47,36 +57,19 @@ Plug 'tpope/vim-db'
 " ========================================================================
 
 if has('nvim')
-  Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': './install.sh'
-    \ }
-  Plug 'ncm2/ncm2'
-    \| Plug 'roxma/nvim-yarp'
-    \| Plug 'ncm2/ncm2-bufword'
-    \| Plug 'ncm2/ncm2-path'
-    \| Plug 'ncm2/ncm2-tern'
-    \| Plug 'ncm2/ncm2-jedi'
-    \| Plug 'ncm2/ncm2-tagprefix'
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 elseif v:version >= 704 && has('patch1578')
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
-
-Plug 'SirVer/ultisnips'
-  \| Plug 'honza/vim-snippets'           " Common snippets for many language.
-  \| Plug 'sniphpets/sniphpets'          " Helper functions to ceate snippets.
-  \| Plug 'sniphpets/sniphpets-common'   " Common PHP snippets.
-  \| Plug 'sniphpets/sniphpets-symfony'  " Common Symfony snippets.
-  \| Plug 'algotech/ultisnips-php'       " Common PHP, PHPUnit, and Symnfony snippets.
-  \| Plug 'sniphpets/sniphpets-doctrine' " Common Doctrine snippets.
 
 
 " ========================================================================
 " Plug: Search.                                                          |
 " ========================================================================
 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   \| Plug 'junegunn/fzf.vim'
+  " \| Plug 'yuki-ycino/fzf-preview.vim', { 'branch': 'release', 'do': ':UpdateRemotePlugins' }
 " Plug 'rking/ag.vim'
 Plug 'romainl/vim-cool' " Disables search highlighting when you are done searching and re-enables it when you search again.
 
@@ -96,7 +89,7 @@ Plug 'matze/vim-move'                 " Move lines and selections up and down.
 
 
 " ========================================================================
-" Plug Language: CSS, SASS.                                              |
+" Plug: CSS, SASS.                                                       |
 " ========================================================================
 
 " ----------------------------------------
@@ -114,7 +107,9 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SCSS synt
 " Features.                              |
 " ----------------------------------------
 
-" Highlight CSS colours with the rule value.
+" Options:
+"   'neoclide/coc-highlight' - Highlights CSS/SCSS colours. Has high CPU issues.
+"                              @see https://github.com/neoclide/coc-highlight/issues/14
 Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
 
 " ----------------------------------------
@@ -125,31 +120,36 @@ Plug 'othree/csscomplete.vim', { 'for': ['css', 'scss', 'sass'] }
 
 
 " ========================================================================
-" Plug Language: CSV.                                                    |
+" Language: CSV.                                                         |
 " ========================================================================
 
 " Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 
+" ========================================================================
+" Language: Python.                                                      |
+" ========================================================================
+
+Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins', 'for': ['python'] }
+
 
 " ========================================================================
-" Plug Language: HTML, XML.                                              |
+" Language: HTML, XML.                                                   |
 " ========================================================================
 
-Plug 'Valloric/MatchTagAlways',        " Highlight outer cursor (X)HTML tags.
-  \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
+" Plug 'Valloric/MatchTagAlways',        " Highlight outer cursor (X)HTML tags.
+"   \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
 Plug 'mattn/emmet-vim',                " Emmet for Vim.
   \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
-Plug 'othree/html5.vim',               " HTML 5 omnicomplete and syntax.
-  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 
 " Options:
 "  'tylerbrazier/HTML-AutoCloseTag' - Unmaintained, extra <Esc> back to normal mode.
+"  'othree/html5'                   - Included in vim-polyglot.
 Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
   \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 
 
 " ========================================================================
-" Plug Language: JavaScript, JSON.                                       |
+" Language: JavaScript, JSON.                                            |
 " ========================================================================
 
 " ----------------------------------------
@@ -158,19 +158,16 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 
 Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
 
-" Indent and Syntax Options:
-"  'pangloss/vim-javascript'              - Maintained. Indents `*` wrongly for
-"                                           docblocks that start with `/**`.
-" Indent Options:
+" Options:
 "  'jiangmiao/simple-javascript-indenter' - Unmaintained.
 "  'gavocanov/vim-js-indent'              - Indent part of pangloss/vim-javascript. Unmaintained.
 "  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript.
-" Syntax Options:
 "  'jelera/vim-javascript-syntax'         - Syntax, maintained.
 "  'othree/yajs.vim'                      - Syntax, maintained, fork of Jelera. Recognises
 "                                         - web API and DOM keywords, supports ES6 syntax.
 "  'othree/jsdoc-syntax.vim'              - JSDoc syntax.
-" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+"  'pangloss/vim-javascript'              - Syntax and improved indentation. Included in vim-polyglot.
+
 Plug 'othree/yajs.vim', { 'for': 'javascript' }
 if has_key(g:plugs, 'yajs.vim')
   Plug 'othree/jsdoc-syntax.vim', { 'for': 'javascript' }
@@ -182,9 +179,9 @@ endif
 " Syntax Addons.                         |
 " ----------------------------------------
 
-Plug 'othree/javascript-libraries-syntax.vim', " Extends syntax for jQuery, Underscore, Backbone, etc.
-  \ { 'for': 'javascript' }
-Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent for JSX.
+" Plug 'othree/javascript-libraries-syntax.vim', " Extends syntax for jQuery, Underscore, Backbone, etc.
+"   \ { 'for': 'javascript' }
+" Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent for JSX.
 " Plug 'bigfish/vim-js-context-coloring'         " Highlight based on context.
 
 " ----------------------------------------
@@ -193,18 +190,6 @@ Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent 
 
 Plug '1995eaton/vim-better-javascript-completion', { 'for': 'javascript' } " Adds more recent browser API support.
 Plug 'othree/jspc.vim', { 'for': 'javascript' }                            " Parameter completion.
-if has_key(g:plugs, 'ncm2')
-  Plug 'roxma/nvim-cm-tern', { 'do': 'npm install' }
-" YouCompleteMe provides TernJS.
-elseif !has_key(g:plugs, 'YouCompleteMe')
-  Plug 'ternjs/tern_for_vim',
-    \ { 'do': 'npm install; npm update', 'for': 'javascript' }
-endif
-
-if has_key(g:plugs, 'deoplete.nvim')
-  Plug 'carlitux/deoplete-ternjs',
-    \ { 'do': 'npm install -g tern' } " Async goodness.
-endif
 
 " ----------------------------------------
 " Features.                              |
@@ -214,14 +199,14 @@ Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' } " Generate function JSDoc 
 
 
 " ========================================================================
-" Plug Language: Markdown.                                               |
+" Plug: Markdown.                                                        |
 " ========================================================================
 
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 
 
 " ========================================================================
-" Plug Language: PHP.                                                    |
+" Plug: PHP.                                                             |
 " ========================================================================
 
 " ----------------------------------------
@@ -263,62 +248,8 @@ Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
 "                                  Jump to use statement definition doesn't work.
 "  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
 
-" Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
-" if has_key(g:plugs, 'ncm2') && has_key(g:plugs, 'phpactor')
-"   Plug 'phpactor/ncm2-phpactor'
-" endif
-" if has_key(g:plugs, 'phpactor') && has_key(g:plugs, 'ncm2')
-"   au User CmSetup call ncm2#register_source({
-"   \ 'name': 'cm-php-phpactor',
-"   \ 'priority': 10,
-"   \ 'scopes': ['php'],
-"   \ 'abbreviation': 'php',
-"   \ 'early_cache': 1,
-"   \ 'cm_refresh_patterns': ['\w|_', '\w*{4,}', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
-"   \ 'cm_refresh': {'omnifunc': 'phpactor#Complete'},
-"   \ })
-"   let g:cm_sources_override = {
-"   \ 'cm-tags': { 'enable': 0 }
-"   \ }
-" endif
-
-" Server-based PHP completion.
-if 0 && has_key(g:plugs, 'LanguageClient-neovim')
-  " Plug 'roxma/LanguageServer-php-neovim', { 'do': 'composer update && composer run-script parse-stubs' }
-  autocmd FileType php nnoremap <silent> <buffer> <C-\> :call LanguageClient_textDocument_definition()<CR>
-  if has_key(g:plugs, 'ncm2')
-    " au User CmSetup call ncm2#register_source({
-    "   \ 'name': 'cm-php-language-client',
-    "   \ 'priority': 10,
-    "   \ 'scopes': ['php'],
-    "   \ 'abbreviation': 'php',
-    "   \ 'early_cache': 1,
-    "   \ 'cm_refresh_patterns': ['\w|_', '\w*{4,}', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
-    "   \ 'cm_refresh': {'omnifunc': 'LanguageClient#complete'},
-    "   \ })
-    let g:cm_sources_override = {
-      \ 'cm-tags': { 'enable': 0 }
-      \ }
-  endif
-endif
-
-" Completion for the PHP standard library.
-Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
-
-" Register the completion source with NVim completion manager.
-if has_key(g:plugs, 'ncm2')
-  au User CmSetup call ncm2#register_source({
-    \ 'name': 'php--phpcomplete',
-    \ 'priority': 3,
-    \ 'scopes': ['php'],
-    \ 'early_cache': 1,
-    \ 'abbreviation': 'php',
-    \ 'cm_refresh_length': 4,
-    \ 'cm_refresh_patterns': ['\w*', '\w*::', '[^. \t]->\%(\h\w*\)\?', '\h\w*::\%(\h\w*\)\?'],
-    \ 'cm_refresh': {'omnifunc': 'phpcomplete#CompletePHP'}
-    \ })
-endif
-
+" Plug 'phpactor/phpactor', { 'for': 'php', 'branch': 'master', 'do': 'composer install --no-dev -o' }
+" Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
 
 " ----------------------------------------
 " Features.                              |
@@ -335,21 +266,7 @@ Plug 'noahfrederick/vim-composer'
 
 
 " ========================================================================
-" Plug Language: Python.                                                 |
-" ========================================================================
-
-" YouCompleteMe provides Jedi.
-if !has_key(g:plugs, 'YouCompleteMe')
-  Plug 'davidhalter/jedi-vim', { 'for': 'python' }
-endif
-
-if has_key(g:plugs, 'deoplete.nvim')
-  Plug 'zchee/deoplete-jedi'
-endif
-
-
-" ========================================================================
-" Plug Language: Text.                                                   |
+" Plug: Text.                                                            |
 " ========================================================================
 
 Plug 'junegunn/goyo.vim'
@@ -358,32 +275,18 @@ Plug 'reedes/vim-pencil'
 
 
 " ========================================================================
-" Plug Language: Twig.                                                   |
+" Plug: Twig.                                                            |
 " ========================================================================
 
 Plug 'nelsyeung/twig.vim'
 
-if has_key(g:plugs, 'ncm2')
-  au User CmSetup call ncm2#register_source({
-    \ 'name': 'cm-html',
-    \ 'priority': 9,
-    \ 'scopes': ['html', 'twig', 'html.twig.js.css'],
-    \ 'early_cache': 1,
-    \ 'abbreviation': 'html',
-    \ 'cm_refresh_patterns': ['<[^>]*'],
-    \ 'cm_refresh': {'omnifunc': 'htmlcomplete#CompleteTags'},
-    \ })
-endif
-
 
 " ========================================================================
-" Plug Language: VimL.                                                   |
+" Plug: VimL.                                                            |
 " ========================================================================
 
-" Completion.
-" Calls cm#register_source, not compatible with NCM2.
-" TODO: Fix.
-" Plug 'Shougo/neco-vim', { 'for': 'vim' }
+" VimL completion.
+Plug 'Shougo/neco-vim', { 'for': 'vim' }
 
 
 " ========================================================================
@@ -407,31 +310,25 @@ Plug 'tpope/vim-surround'
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
-Plug 'scrooloose/nerdtree'         " File browser.
+" Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+" Plug 'scrooloose/nerdtree'         " File browser.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'hari-rangarajan/CCTree'      " Symbol dependency tree.
 Plug 'sjl/gundo.vim'               " Undo history.
 
 
 " ========================================================================
-" Plug Language: SQL.                                                    |
+" Plug: SQL.                                                             |
 " ========================================================================
 
-Plug 'joereynolds/SQHell.vim'
+" Plug 'joereynolds/SQHell.vim'
 
 
 " ========================================================================
 " Plug: Linting.                                                         |
 " ========================================================================
 
-if has('nvim')
-  " Asynchronous.
-  Plug 'neomake/neomake'
-else
-  Plug 'vim-syntastic/syntastic' " Linter support.
-endif
-
+Plug 'neomake/neomake'
 
 " ========================================================================
 " Plug: Functional.                                                      |
@@ -440,14 +337,15 @@ endif
 Plug '0x84/vim-coderunner'           " Run the buffer on the fly.
 Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
+let g:polyglot_disabled = ['json', 'jsx', 'php', 'twig', 'startify']
 Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
-Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
-Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
+" Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
+" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
+" Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
 
 call plug#end() " Required.
 
@@ -469,6 +367,7 @@ set autochdir                 " Automatically change to the directory of the fil
 set autoread                  " Re-load files on external modifications and none locally.
 set autowrite                 " Automatically save before :next, :make etc.
 set whichwrap=b,s,h,l,<,>,[,] " Characters which wrap lines (b = <BS>, s = <Space>).
+set updatetime=300            " Milliseconds to wait after typing to save the swap file.
 
 set t_vb=
 set noerrorbells              " Ring the bell (beep or screen flash) for error messages.
@@ -820,14 +719,6 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Autocommands.                                                          |
 " ========================================================================
 
-" Enable ncm2.
-if has_key(g:plugs, 'ncm2')
-  augroup ncm2
-    autocmd!
-    autocmd BufEnter * call ncm2#enable_for_buffer()
-  augroup END
-endif
-
 " Folding.
 augroup fold_level
   autocmd!
@@ -856,7 +747,7 @@ augroup custom_filetypes
   autocmd!
 
   " Drupal.
-  autocmd BufRead,BufNewFile *.info    setlocal filetype=dosini
+  autocmd BufRead,BufNewFile *.info    setlocal filetype=yaml
   autocmd BufRead,BufNewFile *.engine  setlocal filetype=php
   autocmd BufRead,BufNewFile *.inc     setlocal filetype=php
   autocmd BufRead,BufNewFile *.install setlocal filetype=php
@@ -865,7 +756,6 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.test    setlocal filetype=php
   autocmd BufRead,BufNewFile *.theme   setlocal filetype=php
   autocmd BufRead,BufNewFile *.view    setlocal filetype=php
-  " autocmd BufRead,BufNewFile *.tpl.php set syntax=php.html
   autocmd BufRead,BufNewFile *.tpl.php setlocal filetype=php.html " Needed?
 
   " Other.
@@ -873,6 +763,15 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.scss      setlocal filetype=scss.css
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
+  autocmd bufnewfile,bufread *.jsx       setlocal filetype=javascript.jsx
+augroup END
+
+" Override vim-coderunner.
+augroup dockerfile_build
+  autocmd!
+
+  autocmd BufRead,BufNewFile Dockerfile nnoremap <Leader>r :!docker build .<CR>
+
 augroup END
 
 " Prevent stopping on - characters for CSS files.
@@ -895,45 +794,14 @@ augroup indent
 augroup END
 
 " Enable omni-completion.
-if has_key(g:plugs, 'YouCompleteMe')
-  set omnifunc=youcompleteme#OmniComplete
-else
-  set omnifunc=syntaxcomplete#Complete
-endif
+set omnifunc=syntaxcomplete#Complete
 augroup omnifuncs
   autocmd!
 
   " PHP Omnicompletion.
   if has_key(g:plugs, 'phpactor')
     autocmd FileType php,phtml setlocal omnifunc=phpactor#Complete
-  elseif has_key(g:plugs, 'vim-lsp')
-    autocmd FileType php,phtml setlocal omnifunc=lsp#complete
-  elseif has_key(g:plugs, 'phpcd.vim')
-    autocmd FileType php,phtml setlocal omnifunc=phpcd#CompletePHP
-  elseif has_key(g:plugs, 'LanguageClient-neovim')
-    autocmd FileType php,phtml setlocal omnifunc=LanguageClient#complete
-  elseif !has_key(g:plugs, 'padawan.vim')
-    autocmd FileType php,phtml setlocal omnifunc=phpcomplete#CompletePHP
   endif
-
-  " Javascript Omnicompletion.
-  if has_key(g:plugs, 'tern_for_vim')
-    autocmd FileType javascript setlocal omnifunc=tern#Complete
-  elseif has_key(g:plugs, 'YouCompleteMe')
-    autocmd FileType javascript setlocal omnifunc=youcompleteme#OmniComplete
-  else
-    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-  endif
-
-  " Python Omnicompletion.
-  if !has_key(g:plugs, 'jedi-vim')
-    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-  endif
-
-  " Other Omnicompletion.
-  autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
-  autocmd FileType xml           setlocal omnifunc=xmlcomplete#CompleteTags
-  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 augroup END
 
 " Return to last edit position when opening files.
@@ -990,20 +858,20 @@ endfunction
 " Change to random font from a defined list of awesome ones.
 function! NextFont()
   let guifonts = [
-    \'Consolas:h15.5',
-    \'Droid\ Sans\ Mono\ for\ Powerline:h15',
-    \'Fira\ Code\ Retina:h15',
-    \'Hack:h15',
-    \'Inconsolata-dz\ for\ Powerline:h15',
-    \'Input\ Mono:h15',
-    \'Menlo\ for\ Powerline:h15.5',
-    \'Meslo\ LG\ M\ DZ\ for\ Powerline:h15',
-    \'Monaco\ for\ Powerline:h15',
-    \'Mononoki:h16',
-    \'Office\ Code\ Pro\ D:h15',
-    \'PT\ Mono\ for\ Powerline:h16',
-    \'Source\ Code\ Pro\ for\ Powerline:h15',
-    \'Ubuntu\ Mono\ derivative\ Powerline:h17',
+    \ 'Consolas:h15.5',
+    \ 'Droid\ Sans\ Mono\ for\ Powerline:h15',
+    \ 'Fira\ Code\ Retina:h15',
+    \ 'Hack:h15',
+    \ 'Inconsolata-dz\ for\ Powerline:h15',
+    \ 'Input\ Mono:h15',
+    \ 'Menlo\ for\ Powerline:h15.5',
+    \ 'Meslo\ LG\ M\ DZ\ for\ Powerline:h15',
+    \ 'Monaco\ for\ Powerline:h15',
+    \ 'Mononoki:h16',
+    \ 'Office\ Code\ Pro\ D:h15',
+    \ 'PT\ Mono\ for\ Powerline:h16',
+    \ 'Source\ Code\ Pro\ for\ Powerline:h15',
+    \ 'Ubuntu\ Mono\ derivative\ Powerline:h17',
   \]
   let guifont_index = index(guifonts, &guifont) + 1
   let new_guifont = guifonts[guifont_index]
@@ -1033,27 +901,34 @@ endfunction
 " Commands.                                                              |
 " ========================================================================
 
-command! -bar NextFont call NextFont()
+" Custom commands.
 command! -bar NextColorScheme call NextColorScheme()
+command! -bar NextFont call NextFont()
 command! -bar FormatJSON :%!python -m json.tool
-command! -bar References call LanguageClient_textDocument_references()
+
+" Plugin commands.
+" command! -bang -nargs=* GGrep
+"   \ call fzf#vim#grep(
+"   \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+"   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 
 
 " ========================================================================
 " Plugin Settings.                                                       |
 " ========================================================================
 
-" delimitMate.
-let g:delimitMate_expand_cr            = 1
-let g:delimitMate_expand_space         = 1
-let g:delimitMate_expand_inside_quotes = 1
-let g:delimitMate_jump_expansion       = 1
-
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+" if execute('bat')
+"   let g:fzf_preview_command = 'bat --color=always --style=grid --theme=ansi-dark {-1}'
+" endif
 
 " elzr/vim-json.
 let g:vim_json_syntax_conceal = 0 " Show quotes in JSON files.
+
+" plasticboy/vim-markdown.
+let g:vim_markdown_conceal = 0             " Disable setting conceallevel for text.
+let g:vim_markdown_conceal_code_blocks = 0 " Disable setting conceallevel for code blocks.
 
 " vim-jsdoc.
 let g:jsdoc_allow_input_prompt = 1 " Allow prompt for interactive input.
@@ -1068,11 +943,6 @@ let g:gitgutter_sign_modified           = '┃…'
 let g:gitgutter_sign_modified_removed   = '┃±'
 let g:gitgutter_sign_removed            = '┃−'
 let g:gitgutter_sign_removed_first_line = '┃⇈'
-" let g:gitgutter_override_sign_column_highlight = 0
-" highlight GitGutterAdd          ctermbg=NONE guibg=NONE
-" highlight GitGutterChange       ctermbg=NONE guibg=NONE
-" highlight GitGutterDelete       ctermbg=NONE guibg=NONE
-" highlight GitGutterChangeDelete ctermbg=NONE guibg=NONE
 highlight clear SignColumn
 
 " Gutentags.
@@ -1086,20 +956,6 @@ endif
 let g:indentLine_char            = '│'
 let g:indentLine_fileTypeExclude = ['help', 'startify']
 let g:indentLine_faster          = 1
-
-" Jedi.
-let g:jedi#auto_vim_configuration   = 0  " Don't set `completeopt` options and insert mode <C-c> key mapping.
-let g:jedi#documentation_command    = '' " Disable the show documentation mapping.
-let g:jedi#goto_assignments_command = '' " Disable the goto assignment mapping.
-let g:jedi#goto_command             = '' " Disable the goto definition mapping.
-let g:jedi#goto_definitions_command = '' " Disable the goto definitions mapping.
-let g:jedi#rename_command           = '' " Disable the rename mapping.
-let g:jedi#usages_command           = '' " Disable the usage mapping.
-let g:jedi#completions_command      = '' " Disable the completion mapping.
-
-" UltiSnips.
-let g:UltiSnipsJumpForwardTrigger  = '<C-j>'
-let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
 " PHP Documentor.
 let g:pdv_template_dir = g:plug_home . '/pdv/templates'
@@ -1116,19 +972,26 @@ if executable('fortune') && executable('cowsay')
   let g:startify_fortune_use_unicode = 1
 endif
 
-" LanguageClient-neovim
-let g:LanguageClient_serverCommands = {
-  \ 'php': ['/usr/local/bin/php', expand('~/bin/php-language-server/bin/php-language-server.php')],
-  \ 'javascript': ['/usr/local/bin/node', expand('~/bin/lsp-clients/node_modules/.bin/javascript-typescript-langserver')],
-  \ 'sh': [expand('~/bin/lsp-clients/node_modules/.bin/bash-language-server'), 'start'],
-  \ }
- let g:LanguageClient_rootMarkers = {
-  \ 'php': ['index.php']
-  \ }
-" let g:LanguageClient_serverCommands = {
-  " \ 'php': ['/usr/local/bin/php', '-d memory_limit=1024M', '/Users/Jackson/bin/serenata/bin/console', '--uri=tcp://127.0.0.1:11111'],
-"   \ }
-let g:LanguageClient_autoStart = 1
+" coc.nvim.
+let g:coc_global_extensions = [
+  \ 'coc-css',
+  \ 'coc-dictionary',
+  \ 'coc-docker',
+  \ 'coc-html',
+  \ 'coc-json',
+  \ 'coc-omni',
+  \ 'coc-phpactor',
+  \ 'coc-phpls',
+  \ 'coc-python',
+  \ 'coc-sh',
+  \ 'coc-syntax',
+  \ 'coc-tabnine',
+  \ 'coc-tag',
+  \ 'coc-tsserver',
+  \ 'coc-vimlsp',
+  \ 'coc-word',
+  \ 'coc-yaml',
+  \ ]
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -1186,7 +1049,9 @@ let g:tagbar_type_css = {
 let g:tagbar_type_less = g:tagbar_type_css
 let g:tagbar_type_scss = g:tagbar_type_css
 
-" Airline
+" Lightline.
+
+" Airline.
 let g:airline_theme = 'badwolf'
 " let g:airline_theme = 'luna'
 " let g:airline_theme = 'bubblegum'
@@ -1201,7 +1066,6 @@ let g:airline_symbols = extend(get(g:, 'airline_symbols', {}), {
 \   'linenr': '¶',
 \ })
 let g:airline_powerline_fonts               = 1
-let g:airline#extensions#syntastic#enabled  = exists(':SyntasticCheck')
 let g:airline#extensions#branch#enabled     = 1
 let g:airline#extensions#bufferline#enabled = 1
 let g:airline#extensions#capslock#enabled   = 1
@@ -1225,71 +1089,12 @@ let g:neomake_text_enabled_makers       = ['proselint']
 let g:neomake_warning_sign              = { 'text': '⚠️'  }
 let g:neomake_error_sign                = { 'text': '❌' }
 
-" Syntastic
-" let g:syntastic_filetype_map = { 'phtml': 'php' }
-" let g:syntastic_filetype_map = { 'dosini': 'php' }
-let g:syntastic_mode_map                 = { 'mode': 'passive' } " Disable active mode by default.
-" let g:syntastic_error_symbol             = '😭'
-" let g:syntastic_style_error_symbol       = '😭'
-" let g:syntastic_warning_symbol           = '😢'
-" let g:syntastic_style_warning_symbol     = '😢'
-let g:syntastic_aggregate_errors         = 1 " run all linters, even if first found errors.
-let g:syntastic_always_populate_loc_list = 1 " Add errors to location-list.
-let g:syntastic_auto_loc_list            = 1 " Automatically open/close location-list if errors are found.
-let g:syntastic_check_on_open            = 1
-let g:syntastic_check_on_wq              = 1
-let g:syntastic_css_checkers             = ['csslint', 'php/phpcs']
-let g:syntastic_javascript_checkers      = ['jshint', 'php/phpcs', 'eslint', 'jscs', 'flow']
-let g:syntastic_html_checkers            = [] " Disable HTML checkers.
-let g:syntastic_sh_checkers              = ['sh', 'shellcheck']
-let g:syntastic_sh_shellcheck_args       = '--exclude=SC2155,SC2032,SC1090,SC2033' " Ignore declare and assign on same line.
-let g:syntastic_php_checkers             = ['php', 'phpcs']
-let g:syntastic_python_checkers          = ['pylint', 'pep8', 'python']
-let g:syntastic_scss_checkers            = ['scss_lint']
-let g:syntastic_text_checkers            = ['proselint']
-let g:syntastic_vim_checkers             = ['vint']
-let g:syntastic_json_checkers            = ['jsonlint']
-let g:syntastic_stl_format               = '[%E{E: %fe #%e}%B{, }%W{W: %fw #%w}]'
-
-" PHPCD.
-let g:phpcd_php_cli_executable = '/usr/local/bin/php'
-
-" deoplete-ternjs.
-let g:tern_request_timeout                = 1
-let g:tern_show_signature_in_pum          = 1         " Show function signatures in the completion menu.
-let g:tern_show_argument_hints            = 'on_move' " When to update argument hints. Default is 0.
-let g:tern#is_show_argument_hints_enabled = 1
-if has_key(g:plugs, 'tern_for_vim')
-  let g:tern#command   = ['tern'] " Use the same tern command.
-  let g:tern#arguments = ['--persistent']
-endif
-
-" YouCompleteMe.
-let g:ycm_add_preview_to_completeopt                = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_autoclose_preview_window_after_insertion  = 1
-let g:ycm_collect_identifiers_from_tags_files       = 1
-let g:ycm_complete_in_comments                      = 1
-let g:ycm_complete_in_strings                       = 1
-let g:ycm_min_num_of_chars_for_completion           = 3
-let g:ycm_seed_identifiers_with_syntax              = 1
-" Default values, not being set by YCM. Crashes Neovim when too aggressive.
-let g:ycm_semantic_triggers = get(g:, 'g:ycm_semantic_triggers', {
-\   'html':       ['re!\w{3,}'],
-\   'scss':       [' ', 're!\w{2,}', 're!:\s+'],
-\   'css':        [' ', 're!\w{2,}'],
-\   'javascript': ['.'],
-\   'php':        ['->', '::'],
-\   'python':     ['.'],
-\   'ruby':       ['.', '::'],
-\ })
-
 " pangloss/vim-javascript.
 let g:javascript_enable_domhtmlcss = 1
 
 " vim-polyglot.
 " Twig: `lumiliet/vim-twig` doesn't set the correct indentation or highlight HTML.
-let g:polyglot_disabled = ['html5', 'javascript', 'json', 'jsx', 'php', 'twig']
+let g:polyglot_disabled = ['json', 'jsx', 'php', 'twig', 'startify']
 
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
@@ -1303,7 +1108,19 @@ let g:vdebug_features = {
 \ }
 
 " vim-javascript.
-let g:javascript_plugin_jsdoc = 1 " Enable syntax highlighting for JSDoc.
+let g:javascript_plugin_jsdoc                      = 1 " Enable syntax highlighting for JSDoc.
+let g:javascript_conceal_function                  = "ƒ"
+let g:javascript_conceal_null                      = "ø"
+let g:javascript_conceal_this                      = "@"
+let g:javascript_conceal_return                    = "⇚"
+let g:javascript_conceal_undefined                 = "¿"
+let g:javascript_conceal_NaN                       = "ℕ"
+let g:javascript_conceal_prototype                 = "¶"
+let g:javascript_conceal_static                    = "•"
+let g:javascript_conceal_super                     = "Ω"
+let g:javascript_conceal_arrow_function            = "⇒"
+let g:javascript_conceal_noarg_arrow_function      = "φ"
+let g:javascript_conceal_underscore_arrow_function = "?"
 
 " vim-localvimrc.
 let g:localvimrc_name = '.vimrc.local'
@@ -1322,13 +1139,35 @@ let g:gruvbox_contrast_dark = 'hard'
 " Plugin Mappings.                                                       |
 " ========================================================================
 
-" Deoplete.
-if has_key(g:plugs, 'deoplete.nvim')
+" coc.nvim.
+" Show signature help on placeholder jump.
+autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+if has_key(g:plugs, 'coc.nvim')
+  function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+  endfunction
+
   " <TAB> completion.
-  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-  " Close the menu on <Backspace>.
-  " inoremap <expr><BS>
-  "   \ deoplete#mappings#smart_close_popup() . '\<C-h>'
+  inoremap <silent><expr> <TAB>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<TAB>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+  " Use <Enter> to confirm completion.
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+  function! s:show_documentation()
+    if (index(['vim','help'], &filetype) >= 0)
+      execute 'h '.expand('<cword>')
+    else
+      call CocAction('doHover')
+    endif
+  endfunction
+
+  " Use K to show documentation in the preview window.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
 endif
 
 " Execute the buffer contents.
@@ -1345,17 +1184,31 @@ nmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
 vmap <Enter> <Plug>(EasyAlign)
 
-" FZF or Skim.
-if (executable('fzf') && has_key(g:plugs, 'fzf.vim')) || (executable('sk') && has_key(g:plugs, 'skim.vim'))
-  " nnoremap <C-f> :Files<CR>
+" FZF.
+if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   nnoremap <Leader>f :Files<CR>
-  nnoremap <Leader>ff :Files<CR>
   nnoremap <Leader>b :Buffers<CR>
   nnoremap <C-g> :GFiles --cached --modified --others<CR>
-  nnoremap <Leader>g :GFiles<CR>
-  nnoremap <Leader>c :Colors<CR>
+  nnoremap <Leader>g :GFiles --cached --modified --others<CR>
   nnoremap <Leader>h :History<CR>
+
+  nnoremap <silent><nowait> gd <Plug>(coc-definition)
+  nnoremap <silent><nowait> gy <Plug>(coc-type-definition)
+  nnoremap <silent><nowait> gi <Plug>(coc-implementation)
+  nnoremap <silent><nowait> gr <Plug>(coc-references)
+
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
 endif
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . ' ' . expand('<cword>')
+  endif
+endfunction
 
 " Incsearch.
 let g:incsearch#auto_nohlsearch = 1
@@ -1377,20 +1230,7 @@ nnoremap <Leader>tt :TagbarToggle<CR>
 noremap <Leader>gg :GitGutterToggle<CR>
 
 " Linting.
-if has_key(g:plugs, 'ale')
-  nnoremap <Leader>l :ALELint<CR>
-  nnoremap <Leader>ni :ALEInfo<CR>
-elseif has_key(g:plugs, 'neomake')
-  nnoremap <Leader>l :Neomake<CR>
-elseif exists(':SyntasticCheck')
-  nnoremap <Leader>l :SyntasticCheck<CR>
-  nnoremap <Leader>lt :SyntasticToggle<CR>
-  nnoremap <Leader>si :SyntasticInfo<CR>
-endif
-
-if has_key(g:plugs, 'LanguageClient-neovim')
-  nnoremap <silent> <C-\> :call LanguageClient#textDocument_definition()<CR>
-endif
+nnoremap <Leader>l :Neomake<CR>
 
 
 " ========================================================================
@@ -1433,6 +1273,12 @@ autocmd BufWritePre * StripWhitespace
 autocmd FileType php setlocal commentstring=//\ %s
 autocmd FileType css.scss setlocal commentstring=//\ %s
 autocmd FileType apache setlocal commentstring=#\ %s
+
+if has('nvim')
+  " Escape inside a FZF terminal window should exit the terminal window
+  " rather than going into the terminal's normal mode.
+  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc>
+endif
 
 
 " ========================================================================

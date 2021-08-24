@@ -29,6 +29,9 @@ if hash thefuck 2>/dev/null ; then
   eval "$(thefuck --alias)"
 fi
 
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
+[ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"
+
 
 ##
 # Other.

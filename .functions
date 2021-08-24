@@ -27,11 +27,30 @@ f() {
   sudo find "${2:-.}" -iname "*$1*" 2>/dev/null
 }
 
+##
+# Find the largest file in a given directory.
+# Arguments:
+# 1. Directory path to search.
+# 2. Depth to search the provided directory.
+##
+find-largest-file() {
+  find "$1" -maxdepth "${2:-9999}" -type f -printf '%s %p\n' 2>/dev/null | sort -nr | sed 's/^[[:digit:]]* //g' | head -n "${3:-500}"
+}
+
 
 # Edit the selected file(s). USAGE: e FUZZY_PATTERN
 e() {
   local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --cycle $2)"
   [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
+}
+
+# Run an apt cache server.
+apt-cache-server() {
+  docker pull sameersbn/apt-cacher-ng:latest
+  docker run --name apt-cacher-ng --init -it --rm \
+    --publish 3142:3142 \
+    --volume ~/.cache/apt:/var/cache/apt-cacher-ng \
+    sameersbn/apt-cacher-ng:latest
 }
 
 
@@ -104,7 +123,7 @@ git-standup() {
 
 
 # Alias for the nearest Symfony `bin/console`.
-sc() {
+symfony-console-closet() {
   (
     while true ; do
       local SEARCH_DIR="$(pwd)"
@@ -466,11 +485,18 @@ httpheaders() {
 
 # Delete shell history lines containing $1, in $HISTFILE (if set), ~/.zsh_history, ~/.bash_history
 rmhist() {
-  [ -z "$1" ] && echo 'ERROR: No history string argument to delete.' ; return 1
-  for hist in ~/.zsh_history ~/.bash_history $HISTFILE ; do
-    echo "HIST: $hist"
-    continue
-    [ -f "$hist" ] && LC_ALL=C sed -i "/$1/d" "$hist"
+  if [ -z "$1" ] ; then
+    echo '=> ERROR: No history string argument to delete.' >&2
+    return 1
+  fi
+  local HIST_FILES=(~/.zsh_history ~/.bash_history "$HISTFILE")
+  for HIST_FILE in "${HIST_FILES[@]}" ; do
+    echo HIST_FILE=$HIST_FILE
+    if [ -f "$HIST_FILE" ] ; then
+      local MATCH_COUNT="$(grep "$1" "$HIST_FILE" &>/dev/null | wc -l)"
+      LC_ALL=C sed -i "/$1/d" "$HIST_FILE"
+      echo "=> Deleted $MATCH_COUNT matches from $HIST_FILE"
+    fi
   done
 }
 
@@ -520,7 +546,7 @@ update-user() {
   fi
 
   # Update zplug and packages.
-  if command_exists zplug ; then
+  if [[ $(command_exists zplug) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
     echo "\n\n=> Updating zplug and packages."
     zplug update
   fi
@@ -538,30 +564,32 @@ update-user() {
   fi
 
   # Update Ruby Gems.
-  if command_exists gem ; then
-    echo "\n\n Updating Gem packages."
-    sudo gem update $(gem list | cut -d ' ' -f 1)
-  fi
+  # if command_exists gem ; then
+  #   echo "\n\n Updating Gem packages."
+  #   sudo gem update $(gem list | cut -d ' ' -f 1)
+  # fi
 
   # Update `~/bin` repositories.
-  find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR ; do
-    (
-      cd "$BIN_DIR"
-      if [ -d .git ] ; then
-        echo "\n=> Updating Git repository in '$(pwd)'."
-        git fetch --all
-        git pull origin --rebase
-      fi
-      if [ -f composer.json ] ; then
-        echo "\n=> Updating Composer packages in '$(pwd)'."
-        composer update --quiet
-      fi
-      if [ -f package.json ] ; then
-        echo "\n=> Updating npm packages in '$(pwd)'."
-        npm update
-      fi
-    )
-  done
+  if [ -d "$HOME/bin/" ] ; then
+    find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR ; do
+      (
+        cd "$BIN_DIR"
+        if [ -d .git ] ; then
+          echo "\n=> Updating Git repository in '$(pwd)'."
+          git fetch --all
+          git pull origin --rebase
+        fi
+        if [ -f composer.json ] ; then
+          echo "\n=> Updating Composer packages in '$(pwd)'."
+          composer update --quiet
+        fi
+        if [ -f package.json ] ; then
+          echo "\n=> Updating npm packages in '$(pwd)'."
+          npm update
+        fi
+      )
+    done
+  fi
 
   # Execute the local update function, if it exists.
   if hash _update &>/dev/null ; then
@@ -578,9 +606,8 @@ update-global() {
     (
       brew update
       brew upgrade
-      brew cask upgrade
-      brew cleanup -s --prune=now
-      brew prune
+      brew cleanup -s --prune=all
+      rm -rf "$(brew --cache)"
     )
   fi
 
@@ -602,9 +629,9 @@ update-global() {
   for PIP in pip2 pip3 ; do
     if command_exists "$PIP" ; then
       echo "\n\n=> Updating $PIP."
-      sudo -H "$PIP" install --upgrade pip | \
+      "$PIP" install --upgrade pip | \
         grep -v 'Requirement already up-to-date'
-      sudo -H "$PIP" freeze --local | \
+      "$PIP" freeze --local | \
         grep -v '^\-e' | \
         cut -d = -f 1  | \
         xargs -n1 sudo -H "$PIP" install --upgrade | \
@@ -620,4 +647,146 @@ update-global() {
   fi
 
   echo "\n\n=> Done!"
+}
+
+drush7() {
+  PATH="/Applications/MAMP/Library/bin:$PATH"
+  ~/bin/drush7/vendor/bin/drush $@
+}
+
+drush8() {
+  PATH="/Applications/MAMP/Library/bin:$PATH"
+  ~/bin/drush8/vendor/bin/drush $@
+}
+
+# Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
+fix-zsh-permissions() {
+  compaudit 2>/dev/null | while read dir ; do
+    sudo chmod g-w "$dir";
+  done
+}
+
+##
+# Search and replace file contents and file paths.
+#
+# Arguments:
+# - From: String to search for.
+# - To: Replacement string.
+# - Dir: Directory to search and replace in.
+##
+rename-and-replace() {
+  replace "$1" "$2" "${3:-.}"
+  rename "$1" "$2" "${3:-.}"
+}
+
+##
+# Replace the contents of a files.
+#
+# Arguments:
+# - From: String to search for.
+# - To: Replacement string.
+# - Dir: Directory to search and replace in.
+##
+replace() {
+  local FROM="$(preg-quote "$1")"
+  local TO="$(preg-quote "$2")"
+  local DIR="${3:-.}"
+
+  find "$DIR" -type f | while read FILEPATH ; do
+    if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null ; then
+      echo "=> Replaced in file '$FILEPATH'"
+      perl -pi -e "s/$FROM/$TO/g" "$FILEPATH"
+    fi
+  done
+}
+
+##
+# Rename filenames.
+#
+# Arguments:
+# - From: String to search for.
+# - To: Replacement string.
+# - Dir: Directory to search and replace in.
+#
+# @todo Support directory paths.
+##
+rename() {
+  local FROM="$1"
+  local TO="$2"
+  local DIR="${3:-.}"
+
+  find "$DIR" -name "*$FROM*" -type f | while read FILEPATH ; do
+    echo "=> Replacing filepath '$FILEPATH'"
+    local TO_DIR="$(dirname "$FILEPATH" | sed "s/$FROM/$TO/g")"
+    if [ ! -d "$TO_DIR" ]; then
+      mkdir -p "$TO_DIR"
+    fi
+    mv "$FILEPATH" "$(echo $FILEPATH | sed "s/$FROM/$TO/g")"
+  done
+}
+
+##
+# Escape a regex quote.
+##
+preg-quote() {
+  if [ -n "$1" ] ; then
+    php --run 'echo preg_quote($argv[1], "/");' "$1"
+  else
+    php --run 'echo preg_quote(file_get_contents("php://stdin", "/"));'
+  fi
+}
+
+##
+# Find the largest files in a directory.
+#
+# Arguments:
+# - Directory to check (defaults to $HOME).
+# - Number of results to show (defaults to 100).
+find-largest-files() {
+  local SEARCH_DIR="${1:-$HOME}"
+  local NUM_RESULTS=${2:-100}
+
+  sudo find "$SEARCH_DIR" -type f -exec du -Sh {} + | sort -rh | head -n $NUM_RESULTS
+}
+
+##
+# Remove old Docker images, containers, networks, and volumes.
+##
+docker-cleanup() {
+  # Remove stopped containers.
+  docker ps --quiet --all --no-trunc --filter 'status=exited' | xargs --no-run-if-empty docker rm --volumes --force
+
+  # Delete all tagged images more than a month old
+  # (will fail to remove images still used).
+  docker images --all | grep ' months' | awk '{ print $3 }' | xargs --no-run-if-empty docker rmi --force
+
+  # Delete all 'untagged/dangling' (<none>) images
+  # Those are used for Docker caching mechanism.
+  docker images --quiet --all --no-trunc --filter 'dangling=true' | xargs --no-run-if-empty docker rmi --force
+
+  # Remove old volumes.
+  docker volume ls --quiet --filter 'dangling=true' | xargs --no-run-if-empty docker volume rm --force
+
+  # Remove networks.
+  docker network ls | grep 'bridge' | cut -d' ' -f1 | xargs --no-run-if-empty docker network rm
+  docker network prune --force
+}
+
+##
+# Remove all Docker images, containers, networks, and volumes.
+##
+docker-wipe() {
+  # Remove all containers.
+  docker ps --quiet --all --no-trunc | xargs --no-run-if-empty docker rm --volumes --force
+
+  # Remove all images.
+  docker images --quiet --all | xargs --no-run-if-empty docker rmi --force
+
+  # Remove all volumes.
+  docker volume ls --quiet | xargs --no-run-if-empty docker volume rm --force
+
+  # Remove all networks.
+  docker network ls | grep 'bridge' | cut -d' ' -f1 | xargs --no-run-if-empty docker network rm
+
+  docker system prune --all --force --volumes
 }
