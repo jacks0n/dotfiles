@@ -1,0 +1,43 @@
+{
+  "languageserver": {
+      "bash": {
+        "command": "bash-language-server",
+        "args": ["start"],
+        "filetypes": ["sh"],
+        "ignoredRootPaths": ["~"]
+      }
+  },
+
+  "coc.preferences.jumpCommand": "<C-]>",
+  "coc.preferences.hoverTarget": "echo",
+
+  "suggest.enablePreview": true,
+
+  "signature.target": "echo",
+
+  "yaml.format.singleQuote": true,
+  "yaml.format.bracketSpacing": true,
+  "yaml.validate": true,
+  "yaml.hover": true,
+  "yaml.completion": true,
+  "yaml.schemas": true,
+
+  "intelephense.files.associations": [
+    "*.php",
+    "*.inc",
+    "*.module",
+    "*.phtml"
+  ],
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/node_modules/**",
+    "**/vendor/**"
+  ],
+
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "javascript.showUnused": true,
+  "javascript.format.insertSpaceAfterConstructor": true,
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true
+}
