@@ -8,6 +8,7 @@
 
 export PATH="/opt/X11/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/sbin:$PATH"
 
@@ -52,6 +53,7 @@ if hash brew 2>/dev/null ; then
   export HOMEBREW_CASK_OPTS="$(IFS=' '; echo ${HOMEBREW_CASK_OPTIONS[@]})"
 
   # Homebrew GNU coreutils, sed & tar.
+  export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
   export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
   export PATH="/usr/local/opt/gawk/libexec/gnubin:$PATH"

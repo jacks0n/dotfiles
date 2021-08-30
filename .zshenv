@@ -1,1 +1,1 @@
-/Users/Jackson/.dotfiles/.exports
+.exports
