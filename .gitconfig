@@ -3,6 +3,9 @@
   email = jackson@jacksonc.com
   signingkey = A44F9DEE
 
+[includeIf "gitdir:~/Code/"]
+  path = ~/Code/.gitconfig
+
 [alias]
   d  = diff
   dc = diff --cached
@@ -22,9 +25,6 @@
 [color]
   ui = auto
 
-[commit]
-  gpgsign = true
-
 [core]
   excludesfile = ~/.gitignore
   editor = nvim
@@ -43,17 +43,12 @@
   helper = osxkeychain
 
 [diff]
-  tool = Kaleidoscope
   ; Enable basic rename and copy detection.
   renames = copies
 
 [difftool]
   ; Don't prompt before each invocation of the diff tool.
   prompt = false
-
-[difftool "Kaleidoscope"]
-  cmd = /usr/local/bin/ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
-  trustExitCode = true
 
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
@@ -64,9 +59,6 @@
   clean = git media clean %f
   smudge = git media smudge %f
 
-[github]
-  user = jacks0n
-
 [gpg]
   program = /usr/local/bin/gpg
 
@@ -76,16 +68,6 @@
 
 [log]
   date = relative
-
-[merge]
-  tool = Kaleidoscope
-
-[mergetool]
-  ; Don't prompt before each invocation of the merge resolution program.
-  prompt = false
-  ; After performing a merge, don't save the original file
-  ; with conflict markers as a file with a .orig extension.
-  keepBackup = false
 
 [mergetool "Kaleidoscope"]
   cmd = /usr/local/bin/ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
@@ -104,6 +86,3 @@
 
 [rerere]
   enabled = true
-
-[tag]
-  gpgsign = true
