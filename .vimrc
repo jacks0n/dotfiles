@@ -2,6 +2,7 @@ set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
 let $NVIM_PYTHON_LOG_FILE = $HOME . '/Desktop/nvim-python.log'
+let $PATH = trim(system('brew --prefix')) . '/bin:' . $PATH
 
 function! SynGroup()
     let l:s = synID(line('.'), col('.'), 1)
@@ -72,7 +73,7 @@ Plug 'github/copilot.vim'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   \| Plug 'junegunn/fzf.vim'
-Plug 'yuki-ycino/fzf-preview.vim', { 'branch': 'release', 'do': ':UpdateRemotePlugins' }
+Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
 Plug 'benwainwright/fzf-project'
 " Plug 'rking/ag.vim'
 " Plug 'nvim-telescope/telescope.nvim'
@@ -94,7 +95,9 @@ Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colo
 Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
 Plug 'mhinz/vim-startify' " Fancy start screen.
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+if has('nvim')
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+endif
 
 
 " ========================================================================
@@ -557,9 +560,7 @@ endif
 
 " Neovim specific.
 if has('nvim')
-  let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 1
-  let g:python3_host_prog = '/usr/local/bin/python3'
-  let g:python_host_prog = '/usr/local/bin/python'
+  let g:python3_host_prog = trim(system('brew --prefix')) . '/bin/python3'
 endif
 
 if exists('&inccommand')
@@ -994,6 +995,7 @@ let g:coc_global_extensions = [
   \ 'coc-dictionary',
   \ 'coc-docker',
   \ 'coc-eslint',
+  \ 'coc-fzf-preview',
   \ 'coc-html',
   \ 'coc-json',
   \ 'coc-markdownlint',
