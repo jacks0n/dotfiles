@@ -136,3 +136,6 @@ alias ungron='gron --ungron'
 
 # https://github.com/sharkdp/bat
 # alias cat='bat'
+
+# Sourcetree.
+alias stree='/Applications/SourceTree.app/Contents/Resources/stree'
