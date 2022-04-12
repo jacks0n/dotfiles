@@ -993,6 +993,7 @@ let g:coc_global_extensions = [
   \ 'coc-css',
   \ 'coc-dictionary',
   \ 'coc-docker',
+  \ 'coc-eslint',
   \ 'coc-html',
   \ 'coc-json',
   \ 'coc-markdownlint',

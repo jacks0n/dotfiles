@@ -116,6 +116,7 @@ npm install -g @serverless-ide/language-server
 nvim +'CocInstall -sync coc-css' +qall
 nvim +'CocInstall -sync coc-dictionary' +qall
 nvim +'CocInstall -sync coc-docker' +qall
+nvim +'CocInstall -sync coc-eslint' +qall
 nvim +'CocInstall -sync coc-html' +qall
 nvim +'CocInstall -sync coc-json' +qall
 nvim +'CocInstall -sync coc-markdownlint' +qall
