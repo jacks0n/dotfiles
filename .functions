@@ -285,7 +285,7 @@ random-joke() {
   fi
   echo "
     $(cat ~/.config/jokes.py); import random; print(random.choice(jokes_en['all']))
-  " | python -
+  " | python3 -
 }
 
 
