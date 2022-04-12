@@ -35,21 +35,21 @@ call plug#begin('~/.vim/plugged')
 " Plug 'jiangmiao/auto-pairs'
 " Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
 "   \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
-Plug 'mhinz/vim-startify' " Fancy start screen.
-Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 Plug 'jreybert/vimagit'
-" Plug 'itchyny/lightline.vim'
-Plug 'vim-airline/vim-airline'
-  \| Plug 'vim-airline/vim-airline-themes'
-Plug 'Mizuchi/vim-ranger'
 Plug 'rakr/vim-one'
 " Plug 'embear/vim-localvimrc'
+
+
+" ========================================================================
+" Plug: Utility.                                                         |
+" ========================================================================
+
+Plug 'Mizuchi/vim-ranger'
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-db'
-" Where every variable is a different color.
-Plug 'jaxbot/semantic-highlight.vim'
+Plug 'tpope/vim-commentary'
 
 
 " ========================================================================
@@ -62,6 +62,9 @@ elseif v:version >= 704 && has('patch1578')
   Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
 endif
 
+" AI pair programmer which suggests line completions and entire function bodies as you type.
+Plug 'github/copilot.vim'
+
 
 " ========================================================================
 " Plug: Search.                                                          |
@@ -69,8 +72,11 @@ endif
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   \| Plug 'junegunn/fzf.vim'
-  " \| Plug 'yuki-ycino/fzf-preview.vim', { 'branch': 'release', 'do': ':UpdateRemotePlugins' }
+Plug 'yuki-ycino/fzf-preview.vim', { 'branch': 'release', 'do': ':UpdateRemotePlugins' }
+Plug 'benwainwright/fzf-project'
 " Plug 'rking/ag.vim'
+" Plug 'nvim-telescope/telescope.nvim'
+"     \| Plug 'nvim-lua/plenary.nvim'
 Plug 'romainl/vim-cool' " Disables search highlighting when you are done searching and re-enables it when you search again.
 
 
@@ -83,9 +89,12 @@ Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' whe
 Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results.
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
-" Plug 'yonchu/accelerated-smooth-scroll' " Accelerated smooth-scrolling.
-" Plug 'terryma/vim-smooth-scroll'      " Smooth-scrolling.
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
+Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
+Plug 'vim-airline/vim-airline'
+  \| Plug 'vim-airline/vim-airline-themes'
+Plug 'mhinz/vim-startify' " Fancy start screen.
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 
 " ========================================================================
@@ -149,7 +158,7 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 
 
 " ========================================================================
-" Language: JavaScript, JSON.                                            |
+" Language: JavaScript, JSON, Typescript.                                |
 " ========================================================================
 
 " ----------------------------------------
@@ -161,19 +170,17 @@ Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
 " Options:
 "  'jiangmiao/simple-javascript-indenter' - Unmaintained.
 "  'gavocanov/vim-js-indent'              - Indent part of pangloss/vim-javascript. Unmaintained.
-"  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript.
-"  'jelera/vim-javascript-syntax'         - Syntax, maintained.
-"  'othree/yajs.vim'                      - Syntax, maintained, fork of Jelera. Recognises
+"  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript. Unmaintained.
+"  'jelera/vim-javascript-syntax'         - Syntax, unmaintained.
+"  'othree/yajs.vim'                      - Syntax, unmaintained, fork of Jelera. Recognises
 "                                         - web API and DOM keywords, supports ES6 syntax.
-"  'othree/jsdoc-syntax.vim'              - JSDoc syntax.
+"  'othree/jsdoc-syntax.vim'              - JSDoc syntax. Unmaintained.
+"                                           Pangloss supports JSdoc anyway.
 "  'pangloss/vim-javascript'              - Syntax and improved indentation. Included in vim-polyglot.
-
-Plug 'othree/yajs.vim', { 'for': 'javascript' }
-if has_key(g:plugs, 'yajs.vim')
-  Plug 'othree/jsdoc-syntax.vim', { 'for': 'javascript' }
-  Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' }
-  Plug 'othree/es.next.syntax.vim', { 'for': 'javascript' }
-endif
+Plug 'pangloss/vim-javascript'    " JavaScript support
+Plug 'leafgarland/typescript-vim' " TypeScript syntax
+Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
+Plug 'jparise/vim-graphql'        " GraphQL syntax
 
 " ----------------------------------------
 " Syntax Addons.                         |
@@ -310,8 +317,8 @@ Plug 'tpope/vim-surround'
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-" Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
-" Plug 'scrooloose/nerdtree'         " File browser.
+Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
+Plug 'scrooloose/nerdtree'         " File browser.
 Plug 'majutsushi/tagbar'           " Sidebar for tags.
 Plug 'hari-rangarajan/CCTree'      " Symbol dependency tree.
 Plug 'sjl/gundo.vim'               " Undo history.
@@ -343,7 +350,7 @@ Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :C
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
 " Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
-" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
+Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 " Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
 
@@ -648,6 +655,9 @@ if has('gui_vimr')
   inoremap <C-Space> <C-x><C-o>
 endif
 
+" Code formatting.
+nmap <Leader>fj :FormatJSON<CR>
+
 " Code folding options.
 nmap <Leader>fl- :setlocal nofoldenable<CR>
 nmap <Leader>fl+ :setlocal foldenable<CR>
@@ -855,6 +865,12 @@ function! NextColorScheme()
   execute ':colorscheme ' . new_colorscheme
 endfunction
 
+function! Update()
+  PlugUpdate
+  PlugUpgrade
+  CocUpdate
+endfunction
+
 " Change to random font from a defined list of awesome ones.
 function! NextFont()
   let guifonts = [
@@ -904,13 +920,13 @@ endfunction
 " Custom commands.
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
-command! -bar FormatJSON :%!python -m json.tool
+command! -bar FormatJSON :%!python3 -m json.tool
 
 " Plugin commands.
-" command! -bang -nargs=* GGrep
-"   \ call fzf#vim#grep(
-"   \   'git grep --line-number -- '.shellescape(<q-args>), 0,
-"   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 
 
 " ========================================================================
@@ -979,10 +995,11 @@ let g:coc_global_extensions = [
   \ 'coc-docker',
   \ 'coc-html',
   \ 'coc-json',
+  \ 'coc-markdownlint',
   \ 'coc-omni',
   \ 'coc-phpactor',
   \ 'coc-phpls',
-  \ 'coc-python',
+  \ 'coc-pyright',
   \ 'coc-sh',
   \ 'coc-syntax',
   \ 'coc-tabnine',
@@ -1148,6 +1165,33 @@ if has_key(g:plugs, 'coc.nvim')
     return !col || getline('.')[col - 1]  =~# '\s'
   endfunction
 
+  function! s:show_documentation()
+    if (index(['vim','help'], &filetype) >= 0)
+      execute 'h '.expand('<cword>')
+    elseif (coc#rpc#ready())
+      call CocActionAsync('doHover')
+    else
+      execute '!' . &keywordprg . ' ' . expand('<cword>')
+    endif
+  endfunction
+
+  " Use K to show documentation in the preview window.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  " Use <Enter> to confirm completion.
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+  " Use <c-space> to trigger completion.
+  if has('nvim')
+    inoremap <silent><expr> <c-space> coc#refresh()
+  else
+    inoremap <silent><expr> <c-@> coc#refresh()
+  endif
+
+  " Make <CR> auto-select the first completion item and notify coc.nvim to
+  " format on enter, <cr> could be remapped by other vim plugin.
+  inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                                \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
   " <TAB> completion.
   inoremap <silent><expr> <TAB>
         \ pumvisible() ? "\<C-n>" :
@@ -1155,19 +1199,22 @@ if has_key(g:plugs, 'coc.nvim')
         \ coc#refresh()
   inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-  " Use <Enter> to confirm completion.
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
-  function! s:show_documentation()
-    if (index(['vim','help'], &filetype) >= 0)
-      execute 'h '.expand('<cword>')
-    else
-      call CocAction('doHover')
-    endif
-  endfunction
-
-  " Use K to show documentation in the preview window.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+  " Use `[d` and `]d` for navigate diagnostics.
+  nmap <silent> [d <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]d <Plug>(coc-diagnostic-next)
+
+  " GoTo code navigation.
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+
+  " Code updates.
+  nmap <Leader>rn <Plug>(coc-rename)
+  nmap <Leader>ac <Plug>(coc-codeaction)
+  nmap <Leader>qf <Plug>(coc-fix-current)
 endif
 
 " Execute the buffer contents.
@@ -1187,28 +1234,19 @@ vmap <Enter> <Plug>(EasyAlign)
 " FZF.
 if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   nnoremap <Leader>f :Files<CR>
-  nnoremap <Leader>b :Buffers<CR>
-  nnoremap <C-g> :GFiles --cached --modified --others<CR>
-  nnoremap <Leader>g :GFiles --cached --modified --others<CR>
+  nnoremap <nowait> <Leader>b :Buffers<CR>
+  nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
+  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
+  nnoremap <nowait> <Leader>t :GGrep<CR>
+  nnoremap <nowait> <Leader>s :CocList --interactive symbols<CR>
   nnoremap <Leader>h :History<CR>
-
-  nnoremap <silent><nowait> gd <Plug>(coc-definition)
-  nnoremap <silent><nowait> gy <Plug>(coc-type-definition)
-  nnoremap <silent><nowait> gi <Plug>(coc-implementation)
-  nnoremap <silent><nowait> gr <Plug>(coc-references)
-
-  nnoremap <silent> K :call <SID>show_documentation()<CR>
 endif
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . ' ' . expand('<cword>')
-  endif
-endfunction
+" fzf-project.
+if (executable('fzf') && has_key(g:plugs, 'fzf-project'))
+  nnoremap <nowait> <C-p> :FzfSwitchProject<CR>
+  nnoremap <nowait> <Leader>p :FzfSwitchProject<CR>
+endif
 
 " Incsearch.
 let g:incsearch#auto_nohlsearch = 1
@@ -1225,9 +1263,6 @@ nnoremap <Leader>a :Ag<Space>
 
 " Tagbar.
 nnoremap <Leader>tt :TagbarToggle<CR>
-
-" GitGutter.
-noremap <Leader>gg :GitGutterToggle<CR>
 
 " Linting.
 nnoremap <Leader>l :Neomake<CR>
