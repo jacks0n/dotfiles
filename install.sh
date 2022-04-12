@@ -4,12 +4,14 @@
 if [[ ! type "$1" &>/dev/null ]] ; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
+
 # Install Brew packages.
 brew install bash
 brew install bash-completion
 brew install bat
 brew install brew-cask-completion
 brew install ccat
+brew install cmake # Required for YouCompleteMe.
 brew install composer
 brew install coreutils
 brew install cowsay
@@ -59,7 +61,6 @@ brew install neovim
 brew install netcat
 brew install node
 brew install nvm
-# nvm install --lts
 brew install php
 brew install python
 brew install ranger
@@ -112,11 +113,19 @@ npm install -g dockerfile-language-server-nodejs
 npm install -g graphql-language-service-cli
 npm install -g @serverless-ide/language-server
 
+# Install latest Node version for NVM.
+nvm install --lts
+
+# Install Neovim libraries.
+pip3 install pynvim --upgrade
+npm install -g neovim
+
 # Install coc.nvim plugins.
 nvim +'CocInstall -sync coc-css' +qall
 nvim +'CocInstall -sync coc-dictionary' +qall
 nvim +'CocInstall -sync coc-docker' +qall
 nvim +'CocInstall -sync coc-eslint' +qall
+nvim +'CocInstall -sync coc-fzf-preview' +qall
 nvim +'CocInstall -sync coc-html' +qall
 nvim +'CocInstall -sync coc-json' +qall
 nvim +'CocInstall -sync coc-markdownlint' +qall
@@ -132,25 +141,24 @@ nvim +'CocInstall -sync coc-tsserver' +qall
 nvim +'CocInstall -sync coc-vimlsp' +qall
 nvim +'CocInstall -sync coc-word' +qall
 nvim +'CocInstall -sync coc-yaml' +qall
-nvim +'CocInstall coc-fzf-preview' +qall
 nvim +CocUpdateSync +qall
 
 # Install Treesitter plugins.
-nvim +'TSInstall bash'
-nvim +'TSInstall comment'
-nvim +'TSInstall graphql'
-nvim +'TSInstall help'
-nvim +'TSInstall html'
-nvim +'TSInstall http'
-nvim +'TSInstall javascript'
-nvim +'TSInstall jsdoc'
-nvim +'TSInstall json'
-nvim +'TSInstall json5'
-nvim +'TSInstall jsonc'
-nvim +'TSInstall php'
+nvim +'TSInstall bash' +qall
+nvim +'TSInstall comment' +qall
+nvim +'TSInstall graphql' +qall
+nvim +'TSInstall help' +qall
+nvim +'TSInstall html' +qall
+nvim +'TSInstall http' +qall
+nvim +'TSInstall javascript' +qall
+nvim +'TSInstall jsdoc' +qall
+nvim +'TSInstall json' +qall
+nvim +'TSInstall json5' +qall
+nvim +'TSInstall jsonc' +qall
+nvim +'TSInstall php' +qall
 nvim +'TSInstall phpdoc' # Mac ARM not supported yet. https://github.com/claytonrcarter/tree-sitter-phpdoc/issues/15
-nvim +'TSInstall scss'
-nvim +'TSInstall typescript'
-nvim +'TSInstall vim'
-nvim +'TSInstall yaml'
-nvim +'TSUpdate all'
+nvim +'TSInstall scss' +qall
+nvim +'TSInstall typescript' +qall
+nvim +'TSInstall vim' +qall
+nvim +'TSInstall yaml' +qall
+nvim +'TSUpdate all' +qall
