@@ -1,26 +1,47 @@
 {
   "languageserver": {
-      "bash": {
-        "command": "bash-language-server",
-        "args": ["start"],
-        "filetypes": ["sh"],
-        "ignoredRootPaths": ["~"]
-      }
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "filetypes": ["sh"],
+      "ignoredRootPaths": ["~"]
+    },
+    "graphql": {
+      "command": "graphql-lsp",
+      "args": ["server", "-m", "stream"],
+      "filetypes": ["typescript", "typescriptreact", "graphql"]
+    },
+    "sql": {
+      "command": "sql-language-server",
+      "args" : ["up", "--method", "stdio"],
+      "filetypes": ["sql", "mysql"]
+    },
+    "dockerfile": {
+      "command": "docker-langserver",
+      "filetypes": ["dockerfile"],
+      "args": ["--stdio"]
+    },
+    "terraform": {
+      "command": "terraform-ls",
+      "args": ["serve"],
+      "filetypes": ["terraform", "tf"],
+      "initializationOptions": {}
+    }
   },
 
-  "coc.preferences.jumpCommand": "<C-]>",
-  "coc.preferences.hoverTarget": "echo",
-
+  "codeLens.enable": true,
   "suggest.enablePreview": true,
+  "suggest.detailMaxLength": 200,
 
   "signature.target": "echo",
+
+  "tsserver.trace.server": "verbose",
 
   "yaml.format.singleQuote": true,
   "yaml.format.bracketSpacing": true,
   "yaml.validate": true,
   "yaml.hover": true,
   "yaml.completion": true,
-  "yaml.schemas": true,
 
   "intelephense.files.associations": [
     "*.php",
