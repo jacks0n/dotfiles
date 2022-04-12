@@ -127,7 +127,7 @@ export PATH="/usr/local/opt/python@3/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # NVM.
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 
 # Local paths.
 export PATH="./vendor/bin:$PATH"

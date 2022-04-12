@@ -97,6 +97,8 @@ zplug 'docker/compose', use:contrib/completion/zsh
 zplug 'zsh-users/zsh-syntax-highlighting', defer:2
 zplug 'zsh-users/zsh-history-substring-search', defer:3
 zplug 'hlissner/zsh-autopair', defer:3
+# zplug 'Aloxaf/fzf-tab', from:github
+# zplug 'plugins/fzf', from:oh-my-zsh
 
 # Install missing plugins.
 zplug check || zplug install
@@ -133,22 +135,6 @@ source "$HOME/.shrc"
 ##
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Completion source for serverless package.
-if [ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ] ; then
-  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
-fi
-# Completion source for sls package.
-if [[ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] ; then
-  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
-fi
-# Completion source for slss package.
-if [[ -f $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] ; then
-  $HOME/.nvm/versions/node/v10.14.1/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh
-fi
-if [ -f $HOME/.config/cani/completions/_cani.zsh ] ; then
-  source $HOME/.config/cani/completions/_cani.zsh
-fi
 
 # Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
 autoload -U add-zsh-hook
