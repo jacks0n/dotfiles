@@ -1211,6 +1211,7 @@ if has_key(g:plugs, 'coc.nvim')
   nmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
+  nmap <Leader>ic :call CocAction('showIncomingCalls')
 
   " Code updates.
   nmap <Leader>rn <Plug>(coc-rename)
