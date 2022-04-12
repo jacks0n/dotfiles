@@ -1240,7 +1240,7 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
   nnoremap <nowait> <Leader>t :GGrep<CR>
-  nnoremap <nowait> <Leader>s :CocList --interactive symbols<CR>
+  nnoremap <nowait> <Leader>s :CocList --interactive --auto-preview symbols<CR>
   nnoremap <Leader>h :History<CR>
 endif
 
