@@ -527,22 +527,28 @@ update-user() {
   # Update Vim plugins.
   if command_exists vim ; then
     echo '=> Vim Plug install, update, upgrade, clean.'
-    (
-      cd "$HOME/.vim/plugged" || exit 1
-      find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
-        ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
-          cd "$VIM_PLUGIN_DIR" || exit 1
-          git reset --hard > /dev/null
-          git clean -fd    > /dev/null )
-      done
-    )
+    # (
+    #   cd "$HOME/.vim/plugged" || exit 1
+    #   find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
+    #     ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
+    #       cd "$VIM_PLUGIN_DIR" || exit 1
+    #       git reset --hard > /dev/null
+    #       git clean -fd    > /dev/null )
+    #   done
+    # )
     vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
   fi
 
   # Update NeoVim plugins.
   if command_exists nvim ; then
-    echo '=> NVim Plug install, update, upgrade, clean.'
+    echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
+
+    echo "\n\n=> NVim Coc update."
+    nvim +CocUpdateSync +qall
+
+    echo "\n\n=> TSServer update."
+    nvim +TSUpdateSync +qall
   fi
 
   # Update zplug and packages.
@@ -642,7 +648,7 @@ update-global() {
   # Update npm and npm packages.
   if command_exists npm ; then
     echo "\n\n=> Updating npm and npm packages."
-    npm install npm -g
+    npm install npm@latest -g
     npm update -g
   fi
 
