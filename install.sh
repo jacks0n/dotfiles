@@ -162,3 +162,6 @@ nvim +'TSInstall typescript' +qall
 nvim +'TSInstall vim' +qall
 nvim +'TSInstall yaml' +qall
 nvim +'TSUpdate all' +qall
+
+# Setup Copilot.
+nvim +'Copilot setup'
