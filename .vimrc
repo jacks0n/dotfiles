@@ -180,9 +180,11 @@ Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
 "  'othree/jsdoc-syntax.vim'              - JSDoc syntax. Unmaintained.
 "                                           Pangloss supports JSdoc anyway.
 "  'pangloss/vim-javascript'              - Syntax and improved indentation. Included in vim-polyglot.
-Plug 'pangloss/vim-javascript'    " JavaScript support
-Plug 'leafgarland/typescript-vim' " TypeScript syntax
-Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
+"  'maxmellon/vim-jsx-pretty'             - JS and JSX syntax. Unmaintained.
+Plug 'pangloss/vim-javascript'     " JavaScript support
+Plug 'leafgarland/typescript-vim'  " TypeScript syntax
+Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
+Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
 Plug 'jparise/vim-graphql'        " GraphQL syntax
 
 " ----------------------------------------
@@ -775,6 +777,10 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
   autocmd bufnewfile,bufread *.jsx       setlocal filetype=javascript.jsx
+
+  " React.
+  autocmd BufRead,BufNewFile *.jsx set filetype=javascriptreact
+  autocmd BufRead,BufNewFile *.tsx set filetype=typescriptreact
 augroup END
 
 " Override vim-coderunner.
@@ -1180,6 +1186,7 @@ if has_key(g:plugs, 'coc.nvim')
 
   " Use K to show documentation in the preview window.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
+
   " Use <Enter> to confirm completion.
   inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
@@ -1201,8 +1208,6 @@ if has_key(g:plugs, 'coc.nvim')
         \ <SID>check_back_space() ? "\<TAB>" :
         \ coc#refresh()
   inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-  nnoremap <silent> K :call <SID>show_documentation()<CR>
 
   " Use `[d` and `]d` for navigate diagnostics.
   nmap <silent> [d <Plug>(coc-diagnostic-prev)
