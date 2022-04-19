@@ -16,12 +16,12 @@ brew install composer
 brew install coreutils
 brew install cowsay
 brew install curl
-brew install diff-so-fancy
 brew install docker-compose
 brew install editorconfig
 brew install fd
 brew install fzf
 brew install git
+brew install git-delta
 brew install gnu-sed
 brew install gnu-tar
 brew install grep
