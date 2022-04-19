@@ -18,7 +18,9 @@ brew install cowsay
 brew install curl
 brew install docker-compose
 brew install editorconfig
+brew install exa
 brew install fd
+brew install fx
 brew install fzf
 brew install git
 brew install git-delta
@@ -59,6 +61,7 @@ brew install jq
 brew install lolcat
 brew install neovim
 brew install netcat
+brew install nnn
 brew install node
 brew install nvm
 brew install php
@@ -66,6 +69,7 @@ brew install python
 brew install ranger
 brew install ripgrep
 brew install rsync
+brew install saulpw/vd/visidata
 brew install shellcheck
 brew install sqlite
 brew install svn
