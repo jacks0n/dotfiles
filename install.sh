@@ -57,6 +57,7 @@ brew install homebrew/cask-fonts/font-source-sans-pro
 brew install homebrew/cask-fonts/font-ubuntu
 brew install homebrew/cask-fonts/font-ubuntu-mono-derivative-powerline
 brew install htop
+brew install jesseduffield/lazygit/lazygit
 brew install jq
 brew install lolcat
 brew install neovim
