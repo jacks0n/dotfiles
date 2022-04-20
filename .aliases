@@ -139,3 +139,6 @@ alias ungron='gron --ungron'
 
 # Sourcetree.
 alias stree='/Applications/SourceTree.app/Contents/Resources/stree'
+
+# Lazygit.
+alias lg='lazygit'
