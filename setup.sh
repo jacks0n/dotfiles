@@ -2,7 +2,7 @@
 
 export DOTFILES_PATH=~/.dotfiles
 
-home_dotfiles=(
+home_dotpaths=(
   ~/.aliases
   ~/.bashrc
   ~/.ctags
@@ -28,12 +28,15 @@ home_dotfiles=(
 )
 
 # Delete existing dotfiles.
-for home_dotfile in ${home_dotfiles[@]} ; do
+for home_dotfile in ${home_dotpaths[@]} ; do
   basename="$(basename "$home_dotfile")"
   home_dotfile_path="$HOME/$basename"
   if [[ -f "$home_dotfile_path" || -L "$home_dotfile_path" ]] ; then
-    echo "=> Deleting '$home_dotfile_path"
-    rm -f "$home_dotfile_path"
+    read -e -p "Delete dotfile path '$home_dotfile_path'? [Y/N]: " delete_dotfile
+    if [[ "$delete_dotfile" == 'Y' ]] ; then
+      echo "=> Deleting '$home_dotfile_path"
+      rm -f "$home_dotfile_path"
+    fi
   fi
 done
 
@@ -48,7 +51,7 @@ for dotfile_path in ${dotfile_paths[@]} ; do
 done
 
 echo '=> Linking dotfiles'
-for dotfile_path in ${home_dotfiles[@]} ; do
+for dotfile_path in ${home_dotpaths[@]} ; do
   basename="$(basename "$dotfile_path")"
   echo "Linking '$DOTFILES_PATH/$basename' -> '~/$basename'"
   ln -s "$DOTFILES_PATH/$basename" ~/$basename
@@ -56,11 +59,15 @@ done
 
 # Setup Neovim.
 ln -s ~/.vim ~/.config/nvim
+copy_vimrc_example='Y'
+if [ -f ~/.vimrc.local || -L ~/.vimrc.local ] ; then
+  read -e -p 'Copy "~/.dotfiles/.vimrc.local.example" => "~/.vimrc.local"? (Y/N): ' copy_vimrc_example
+fi
+if [[ "$copy_vimrc_example" == 'Y' ]] ; then
+  cp ~/.dotfiles/.vimrc.local.example ~/.vimrc.local
+fi
 
 # Intelephense license.
 mkdir -p ~/intelephense
 read -e -p 'Intelephense license: ' intelephense_license
 echo "$intelephense_license" > ~/intelephense/license.txt
-
-echo '=> Re-loading ~/.zshrc'
-source ~/.zshrc
