@@ -1,4 +1,5 @@
-*
-!.gitignore
-!coc-settings.json
-!init.vim
+autoload/
+backup/
+plugged/
+swap/
+undo/
