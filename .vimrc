@@ -1,9 +1,6 @@
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
-let $NVIM_PYTHON_LOG_FILE = $HOME . '/Desktop/nvim-python.log'
-let $PATH = trim(system('brew --prefix')) . '/bin:' . $PATH
-
 function! SynGroup()
     let l:s = synID(line('.'), col('.'), 1)
     echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
@@ -38,6 +35,9 @@ Plug 'SirVer/ultisnips'
 " ========================================================================
 
 Plug 'Mizuchi/vim-ranger'
+if has('nvim')
+  Plug 'nvim-telescope/telescope-file-browser.nvim'
+endif
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
 
@@ -50,10 +50,11 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   \| Plug 'junegunn/fzf.vim'
 Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
 Plug 'benwainwright/fzf-project'
-" Plug 'rking/ag.vim'
-Plug 'nvim-telescope/telescope.nvim'
-  \| Plug 'nvim-lua/plenary.nvim'
-  \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+if has('nvim')
+  Plug 'nvim-telescope/telescope.nvim'
+    \| Plug 'nvim-lua/plenary.nvim'
+    \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+endif
 Plug 'romainl/vim-cool' " Disables search highlighting when you are done searching and re-enables it when you search again.
 
 
@@ -62,8 +63,6 @@ Plug 'romainl/vim-cool' " Disables search highlighting when you are done searchi
 " ========================================================================
 
 if has('nvim')
-  " Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  " Plug 'antoinemadec/coc-fzf'
   Plug 'neovim/nvim-lspconfig'
   Plug 'williamboman/nvim-lsp-installer'
   Plug 'hrsh7th/nvim-cmp'
@@ -82,17 +81,18 @@ if has('nvim')
     \| Plug 'nvim-lua/plenary.nvim'
   Plug 'ray-x/lsp_signature.nvim'
 elseif v:version >= 704 && has('patch1578')
-  Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  Plug 'antoinemadec/coc-fzf'
 endif
 
 " AI pair programmer which suggests line completions and entire function bodies as you type.
+Plug 'github/copilot.vim'
 if has('nvim')
   Plug 'zbirenbaum/copilot.lua'
-  Plug 'github/copilot.vim'
+endif
+if has_key(g:plugs, 'nvim-cmp')
   Plug 'hrsh7th/cmp-copilot'
   Plug 'zbirenbaum/copilot-cmp'
-else
-  Plug 'github/copilot.vim'
 endif
 
 
@@ -113,33 +113,17 @@ Plug 'mhinz/vim-startify' " Fancy start screen.
 if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
+  " Doesn't seem to recognise when some LSP servers aren't installed.
   " Plug 'ray-x/navigator.lua'
   "   \| Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
 endif
 
 
-" ========================================================================
-" Plug: CSS, SASS.                                                       |
-" ========================================================================
-
-" ----------------------------------------
-" Syntax.                                |
-" ----------------------------------------
-
-" Options:
-"  'JulesWang/css.vim'         - Cutting-edge CSS syntax file. In vim-polyglot.
-"  'hail2u/vim-css3-syntax'    - Adds CSS 3 properties, except for @media.
-"  'cakebaker/scss-syntax.vim' - SCSS syntax. In vim-polyglot.
-Plug 'hail2u/vim-css3-syntax',    { 'for': ['css', 'scss', 'sass'] } " CSS3 syntax.
-
 " ----------------------------------------
 " Features.                              |
 " ----------------------------------------
 
-" Options:
-"   'neoclide/coc-highlight' - Highlights CSS/SCSS colours. Has high CPU issues.
-"                              @see https://github.com/neoclide/coc-highlight/issues/14
-Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
+Plug 'ap/vim-css-color'
 
 
 " ========================================================================
@@ -231,7 +215,9 @@ Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'alessandroyorba/despacio'
-Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+if has('nvim')
+  Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+endif
 Plug 'rebelot/kanagawa.nvim'
 
 
@@ -249,8 +235,6 @@ Plug 'tpope/vim-surround'
 
 Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
 Plug 'scrooloose/nerdtree'         " File browser.
-Plug 'majutsushi/tagbar'           " Sidebar for tags.
-Plug 'hari-rangarajan/CCTree'      " Symbol dependency tree.
 Plug 'sjl/gundo.vim'               " Undo history.
 
 
@@ -278,24 +262,22 @@ Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent,
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
-" Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
 Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-
-
-" let g:copilot_no_tab_map = v:true
-" let g:copilot_assume_mapped = v:true
 
 call plug#end() " Required.
 
 " Import Lua plugin configs.
-lua require('plugins.nvim-treesitter')
-lua require('plugins.lsp_signature')
-lua require('plugins.nvim-cmp')
-lua require('plugins.nvim-lsp-installer')
-lua require('plugins.telescope')
-" lua require('plugins.navigator')
-lua require('lsp-diagnostic')
+if has('nvim')
+  lua require('plugins.nvim-treesitter')
+  lua require('plugins.lsp_signature')
+  lua require('plugins.nvim-cmp')
+  lua require('plugins.nvim-lsp-installer')
+  lua require('plugins.telescope')
+  lua require('plugins.telescope-file-browser')
+  " lua require('plugins.navigator')
+  lua require('lsp-diagnostic')
+endif
 
 
 " ========================================================================
@@ -310,6 +292,7 @@ syntax enable  " Enable syntax highlighting.
 
 set background=dark
 set conceallevel=0            " Don't conceal quotes in JSON files.
+set omnifunc=syntaxcomplete#Complete
 
 set autochdir                 " Automatically change to the directory of the file open.
 set autoread                  " Re-load files on external modifications and none locally.
@@ -432,27 +415,6 @@ set laststatus=2                " Always show the status line.
 " Set the screen title to the current filename.
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servername}
 
-" Set `colorscheme` and `guifont` only on startup.
-if has('vim_starting')
-  " colorscheme molokai
-  " colorscheme flattr
-  " colorscheme hybrid
-  colorscheme tokyonight
-  " colorscheme kanagawa
-  " colorscheme OceanicNext
-  " colorscheme gruvbox
-  set background=dark
-  if has('gui')
-    " set guifont=Droid\ Sans\ Mono\ for\ Powerline:h15
-    set guifont=Hack:h15
-    " set guifont=Inconsolata-dz\ for\ Powerline:h15
-    " set guifont=Source\ Code\ Pro\ for\ Powerline:h15
-    " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h17.5
-    " set guifont=mononoki:h16
-  endif
-endif
-
-" NeoVim doesn't support this?
 if has('antialias')
   set antialias
 endif
@@ -481,19 +443,11 @@ set formatoptions+=q " Allow formatting of comments with 'gq" (not blank lines o
 set formatoptions+=n " When formatting text, recognise numbered lists (see 'formatlistpat' for list kinds).
 set formatoptions+=j " Delete comment character when joining commented lines.
 
-" Visual.
-set colorcolumn=80
-
 " For Neovim > 0.1.5 and Vim > patch 7.4.1799 (https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162).
 " Based on Vim patch 7.4.1770 (`guicolors` option) (https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd).
 " (https://github.com/neovim/neovim/wiki/Following-HEAD#20160511)
 if has('termguicolors')
   set termguicolors
-endif
-
-" Neovim specific.
-if has('nvim')
-  let g:python3_host_prog = trim(system('brew --prefix')) . '/bin/python3'
 endif
 
 if exists('&inccommand')
@@ -515,7 +469,7 @@ let g:PHP_vintage_case_default_indent = 1  " Enable indenting `case` statements.
 let g:php_folding                     = 0  " Disable syntax folding for classes and functions.
 let g:php_htmlInStrings               = 1  " Enable HTML syntax highlighting inside strings.
 let g:php_sync_method                 = -1 " Default, but it gives warnings without explicit `let`.
-let php_sql_query = 1 " Enable SQL syntax highlighting inside strings.
+let php_sql_query                     = 1  " Enable SQL syntax highlighting inside strings.
 
 
 " ========================================================================
@@ -527,16 +481,6 @@ if has('gui_running')
   set guioptions-=m " Disable menu bar.
   set guioptions-=L " Disable left-hand scrollbar when vertical split open.
   set guioptions-=r " Disable right-hand scrollbar.
-endif
-
-" Let MacVim control the shift key, for selecting with shift.
-if has('gui_macvim')
-  set macmeta      " Use option (alt) as meta key.
-  let g:macvim_skip_colorscheme   = 1
-  let g:macvim_hig_shift_movement = 1
-
-  map <D-w> :bw<CR>
-  map <D-n> :enew<CR>
 endif
 
 
@@ -577,14 +521,8 @@ map <Leader>. :lclose<CR>:silent bnext<CR>
 noremap <C-Tab> :lclose<CR>:silent bnext<CR>
 noremap <C-S-Tab> :lclose<CR>:silent bprev<CR>
 
-" Omnifunc.
-inoremap <C-@> <C-x><C-o>
-if has('gui_vimr')
-  inoremap <C-Space> <C-x><C-o>
-endif
-
 " Code formatting.
-nmap <Leader>fj :FormatJSON<CR>
+nmap <Leader>fj :FormatJson<CR>
 
 " Code folding options.
 nmap <Leader>fl- :setlocal nofoldenable<CR>
@@ -628,11 +566,6 @@ cmap w!! %!sudo tee > /dev/null %
 
 " Keep cursor in same spot after a visual yank.
 vnoremap <expr>y "my\"" . v:register . "y`y"
-
-if has('nvim')
-  " Terminal to Normal mode with <Esc>. Conflicts with fzf.vim.
-  " tnoremap <Esc> <C-\><C-n>
-endif
 
 
 " ========================================================================
@@ -688,8 +621,8 @@ augroup custom_filetypes
   " Typescript/React.
   autocmd BufRead,BufNewFile *.jsx set filetype=javascriptreact
   autocmd BufRead,BufNewFile *.tsx set filetype=typescriptreact
-  autocmd BufRead,BufNewFile *.js set filetype=javascriptreact
-  autocmd BufRead,BufNewFile *.ts set filetype=typescriptreact
+  autocmd BufRead,BufNewFile *.js  set filetype=javascriptreact
+  autocmd BufRead,BufNewFile *.ts  set filetype=typescriptreact
 augroup END
 
 " Override vim-coderunner.
@@ -703,17 +636,6 @@ augroup END
 augroup iskeyword_mods
   autocmd!
   autocmd FileType css,scss,sass setlocal iskeyword+=-
-augroup END
-
-" Enable omni-completion.
-set omnifunc=syntaxcomplete#Complete
-augroup omnifuncs
-  autocmd!
-
-  " PHP Omnicompletion.
-  if has_key(g:plugs, 'phpactor')
-    autocmd FileType php,phtml setlocal omnifunc=phpactor#Complete
-  endif
 augroup END
 
 " Return to last edit position when opening files.
@@ -733,27 +655,15 @@ augroup END
 " Change to random colorscheme from a defined list of awesome ones.
 function! NextColorScheme()
   let colorschemes = [
-    \ 'OceanicNext',
-    \ 'Tomorrow-Night',
-    \ 'apprentice',
     \ 'badwolf',
     \ 'bluechia',
-    \ 'bubblegum',
-    \ 'candyman',
-    \ 'codeschool',
-    \ 'distinguished',
-    \ 'flattr',
-    \ 'grb256',
+    \ 'kanagawa',
+    \ 'monokain',
     \ 'gruvbox',
     \ 'hybrid',
-    \ 'ir_black',
-    \ 'jellybeans',
     \ 'kanagawa',
-    \ 'molokai',
-    \ 'monokai',
-    \ 'monokain',
-    \ 'tokyonight',
-  \ ]
+    \ 'OceanicNext',
+  \]
   try
     let colorscheme_index = index(colorschemes, g:colors_name) + 1
     echo 'colorscheme_index1: ' . colorscheme_index
@@ -769,29 +679,18 @@ function! NextColorScheme()
   execute ':colorscheme ' . new_colorscheme
 endfunction
 
-function! Update()
-  PlugUpdate
-  PlugUpgrade
-  CocUpdate
-endfunction
-
 " Change to random font from a defined list of awesome ones.
 function! NextFont()
   let guifonts = [
-    \ 'Consolas:h15.5',
-    \ 'Droid\ Sans\ Mono\ for\ Powerline:h15',
-    \ 'Fira\ Code\ Retina:h15',
-    \ 'Hack:h15',
-    \ 'Inconsolata-dz\ for\ Powerline:h15',
-    \ 'Input\ Mono:h15',
-    \ 'Menlo\ for\ Powerline:h15.5',
-    \ 'Meslo\ LG\ M\ DZ\ for\ Powerline:h15',
-    \ 'Monaco\ for\ Powerline:h15',
-    \ 'Mononoki:h16',
-    \ 'Office\ Code\ Pro\ D:h15',
-    \ 'PT\ Mono\ for\ Powerline:h16',
-    \ 'Source\ Code\ Pro\ for\ Powerline:h15',
-    \ 'Ubuntu\ Mono\ derivative\ Powerline:h17',
+    \ 'FantasqueSansMono\ Nerd\ Font:h16',
+    \ 'Hack\ Nerd\ Font:h14',
+    \ 'JetBrainsMono\ Nerd\ Font:14',
+    \ 'DroidSansMono\ Nerd\ Font:h14',
+    \ 'Inconsolata\ Nerd\ Font:h15',
+    \ 'UbuntuMono\ Nerd\ Font:h15',
+    \ 'mononoki\ Nerd\ Font:h14',
+    \ 'LiterationMono\ Nerd\ Font:h14',
+    \ 'FiraMono\ Nerd\ Font:h14',
   \]
   let guifont_index = index(guifonts, &guifont) + 1
   let new_guifont = guifonts[guifont_index]
@@ -824,7 +723,7 @@ endfunction
 " Custom commands.
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
-command! -bar FormatJSON :%!python3 -m json.tool
+command! -bar FormatJson :%!python3 -m json.tool
 
 " Plugin commands.
 command! -bang -nargs=* GGrep
@@ -839,9 +738,6 @@ command! -bang -nargs=* GGrep
 
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
-" if execute('bat')
-"   let g:fzf_preview_command = 'bat --color=always --style=grid --theme=ansi-dark {-1}'
-" endif
 
 " elzr/vim-json.
 let g:vim_json_syntax_conceal = 0 " Show quotes in JSON files.
@@ -920,54 +816,6 @@ let g:instant_markdown_autostart = 0
 let g:vim_php_refactoring_use_default_mapping = 0
 let g:vim_php_refactoring_make_setter_fluent  = 1
 
-" Tagbar.
-let g:tagbar_type_php = {
-\ 'kinds': [
-\    'c:Classes:0',
-\     'd:Constants:0:0',
-\     'f:Functions:1',
-\     'i:Interfaces:0',
-\     'n:Namespaces:0',
-\     't:Traits:0',
-\     'v:Variables:0:0',
-\   ],
-\   'sro': '::',
-\   'kind2scope': {
-\     'c': 'class',
-\     'd': 'constant',
-\     'f': 'function',
-\     'i': 'interface',
-\     'n': 'namespace',
-\     't': 'trait',
-\     'v': 'variable',
-\   },
-\   'scope2kind': {
-\     'class'    : 'c',
-\     'constant' : 'd',
-\     'function' : 'f',
-\     'interface': 'i',
-\     'namespace': 'n',
-\     'trait'    : 't',
-\     'variable' : 'v',
-\   }
-\ }
-let g:tagbar_type_css = {
-\   'ctagstype': 'css',
-\   'kinds': [
-\     'f:functions',
-\     'm:mixins',
-\     'm:medias',
-\     'v:variables',
-\     'c:classes',
-\     'i:IDs',
-\     't:tags',
-\   ]
-\ }
-let g:tagbar_type_less = g:tagbar_type_css
-let g:tagbar_type_scss = g:tagbar_type_css
-
-" Lightline.
-
 " Airline.
 let g:airline_theme = 'badwolf'
 " let g:airline_theme = 'luna'
@@ -1009,10 +857,6 @@ let g:neomake_error_sign                = { 'text': '❌' }
 " pangloss/vim-javascript.
 let g:javascript_enable_domhtmlcss = 1
 
-" vim-polyglot.
-" Twig: `lumiliet/vim-twig` doesn't set the correct indentation or highlight HTML.
-" let g:polyglot_disabled = ['jsx', 'php', 'twig', 'startify']
-
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
 let g:vdebug_options               = get(g:, 'vdebug_options', {})
@@ -1038,10 +882,6 @@ let g:javascript_conceal_super                     = "Ω"
 let g:javascript_conceal_arrow_function            = "⇒"
 let g:javascript_conceal_noarg_arrow_function      = "φ"
 let g:javascript_conceal_underscore_arrow_function = "?"
-
-" vim-localvimrc.
-let g:localvimrc_name = '.vimrc.local'
-let g:localvimrc_ask  = 0
 
 
 " ========================================================================
@@ -1171,6 +1011,9 @@ elseif has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
 endif
 
+" Telescope file browser.
+nmap <Leader>fb :Telescope file_browser<cr>
+
 " Execute the buffer contents.
 nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
 
@@ -1209,14 +1052,8 @@ map ? <Plug>(incsearch-backward)
 map n <Plug>(incsearch-nohl-n)
 map N <Plug>(incsearch-nohl-N)
 
-" indentLine.
-map <Leader>il <silent> :IndentLinesToggle<CR>
-
 " Ag.
 nnoremap <Leader>a :Ag<Space>
-
-" Tagbar.
-nnoremap <Leader>tt :TagbarToggle<CR>
 
 " Linting.
 nnoremap <Leader>l :Neomake<CR>
