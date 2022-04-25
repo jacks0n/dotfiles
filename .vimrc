@@ -28,19 +28,9 @@ call plug#begin('~/.vim/plugged')
 " ========================================================================
 
 " Options:
-"  'Townk/vim-autoclose'  - Works well. Gets stuck in insert mode with YouCompleteMe. Unmaintained.
-"  'cohama/lexima.vim'    - Works well, inserts closing character, not that intelligent.
-"  'jiangmiao/auto-pairs' - Seems the most intelligent, can get slow.
-"  'chr4/nginx.vim'       - Nginx config syntax highlighting, in vim-polyglot.
 " Plug 'cohama/lexima.vim'
-" Plug 'jiangmiao/auto-pairs'
-" Plug 'Raimondi/delimitMate'              " Add close (X)HTML tags on creation.
-"   \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 Plug 'tpope/vim-fugitive'
-Plug 'junegunn/gv.vim'
-Plug 'jreybert/vimagit'
-Plug 'rakr/vim-one'
-" Plug 'embear/vim-localvimrc'
+Plug 'SirVer/ultisnips'
 
 
 " ========================================================================
@@ -49,22 +39,7 @@ Plug 'rakr/vim-one'
 
 Plug 'Mizuchi/vim-ranger'
 Plug 'DataWraith/auto_mkdir'
-Plug 'tpope/vim-db'
 Plug 'tpope/vim-commentary'
-
-
-" ========================================================================
-" Plug: Completion.                                                      |
-" ========================================================================
-
-if has('nvim')
-  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-elseif v:version >= 704 && has('patch1578')
-  Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
-endif
-
-" AI pair programmer which suggests line completions and entire function bodies as you type.
-Plug 'github/copilot.vim'
 
 
 " ========================================================================
@@ -76,9 +51,49 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
 Plug 'benwainwright/fzf-project'
 " Plug 'rking/ag.vim'
-" Plug 'nvim-telescope/telescope.nvim'
-"     \| Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+  \| Plug 'nvim-lua/plenary.nvim'
+  \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'romainl/vim-cool' " Disables search highlighting when you are done searching and re-enables it when you search again.
+
+
+" ========================================================================
+" Plug: Completion.                                                      |
+" ========================================================================
+
+if has('nvim')
+  " Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  " Plug 'antoinemadec/coc-fzf'
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'williamboman/nvim-lsp-installer'
+  Plug 'hrsh7th/nvim-cmp'
+    \| Plug 'hrsh7th/cmp-nvim-lsp'
+    \| Plug 'hrsh7th/cmp-buffer'
+    \| Plug 'hrsh7th/cmp-path'
+    \| Plug 'hrsh7th/cmp-cmdline'
+    \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
+  Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+    \| Plug 'SirVer/ultisnips'
+  Plug 'tzachar/cmp-fuzzy-path'
+    \| Plug 'tzachar/fuzzy.nvim'
+    \| Plug 'nvim-lua/plenary.nvim'
+    \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  Plug 'David-Kunz/cmp-npm'
+    \| Plug 'nvim-lua/plenary.nvim'
+  Plug 'ray-x/lsp_signature.nvim'
+elseif v:version >= 704 && has('patch1578')
+  Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
+endif
+
+" AI pair programmer which suggests line completions and entire function bodies as you type.
+if has('nvim')
+  Plug 'zbirenbaum/copilot.lua'
+  Plug 'github/copilot.vim'
+  Plug 'hrsh7th/cmp-copilot'
+  Plug 'zbirenbaum/copilot-cmp'
+else
+  Plug 'github/copilot.vim'
+endif
 
 
 " ========================================================================
@@ -97,6 +112,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'mhinz/vim-startify' " Fancy start screen.
 if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/nvim-treesitter-refactor'
+  " Plug 'ray-x/navigator.lua'
+  "   \| Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
 endif
 
 
@@ -111,9 +129,8 @@ endif
 " Options:
 "  'JulesWang/css.vim'         - Cutting-edge CSS syntax file. In vim-polyglot.
 "  'hail2u/vim-css3-syntax'    - Adds CSS 3 properties, except for @media.
-"  'cakebaker/scss-syntax.vim' - SCSS syntax.
+"  'cakebaker/scss-syntax.vim' - SCSS syntax. In vim-polyglot.
 Plug 'hail2u/vim-css3-syntax',    { 'for': ['css', 'scss', 'sass'] } " CSS3 syntax.
-Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SCSS syntax.
 
 " ----------------------------------------
 " Features.                              |
@@ -123,12 +140,6 @@ Plug 'cakebaker/scss-syntax.vim', { 'for': ['css', 'scss'] }         " SCSS synt
 "   'neoclide/coc-highlight' - Highlights CSS/SCSS colours. Has high CPU issues.
 "                              @see https://github.com/neoclide/coc-highlight/issues/14
 Plug 'ap/vim-css-color', { 'for': ['css', 'scss', 'sass'] }
-
-" ----------------------------------------
-" Omnicompletion.                        |
-" ----------------------------------------
-
-Plug 'othree/csscomplete.vim', { 'for': ['css', 'scss', 'sass'] }
 
 
 " ========================================================================
@@ -148,16 +159,8 @@ Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins', 'for': ['python'] }
 " Language: HTML, XML.                                                   |
 " ========================================================================
 
-" Plug 'Valloric/MatchTagAlways',        " Highlight outer cursor (X)HTML tags.
-"   \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
-Plug 'mattn/emmet-vim',                " Emmet for Vim.
-  \ { 'for': ['html', 'phtml', 'xhtml', 'xml', 'jinja'] }
-
-" Options:
-"  'tylerbrazier/HTML-AutoCloseTag' - Unmaintained, extra <Esc> back to normal mode.
-"  'othree/html5'                   - Included in vim-polyglot.
+Plug 'mattn/emmet-vim'       " Emmet for Vim.
 Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
-  \ { 'for': ['html', 'php', 'xhtml', 'xml', 'jinja'] }
 
 
 " ========================================================================
@@ -168,46 +171,19 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " Syntax and Indent.                     |
 " ----------------------------------------
 
-Plug 'elzr/vim-json', { 'for': ['javascript', 'json'] }
-
-" Options:
-"  'jiangmiao/simple-javascript-indenter' - Unmaintained.
-"  'gavocanov/vim-js-indent'              - Indent part of pangloss/vim-javascript. Unmaintained.
-"  'jason0x43/vim-js-indent'              - Indent for JavaScript and Typescript. Unmaintained.
-"  'jelera/vim-javascript-syntax'         - Syntax, unmaintained.
-"  'othree/yajs.vim'                      - Syntax, unmaintained, fork of Jelera. Recognises
-"                                         - web API and DOM keywords, supports ES6 syntax.
-"  'othree/jsdoc-syntax.vim'              - JSDoc syntax. Unmaintained.
-"                                           Pangloss supports JSdoc anyway.
-"  'pangloss/vim-javascript'              - Syntax and improved indentation. Included in vim-polyglot.
-"  'maxmellon/vim-jsx-pretty'             - JS and JSX syntax. Unmaintained.
-Plug 'pangloss/vim-javascript'     " JavaScript support
 Plug 'leafgarland/typescript-vim'  " TypeScript syntax
 Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
-Plug 'jparise/vim-graphql'        " GraphQL syntax
-
-" ----------------------------------------
-" Syntax Addons.                         |
-" ----------------------------------------
-
-" Plug 'othree/javascript-libraries-syntax.vim', " Extends syntax for jQuery, Underscore, Backbone, etc.
-"   \ { 'for': 'javascript' }
-" Plug 'mxw/vim-jsx', { 'for': 'jsx' }           " After syntax, ftplugin, indent for JSX.
-" Plug 'bigfish/vim-js-context-coloring'         " Highlight based on context.
-
-" ----------------------------------------
-" Completion.                            |
-" ----------------------------------------
-
-Plug '1995eaton/vim-better-javascript-completion', { 'for': 'javascript' } " Adds more recent browser API support.
-Plug 'othree/jspc.vim', { 'for': 'javascript' }                            " Parameter completion.
 
 " ----------------------------------------
 " Features.                              |
 " ----------------------------------------
 
-Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' } " Generate function JSDoc docblocks with `:JsDoc`.
+" Generate function JSDoc docblocks with `:JsDoc`.
+Plug 'heavenshell/vim-jsdoc', {
+  \ 'for': ['javascript', 'javascriptreact', 'javascript.jsx','typescript', 'typescriptreact'],
+  \ 'do': 'make install'
+\}
 
 
 " ========================================================================
@@ -217,64 +193,11 @@ Plug 'heavenshell/vim-jsdoc', { 'for': 'javascript' } " Generate function JSDoc 
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 
 
-" ========================================================================
-" Plug: PHP.                                                             |
-" ========================================================================
-
-" ----------------------------------------
-" Syntax.                                |
-" ----------------------------------------
-
-" Options:
-"  '2072/vim-syntax-for-PHP'
-"    - Updated fork of the official Vim syntax file.
-"  'StanAngeloff/php.vim'
-"    - Updated fork of a fork of the official Vim synax file.
-"      More popular, not sure how different to 2072's?
-"  'pzich/phtmlSwitch-vim'
-"   - Automatically switching between HTML and PHP filetypes in PHP files.
-Plug '2072/vim-syntax-for-PHP', { 'for': 'php' }
-Plug 'StanAngeloff/php.vim', { 'for': 'php' }
-" Plug 'pzich/phtmlSwitch-vim', { 'for': 'php' }
-
-" ----------------------------------------
-" Indent.                                |
-" ----------------------------------------
-
-" Options:
-"  '2072/PHP-Indenting-for-VIm'
-"    - Development version of the official indent.
-"  'captbaritone/better-indent-support-for-php-with-html'
-"    - Adds HTML indenting outside PHP blocks.
-Plug '2072/PHP-Indenting-for-VIm', { 'for': 'php' }
-Plug 'captbaritone/better-indent-support-for-php-with-html', { 'for': 'php' }
-
 " ----------------------------------------
 " Completion.                            |
 " ----------------------------------------
 
-" Options:
-"  'm2mdas/phpcomplete-extended' - Fast via vimproc, un-maintained, composer projects only.
-"  'mkusher/padawan.vim'         - Server based, composer projects only.
-"  'phpvim/phpcd.vim'            - Server based, NeoVim only, composer projects only.
-"                                  Jump to use statement definition doesn't work.
-"  'shawncplus/phpcomplete.vim'  - Slow as fuck, included in $VIMRUNTIME.
-
-" Plug 'phpactor/phpactor', { 'for': 'php', 'branch': 'master', 'do': 'composer install --no-dev -o' }
-" Plug 'shawncplus/phpcomplete.vim',  { 'for': 'php' }
-
-" ----------------------------------------
-" Features.                              |
-" ----------------------------------------
-
-" TODO: Checkout.
-" Plug 'Rican7/php-doc-modded'
-" TODO: Checkout.
-" Plug 'docteurklein/vim-symfony'
-Plug 'tobyS/pdv' " , { 'for': 'php' }
-Plug 'adoy/vim-php-refactoring-toolbox', { 'for': 'php' }
-Plug 'noahfrederick/vim-composer'
-  \| Plug 'tpope/vim-dispatch'
+Plug 'phpactor/phpactor', { 'for': 'php', 'branch': 'master', 'do': 'composer install --no-dev -o' }
 
 
 " ========================================================================
@@ -297,8 +220,7 @@ Plug 'nelsyeung/twig.vim'
 " Plug: VimL.                                                            |
 " ========================================================================
 
-" VimL completion.
-Plug 'Shougo/neco-vim', { 'for': 'vim' }
+Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 
 
 " ========================================================================
@@ -306,8 +228,11 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' }
 " ========================================================================
 
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
+Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'alessandroyorba/despacio'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'rebelot/kanagawa.nvim'
 
 
 " ========================================================================
@@ -349,7 +274,6 @@ Plug 'neomake/neomake'
 Plug '0x84/vim-coderunner'           " Run the buffer on the fly.
 Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
-let g:polyglot_disabled = ['json', 'jsx', 'php', 'twig', 'startify']
 Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
@@ -357,9 +281,21 @@ Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
 " Plug 'wincent/terminus'              " Terminal improvements. Cursor shape change, improved mouse support, fix autoread, auto paste.
 Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-" Plug 'ludovicchabant/vim-gutentags'  " Automatic tag generation and updating.
+
+
+" let g:copilot_no_tab_map = v:true
+" let g:copilot_assume_mapped = v:true
 
 call plug#end() " Required.
+
+" Import Lua plugin configs.
+lua require('plugins.nvim-treesitter')
+lua require('plugins.lsp_signature')
+lua require('plugins.nvim-cmp')
+lua require('plugins.nvim-lsp-installer')
+lua require('plugins.telescope')
+" lua require('plugins.navigator')
+lua require('lsp-diagnostic')
 
 
 " ========================================================================
@@ -426,7 +362,6 @@ set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
                              " │ a: All abbreviations.
                              " │ A: No existing swap file 'ATTENTION' message.
                              " ┘ I: No |:intro| starting message.
-" set spell                    " Enable spell checking.
 set spelllang=en_au          " Set the spell checking language.
 set cursorline               " Highlight line of the cursor.
 set showcmd                  " Show (partial) command being typed.
@@ -444,7 +379,6 @@ set modeline                 " Enable modelines.
 set modelines=5              " Look for modelines in the first and last X lines.
 set nowrap                   " Don't wrap lines.
 set textwidth=0              " Disable wrapping when pasting text.
-" set linebreak              " Wrap at convenient characters, set in 'breakat'.
 set ignorecase               " Case insensitive searches.
 set fileignorecase           " Ignore file and directory case sensitivity.
 set wildignorecase           " Ignore file and directory completion case sensitivity.
@@ -460,22 +394,17 @@ set relativenumber           " Show relative line numbers.
 set nrformats-=octal         " Numbers beginning with '0' not considered.
 set shiftround               " Round indents to nearest multiple of 'shiftwidth'.
 set tabpagemax=50            " Maximum number of tab pages to be opened by the |-p| command line argument.
-" set ttimeout                 " Enable timout on key mappings and insert-mode <CTRL-*> commands.
-" set ttimeoutlen=50           " Limit the timeout to 50 milliseconds.
 set scrolloff=1              " Scroll offset lines.
 set sidescroll=5             " Minimal columns to show when `wrap` is set.
 set sidescrolloff=5          " Minimal columns to show when `nowrap` is set.
 set fileformats=unix,dos,mac " Prefer Unix over Windows over OS 9 EOLs.
 set complete+=kspell         " Enable word completion.
 set complete-=i              " Disable current and included file scanning, use tags instead.
-" set completeopt=menu,menuone,longest,noselect
-" set completeopt=menu,menuone,longest,noselect,noinsert
 
 " This will show the popup menu even if there's only one match (menuone),
 " prevent automatic selection (noselect) and prevent automatic text injection
 " into the current line (noinsert).
-set completeopt=noinsert,menuone,noselect
-" set completeopt+=preview
+set completeopt=noinsert,menuone,noselect,preview
 
 " More detailed and accurate insert mode completion.
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/* " Completion ignore patterns.
@@ -507,7 +436,9 @@ set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servernam
 if has('vim_starting')
   " colorscheme molokai
   " colorscheme flattr
-  colorscheme hybrid
+  " colorscheme hybrid
+  colorscheme tokyonight
+  " colorscheme kanagawa
   " colorscheme OceanicNext
   " colorscheme gruvbox
   set background=dark
@@ -585,8 +516,6 @@ let g:php_folding                     = 0  " Disable syntax folding for classes 
 let g:php_htmlInStrings               = 1  " Enable HTML syntax highlighting inside strings.
 let g:php_sync_method                 = -1 " Default, but it gives warnings without explicit `let`.
 let php_sql_query = 1 " Enable SQL syntax highlighting inside strings.
-" StanAngeloff/php.
-let php_html_in_strings = 1 " Enable HTML syntax highlighting inside strings.
 
 
 " ========================================================================
@@ -616,7 +545,6 @@ endif
 " ========================================================================
 
 " New empty buffer in insert mode.
-map <C-t> :enew<CR>i
 map <Leader>e :enew<CR>i
 
 " Edit `~/.vimrc`.
@@ -624,9 +552,6 @@ map <Leader>v :e $MYVIMRC<CR>
 
 " Edit `~/.zshrc`.
 map <Leader>z :e ~/.zshrc<CR>
-
-" Insert newline.
-map <Leader><Enter> o<Esc>
 
 " Close buffer.
 map <Leader>d :lclose<CR>:bwipe!<CR>
@@ -735,24 +660,8 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Folding.
 augroup fold_level
   autocmd!
-  " Equivalent to `foldlevelstart` but remember when switching buffers.
-  autocmd BufReadPre * setlocal foldlevel=9
-  " Disable folding on Git diffs.
-  autocmd FileType git setlocal nofoldenable
-augroup END
-
-" Writing mode.
-augroup writing_mode
-  autocmd!
-  " wrapmargin
-  " linebreak
-  " Enable soft wrapping.
-  " autocmd FileType text,markdown setlocal textwidth=80
-  " autocmd FileType text,markdown setlocal wrap
-  " Wrap long lines at a character in 'breakat'.
-  " autocmd FileType text,markdown setlocal linebreak
-  " autocmd FileType text,markdown setlocal nolist
-  " autocmd FileType text,markdown setlocal formatoptions+=t " Enable wrapping on paste.
+  " Disable folding by default.
+  autocmd FileType * setlocal nofoldenable
 augroup END
 
 " Custom filetypes.
@@ -769,18 +678,18 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.test    setlocal filetype=php
   autocmd BufRead,BufNewFile *.theme   setlocal filetype=php
   autocmd BufRead,BufNewFile *.view    setlocal filetype=php
-  autocmd BufRead,BufNewFile *.tpl.php setlocal filetype=php.html " Needed?
 
   " Other.
   autocmd BufRead,BufNewFile *.plist     setlocal filetype=xml
   autocmd BufRead,BufNewFile *.scss      setlocal filetype=scss.css
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
-  autocmd bufnewfile,bufread *.jsx       setlocal filetype=javascript.jsx
 
-  " React.
+  " Typescript/React.
   autocmd BufRead,BufNewFile *.jsx set filetype=javascriptreact
   autocmd BufRead,BufNewFile *.tsx set filetype=typescriptreact
+  autocmd BufRead,BufNewFile *.js set filetype=javascriptreact
+  autocmd BufRead,BufNewFile *.ts set filetype=typescriptreact
 augroup END
 
 " Override vim-coderunner.
@@ -788,26 +697,12 @@ augroup dockerfile_build
   autocmd!
 
   autocmd BufRead,BufNewFile Dockerfile nnoremap <Leader>r :!docker build .<CR>
-
 augroup END
 
 " Prevent stopping on - characters for CSS files.
 augroup iskeyword_mods
   autocmd!
   autocmd FileType css,scss,sass setlocal iskeyword+=-
-augroup END
-
-" Formatters.
-augroup beautifiers
-  autocmd!
-  " autocmd FileType json setlocal equalprg=python\ -mjson.tool
-augroup END
-
-" Custom indent.
-augroup indent
-  autocmd!
-  " autocmd FileType json setlocal noautoindent
-  autocmd FileType javascript setlocal noautoindent
 augroup END
 
 " Enable omni-completion.
@@ -853,9 +748,11 @@ function! NextColorScheme()
     \ 'hybrid',
     \ 'ir_black',
     \ 'jellybeans',
+    \ 'kanagawa',
     \ 'molokai',
     \ 'monokai',
     \ 'monokain',
+    \ 'tokyonight',
   \ ]
   try
     let colorscheme_index = index(colorschemes, g:colors_name) + 1
@@ -980,9 +877,6 @@ let g:indentLine_char            = '│'
 let g:indentLine_fileTypeExclude = ['help', 'startify']
 let g:indentLine_faster          = 1
 
-" PHP Documentor.
-let g:pdv_template_dir = g:plug_home . '/pdv/templates'
-
 " startify.
 let g:startify_change_to_dir          = 1 " Change to selected file or bookmark's directory.
 let g:startify_enable_special         = 0 " Don't show <empty buffer> and <quit>.
@@ -1025,9 +919,6 @@ let g:instant_markdown_autostart = 0
 " vim-php-refactoring-toolbox.
 let g:vim_php_refactoring_use_default_mapping = 0
 let g:vim_php_refactoring_make_setter_fluent  = 1
-
-" tobyS/pdv.
-let g:pdv_template_dir = $HOME . '/.vim/bundle/pdv/templates_snip'
 
 " Tagbar.
 let g:tagbar_type_php = {
@@ -1120,7 +1011,7 @@ let g:javascript_enable_domhtmlcss = 1
 
 " vim-polyglot.
 " Twig: `lumiliet/vim-twig` doesn't set the correct indentation or highlight HTML.
-let g:polyglot_disabled = ['json', 'jsx', 'php', 'twig', 'startify']
+" let g:polyglot_disabled = ['jsx', 'php', 'twig', 'startify']
 
 " Vdebug.
 " See: https://xdebug.org/docs-dbgp.php#feature-names
@@ -1166,8 +1057,6 @@ let g:gruvbox_contrast_dark = 'hard'
 " ========================================================================
 
 " coc.nvim.
-" Show signature help on placeholder jump.
-autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 if has_key(g:plugs, 'coc.nvim')
   function! s:check_back_space() abort
     let col = col('.') - 1
@@ -1224,6 +1113,62 @@ if has_key(g:plugs, 'coc.nvim')
   nmap <Leader>rn <Plug>(coc-rename)
   nmap <Leader>ac <Plug>(coc-codeaction)
   nmap <Leader>qf <Plug>(coc-fix-current)
+" Telescope.nvim.
+elseif has_key(g:plugs, 'telescope.nvim')
+  " LSP actions.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
+  nmap <silent> gi :Telescope lsp_implementations<cr>
+  nmap <silent> gD :Telescope lsp_definitions<cr>
+  nmap <silent> go :Telescope lsp_type_definitions<cr>
+  nmap <silent> gr :Telescope lsp_references<cr>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
+  nmap <Leader>ac :Telescope lsp_code_actions<cr>
+  " map <F4> :Telescope lsp_range_code_actions<cr>
+
+  " Diagnostics.
+  nmap <silent> gl :Telescope diagnostics<cr>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
+" Navigator.lua.
+elseif has_key(g:plugs, 'navigator.lua')
+  " LSP actions.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
+  nmap <silent> gd :lua vim.lsp.buf.definition()<cr>
+  nmap <silent> gD :lua vim.lsp.buf.declaration()<cr>
+  nmap <silent> gi :lua vim.lsp.buf.implementation()<cr>
+  nmap <silent> go :lua vim.lsp.buf.type_definition()<cr>
+  nmap <silent> gr :lua vim.lsp.buf.references()<cr>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
+  nmap <Leader>ac :lua vim.lsp.buf.code_action()<cr>
+  " map <F4> :lua vim.lsp.buf.range_code_action()<cr>
+
+  " Diagnostics.
+  nmap <silent> gl :lua vim.diagnostic.open_float()<cr>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
+" Fall back to default LSP config.
+elseif has_key(g:plugs, 'nvim-lspconfig')
+  " LSP actions.
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
+  nmap <silent> gd :lua vim.lsp.buf.definition()<cr>
+  nmap <silent> gD :lua vim.lsp.buf.declaration()<cr>
+  nmap <silent> gi :lua vim.lsp.buf.implementation()<cr>
+  nmap <silent> go :lua vim.lsp.buf.type_definition()<cr>
+  nmap <silent> gr :lua vim.lsp.buf.references()<cr>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
+  nmap <Leader>ac :lua vim.lsp.buf.code_action()<cr>
+  " map <F4> :lua vim.lsp.buf.range_code_action()<cr>
+
+  " Diagnostics.
+  nmap <silent> gl :lua vim.diagnostic.open_float()<cr>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
 endif
 
 " Execute the buffer contents.
@@ -1284,6 +1229,11 @@ nnoremap <Leader>l :Neomake<CR>
 " AutoClose. Disable for VimL files.
 autocmd FileType vim let b:AutoCloseOn = 0
 
+" Show signature help on placeholder jump.
+if has_key(g:plugs, 'coc.nvim')
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+endif
+
 " Fugitive.
 autocmd BufRead fugitive://* setlocal norelativenumber
 
@@ -1300,12 +1250,6 @@ if has_key(g:plugs, 'neomake')
     autocmd InsertChange,TextChanged * update | Neomake
   augroup END
 endif
-
-" autocmd BufWritePost,BufEnter * Neomake
-" autocmd InsertChange,TextChanged * update | Neomake
-
-" Open Tagbar by default for some filetypes.
-" autocmd FileType php,javascript,python,vim nested :TagbarOpen
 
 " startify. Disable folding on the start screen.
 autocmd FileType startify setlocal nofoldenable

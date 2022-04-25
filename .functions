@@ -549,6 +549,10 @@ update-user() {
 
     echo "\n\n=> TSServer update."
     nvim +TSUpdateSync +qall
+
+    echo "\n\n=> NeoVim LSP servers."
+    # @see https://github.com/williamboman/nvim-lsp-installer/issues/194
+    # nvim +LspUpdateAll +qall
   fi
 
   # Update zplug and packages.

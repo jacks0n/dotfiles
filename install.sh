@@ -26,6 +26,7 @@ brew install git
 brew install git-delta
 brew install gnu-sed
 brew install gnu-tar
+brew install go # Required for SQL language server.
 brew install grep
 brew install hashicorp/tap/terraform-ls
 brew install homebrew/cask-fonts/font-anonymice-powerline
@@ -75,6 +76,7 @@ brew install shellcheck
 brew install sqlite
 brew install svn
 brew install the_silver_searcher
+brew install tig
 brew install tmux
 brew install tree
 brew install tree-sitter
@@ -112,11 +114,31 @@ brew install --cask vimr
 brew install --cask vlc
 
 # Language servers.
-npm install -g bash-language-server
-npm install -g sql-language-server
-npm install -g dockerfile-language-server-nodejs
-npm install -g graphql-language-service-cli
 npm install -g @serverless-ide/language-server
+
+# NVim language servers.
+nvim +'LspInstall --sync bashls' +qall
+nvim +'LspInstall --sync cssls' +qall
+nvim +'LspInstall --sync cssmodules_ls' +qall
+nvim +'LspInstall --sync dockerls' +qall
+nvim +'LspInstall --sync diagnosticls' +qall
+nvim +'LspInstall --sync emmet_ls' +qall
+nvim +'LspInstall --sync eslint' +qall
+nvim +'LspInstall --sync graphql' +qall
+nvim +'LspInstall --sync html' +qall
+nvim +'LspInstall --sync intelephense' +qall
+nvim +'LspInstall --sync jedi_language_server' +qall
+nvim +'LspInstall --sync jsonls' +qall
+nvim +'LspInstall --sync lemminx' +qall
+nvim +'LspInstall --sync phpactor' +qall
+nvim +'LspInstall --sync pyright' +qall
+nvim +'LspInstall --sync sourcery' +qall
+nvim +'LspInstall --sync sqlls' +qall
+nvim +'LspInstall --sync terraformls' +qall
+nvim +'LspInstall --sync tflint' +qall
+nvim +'LspInstall --sync tsserver' +qall
+nvim +'LspInstall --sync vimls' +qall
+nvim +'LspInstall --sync yamlls' +qall
 
 # Install latest Node version for NVM.
 nvm install --lts
@@ -124,6 +146,9 @@ nvm install --lts
 # Install Neovim libraries.
 pip3 install pynvim --upgrade
 npm install -g neovim
+
+# Install lehre. Required to generate JS docblocks in Vim (LJSDoc)
+npm -g install lehre
 
 # Install coc.nvim plugins.
 nvim +'CocInstall -sync coc-css' +qall
