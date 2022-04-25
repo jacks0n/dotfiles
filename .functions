@@ -544,8 +544,8 @@ update-user() {
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
 
-    echo "\n\n=> NVim Coc update."
-    nvim +CocUpdateSync +qall
+    echo "\n\n=> Vim Coc update."
+    vim -c 'CocUpdateSync|q'
 
     echo "\n\n=> TSServer update."
     nvim +TSUpdateSync +qall
