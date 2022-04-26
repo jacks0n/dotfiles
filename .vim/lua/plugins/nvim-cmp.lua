@@ -89,3 +89,4 @@ for index, lspServer in pairs(lsp_install.get_installed_servers()) do
   local lspServerName = lspServer['name']
   nvim_lsp[lspServerName].setup(capabilities)
 end
+-- nvim_lsp['serverless_ls'].setup(capabilities)
