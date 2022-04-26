@@ -101,8 +101,8 @@ npm install -g @serverless-ide/language-server
 nvim +'LspInstall --sync bashls' +qall
 nvim +'LspInstall --sync cssls' +qall
 nvim +'LspInstall --sync cssmodules_ls' +qall
-nvim +'LspInstall --sync dockerls' +qall
 nvim +'LspInstall --sync diagnosticls' +qall
+nvim +'LspInstall --sync dockerls' +qall
 nvim +'LspInstall --sync emmet_ls' +qall
 nvim +'LspInstall --sync eslint' +qall
 nvim +'LspInstall --sync graphql' +qall
@@ -115,6 +115,7 @@ nvim +'LspInstall --sync phpactor' +qall
 nvim +'LspInstall --sync pyright' +qall
 nvim +'LspInstall --sync sourcery' +qall
 nvim +'LspInstall --sync sqlls' +qall
+nvim +'LspInstall --sync sumneko_lua' +qll
 nvim +'LspInstall --sync terraformls' +qall
 nvim +'LspInstall --sync tflint' +qall
 nvim +'LspInstall --sync tsserver' +qall
