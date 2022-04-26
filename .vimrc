@@ -110,6 +110,7 @@ Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colo
 Plug 'vim-airline/vim-airline'
   \| Plug 'vim-airline/vim-airline-themes'
 Plug 'mhinz/vim-startify' " Fancy start screen.
+Plug 'liuchengxu/vista.vim'
 if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
@@ -175,13 +176,6 @@ Plug 'heavenshell/vim-jsdoc', {
 " ========================================================================
 
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
-
-
-" ----------------------------------------
-" Completion.                            |
-" ----------------------------------------
-
-Plug 'phpactor/phpactor', { 'for': 'php', 'branch': 'master', 'do': 'composer install --no-dev -o' }
 
 
 " ========================================================================
@@ -1018,6 +1012,8 @@ nmap <Leader>fb :Telescope file_browser<cr>
 nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
 
 nmap <C-n> :NERDTreeToggle<CR>
+
+nmap <Leader>tt :Vista!!<CR>
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
