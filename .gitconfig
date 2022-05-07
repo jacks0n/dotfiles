@@ -28,9 +28,6 @@
 [core]
   excludesfile = ~/.gitignore
   editor = nvim
-  ; fsync() when writing object files. Only useful for file systems
-  ; that do not use journaling, or don't journal the file contents.
-  fsyncObjectFiles = true
   ; Enable additional caching of file system data for some operations.
   ; Git for Windows uses this to bulk-read and cache lstat data of
   ; entire directories (instead of doing lstat file by file).
@@ -93,7 +90,7 @@
   date = relative
 
 [merge]
-	tool = fugitive
+  tool = fugitive
   ; Display diffs between the ancestral commit and each of the two merge parents.
   conflictstyle = diff3
 
@@ -105,7 +102,7 @@
   keepBackup = false
 
 [mergetool "fugitive"]
-	cmd = nvim -f -c \"Gvdiffsplit!\" \"$MERGED\"
+  cmd = nvim -f -c \"Gvdiffsplit!\" \"$MERGED\"
 
 [mergetool "Kaleidoscope"]
   cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
