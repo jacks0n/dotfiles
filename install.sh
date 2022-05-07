@@ -6,6 +6,7 @@ if [[ ! type "$1" &>/dev/null ]] ; then
 fi
 
 # Install Brew packages.
+brew install aws
 brew install bash
 brew install bash-completion
 brew install bat
@@ -42,6 +43,7 @@ brew install htop
 brew install jesseduffield/lazygit/lazygit
 brew install jq
 brew install lolcat
+brew install ms-jpq/sad/sad
 brew install neovim
 brew install netcat
 brew install nnn
@@ -79,12 +81,14 @@ brew install --cask dash
 brew install --cask dropbox
 brew install --cask evernote
 brew install --cask firefox
+brew install --cask hiddenbar
 brew install --cask homebrew/cask/docker
 brew install --cask insomnia
 brew install --cask iterm2
 brew install --cask lastpass
 brew install --cask macvim
 brew install --cask microsoft-teams
+brew install --cask oracle-jdk
 brew install --cask postman
 brew install --cask sequel-pro
 brew install --cask slack
