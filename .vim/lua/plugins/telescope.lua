@@ -21,6 +21,16 @@ telescope.setup {
     },
   },
 }
--- To get fzf loaded and working with telescope, you need to call
--- load_extension, somewhere after setup function:
+
 telescope.load_extension('fzf')
+
+local M = {}
+M.project_files = function()
+  local git_opts = { git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate' } }
+  local ok = pcall(require'telescope.builtin'.git_files, git_opts)
+  if not ok then
+    require'telescope.builtin'.find_files({})
+  end
+end
+
+return M
