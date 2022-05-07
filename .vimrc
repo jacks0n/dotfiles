@@ -26,8 +26,6 @@ call plug#begin('~/.vim/plugged')
 
 " Options:
 " Plug 'cohama/lexima.vim'
-Plug 'tpope/vim-fugitive'
-Plug 'SirVer/ultisnips'
 
 
 " ========================================================================
@@ -37,9 +35,14 @@ Plug 'SirVer/ultisnips'
 Plug 'Mizuchi/vim-ranger'
 if has('nvim')
   Plug 'nvim-telescope/telescope-file-browser.nvim'
+    \| Plug 'nvim-telescope/telescope.nvim'
 endif
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
+if has('nvim')
+  Plug 'JoosepAlviste/nvim-ts-context-commentstring'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+endif
 
 
 " ========================================================================
@@ -84,6 +87,7 @@ elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
 endif
+Plug 'SirVer/ultisnips'
 
 " AI pair programmer which suggests line completions and entire function bodies as you type.
 Plug 'github/copilot.vim'
@@ -97,26 +101,43 @@ endif
 
 
 " ========================================================================
+" Plug: Git.                                                             |
+" ========================================================================
+
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
+
+
+" ========================================================================
 " Plug: Visual.                                                          |
 " ========================================================================
 
-Plug 'airblade/vim-gitgutter'         " Git gutter column diff signs.
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
 Plug 'haya14busa/incsearch.vim'       " Incremental highlight all search results.
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
-Plug 'vim-airline/vim-airline'
-  \| Plug 'vim-airline/vim-airline-themes'
+if has('nvim')
+  Plug 'nvim-lualine/lualine.nvim'
+    \| Plug 'kyazdani42/nvim-web-devicons'
+  Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
+    \ | Plug 'kyazdani42/nvim-web-devicons'
+else
+  Plug 'vim-airline/vim-airline'
+    \| Plug 'vim-airline/vim-airline-themes'
+endif
 Plug 'mhinz/vim-startify' " Fancy start screen.
 Plug 'liuchengxu/vista.vim'
 if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
+  Plug 'p00f/nvim-ts-rainbow'
+  Plug 'SmiteshP/nvim-gps'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   " Doesn't seem to recognise when some LSP servers aren't installed.
-  " Plug 'ray-x/navigator.lua'
-  "   \| Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
+  Plug 'ray-x/navigator.lua'
+    \| Plug 'ray-x/guihua.lua', {'do': 'cd lua/fzy && make' }
 endif
 
 
@@ -124,7 +145,11 @@ endif
 " Features.                              |
 " ----------------------------------------
 
-Plug 'ap/vim-css-color'
+if has('termguicolors')
+  Plug 'norcalli/nvim-colorizer.lua'
+else
+  Plug 'ap/vim-css-color'
+endif
 
 
 " ========================================================================
@@ -156,9 +181,11 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " Syntax and Indent.                     |
 " ----------------------------------------
 
-Plug 'leafgarland/typescript-vim'  " TypeScript syntax
-Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
-Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
+if !has('nvim')
+  Plug 'leafgarland/typescript-vim'  " TypeScript syntax
+  Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
+  Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
+endif
 
 " ----------------------------------------
 " Features.                              |
@@ -227,9 +254,11 @@ Plug 'tpope/vim-surround'
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-Plug 'Xuyuanp/nerdtree-git-plugin' " NERDTree Git integration.
-Plug 'scrooloose/nerdtree'         " File browser.
-Plug 'sjl/gundo.vim'               " Undo history.
+Plug 'scrooloose/nerdtree'
+  \| Plug 'ryanoasis/vim-devicons'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'simnalamburt/vim-mundo'
 
 
 " ========================================================================
@@ -252,7 +281,9 @@ Plug 'neomake/neomake'
 Plug '0x84/vim-coderunner'           " Run the buffer on the fly.
 Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
-Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
+if !has_key(g:plugs, 'nvim-treesitter')
+  Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect).
+endif
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
@@ -260,18 +291,6 @@ Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 
 call plug#end() " Required.
-
-" Import Lua plugin configs.
-if has('nvim')
-  lua require('plugins.nvim-treesitter')
-  lua require('plugins.lsp_signature')
-  lua require('plugins.nvim-cmp')
-  lua require('plugins.nvim-lsp-installer')
-  lua require('plugins.telescope')
-  lua require('plugins.telescope-file-browser')
-  " lua require('plugins.navigator')
-  lua require('lsp-diagnostic')
-endif
 
 
 " ========================================================================
@@ -310,10 +329,10 @@ if has('persistent_undo')
   if isdirectory($HOME . '/.vim/undo') == 0
     :silent !mkdir -p ~/.vim/undo >/dev/null 2>&1
   endif
-  set undofile                 " Save undo after file closes
-  set undodir=~/.vim/undo      " Where to save undo histories
-  set undolevels=10000         " How many undos to remember
-  set undoreload=100000        " Number of lines to save for undo
+  set undofile                 " Save undo after file closes.
+  set undodir=~/.vim/undo      " Where to save undo histories.
+  set undolevels=10000         " How many undos to remember.
+  set undoreload=100000        " Number of lines to save for undo.
 endif
 
 " Backup, swap, and undo.
@@ -383,7 +402,6 @@ set complete-=i              " Disable current and included file scanning, use t
 " into the current line (noinsert).
 set completeopt=noinsert,menuone,noselect,preview
 
-" More detailed and accurate insert mode completion.
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/* " Completion ignore patterns.
 set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
 
@@ -495,10 +513,7 @@ map <Leader>z :e ~/.zshrc<CR>
 map <Leader>d :lclose<CR>:bwipe!<CR>
 
 " Toggle spell checking.
-map <leader>ss :setlocal spell!<CR>
-
-" Toggle search highlighting.
-noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
+map <Leader>ss :setlocal spell!<CR>
 
 " Strip trailing whitespace.
 nmap <Leader>sw :%s/\s\+$//e<CR>
@@ -508,12 +523,6 @@ noremap \ ;
 
 " Easier EX mode.
 nmap ; :
-
-" Jump between next and previous buffers.
-map <Leader>, :lclose<CR>:silent bprev<CR>
-map <Leader>. :lclose<CR>:silent bnext<CR>
-noremap <C-Tab> :lclose<CR>:silent bnext<CR>
-noremap <C-S-Tab> :lclose<CR>:silent bprev<CR>
 
 " Code formatting.
 nmap <Leader>fj :FormatJson<CR>
@@ -591,6 +600,12 @@ augroup fold_level
   autocmd FileType * setlocal nofoldenable
 augroup END
 
+" Toggle search highlighting.
+autocmd InsertEnter * noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
+
+" Commenting.
+autocmd FileType apache setlocal commentstring=#\ %s
+
 " Custom filetypes.
 augroup custom_filetypes
   autocmd!
@@ -645,6 +660,17 @@ augroup END
 " ========================================================================
 " Functions.                                                             |
 " ========================================================================
+
+function! ProfileStart()
+  profile start ~/Desktop/profile.log
+  profile func *
+  profile file *
+endfunction
+
+function! ProfileEnd()
+  profile pause
+  noautocmd qall!
+endfunction
 
 " Change to random colorscheme from a defined list of awesome ones.
 function! NextColorScheme()
@@ -730,6 +756,25 @@ command! -bang -nargs=* GGrep
 " Plugin Settings.                                                       |
 " ========================================================================
 
+" Import Lua plugin configs.
+if has('nvim')
+  lua require('plugins.bufferline')
+  lua require('plugins.lsp_signature')
+  lua require('plugins.lualine')
+  lua require('plugins.nvim-cmp')
+  lua require('plugins.nvim-lsp-installer')
+  lua require('plugins.nvim-treesitter')
+  lua require('plugins.telescope')
+  lua require('plugins.telescope-file-browser')
+  lua require('colorizer').setup({ '*' })
+  lua require('nvim-gps').setup()
+  lua require('plugins.navigator')
+  lua require('lsp-diagnostic')
+  lua require('lsp-diagnostic')
+endif
+
+let g:Hexokinase_highlighters = ['backgroundfull']
+
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
@@ -812,10 +857,6 @@ let g:vim_php_refactoring_make_setter_fluent  = 1
 
 " Airline.
 let g:airline_theme = 'badwolf'
-" let g:airline_theme = 'luna'
-" let g:airline_theme = 'bubblegum'
-" let g:airline_theme = 'wombat'
-" let g:airline_theme = 'onehalfdark'
 let g:airline_symbols = extend(get(g:, 'airline_symbols', {}), {
 \   'paste': 'ρ',
 \   'whitespace': 'Ξ',
@@ -864,18 +905,18 @@ let g:vdebug_features = {
 
 " vim-javascript.
 let g:javascript_plugin_jsdoc                      = 1 " Enable syntax highlighting for JSDoc.
-let g:javascript_conceal_function                  = "ƒ"
-let g:javascript_conceal_null                      = "ø"
-let g:javascript_conceal_this                      = "@"
-let g:javascript_conceal_return                    = "⇚"
-let g:javascript_conceal_undefined                 = "¿"
-let g:javascript_conceal_NaN                       = "ℕ"
-let g:javascript_conceal_prototype                 = "¶"
-let g:javascript_conceal_static                    = "•"
-let g:javascript_conceal_super                     = "Ω"
-let g:javascript_conceal_arrow_function            = "⇒"
-let g:javascript_conceal_noarg_arrow_function      = "φ"
-let g:javascript_conceal_underscore_arrow_function = "?"
+let g:javascript_conceal_function                  = 'ƒ'
+let g:javascript_conceal_null                      = 'ø'
+let g:javascript_conceal_this                      = '@'
+let g:javascript_conceal_return                    = '⇚'
+let g:javascript_conceal_undefined                 = '¿'
+let g:javascript_conceal_NaN                       = 'ℕ'
+let g:javascript_conceal_prototype                 = '¶'
+let g:javascript_conceal_static                    = '•'
+let g:javascript_conceal_super                     = 'Ω'
+let g:javascript_conceal_arrow_function            = '⇒'
+let g:javascript_conceal_noarg_arrow_function      = 'φ'
+let g:javascript_conceal_underscore_arrow_function = '?'
 
 
 " ========================================================================
@@ -911,7 +952,7 @@ if has_key(g:plugs, 'coc.nvim')
   nnoremap <silent> K :call <SID>show_documentation()<CR>
 
   " Use <Enter> to confirm completion.
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
   " Use <c-space> to trigger completion.
   if has('nvim')
@@ -921,8 +962,8 @@ if has_key(g:plugs, 'coc.nvim')
   endif
 
   " Make <CR> auto-select the first completion item and notify coc.nvim to
-  " format on enter, <cr> could be remapped by other vim plugin.
-  inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+  " format on enter, <CR> could be remapped by other vim plugin.
+  inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
                                 \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
   " <TAB> completion.
@@ -951,69 +992,79 @@ if has_key(g:plugs, 'coc.nvim')
 elseif has_key(g:plugs, 'telescope.nvim')
   " LSP actions.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
-  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
-  nmap <silent> gi :Telescope lsp_implementations<cr>
-  nmap <silent> gD :Telescope lsp_definitions<cr>
-  nmap <silent> go :Telescope lsp_type_definitions<cr>
-  nmap <silent> gr :Telescope lsp_references<cr>
-  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
-  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
-  nmap <Leader>ac :Telescope lsp_code_actions<cr>
-  " map <F4> :Telescope lsp_range_code_actions<cr>
+  nmap <silent> K :lua vim.lsp.buf.hover()<CR>
+  nmap <silent> gi :Telescope lsp_implementations<CR>
+  nmap <silent> gD :Telescope lsp_definitions<CR>
+  nmap <silent> go :Telescope lsp_type_definitions<CR>
+  nmap <silent> gr :Telescope lsp_references<CR>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<CR>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<CR>
+  nmap <Leader>ac :Telescope lsp_code_actions<CR>
+  nmap <Leader>s :Telescope lsp_document_symbols<CR>
+
+  " Find things.
+  nnoremap <nowait> <Leader>t :Telescope live_grep<CR>
+  nnoremap <nowait> <Leader>b :Telescope buffers<CR>
+  nnoremap <nowait> <C-g> :lua require('plugins.telescope').project_files()<CR>
+  " nnoremap <nowait> <Leader>g <C-g> :lua require('plugins.telescope').project_files()<CR>
+  nnoremap <Leader>fb :Telescope file_browser<CR>
 
   " Diagnostics.
-  nmap <silent> gl :Telescope diagnostics<cr>
-  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
-  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
+  nmap <silent> gl :Telescope diagnostics<CR>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
 " Navigator.lua.
 elseif has_key(g:plugs, 'navigator.lua')
   " LSP actions.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
-  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
-  nmap <silent> gd :lua vim.lsp.buf.definition()<cr>
-  nmap <silent> gD :lua vim.lsp.buf.declaration()<cr>
-  nmap <silent> gi :lua vim.lsp.buf.implementation()<cr>
-  nmap <silent> go :lua vim.lsp.buf.type_definition()<cr>
-  nmap <silent> gr :lua vim.lsp.buf.references()<cr>
-  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
-  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
-  nmap <Leader>ac :lua vim.lsp.buf.code_action()<cr>
-  " map <F4> :lua vim.lsp.buf.range_code_action()<cr>
+  nmap <silent> K :lua vim.lsp.buf.hover()<CR>
+  nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
+  nmap <silent> gD :lua vim.lsp.buf.declaration()<CR>
+  nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
+  nmap <silent> go :lua vim.lsp.buf.type_definition()<CR>
+  nmap <silent> gr :lua vim.lsp.buf.references()<CR>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<CR>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<CR>
+  nmap <Leader>ac :lua vim.lsp.buf.code_action()<CR>
+  " map <F4> :lua vim.lsp.buf.range_code_action()<CR>
 
   " Diagnostics.
-  nmap <silent> gl :lua vim.diagnostic.open_float()<cr>
-  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
-  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
+  nmap <silent> gl :lua vim.diagnostic.open_float()<CR>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
 " Fall back to default LSP config.
 elseif has_key(g:plugs, 'nvim-lspconfig')
   " LSP actions.
   nnoremap <silent> K :call <SID>show_documentation()<CR>
-  nmap <silent> K :lua vim.lsp.buf.hover()<cr>
-  nmap <silent> gd :lua vim.lsp.buf.definition()<cr>
-  nmap <silent> gD :lua vim.lsp.buf.declaration()<cr>
-  nmap <silent> gi :lua vim.lsp.buf.implementation()<cr>
-  nmap <silent> go :lua vim.lsp.buf.type_definition()<cr>
-  nmap <silent> gr :lua vim.lsp.buf.references()<cr>
-  nmap <C-k> :lua vim.lsp.buf.signature_help()<cr>
-  nmap <Leader>rn :lua vim.lsp.buf.rename()<cr>
-  nmap <Leader>ac :lua vim.lsp.buf.code_action()<cr>
-  " map <F4> :lua vim.lsp.buf.range_code_action()<cr>
+  nmap <silent> K :lua vim.lsp.buf.hover()<CR>
+  nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
+  nmap <silent> gD :lua vim.lsp.buf.declaration()<CR>
+  nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
+  nmap <silent> go :lua vim.lsp.buf.type_definition()<CR>
+  nmap <silent> gr :lua vim.lsp.buf.references()<CR>
+  nmap <C-k> :lua vim.lsp.buf.signature_help()<CR>
+  nmap <Leader>rn :lua vim.lsp.buf.rename()<CR>
+  nmap <Leader>ac :lua vim.lsp.buf.code_action()<CR>
+  " map <F4> :lua vim.lsp.buf.range_code_action()<CR>
 
   " Diagnostics.
-  nmap <silent> gl :lua vim.diagnostic.open_float()<cr>
-  nmap <silent> [d :lua vim.diagnostic.goto_prev()<cr>
-  nmap <silent> ]d :lua vim.diagnostic.goto_next()<cr>
+  nmap <silent> gl :lua vim.diagnostic.open_float()<CR>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
 endif
 
-" Telescope file browser.
-nmap <Leader>fb :Telescope file_browser<cr>
+" Bufferline.
+map <Leader>, :lclose<CR>:BufferLineCyclePrev<CR>
+map <Leader>. :lclose<CR>:BufferLineCycleNext<CR>
+noremap <C-Tab> :lclose<CR>:BufferLineCycleNext<CR>
+noremap <C-S-Tab> :lclose<CR>:BufferLineCyclePrev<CR>
 
 " Execute the buffer contents.
 nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
 
 nmap <C-n> :NERDTreeToggle<CR>
 
-nmap <Leader>tt :Vista!!<CR>
+nmap <nowait> <Leader>st :Vista!!<CR>
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
@@ -1025,14 +1076,12 @@ nmap ga <Plug>(EasyAlign)
 vmap <Enter> <Plug>(EasyAlign)
 
 " FZF.
-if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
+if (executable('fzf') && has_key(g:plugs, 'fzf.vim')) && !has_key(g:plugs, 'telescope.nvim')
   nnoremap <Leader>f :Files<CR>
   nnoremap <nowait> <Leader>b :Buffers<CR>
   nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
-  nnoremap <nowait> <Leader>t :GGrep<CR>
-  nnoremap <nowait> <Leader>s :CocList --interactive --auto-preview symbols<CR>
-  nnoremap <Leader>h :History<CR>
+  nnoremap <Leader>t :GGrep<CR>
 endif
 
 " fzf-project.
@@ -1047,9 +1096,6 @@ map / <Plug>(incsearch-forward)
 map ? <Plug>(incsearch-backward)
 map n <Plug>(incsearch-nohl-n)
 map N <Plug>(incsearch-nohl-N)
-
-" Ag.
-nnoremap <Leader>a :Ag<Space>
 
 " Linting.
 nnoremap <Leader>l :Neomake<CR>
@@ -1089,11 +1135,6 @@ autocmd FileType startify setlocal nofoldenable
 
 " Strip whitespace on save.
 autocmd BufWritePre * StripWhitespace
-
-" vim-commentary.
-autocmd FileType php setlocal commentstring=//\ %s
-autocmd FileType css.scss setlocal commentstring=//\ %s
-autocmd FileType apache setlocal commentstring=#\ %s
 
 if has('nvim')
   " Escape inside a FZF terminal window should exit the terminal window

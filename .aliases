@@ -17,6 +17,9 @@ alias o='open'
 alias du='du -h'
 alias df='df -h'
 
+# Use Neovim for vimdiff.
+alias vimdiff='nvim -d'
+
 # ls shortcuts.
 # @see https://the.exa.website/
 if hash exa 2>/dev/null ; then

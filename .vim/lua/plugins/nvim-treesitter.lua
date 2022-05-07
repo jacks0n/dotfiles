@@ -1,8 +1,7 @@
-require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all"
+require('nvim-treesitter.configs').setup {
   ensure_installed = 'all',
 
-  -- Install parsers synchronously (only applied to `ensure_installed`)
+  -- Install parsers synchronously (only applied to `ensure_installed`).
   sync_install = false,
 
   -- List of parsers to ignore installing (for "all")
@@ -11,16 +10,29 @@ require'nvim-treesitter.configs'.setup {
   ignore_install = { 'phpdoc' },
 
   highlight = {
-    -- `false` will disable the whole extension
     enable = true,
 
     -- CSS doesn't highlight the colours yet.
     disable = { 'css' },
 
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
+
+  indent = {
+    enable = true
+  },
+
+  -- @see https://github.com/p00f/nvim-ts-rainbow
+  rainbow = {
+    enable = true,
+    -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean.
+    extended_mode = true,
+    -- Do not enable for files with more than n lines, int.
+    max_file_lines = 10000,
+  },
+
+  -- @see https://github.com/JoosepAlviste/nvim-ts-context-commentstring
+  context_commentstring = {
+    enable = true
+  }
 }
