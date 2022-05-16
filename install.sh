@@ -67,6 +67,7 @@ brew install unar
 brew install universal-ctags
 brew install unzip
 brew install vim
+brew install viu
 brew install watchman
 brew install wget
 brew install whois
@@ -81,7 +82,9 @@ brew install --cask dash
 brew install --cask dropbox
 brew install --cask evernote
 brew install --cask firefox
+brew install --cask font-sf-mono-nerd-font
 brew install --cask hiddenbar
+brew install --cask hyper
 brew install --cask homebrew/cask/docker
 brew install --cask insomnia
 brew install --cask iterm2
@@ -99,7 +102,15 @@ brew install --cask vimr
 brew install --cask vlc
 
 # Language servers.
-npm install -g @serverless-ide/language-server
+npm install --global @serverless-ide/language-server
+npm install --global diagnostic-languageserver
+
+# Linters.
+npm install --global stylelint
+npm install --global prettier
+npm install --global eslint
+composer global require 'squizlabs/php_codesniffer=*'
+pip3 install vim-vint --upgrade
 
 # NVim language servers.
 nvim +'LspInstall --sync bashls' +qall
@@ -131,10 +142,10 @@ nvm install --lts
 
 # Install Neovim libraries.
 pip3 install pynvim --upgrade
-npm install -g neovim
+npm install --global neovim
 
 # Install lehre. Required to generate JS docblocks in Vim (LJSDoc)
-npm -g install lehre
+npm install --global lehre
 
 # Install coc.nvim plugins.
 nvim -c +'CocInstall -sync coc-css' +qall
