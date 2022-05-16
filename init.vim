@@ -227,20 +227,27 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 " Plug: Themes.                                                          |
 " ========================================================================
 
-Plug 'alessandroyorba/despacio'
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
-Plug 'sts10/vim-pink-moon'
+Plug 'alessandroyorba/despacio'
 if has('nvim')
-  Plug 'EdenEast/nightfox.nvim'
-  Plug 'arcticicestudio/nord-vim'
-  Plug 'catppuccin/nvim', {'as': 'catppuccin'}
   Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-  Plug 'projekt0n/github-nvim-theme'
-  Plug 'rebelot/kanagawa.nvim'
-  Plug 'rose-pine/neovim'
 endif
+Plug 'rebelot/kanagawa.nvim'
+
+Plug 'arcticicestudio/nord-vim'
+Plug 'projekt0n/github-nvim-theme'
+Plug 'sts10/vim-pink-moon'
+Plug 'catppuccin/nvim', {'as': 'catppuccin'}
+Plug 'EdenEast/nightfox.nvim'
+Plug 'rose-pine/neovim'
+
+
+let g:material_style = "deep ocean"
+Plug 'marko-cerovac/material.nvim'
+let g:material_style = "deep ocean"
+colorscheme material
 
 
 " ========================================================================
@@ -767,6 +774,10 @@ command! -bang -nargs=* GGrep
 " ========================================================================
 
 " Import Lua plugin configs.
+lua << EOF
+require('material').setup()
+EOF
+colorscheme material
 if has('nvim')
   lua require('plugins.bufferline')
   " lua require('plugins.diagnosticls-configs-nvim')
@@ -783,6 +794,7 @@ if has('nvim')
   lua require('lsp-diagnostic')
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
+  lua require('plugins.theme-material')
   " lua require('package-info').setup({ package_manager = 'npm' })
 endif
 
