@@ -8,12 +8,9 @@ local cmp = require'cmp'
 
 cmp.setup({
   window = {
-    -- completion = cmp.config.window.bordered(),
-    -- documentation = cmp.config.window.bordered(),
   },
   snippet = {
-    expand = function(args)
-      vim.fn['UltiSnips#Anon'](args.body)
+    expand = function()
     end,
   },
   completeopt = 'menu,menuone,noinsert',
