@@ -1,3 +1,6 @@
+# Fig pre block. Keep at the top of this file.
+. "$HOME/.fig/shell/zshrc.pre.zsh"
+
 # Not a tty.
 [ -z "$PS1" ] && return
 
@@ -151,9 +154,12 @@ load-nvmrc() {
       nvm use
     fi
   elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
+    echo 'Reverting to global Node'
+    nvm deactivate
   fi
 }
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
+
+# Fig post block. Keep at the bottom of this file.
+. "$HOME/.fig/shell/zshrc.post.zsh"
