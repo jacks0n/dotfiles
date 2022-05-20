@@ -2,15 +2,17 @@
 #
 # Note that /etc/paths will override $PATH after this file is execute.
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 ##
 # Base - required when `login` isn't used.
 ##
 
 export PATH="/opt/X11/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/sbin:$PATH"
+export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 ##
 #  Global variables - $PATH, $MANPATH, $EDITOR, $VISUAL, etc.
@@ -53,20 +55,11 @@ if hash brew 2>/dev/null ; then
   export HOMEBREW_CASK_OPTS="$(IFS=' '; echo ${HOMEBREW_CASK_OPTIONS[@]})"
 
   # Homebrew GNU coreutils, sed & tar.
-  export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/gawk/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
-  export PATH="/usr/local/opt/gnu-getopt:$PATH"
-  export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
-  export MANPATH="/usr/local/opt/coreutils/libexec/gnubin:$MANMANPATH"
-  export MANPATH="/usr/local/opt/findutils/libexec/gnubin:$MANMANPATH"
-  export MANPATH="/usr/local/opt/gawk/libexec/gnubin:$MANMANPATH"
-  export MANPATH="/usr/local/opt/gnu-sed/libexec/gnubin:$MANMANPATH"
-  export MANPATH="/usr/local/opt/gnu-tar/libexec/gnubin:$MANMANPATH"
-  export MANPATH="/usr/local/opt/grep/libexec/gnubin:$MANMANPATH"
+  gnu_homebrew_packages=(gnu-sed gnu-tar grep findutils gawk gnu-sed)
+  for gnu_homebrew_package in "${gnu_homebrew_packages[@]}" ; do
+    export PATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/libexec/gnubin:$PATH"
+    export MANPATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/share/man:$MANMANPATH"
+  done
 
   # Node.js
   export NODE_PATH='/usr/local/lib/node_modules'
