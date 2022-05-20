@@ -81,6 +81,7 @@ brew install --cask alfred
 brew install --cask dash
 brew install --cask dropbox
 brew install --cask evernote
+brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
 brew install --cask hiddenbar
