@@ -21,8 +21,10 @@ brew install docker-compose
 brew install editorconfig
 brew install exa
 brew install fd
+brew install findutils
 brew install fx
 brew install fzf
+brew install gawk
 brew install git
 brew install git-delta
 brew install gnu-sed
@@ -99,6 +101,7 @@ brew install --cask slack
 brew install --cask sourcetree
 brew install --cask spectacle
 brew install --cask spotify
+brew install --cask tabby
 brew install --cask vimr
 brew install --cask vlc
 
@@ -145,8 +148,12 @@ nvm install --lts
 pip3 install pynvim --upgrade
 npm install --global neovim
 
-# Install lehre. Required to generate JS docblocks in Vim (LJSDoc)
+# Install lehre. Required to generate JS docblocks in Vim (LJSDoc).
 npm install --global lehre
+
+# Install Typescript.
+npm install --global typescript
+npm install --global ts-node
 
 # Install coc.nvim plugins.
 nvim -c +'CocInstall -sync coc-css' +qall
