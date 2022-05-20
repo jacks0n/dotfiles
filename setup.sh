@@ -23,6 +23,7 @@ home_dotpaths=(
   ~/.sshrc
   ~/.hushlogin
   ~/.zshrc
+  ~/.zprofile
   ~/.zshenv
   ~/.iterm2_shell_integration.zsh
 )
