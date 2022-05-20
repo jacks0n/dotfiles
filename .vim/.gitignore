@@ -1,5 +1,8 @@
+.netrwhist
 autoload/
 backup/
 plugged/
+spell/
 swap/
+tmp/
 undo/
