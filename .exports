@@ -2,7 +2,11 @@
 #
 # Note that /etc/paths will override $PATH after this file is execute.
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ -x /opt/homebrew/bin/brew ] ; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ] ; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 ##
 # Base - required when `login` isn't used.
