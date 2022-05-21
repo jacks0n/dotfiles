@@ -87,8 +87,8 @@ source "$ZPLUG_HOME/init.zsh"
 
 zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
-zplug 'mafredri/zsh-async', on:sindresorhus/pure
-zplug 'sindresorhus/pure'
+zplug 'mafredri/zsh-async', from:github
+zplug 'sindresorhus/pure', use:pure.zsh, from:github, as:theme
 zplug 'zsh-users/zsh-completions'
 zplug 'changyuheng/fz', defer:1
 zplug 'rupa/z', use:z.sh
