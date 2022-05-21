@@ -6,10 +6,12 @@ if [[ ! type "$1" &>/dev/null ]] ; then
 fi
 
 # Install Brew packages.
-brew install aws
+brew install apparency
+brew install awscli
 brew install bash
 brew install bash-completion
 brew install bat
+brew install bfg
 brew install brew-cask-completion
 brew install ccat
 brew install cmake # Required for YouCompleteMe.
@@ -19,12 +21,14 @@ brew install cowsay
 brew install curl
 brew install docker-compose
 brew install editorconfig
+brew install elcolorcode
 brew install exa
 brew install fd
 brew install findutils
 brew install fx
 brew install fzf
 brew install gawk
+brew install gh
 brew install git
 brew install git-delta
 brew install gnu-sed
@@ -53,12 +57,19 @@ brew install node
 brew install nvm
 brew install php
 brew install python
+brew install qlimagesize
+brew install qlmarkdown
+brew install qlstephen
+brew install qlvideo
+brew install quicklook-json
+brew install quicklookase
 brew install ranger
 brew install ripgrep
 brew install rsync
 brew install saulpw/vd/visidata
 brew install shellcheck
 brew install sqlite
+brew install suspicious-package
 brew install svn
 brew install the_silver_searcher
 brew install tig
@@ -77,6 +88,10 @@ brew install yarn
 brew install z
 brew install zsh
 brew install zsh-autosuggestions
+brew tap buo/cask-upgrade
+
+# Install Quick Look plugins.
+xattr -r ~/Library/QuickLook
 
 # Install Brew cask packages.
 brew install --cask alfred
@@ -87,9 +102,10 @@ brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
 brew install --cask hiddenbar
-brew install --cask hyper
 brew install --cask homebrew/cask/docker
+brew install --cask hyper
 brew install --cask insomnia
+brew install --cask istat-menus
 brew install --cask iterm2
 brew install --cask lastpass
 brew install --cask macvim

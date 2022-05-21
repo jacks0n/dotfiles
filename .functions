@@ -558,6 +558,7 @@ update-user() {
   # Update zplug and packages.
   if [[ $(command_exists zplug) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
     echo "\n\n=> Updating zplug and packages."
+    zplug clean --force
     zplug update
   fi
 
@@ -568,10 +569,10 @@ update-user() {
   fi
 
   # Update Go packages.
-  if command_exists go ; then
-    echo "\n\n=> Updating Go packages."
-    go get -u all
-  fi
+  # if command_exists go ; then
+  #   echo "\n\n=> Updating Go packages."
+  #   go get -u all
+  # fi
 
   # Update Ruby Gems.
   # if command_exists gem ; then
@@ -615,6 +616,7 @@ update-global() {
     echo '=> Homebrew cleanup, update, repair and link fixes.'
     (
       brew update
+      brew cu --all --cleanup --yes
       brew upgrade
       brew cleanup -s --prune=all
       rm -rf "$(brew --cache)"
@@ -652,8 +654,8 @@ update-global() {
   # Update npm and npm packages.
   if command_exists npm ; then
     echo "\n\n=> Updating npm and npm packages."
-    npm install npm@latest -g
-    npm update -g
+    npm install --global npm@latest
+    npm update --global
   fi
 
   echo "\n\n=> Done!"
