@@ -6,12 +6,13 @@ if [[ ! type "$1" &>/dev/null ]] ; then
 fi
 
 # Install Brew packages.
-brew install apparency
 brew install awscli
 brew install bash
 brew install bash-completion
 brew install bat
+brew install betterzip
 brew install bfg
+brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
 brew install cmake # Required for YouCompleteMe.
@@ -57,19 +58,12 @@ brew install node
 brew install nvm
 brew install php
 brew install python
-brew install qlimagesize
-brew install qlmarkdown
-brew install qlstephen
-brew install qlvideo
-brew install quicklook-json
-brew install quicklookase
 brew install ranger
 brew install ripgrep
 brew install rsync
 brew install saulpw/vd/visidata
 brew install shellcheck
 brew install sqlite
-brew install suspicious-package
 brew install svn
 brew install the_silver_searcher
 brew install tig
@@ -92,6 +86,19 @@ brew tap buo/cask-upgrade
 
 # Install Quick Look plugins.
 xattr -r ~/Library/QuickLook
+brew install apparency                               # Preview the contents of a macOS app.
+brew install qlcolorcode                             # Preview source code files with syntax highlighting.
+brew install qlimagesize                             # Display image size and resolution.
+brew install qlmarkdown                              # Preview Markdown files.
+brew install qlstephen                               # Preview plain text files without or with unknown file extension.
+brew install qlvideo                                 # Preview most types of video files, as well as their thumbnails, cover art and metadata.
+brew install quicklook-json                          # Preview JSON files.
+brew install quicklookase                            # Preview Adobe ASE Color Swatches.
+brew install suspicious-package                      # Preview the contents of a standard Apple installer package.
+brew install quicklookapk                            # Preview Android APK files.
+brew install quicklook-pat                           # Preview Adobe Photoshop pattern files.
+brew install --cask --no-quarantine syntax-highlight # Preview many different source code files.
+brew cask install qladdict                           # Preview subtitle (.srt) files.
 
 # Install Brew cask packages.
 brew install --cask alfred
@@ -109,7 +116,9 @@ brew install --cask istat-menus
 brew install --cask iterm2
 brew install --cask lastpass
 brew install --cask macvim
+brew install --cask masscode
 brew install --cask microsoft-teams
+brew install --cask notion
 brew install --cask oracle-jdk
 brew install --cask postman
 brew install --cask sequel-pro
@@ -120,6 +129,7 @@ brew install --cask spotify
 brew install --cask tabby
 brew install --cask vimr
 brew install --cask vlc
+brew install --cask zettlr
 
 # Language servers.
 npm install --global @serverless-ide/language-server
@@ -170,6 +180,9 @@ npm install --global lehre
 # Install Typescript.
 npm install --global typescript
 npm install --global ts-node
+
+# Instant Markdown.
+npm --global install instant-markdown-d
 
 # Install coc.nvim plugins.
 nvim -c +'CocInstall -sync coc-css' +qall
