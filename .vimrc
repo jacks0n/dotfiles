@@ -528,6 +528,7 @@ nmap ; :
 
 " Code formatting.
 nmap <Leader>fj :FormatJson<CR>
+nmap <Leader>fx :FormatXml<CR>
 
 " Code folding options.
 nmap <Leader>fl- :setlocal nofoldenable<CR>
@@ -754,6 +755,7 @@ endfunction
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
 command! -bar FormatJson :%!python3 -m json.tool
+command! -bar FormatXml :%!xmllint --format --recover -
 
 " Plugin commands.
 command! -bang -nargs=* GGrep
