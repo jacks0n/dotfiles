@@ -34,6 +34,7 @@ if has('nvim')
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'windwp/nvim-autopairs'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'lewis6991/impatient.nvim'
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -197,7 +198,7 @@ endif
 " Plug: Markdown.                                                        |
 " ========================================================================
 
-Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
+Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
 
 
 " ========================================================================
@@ -227,6 +228,7 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 " Plug: Themes.                                                          |
 " ========================================================================
 
+Plug 'yong1le/darkplus.nvim'
 Plug 'alessandroyorba/despacio'
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
