@@ -1,5 +1,5 @@
 # Fig pre block. Keep at the top of this file.
-. "$HOME/.fig/shell/zshrc.pre.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
 
 # Not a tty.
 [ -z "$PS1" ] && return
@@ -145,21 +145,23 @@ load-nvmrc() {
   local node_version="$(nvm version)"
   local nvmrc_path="$(nvm_find_nvmrc)"
 
+  # Set nvmrc version.
   if [ -n "$nvmrc_path" ]; then
     local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
 
     if [ "$nvmrc_node_version" = "N/A" ]; then
       nvm install
+      nvm use --silent
     elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
+      nvm use --silent
     fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo 'Reverting to global Node'
-    nvm deactivate
+  # Revert to global node.
+  elif [ "$node_version" != 'system' ]; then
+    nvm deactivate --silent
   fi
 }
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
 # Fig post block. Keep at the bottom of this file.
-. "$HOME/.fig/shell/zshrc.post.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
