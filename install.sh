@@ -7,6 +7,7 @@ fi
 
 # Install Brew packages.
 brew install awscli
+brew install pure
 brew install bash
 brew install bash-completion
 brew install bat
@@ -21,6 +22,7 @@ brew install coreutils
 brew install cowsay
 brew install curl
 brew install docker-compose
+brew install edgedb/tap/edgedb-cli
 brew install editorconfig
 brew install elcolorcode
 brew install exa
@@ -63,6 +65,7 @@ brew install ripgrep
 brew install rsync
 brew install saulpw/vd/visidata
 brew install shellcheck
+brew install skype
 brew install sqlite
 brew install svn
 brew install the_silver_searcher
@@ -76,6 +79,7 @@ brew install unzip
 brew install vim
 brew install viu
 brew install watchman
+brew install webtorrent
 brew install wget
 brew install whois
 brew install yarn
@@ -85,30 +89,36 @@ brew install zsh-autosuggestions
 brew tap buo/cask-upgrade
 
 # Install Quick Look plugins.
-xattr -r ~/Library/QuickLook
-brew install apparency                               # Preview the contents of a macOS app.
-brew install qlcolorcode                             # Preview source code files with syntax highlighting.
-brew install qlimagesize                             # Display image size and resolution.
-brew install qlmarkdown                              # Preview Markdown files.
-brew install qlstephen                               # Preview plain text files without or with unknown file extension.
-brew install qlvideo                                 # Preview most types of video files, as well as their thumbnails, cover art and metadata.
-brew install quicklook-json                          # Preview JSON files.
-brew install quicklookase                            # Preview Adobe ASE Color Swatches.
-brew install suspicious-package                      # Preview the contents of a standard Apple installer package.
-brew install quicklookapk                            # Preview Android APK files.
-brew install quicklook-pat                           # Preview Adobe Photoshop pattern files.
+brew install --cask apparency                        # Preview the contents of a macOS app.
+brew install --cask qlcolorcode                      # Preview source code files with syntax highlighting.
+brew install --cask qlimagesize                      # Display image size and resolution.
+brew install --cask qlmarkdown                       # Preview Markdown files.
+brew install --cask qlstephen                        # Preview plain text files without or with unknown file extension.
+brew install --cask qlvideo                          # Preview most types of video files, as well as their thumbnails, cover art and metadata.
+brew install --cask quicklook-json                   # Preview JSON files.
+brew install --cask quicklookase                     # Preview Adobe ASE Color Swatches.
+brew install --cask suspicious-package               # Preview the contents of a standard Apple installer package.
+brew install --cask quicklookapk                     # Preview Android APK files.
+brew install --cask quicklook-pat                    # Preview Adobe Photoshop pattern files.
 brew install --cask --no-quarantine syntax-highlight # Preview many different source code files.
-brew cask install qladdict                           # Preview subtitle (.srt) files.
+brew install --cask qladdict                         # Preview subtitle (.srt) files.
+sudo xattr -rd com.apple.quarantine /Library/QuickLook
 
 # Install Brew cask packages.
 brew install --cask alfred
+brew install --cask arq
+brew install --cask backblaze
+brew install --cask bartender
+brew install --cask beekeeper-studio
+brew install --cask catch
 brew install --cask dash
+brew install --cask drawio
 brew install --cask dropbox
 brew install --cask evernote
 brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
-brew install --cask hiddenbar
+brew install --cask google-drive
 brew install --cask homebrew/cask/docker
 brew install --cask hyper
 brew install --cask insomnia
@@ -127,6 +137,9 @@ brew install --cask sourcetree
 brew install --cask spectacle
 brew install --cask spotify
 brew install --cask tabby
+brew install --cask telegram-desktop
+brew install --cask todoist
+brew install --cask tor-browser
 brew install --cask vimr
 brew install --cask vlc
 brew install --cask zettlr
@@ -156,6 +169,7 @@ nvim +'LspInstall --sync intelephense' +qall
 nvim +'LspInstall --sync jedi_language_server' +qall
 nvim +'LspInstall --sync jsonls' +qall
 nvim +'LspInstall --sync lemminx' +qall
+nvim +'LspInstall --sync marksman' +qall
 nvim +'LspInstall --sync phpactor' +qall
 nvim +'LspInstall --sync pyright' +qall
 nvim +'LspInstall --sync sourcery' +qall
