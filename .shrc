@@ -1,9 +1,10 @@
 # vim: filetype=sh
 
+##
 # Dotfiles.
 ##
 
-dotfiles=(.aliases .functions .shrc.local)
+dotfiles=(.aliases .functions .exports .shrc.local)
 for dotfile in "${dotfiles[@]}" ; do
   dotfile="$HOME/$dotfile"
   if [ -f "$dotfile" ] ; then

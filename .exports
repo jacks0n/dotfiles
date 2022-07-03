@@ -1,6 +1,11 @@
 # vim: filetype=sh
-#
-# Note that /etc/paths will override $PATH after this file is execute.
+
+if [[ -n $SOURCED_SHELL_EXPORTS ]] ; then
+  return
+fi
+export SOURCED_SHELL_EXPORTS=1
+
+# Note that /etc/paths will override $PATH after this file is executed.
 
 if [ -x /opt/homebrew/bin/brew ] ; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -13,10 +18,10 @@ fi
 ##
 
 export PATH="/opt/X11/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
-export PATH="/usr/local/sbin:$PATH"
+# export PATH="/usr/local/bin:$PATH"
+# export PATH="/usr/local/sbin:$PATH"
 export PATH="/sbin:$PATH"
-export PATH="$HOMEBREW_PREFIX/bin:$PATH"
+# export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 ##
 #  Global variables - $PATH, $MANPATH, $EDITOR, $VISUAL, etc.
@@ -43,8 +48,9 @@ export HOMEBREW_NO_ANALYTICS=1
 
 # Homebrew paths.
 if hash brew 2>/dev/null ; then
-  export MANPATH="/usr/local/man:$MANPATH"
-  export MANPATH="/usr/local/share/man:$MANPATH"
+  # export PATH="$HOMEBREW_PREFIX/bin:$PATH"
+  # export MANPATH="/usr/local/man:$MANPATH"
+  # export MANPATH="/usr/local/share/man:$MANPATH"
 
   # Homebrew Cask path preferences.
   HOMEBREW_CASK_OPTIONS=(
@@ -65,17 +71,19 @@ if hash brew 2>/dev/null ; then
     export MANPATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/share/man:$MANMANPATH"
   done
 
+  # Curl.
+  export PATH="$(brew --prefix curl)/bin:$PATH"
+
   # Node.js
   export NODE_PATH='/usr/local/lib/node_modules'
   export NODE_PATH="/usr/local/share/npm/lib/node_modules:$NODE_PATH"
   export PATH="/usr/local/share/npm/bin:$PATH"
 
   # Ruby.
-  export PATH="/usr/local/opt/ruby/bin:$PATH"
-  export PATH="/usr/local/lib/ruby/gems/2.6.0/bin:$PATH"
+  export PATH="$(brew --prefix ruby)/bin:$PATH"
 
   # Java.
-  export PATH="/usr/local/opt/openjdk/bin:$PATH"
+  export PATH="$(brew --prefix openjdk)/bin:$PATH"
 fi
 
 # Android emulator / SDK.
@@ -89,7 +97,7 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 # Golang.
 if hash go 2>/dev/null ; then
-  export GOROOT='/usr/local/opt/go/libexec'
+  export GOROOT="$(brew --prefix go)/libexec"
 
   export GOPATH="$HOME/go"
   export PATH="$GOPATH/bin:$PATH"
