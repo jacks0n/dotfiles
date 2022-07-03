@@ -44,15 +44,6 @@ e() {
   [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
 }
 
-# Run an apt cache server.
-apt-cache-server() {
-  docker pull sameersbn/apt-cacher-ng:latest
-  docker run --name apt-cacher-ng --init -it --rm \
-    --publish 3142:3142 \
-    --volume ~/.cache/apt:/var/cache/apt-cacher-ng \
-    sameersbn/apt-cacher-ng:latest
-}
-
 
 # Fuzzy find and edit a file in a Git repo.
 ge() {
@@ -92,36 +83,6 @@ gclone() {
 }
 
 
-# Print all commits in the last day for all Git repositories under the current directory.
-git-standup() {
-  local ORIGINAL_WORKING_DIRECTORY="$(pwd)"
-  local GIT_AUTHOR="$(git config user.name)"
-
-  local DAYS_AGO='1'
-  if [[ "$(date '+%a')" == 'Mon' ]] ; then
-      DAYS_AGO='3'
-  fi
-
-  find "$(pwd)" -type d -name .git | while read GIT_DIR_PATH ; do
-    cd "$GIT_DIR_PATH/.."
-    local AUTHOR_COMMITS="$(
-      git log \
-        --graph \
-        --pretty=format:'%C(yellow)%h %Cblue%>(12)%ad %Cgreen%<(7)%aN%Cred%d %Creset%s' \
-        --since=$DAYS_AGO.days.ago \
-        --author="$GIT_AUTHOR" \
-        --all
-    )"
-    if [ ! -z "$AUTHOR_COMMITS" ] ; then
-      echo -e "\n=> $(pwd)"
-      echo "$AUTHOR_COMMITS"
-    fi
-  done
-
-  cd "$ORIGINAL_WORKING_DIRECTORY"
-}
-
-
 # Alias for the nearest Symfony `bin/console`.
 symfony-console-closet() {
   (
@@ -142,136 +103,6 @@ symfony-console-closet() {
   )
 }
 
-
-# Fuzzy find and `cd` into a Git repo directory.
-gcd() {
-  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
-  if [ ! -d "$GIT_ROOT_DIR" ] ; then
-    echo 'ERROR: Not in a Git repo.' >&2
-    return 1
-  fi
-
-  local DIR="$GIT_ROOT_DIR/$(
-    find ~/drupal-dev-env/web -mindepth 1 -type d -printf '%P\n' | \
-      fzf --query="$@"
-  )"
-  if [ -d "$DIR" ] ; then
-    echo "DIR EXISTS!"
-    cd "$DIR"
-  fi
-}
-
-
-backup() {
-  if [ -z "$BACKUP_DIR" ] ; then
-    echo '=> ERROR: Environmental variable "$BACKUP_DIR" not set!' >&2
-    return 1
-  fi
-
-  if hash composer 2>/dev/null ; then
-    echo '=> Backing up composer packages.'
-    composer global show --name-only --tree 2>/dev/null | \
-      grep -v '^[├ │└]' | \
-      cut -d' ' -f1 > "$BACKUP_DIR/composer-packages.list"
-  fi
-
-  if hash npm 2>/dev/null ; then
-    echo '=> Backing up NPM package list.'
-    npm list --global --depth=0 | \
-      sed 1d | \
-      cut -d'@' -f1 | \
-      cut -d' ' -f2 | \
-      sed '/^$/d' > "$BACKUP_DIR/npm-packags.list"
-  fi
-
-  if hash brew 2>/dev/null ; then
-    (
-      cd "$BACKUP_DIR"
-      rm -f Brewfile
-
-      # Backup all packages (with arguments), taps, and casks.
-      echo '=> Creating Brewfile bundle.'
-      brew bundle --force dump
-
-      # Remove non-top level installed packages (e.g. dependencies).
-      # Top-level packages needed on their own that other packages depend on.
-      local package_whitelist=(homebrew/php/composer homebrew/php/php-code-sniffer neovim/neovim/neovim homebrew/php/php70)
-      local brew_leaves="$(brew leaves)"
-      grep '^brew' Brewfile | while read brewfile_line ; do
-        local package="$(echo $brewfile_line | cut -d"'" -f2)"
-        local package_escaped="$(echo $package | sed -e 's/[\/&]/\\&/g')"
-        if [[ ! $(echo "$brew_leaves" | grep "^$package_escaped$") && ! $package_whitelist =~ $package ]] ; then
-          echo "=> Removing '$package'"
-          sed -i -e "/^brew '$package_escaped'/d" Brewfile
-        fi
-      done
-    )
-  fi
-}
-
-
-init() {
-  local OS="$(uname --operating-system)"
-
-  # Homebrew.
-  if [[ $OS == 'Darwin' && ! $(hash brew 2>/dev/null) ]] ; then
-    echo -n 'Install Homebrew (y/n)? '
-    read install_homebrew
-    if [[ $install_homebrew == 'y' ]] ; then
-      echo '=> Installing Homebrew.'
-      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    fi
-  fi
-
-  # Composer.
-  if ! hash composer 2>/dev/null ; then
-    echo '=> Installing Composer.'
-    if [[ $OS == 'Darwin' && $(hash brew 2>/dev/null) ]] ; then
-      brew tap homebrew/php
-      brew install composer
-    else
-      wget https://getcomposer.org/installer -O - -q | php -- --quiet
-    fi
-  fi
-
-  # Node / NPM.
-  if [[ $OS == 'Darwin' && ! $(hash node 2>/dev/null) ]] ; then
-    echo '=> Installing Node.'
-    brew install node
-  fi
-}
-
-
-restore() {
-  if [ -z "$BACKUP_DIR" ] ; then
-    echo '=> ERROR: Environmental variable "$BACKUP_DIR" not set!' >&2
-    return 1
-  fi
-
-  if hash composer 2>/dev/null ; then
-    echo '=> Installing global composer packages.'
-    cat "$BACKUP_DIR/npm-packages.list" | while read composer_package ; do
-      echo "=> Installing '$composer_package'"
-      composer global install "$composer_package"
-    done
-  fi
-
-  if hash npm 2>/dev/null ; then
-    echo '=> Installing NPM packages.'
-    cat "$BACKUP_DIR/npm-packages.list" | while read npm_package ; do
-      echo "=> Installing '$npm_package'"
-      npm --global install "$npm_package"
-    done
-  fi
-
-  if hash brew 2>/dev/null ; then
-    (
-      echo '=> Installing Brew tabs, packages and casks.'
-      cd "$BACKUP_DIR" && \
-      brew bundle
-    )
-  fi
-}
 
 random-joke() {
   local jokes_path="$HOME/.config/jokes.py"
@@ -301,20 +132,6 @@ cowjoke() {
 # Recursively change ownerwhip of the path to $USER.
 chownme() {
   sudo chown -R "${USER}:staff" "$@"
-}
-
-
-# Generate the ctags file at the top of a Git repo.
-generate-ctags() {
-  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
-  if [ ! -d "$GIT_ROOT_DIR" ] ; then
-    echo 'ERROR: Not in a Git repo.' >&2
-    return 1
-  fi
-
-  cd "$GIT_ROOT_DIR"
-  rm tags
-  ctags -R -f tags
 }
 
 
