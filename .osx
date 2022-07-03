@@ -458,7 +458,12 @@ defaults write com.microsoft.Powerpoint UseOnlineContent -integer 0
 ###############################################################################
 
 # Make Zsh the default shell.
-chsh -s /usr/local/bin/zsh
+ZSH_BIN_PATH="$(brew --prefix zsh)/bin/zsh"
+chsh -s "$ZSH_BIN_PATH"
+sudo sh -c "echo '$ZSH_BIN_PATH' >> /etc/shells"
+CURRENT_SHELL=$(
+  sudo dscl localhost read Local/Default/Users/$USER UserShell
+)
+sudo dscl localhost change Local/Default/Users/$USER UserShell $CURRENT_SHELL "$(brew --prefix zsh)/bin/zsh"
 
- xcode-select --install
-
+xcode-select --install
