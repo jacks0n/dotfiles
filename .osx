@@ -248,14 +248,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 # Avoid creation of .DS_Store files on USB drives.
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
-# Disable the warning when changing a file extension.
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-
 # Disable the warning before emptying the Trash.
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
-
-# Show the status bar.
-defaults write com.apple.finder ShowStatusBar -bool true
 
 # Set Desktop as the default location for new Finder windows.
 # For other paths, use `PfLo` and `file:///full/path/here/`.
@@ -363,7 +357,7 @@ defaults write NSGlobalDomain AppleMeasurementUnits -string 'Centimeters'
 defaults write NSGlobalDomain AppleMetricUnits -bool true
 
 # Set the timezone; see `systemsetup -listtimezones` for other values.
-systemsetup -settimezone 'Australia/Brisbane' > /dev/null
+systemsetup -settimezone 'Australia/Melbourne' > /dev/null
 
 # Increase sound quality for Bluetooth headphones/headsets.
 defaults write com.apple.BluetoothAudioAgent 'Apple Bitpool Min (editable)' -int 40
