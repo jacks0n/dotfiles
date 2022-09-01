@@ -13,7 +13,8 @@ local lsp_diagnostic = function()
   sign({name = 'DiagnosticSignInfo', text = ''})
 
   vim.diagnostic.config({
-    virtual_text = true,
+    -- Disable virtual_text since it's redundant due to lsp_lines.
+    virtual_text = false,
     signs = true,
     update_in_insert = false,
     underline = true,
