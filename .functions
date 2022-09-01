@@ -521,12 +521,19 @@ replace() {
   local TO="$(preg-quote "$2")"
   local DIR="${3:-.}"
 
-  find "$DIR" -type f | while read FILEPATH ; do
-    if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null ; then
-      echo "=> Replaced in file '$FILEPATH'"
-      perl -pi -e "s/$FROM/$TO/g" "$FILEPATH"
-    fi
-  done
+  if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]] ; then
+    ag --files-with-matches "$FROM" | while read -r filepath ; do
+      echo "=> Replaced in file '$filepath'"
+      perl -pi -e "s/$FROM/$TO/g" "$filepath"
+    done
+  else
+    find "$DIR" -type f | while read -r filepath ; do
+      if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null ; then
+        echo "=> Replaced in file '$FILEPATH'"
+        perl -pi -e "s/$FROM/$TO/g" "$FILEPATH"
+      fi
+    done
+  fi
 }
 
 ##
@@ -618,4 +625,28 @@ docker-wipe() {
   docker network ls | grep 'bridge' | cut -d' ' -f1 | xargs --no-run-if-empty docker network rm
 
   docker system prune --all --force --volumes
+}
+
+##
+# Fancy diff.
+#
+# @see https://github.com/mookid/diffr
+##
+difff() {
+  diff -u "$1" "$2" | diffr
+}
+
+###
+# Git
+##
+gcm() {
+  git commit --message "$*"
+}
+gpu() {
+  local symbolic_ref=$(git symbolic-ref --short HEAD)
+  local push_output="$(git push --set-upstream origin "$symbolic_ref" 2>&1)"
+  pr_url=$(echo "$push_output" | grep 'https' | sed -e 's/remote: *//g' -e 's/ //g')
+  if [[ -n "$pr_url" ]] ; then
+    open "$pr_url"
+  fi
 }

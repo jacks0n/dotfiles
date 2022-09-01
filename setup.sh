@@ -72,3 +72,6 @@ fi
 mkdir -p ~/intelephense
 read -e -p 'Intelephense license: ' intelephense_license
 echo "$intelephense_license" > ~/intelephense/license.txt
+
+# Setup Git aliases.
+curl https://raw.githubusercontent.com/Git Alias/gitalias/main/gitalias.txt -o ~/.dotfiles/.gitalias

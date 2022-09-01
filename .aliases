@@ -40,14 +40,22 @@ else
 fi
 
 # Git.
-alias ga='git add -A .'
+alias ga='git add --all .'
+alias gc='git checkout'
+alias gcb='git checkout -b'
+alias gcl='git clean -fd'
 alias gd='git diff'
 alias gdc='git diff --cached'
+alias gf='git fetch'
 alias gp='git push'
-alias gpu='git push -u origin $(git symbolic-ref --short HEAD)'
+alias gpf='git pull --ff-only'
+alias gpn='git pull --no-rebase'
+alias gpom='git pull origin $(git config init.defaultBranch)'
+alias gpr='git pull --rebase'
+alias gr='git reset'
+alias grh='git reset --hard'
 alias gs='git status'
-alias gst='git status'
-alias gsta='git status -uall'
+alias gsa='git status --untracked-files=all'
 
 # Avoid permission errors.
 alias gem='sudo gem'

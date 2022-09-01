@@ -31,7 +31,7 @@ setopt SHARE_HISTORY        # Share history between shell instances.
 setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
 setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
 setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
-setopt COMPLETE_ALIASES     # Enable completion for aliases.
+# setopt COMPLETE_ALIASES     # Enable completion for aliases. Enabling breaks completion with Fig.
 setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
 zstyle ':completion:*' use-cache true             # Enable the completion cache.
 zstyle ':completion:*' cache-path "$HOME/.zcache" # Set the completion cache path.
