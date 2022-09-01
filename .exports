@@ -1,10 +1,5 @@
 # vim: filetype=sh
 
-if [[ -n $SOURCED_SHELL_EXPORTS ]] ; then
-  return
-fi
-export SOURCED_SHELL_EXPORTS=1
-
 # Note that /etc/paths will override $PATH after this file is executed.
 
 if [ -x /opt/homebrew/bin/brew ] ; then
@@ -18,10 +13,8 @@ fi
 ##
 
 export PATH="/opt/X11/bin:$PATH"
-# export PATH="/usr/local/bin:$PATH"
-# export PATH="/usr/local/sbin:$PATH"
 export PATH="/sbin:$PATH"
-# export PATH="$HOMEBREW_PREFIX/bin:$PATH"
+export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 
 ##
 #  Global variables - $PATH, $MANPATH, $EDITOR, $VISUAL, etc.
@@ -94,6 +87,9 @@ export PATH="$HOME/bin:$PATH"
 
 # Composer.
 export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Git bins.
+export PATH="$(brew --prefix git)/share/git-core/contrib/diff-highlight/diff-highlight:$PATH"
 
 # Golang.
 if hash go 2>/dev/null ; then

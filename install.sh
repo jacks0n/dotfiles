@@ -7,7 +7,6 @@ fi
 
 # Install Brew packages.
 brew install awscli
-brew install pure
 brew install bash
 brew install bash-completion
 brew install bat
@@ -17,10 +16,12 @@ brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
 brew install cmake # Required for YouCompleteMe.
+brew install colordiff
 brew install composer
 brew install coreutils
 brew install cowsay
 brew install curl
+brew install diffr
 brew install docker-compose
 brew install edgedb/tap/edgedb-cli
 brew install editorconfig
@@ -59,6 +60,7 @@ brew install nnn
 brew install node
 brew install nvm
 brew install php
+brew install pure
 brew install python
 brew install ranger
 brew install ripgrep
