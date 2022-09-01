@@ -20,6 +20,7 @@ require('nvim-treesitter.configs').setup {
 
   indent = {
     enable = true,
+    disable = { 'json' }
   },
 
   -- @see https://github.com/p00f/nvim-ts-rainbow

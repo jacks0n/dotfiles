@@ -32,8 +32,8 @@ if has('nvim')
     \| Plug 'nvim-telescope/telescope.nvim'
   Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'windwp/nvim-autopairs'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  " Plug 'windwp/nvim-autopairs'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
 else
   Plug 'cohama/lexima.vim'
@@ -68,7 +68,12 @@ endif
 " Plug 'SirVer/ultisnips'
 if has('nvim')
   Plug 'neovim/nvim-lspconfig'
-  Plug 'williamboman/nvim-lsp-installer'
+  Plug 'williamboman/mason.nvim'
+    \| Plug 'williamboman/mason-lspconfig.nvim'
+    \| Plug 'b0o/schemastore.nvim'
+
+  " Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+
   Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-nvim-lsp'
     \| Plug 'hrsh7th/cmp-buffer'
@@ -77,14 +82,16 @@ if has('nvim')
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
   " Plug 'quangnguyen30192/cmp-nvim-ultisnips'
   "   \| Plug 'SirVer/ultisnips'
-  Plug 'tzachar/cmp-fuzzy-path'
-    \| Plug 'tzachar/fuzzy.nvim'
-    \| Plug 'nvim-lua/plenary.nvim'
-    \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  Plug 'David-Kunz/cmp-npm'
-    \| Plug 'nvim-lua/plenary.nvim'
+
+  " Plug 'tzachar/cmp-fuzzy-path'
+  "   \| Plug 'tzachar/fuzzy.nvim'
+  "   \| Plug 'nvim-lua/plenary.nvim'
+  "   \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+  " Plug 'David-Kunz/cmp-npm'
+  "   \| Plug 'nvim-lua/plenary.nvim'
   Plug 'ray-x/lsp_signature.nvim'
   Plug 'folke/trouble.nvim'
+  Plug 'Maan2003/lsp_lines.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
@@ -96,7 +103,6 @@ if has('nvim')
   Plug 'zbirenbaum/copilot.lua'
 endif
 if has_key(g:plugs, 'nvim-cmp')
-  Plug 'hrsh7th/cmp-copilot'
   Plug 'zbirenbaum/copilot-cmp'
 endif
 
@@ -128,8 +134,6 @@ if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'p00f/nvim-ts-rainbow'
-  Plug 'SmiteshP/nvim-gps'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'vim-airline/vim-airline'
     \| Plug 'vim-airline/vim-airline-themes'
@@ -674,6 +678,7 @@ augroup END
 " ========================================================================
 
 function! ProfileStart()
+  delete(expand('~/Desktop/profile.log'))
   profile start ~/Desktop/profile.log
   profile func *
   profile file *
@@ -776,15 +781,15 @@ if has('nvim')
   " lua require('plugins.diagnosticls-configs-nvim')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
-  lua require('plugins.nvim-autopairs')
+  " lua require('plugins.nvim-autopairs')
   lua require('plugins.nvim-cmp')
-  lua require('plugins.nvim-lsp-installer')
+  lua require('plugins.mason')
+  lua require('plugins.lspconfig')
   lua require('plugins.nvim-treesitter')
   lua require('plugins.telescope')
   lua require('plugins.telescope-file-browser')
+  lua require('plugins.lsp_lines')
   lua require('colorizer').setup({ '*' })
-  lua require('nvim-gps').setup()
-  lua require('lsp-diagnostic')
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
   " lua require('package-info').setup({ package_manager = 'npm' })
@@ -792,8 +797,18 @@ endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
 
+" vim-coderunner.
+let g:vcr_languages = {}
+let g:vcr_languages['javascriptreact'] = {
+  \   'cmd': 'node',
+  \ }
+let g:vcr_languages['typescriptreact'] = {
+  \   'cmd': 'ts-node',
+  \ }
+
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
 
 " plasticboy/vim-markdown.
 let g:vim_markdown_conceal = 0             " Disable setting conceallevel for text.
@@ -855,13 +870,13 @@ let g:coc_global_extensions = [
   \ 'coc-pyright',
   \ 'coc-sh',
   \ 'coc-syntax',
-  \ 'coc-tabnine',
   \ 'coc-tag',
   \ 'coc-tsserver',
   \ 'coc-vimlsp',
   \ 'coc-word',
   \ 'coc-yaml',
   \ ]
+  " \ 'coc-tabnine',
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -889,20 +904,6 @@ let g:airline#extensions#tabline#enabled    = 1
 let g:airline#extensions#tabline#fnamemod   = ':t' " Only show filename.
 let g:airline#extensions#undotree#enabled   = 1
 let g:airline#extensions#whitespace#enabled = 0 " Makes scrolling super slow sometimes.
-
-" Neomake.
-let g:neomake_open_list                 = 2
-let g:neomake_serialize                 = 1
-let g:neomake_css_enabled_makers        = ['csslint']
-let g:neomake_json_enabled_makers       = ['jsonlint']
-let g:neomake_php_enabled_makers        = ['php', 'phpcs', 'phpmd']
-let g:neomake_php_phpcs_args_standard   = 'PSR2'
-let g:neomake_javascript_enabled_makers = ['eslint']
-let g:neomake_scss_enabled_makers       = ['scsslint']
-let g:neomake_text_enabled_makers       = ['proselint']
-" Symbols: ⚠️, ❌, 🚫,  😡, 😠, ⨉, ⚠
-let g:neomake_warning_sign              = { 'text': '⚠️'  }
-let g:neomake_error_sign                = { 'text': '❌' }
 
 " pangloss/vim-javascript.
 let g:javascript_enable_domhtmlcss = 1
@@ -961,6 +962,8 @@ if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> gl :lua vim.diagnostic.open_float()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
+  nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
+  nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
   nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
@@ -1023,8 +1026,20 @@ elseif has_key(g:plugs, 'telescope.nvim')
   " Find things.
   nmap <nowait> <Leader>b :Telescope buffers<CR>
   " nmap <nowait> <C-g> :lua require('plugins.telescope').project_files()<CR>
-  nmap <nowait> <Leader>g :lua require('plugins.telescope').project_files()<CR>
+  " @todo Fix
+  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
+  " nmap <nowait> <Leader>g :lua require('plugins.telescope').project_files()<CR>
   nmap <Leader>fb :Telescope file_browser<CR>
+endif
+
+" Trouble.nvim.
+if has_key(g:plugs, 'trouble.nvim')
+  nnoremap <leader>xx <cmd>TroubleToggle<cr>
+  nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
+  nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
+  nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
+  nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
+  nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 endif
 
 " FZF.
@@ -1065,9 +1080,6 @@ if (executable('fzf') && has_key(g:plugs, 'fzf-project'))
   nnoremap <nowait> <Leader>p :FzfSwitchProject<CR>
 endif
 
-" Linting.
-nnoremap <Leader>l :Neomake<CR>
-
 
 " ========================================================================
 " Plugin Autocommands.                                                   |
@@ -1090,14 +1102,6 @@ augroup pencil
   autocmd FileType markdown,text :PencilSoft " Enable soft-wrapping.
 augroup END
 
-" Lint when saving files.
-if has_key(g:plugs, 'neomake')
-  augroup neomake
-    autocmd BufWritePost,BufEnter * Neomake
-    autocmd InsertChange,TextChanged * update | Neomake
-  augroup END
-endif
-
 " startify. Disable folding on the start screen.
 autocmd FileType startify setlocal nofoldenable
 
@@ -1109,6 +1113,13 @@ if has('nvim')
   " rather than going into the terminal's normal mode.
   autocmd FileType fzf tnoremap <buffer> <Esc> <Esc>
 endif
+
+
+" ========================================================================
+" Plugin Commands.                                                       |
+" ========================================================================
+
+command! -bar LSPLinesToggle call require('lsp_lines').toggle()
 
 
 " ========================================================================

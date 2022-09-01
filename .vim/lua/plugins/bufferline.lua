@@ -1,5 +1,3 @@
-local gps = require('nvim-gps')
-
 require('bufferline').setup {
   options = {
     diagnostics = false,
@@ -15,15 +13,5 @@ require('bufferline').setup {
     enforce_regular_tabs = true,
     always_show_bufferline = true,
     sort_by = 'insert_after_current',
-
-    custom_areas = {
-      right = function()
-        local result = {}
-        if gps.is_available() then
-          table.insert(result, { text = gps.get_location() })
-        end
-        return result
-      end,
-    }
   },
 }

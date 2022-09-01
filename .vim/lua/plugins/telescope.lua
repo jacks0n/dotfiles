@@ -10,7 +10,7 @@ telescope.setup {
       override_generic_sorter = true,  -- override the generic sorter
       override_file_sorter = true,     -- override the file sorter
       case_mode = 'smart_case',        -- or "ignore_case" or "respect_case"
-                                      -- the default case_mode is "smart_case"
+                                       -- the default case_mode is "smart_case"
     }
   },
   defaults = {
@@ -19,6 +19,15 @@ telescope.setup {
         ['<esc>'] = actions.close,
       },
     },
+    layout_config = {
+      vertical = { width = 0.9 },
+      horizontal = { width = 0.9 }
+    },
+    path_display = function(opts, path)
+      local tail = require'telescope.utils'.path_tail(path)
+      local fullPath = string.format('%s (%s)', tail, path)
+      return string.gsub(fullPath, os.getenv('HOME'), '~')
+    end
   },
 }
 
