@@ -34,7 +34,10 @@ if has('nvim')
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   " Plug 'windwp/nvim-autopairs'
   "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'David-Kunz/markid'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
+  Plug 'ggandor/leap.nvim'
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -298,6 +301,10 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 
+if has('nvim')
+  Plug 'abecodes/tabout.nvim'
+endif
+
 call plug#end() " Required.
 
 
@@ -491,6 +498,10 @@ let g:php_htmlInStrings               = 1  " Enable HTML syntax highlighting ins
 let g:php_sync_method                 = -1 " Default, but it gives warnings without explicit `let`.
 let php_sql_query                     = 1  " Enable SQL syntax highlighting inside strings.
 
+" Python.
+let g:no_plugin_maps = 1
+let g:python_recommended_style = 0
+
 
 " ========================================================================
 " GUI Mode Specific.                                                     |
@@ -640,6 +651,7 @@ augroup custom_filetypes
   " Other.
   autocmd BufRead,BufNewFile *.plist     setlocal filetype=xml
   autocmd BufRead,BufNewFile *.scss      setlocal filetype=scss.css
+  autocmd BufRead,BufNewFile *.ipynb     setlocal filetype=python
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
 
@@ -787,8 +799,11 @@ if has('nvim')
   lua require('plugins.lspconfig')
   lua require('plugins.nvim-treesitter')
   lua require('plugins.telescope')
+  lua require('plugins.markid')
   lua require('plugins.telescope-file-browser')
+  lua require('plugins.leap')
   lua require('plugins.lsp_lines')
+  lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
