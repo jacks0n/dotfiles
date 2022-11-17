@@ -28,30 +28,27 @@ done
 sudo nvram SystemAudioVolume=' '
 
 # Disable Dashboard.
-defaults write com.apple.dashboard mcx-disabled -bool true
+defaults write com.apple.dashboard mcx-disabled -bool YES
 
 # Use AirDrop over every interface. srsly this should be a default.
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
+defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool YES
 
 # Save to disk (not to iCloud) by default.
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool NO
 
 # Restart automatically if the computer freezes.
 sudo systemsetup -setrestartfreeze on
 
-# Disable the "Are you sure you want to open this application?" dialog.
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-
 # Disable smart quotes as they're annoying when typing code.
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool false
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool NO
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool NO
 
 # Require password immediately after sleep or screen saver begins.
 defaults write com.apple.screensaver askForPassword      -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
 # Disable Photos.app from starting everytime a device is plugged in.
-defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
+defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool YES
 
 # Save screenshots to the desktop.
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
@@ -63,27 +60,27 @@ defaults write com.apple.screencapture type -string 'JPG'
 defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
 # Enable HiDPI display modes (requires restart).
-sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
+sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool YES
 
 # Expand save panel by default.
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool YES
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool YES
 
 # Enable automatic termination of inactive apps.
-defaults write NSGlobalDomain NSDisableAutomaticTermination -bool false
+defaults write NSGlobalDomain NSDisableAutomaticTermination -bool NO
 
 # Increase window resize speed for Cocoa applications.
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
 # Expand print panel by default.
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
-defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool YES
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool YES
 
 # Automatically quit the printer app once the print jobs complete.
-defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true
+defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool YES
 
 # Disable menu bar transparency.
-defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
+defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool NO
 
 # Use a dark menu bar / dock.
 defaults write NSGlobalDomain AppleInterfaceStyle -string 'Dark'
@@ -92,10 +89,10 @@ defaults write NSGlobalDomain AppleInterfaceStyle -string 'Dark'
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 # Disable auto-correct.
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool NO
 
 # Don't show Siri in the menu bar.
-defaults write com.apple.Siri StatusMenuVisible -bool false
+defaults write com.apple.Siri StatusMenuVisible -bool NO
 
 
 ###############################################################################
@@ -106,9 +103,9 @@ defaults write com.apple.Siri StatusMenuVisible -bool false
 sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
 
 # Disable the guest user.
-defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
-defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool false
-defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool false
+defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
+defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool NO
+defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool NO
 
 # Disable showing of password hints.
 sudo defaults write /Library/Preferences/com.apple.loginwindow 'RetriesUntilHint' -int 0
@@ -130,19 +127,28 @@ sudo sysctl -w kern.maxfilesperproc=100000 # Defaults to 10240.
 sudo fdesetup enable
 
 # Enable the firewall.
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -bool true
+sudo defaults write /Library/Preferences/com.apple.alf globalstate -bool YES
 
 # Enable the firewall stealth mode.
-sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -bool true
+sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -bool YES
 
 # Allow signed software to receive incoming connections.
-sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
+sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool NO
 
 # Disable Gatekeeper.
 sudo spctl --master-disable
 
 # Prevent Gatekeeper from auto-rearming (every 30 days).
 sudo defaults write /Library/Preferences/com.apple.security GKAutoRearm -bool NO
+
+# Disable quarantine attributes for apps already downloaded.
+find /Applications -name '*.app' -print0 |
+  while IFS= read -r -d '' app ; do
+    sudo xattr -d com.apple.quarantine "$app" 2>&1 | grep -v 'No such xattr: com.apple.quarantine'
+  done
+
+# Disable the "Are you sure you want to open this application?" dialog.
+defaults write com.apple.LaunchServices LSQuarantine -bool NO
 
 # Destroy FileVault keys when on standby.
 sudo pmset destroyfvkeyonstandby 1
@@ -166,11 +172,11 @@ OS_BUILD=$(OS_VERSION -buildVersion)
 if [[ ${OS_VERSION_MINOR} -ge 7 ]]; then
   # Disable the iCloud, Diagnostic, and Siri pop-ups in the user templates.
   for USER_TEMPLATE in '/System/Library/User Template'/* ; do
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool YES
     defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
     defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${OS_VERSION}"
     defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${OS_BUILD}"
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool YES
   done
 
   # Disable the iCloud, Diagnostic, and Siri pop-ups for current users.
@@ -184,11 +190,11 @@ if [[ ${OS_VERSION_MINOR} -ge 7 ]]; then
       fi
 
       if [ -d "${USER_HOME}"/Library/Preferences ] ; then
-        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool YES
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${OS_VERSION}"
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${OS_BUILD}"
-        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+        defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool YES
         chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
       fi
     fi
@@ -212,11 +218,11 @@ defaults write com.apple.terminal 'Startup Window Settings' -string 'Pro'
 ###############################################################################
 
 # Set up Safari for development.
-defaults write com.apple.Safari IncludeInternalDebugMenu                  -bool true
-defaults write com.apple.Safari IncludeDevelopMenu                        -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write NSGlobalDomain   WebKitDeveloperExtras                     -bool true
-defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled' -bool true
+defaults write com.apple.Safari IncludeInternalDebugMenu                  -bool YES
+defaults write com.apple.Safari IncludeDevelopMenu                        -bool YES
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool YES
+defaults write NSGlobalDomain   WebKitDeveloperExtras                     -bool YES
+defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled' -bool YES
 
 
 ###############################################################################
@@ -229,7 +235,7 @@ defaults write com.apple.Safari 'com.apple.Safari.ContentPageGroupIdentifier.Web
 defaults write com.apple.FontBook FBDefaultInstallDomainRef -int 1
 
 # Resolve duplicates by moving files to the trash.
-defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool true
+defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool YES
 
 
 ###############################################################################
@@ -237,19 +243,19 @@ defaults write com.apple.FontBook FBResolveByMovingToTrashKey -bool true
 ###############################################################################
 
 # Show full POSIX path as Finder window title.
-defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES
 
 # Use column view in all Finder windows by default.
 defaults write com.apple.finder FXPreferredViewStyle clmv
 
 # Avoid creation of .DS_Store files on network volumes.
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool YES
 
 # Avoid creation of .DS_Store files on USB drives.
-defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool YES
 
 # Disable the warning before emptying the Trash.
-defaults write com.apple.finder WarnOnEmptyTrash -bool false
+defaults write com.apple.finder WarnOnEmptyTrash -bool NO
 
 # Set Desktop as the default location for new Finder windows.
 # For other paths, use `PfLo` and `file:///full/path/here/`.
@@ -262,29 +268,29 @@ chflags nohidden ~/Library
 # Expand the following File Info panes:
 # "General", "Open with", and "Sharing & Permissions".
 defaults write com.apple.finder FXInfoPanesExpanded -dict \
-  General    -bool true \
-  OpenWith   -bool true \
-  Privileges -bool true
+  General    -bool YES \
+  OpenWith   -bool YES \
+  Privileges -bool YES
 
 # Show path bar by default.
-defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowPathbar -bool YES
 
 # Show status bar by default.
-defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder ShowStatusBar -bool YES
 
 # Allow text selection in the Quick Look window.
-defaults write com.apple.finder QLEnableTextSelection -bool true
+defaults write com.apple.finder QLEnableTextSelection -bool YES
 
 # Show icons for hard drives, servers, and removable media on the desktop.
-defaults write com.apple.finder ShowHardDrivesOnDesktop         -bool true
-defaults write com.apple.finder ShowMountedServersOnDesktop     -bool true
-defaults write com.apple.finder ShowRemovableMediaOnDesktop     -bool true
-defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+defaults write com.apple.finder ShowHardDrivesOnDesktop         -bool YES
+defaults write com.apple.finder ShowMountedServersOnDesktop     -bool YES
+defaults write com.apple.finder ShowRemovableMediaOnDesktop     -bool YES
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool YES
 
 # Automatically open a new Finder window when a volume is mounted.
-defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true
-defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool true
-defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
+defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool YES
+defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool YES
+defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool YES
 
 # Enable snap-to-grid for icons on the desktop and in other icon views.
 /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:arrangeBy grid' "$HOME/Library/Preferences/com.apple.finder.plist"
@@ -300,7 +306,7 @@ defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
 defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'
 
 # Disable the warning when changing a file extension.
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool NO
 
 
 ###############################################################################
@@ -322,7 +328,7 @@ sudo pmset -a sms 0
 sudo tmutil disablelocal
 
 # Prevent Time Machine from prompting to use new hard drives as a backup volume.
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool YES
 
 
 ###############################################################################
@@ -339,8 +345,8 @@ defaults write NSGlobalDomain com.apple.trackpad.scaling -float .875
 # Allow tap to click for Apple trackpad devices.
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool YES
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool YES
 
 # Enable right click.
 defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode TwoButton
@@ -354,7 +360,7 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 defaults write NSGlobalDomain AppleLanguages -array 'en'
 defaults write NSGlobalDomain AppleLocale -string 'en_AU@currency=AUD'
 defaults write NSGlobalDomain AppleMeasurementUnits -string 'Centimeters'
-defaults write NSGlobalDomain AppleMetricUnits -bool true
+defaults write NSGlobalDomain AppleMetricUnits -bool YES
 
 # Set the timezone; see `systemsetup -listtimezones` for other values.
 systemsetup -settimezone 'Australia/Melbourne' > /dev/null
@@ -369,7 +375,7 @@ defaults write NSGlobalDomain KeyRepeat -int 2
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
 # Enable key-repeat.
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool NO
 
 
 ###############################################################################
@@ -377,7 +383,7 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 ###############################################################################
 
 # Show the main window when launching Activity Monitor.
-defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
+defaults write com.apple.ActivityMonitor OpenMainWindow -bool YES
 
 # Visualize CPU usage in the Activity Monitor Dock icon.
 defaults write com.apple.ActivityMonitor IconType -int 5
@@ -394,10 +400,10 @@ defaults write com.apple.ActivityMonitor SortColumn -string 'CPUUsage'
 ###############################################################################
 
 # Disable the Ping sidebar.
-defaults write com.apple.iTunes disablePingSidebar -bool true
+defaults write com.apple.iTunes disablePingSidebar -bool YES
 
 # Disable all the other Ping stuff.
-defaults write com.apple.iTunes disablePing -bool true
+defaults write com.apple.iTunes disablePing -bool YES
 
 
 ###############################################################################
@@ -417,15 +423,15 @@ defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
 ###############################################################################
 
 # Hide Dock by default, with instant show / hide speed.
-defaults write com.apple.dock autohide               -bool true
+defaults write com.apple.dock autohide               -bool YES
 defaults write com.apple.Dock autohide-delay         -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.15
 
 # Minimize windows into their application's icon.
-defaults write com.apple.dock minimize-to-application -bool true
+defaults write com.apple.dock minimize-to-application -bool YES
 
 # Don't show recent applications.
-defaults write com.apple.dock show-recents -bool false
+defaults write com.apple.dock show-recents -bool NO
 
 
 ###############################################################################
@@ -433,13 +439,13 @@ defaults write com.apple.dock show-recents -bool false
 ###############################################################################
 
 # Disable Telemetry.
-defaults write com.microsoft.Word SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.Excel SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.Powerpoint SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.Outlook SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.onenote.mac SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.autoupdate2 SendAllTelemetryEnabled -bool FALSE
-defaults write com.microsoft.Office365ServiceV2 SendAllTelemetryEnabled -bool FALSE
+defaults write com.microsoft.Word SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.Excel SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.Powerpoint SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.Outlook SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.onenote.mac SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.autoupdate2 SendAllTelemetryEnabled -bool NO
+defaults write com.microsoft.Office365ServiceV2 SendAllTelemetryEnabled -bool NO
 
 # Disable cloud connectivity.
 defaults write com.microsoft.Word UseOnlineContent -integer 0

@@ -40,7 +40,6 @@ else
 fi
 
 # Git.
-alias ga='git add --all .'
 alias gc='git checkout'
 alias gcb='git checkout -b'
 alias gcl='git clean -fd'

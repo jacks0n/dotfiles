@@ -59,6 +59,8 @@ brew install netcat
 brew install nnn
 brew install node
 brew install nvm
+brew install openapi-generator
+brew install openjdk@11
 brew install php
 brew install pure
 brew install python
@@ -90,6 +92,11 @@ brew install zsh
 brew install zsh-autosuggestions
 brew tap buo/cask-upgrade
 
+# Setup Java.
+sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+# @todo Add to ~/.shrc.local
+# export JAVA_HOME="$(brew --prefix openjdk@11)/libexec/openjdk.jdk/Contents/Home"
+
 # Install Quick Look plugins.
 brew install --cask apparency                        # Preview the contents of a macOS app.
 brew install --cask qlcolorcode                      # Preview source code files with syntax highlighting.
@@ -107,9 +114,10 @@ brew install --cask qladdict                         # Preview subtitle (.srt) f
 sudo xattr -rd com.apple.quarantine /Library/QuickLook
 
 # Install Brew cask packages.
+brew install --cask 1password
+brew install --cask postman
 brew install --cask alfred
 brew install --cask arq
-brew install --cask backblaze
 brew install --cask bartender
 brew install --cask beekeeper-studio
 brew install --cask catch
@@ -121,6 +129,7 @@ brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
 brew install --cask google-drive
+brew install --cask google-chrome
 brew install --cask homebrew/cask/docker
 brew install --cask hyper
 brew install --cask insomnia
@@ -134,17 +143,23 @@ brew install --cask notion
 brew install --cask oracle-jdk
 brew install --cask postman
 brew install --cask sequel-pro
-brew install --cask slack
 brew install --cask sourcetree
 brew install --cask spectacle
 brew install --cask spotify
 brew install --cask tabby
 brew install --cask telegram-desktop
 brew install --cask todoist
-brew install --cask tor-browser
 brew install --cask vimr
 brew install --cask vlc
 brew install --cask zettlr
+
+# Install Brew cask work packages.
+brew install --cask slack
+
+# Install Brew cask personal packages.
+brew install --cask ledger-live
+brew install --cask tor-browser
+brew install --cask backblaze
 
 # Language servers.
 npm install --global @serverless-ide/language-server
