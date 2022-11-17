@@ -1,4 +1,6 @@
 # vim: filetype=sh
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zprofile.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zprofile.pre.zsh"
 
 # Note that /etc/paths will override $PATH after this file is executed.
 
@@ -130,7 +132,13 @@ export PATH="$HOME/.cargo/bin:$PATH"
 # NVM.
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 
+# Anaconda.
+export PATH="$HOMEBREW_PREFIX/anaconda3/bin:$PATH"
+
 # Local paths.
 export PATH="./vendor/bin:$PATH"
 export PATH="./node_modules/.bin:$PATH"
 export PATH="bin:$PATH"
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zprofile.post.zsh" ]] && builtin source "$HOME/.fig/shell/zprofile.post.zsh"

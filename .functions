@@ -639,13 +639,27 @@ difff() {
 ###
 # Git
 ##
+ga() {
+  git add --all "${@:-.}"
+}
+gpa() {
+  git add --all
+  if [[ "$*" != '' ]] ; then
+    gcm "$*"
+  fi
+  gpu
+}
 gcm() {
-  git commit --message "$*"
+  if [[ "$*" == '' ]] ; then
+    git commit
+  else
+    git commit --message "$*"
+  fi
 }
 gpu() {
   local symbolic_ref=$(git symbolic-ref --short HEAD)
   local push_output="$(git push --set-upstream origin "$symbolic_ref" 2>&1)"
-  pr_url=$(echo "$push_output" | grep 'https' | sed -e 's/remote: *//g' -e 's/ //g')
+  pr_url=$(echo "$push_output" | tee /dev/tty | grep 'https' | sed -e 's/remote: *//g' -e 's/ //g')
   if [[ -n "$pr_url" ]] ; then
     open "$pr_url"
   fi

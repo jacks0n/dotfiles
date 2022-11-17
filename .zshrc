@@ -1,5 +1,5 @@
 # Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 
 # Not a tty.
 [ -z "$PS1" ] && return
@@ -89,6 +89,15 @@ zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug 'mafredri/zsh-async', from:github
 zplug 'sindresorhus/pure', use:pure.zsh, from:github, as:theme
+zplug 'djui/alias-tips'
+if [ type conda > /dev/null 2>&1 ]; then
+  zplug 'conda-incubator/conda-zsh-completion'
+fi
+if [ type jupyter > /dev/null 2>&1 ]; then
+  zplug 'jupyter/jupyter_core', as:command, use:examples/completions-zsh, rename-to:'_jupyter'
+fi
+# zplug 'wfxr/forgit'
+zplug 'b4b4r07/cli-finder'
 zplug 'zsh-users/zsh-completions'
 zplug 'changyuheng/fz', defer:1
 zplug 'rupa/z', use:z.sh
@@ -164,4 +173,19 @@ add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
 # Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/homebrew/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/homebrew/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/opt/homebrew/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/homebrew/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
