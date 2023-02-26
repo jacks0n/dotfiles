@@ -24,6 +24,7 @@ call plug#begin('~/.vim/plugged')
 " Plug: Utility.                                                         |
 " ========================================================================
 
+Plug 'nat-418/boole.nvim'
 Plug 'Mizuchi/vim-ranger'
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
@@ -32,8 +33,8 @@ if has('nvim')
     \| Plug 'nvim-telescope/telescope.nvim'
   Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  " Plug 'windwp/nvim-autopairs'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'windwp/nvim-autopairs'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'David-Kunz/markid'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
@@ -42,8 +43,8 @@ else
   Plug 'cohama/lexima.vim'
 endif
 
-" Plug 'vuki656/package-info.nvim'
-"   \| Plug 'MunifTanjim/nui.nvim'
+Plug 'vuki656/package-info.nvim'
+  \| Plug 'MunifTanjim/nui.nvim'
 
 
 " ========================================================================
@@ -68,45 +69,44 @@ endif
 " Plug: Completion/LSP.                                                  |
 " ========================================================================
 
-" Plug 'SirVer/ultisnips'
 if has('nvim')
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'williamboman/mason.nvim'
+  Plug 'jose-elias-alvarez/null-ls.nvim'
+  Plug 'jay-babu/mason-null-ls.nvim'
+  Plug 'VonHeikemen/lsp-zero.nvim'
+    \| Plug 'neovim/nvim-lspconfig'
+    \| Plug 'williamboman/mason.nvim'
     \| Plug 'williamboman/mason-lspconfig.nvim'
-    \| Plug 'b0o/schemastore.nvim'
-
-  " Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-
-  Plug 'hrsh7th/nvim-cmp'
-    \| Plug 'hrsh7th/cmp-nvim-lsp'
+    \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-buffer'
     \| Plug 'hrsh7th/cmp-path'
+    \| Plug 'L3MON4D3/LuaSnip'
+    \| Plug 'saadparwaiz1/cmp_luasnip'
+    \| Plug 'hrsh7th/cmp-nvim-lsp'
+    \| Plug 'hrsh7th/cmp-nvim-lua'
     \| Plug 'hrsh7th/cmp-cmdline'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
-  " Plug 'quangnguyen30192/cmp-nvim-ultisnips'
-  "   \| Plug 'SirVer/ultisnips'
-
-  " Plug 'tzachar/cmp-fuzzy-path'
-  "   \| Plug 'tzachar/fuzzy.nvim'
-  "   \| Plug 'nvim-lua/plenary.nvim'
-  "   \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  " Plug 'David-Kunz/cmp-npm'
-  "   \| Plug 'nvim-lua/plenary.nvim'
+    \| Plug 'b0o/schemastore.nvim'
+  Plug 'zbirenbaum/copilot-cmp'
+    \| Plug 'zbirenbaum/copilot.lua'
+  Plug 'AndrewRadev/sideways.vim'
+  Plug 'onsails/lspkind.nvim'
+    \| Plug 'hrsh7th/nvim-cmp'
   Plug 'ray-x/lsp_signature.nvim'
   Plug 'folke/trouble.nvim'
   Plug 'Maan2003/lsp_lines.nvim'
+  Plug 'weilbith/nvim-code-action-menu'
+  Plug 'SmiteshP/nvim-navic'
+  Plug 'glepnir/lspsaga.nvim'
+    \| Plug 'nvim-tree/nvim-web-devicons'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
+  " Plug 'lewis6991/hover.nvim'
+  " Plug 'kosayoda/nvim-lightbulb'
+  "     \| Plug 'antoinemadec/FixCursorHold.nvim'
+  Plug 'honza/vim-snippets'
+  Plug 'roobert/node-type.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
-endif
-
-" AI pair programmer which suggests line completions and entire function bodies as you type.
-Plug 'github/copilot.vim'
-if has('nvim')
-  Plug 'zbirenbaum/copilot.lua'
-endif
-if has_key(g:plugs, 'nvim-cmp')
-  Plug 'zbirenbaum/copilot-cmp'
 endif
 
 
@@ -123,21 +123,33 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 " ========================================================================
 
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
+" Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
+" if has('nvim')
+" else
+" endif
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
-Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
-Plug 'mhinz/vim-startify' " Fancy start screen.
+Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'liuchengxu/vista.vim'
 if has('nvim')
+  Plug 'kevinhwang91/nvim-ufo'
+    \| Plug 'kevinhwang91/promise-async'
+  Plug 'luukvbaal/statuscol.nvim'
+  Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
-    \| Plug 'kyazdani42/nvim-web-devicons'
+    \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
     \ | Plug 'kyazdani42/nvim-web-devicons'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'p00f/nvim-ts-rainbow'
+  Plug 'nvim-treesitter/nvim-treesitter-context'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'folke/todo-comments.nvim'
+    \| Plug 'nvim-lua/plenary.nvim'
 else
+  Plug 'Yggdroot/indentLine' " Adds vertical and/or horizontal alignment lines.
   Plug 'vim-airline/vim-airline'
     \| Plug 'vim-airline/vim-airline-themes'
 endif
@@ -159,7 +171,7 @@ endif
 " ========================================================================
 
 if !has('nvim')
-  Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins', 'for': ['python'] }
+  Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins' }
 endif
 
 
@@ -179,11 +191,12 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " Syntax and Indent.                     |
 " ----------------------------------------
 
-if !has('nvim')
+if has('nvim')
+  Plug 'jose-elias-alvarez/typescript.nvim'
+else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
   Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
-  Plug 'jose-elias-alvarez/typescript.nvim'
 endif
 
 " ----------------------------------------
@@ -235,20 +248,15 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 " Plug: Themes.                                                          |
 " ========================================================================
 
-Plug 'yong1le/darkplus.nvim'
-Plug 'alessandroyorba/despacio'
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
-Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
-Plug 'sonph/onehalf', { 'rtp': 'vim' }
-Plug 'sts10/vim-pink-moon'
+Plug 'Matsuuu/pinkmare'
 if has('nvim')
   Plug 'EdenEast/nightfox.nvim'
-  Plug 'arcticicestudio/nord-vim'
   Plug 'catppuccin/nvim', {'as': 'catppuccin'}
   Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-  Plug 'projekt0n/github-nvim-theme'
   Plug 'rebelot/kanagawa.nvim'
   Plug 'rose-pine/neovim'
+  Plug 'ellisonleao/gruvbox.nvim'
 endif
 
 
@@ -279,13 +287,6 @@ Plug 'simnalamburt/vim-mundo'
 
 
 " ========================================================================
-" Plug: Linting.                                                         |
-" ========================================================================
-
-" Plug 'creativenull/diagnosticls-configs-nvim'
-"   \| Plug 'neovim/nvim-lspconfig'
-
-" ========================================================================
 " Plug: Functional.                                                      |
 " ========================================================================
 
@@ -295,7 +296,7 @@ Plug 'editorconfig/editorconfig-vim' " Some default configs.
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
-Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
+" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
@@ -411,6 +412,7 @@ set sidescrolloff=5          " Minimal columns to show when `nowrap` is set.
 set fileformats=unix,dos,mac " Prefer Unix over Windows over OS 9 EOLs.
 set complete+=kspell         " Enable word completion.
 set complete-=i              " Disable current and included file scanning, use tags instead.
+set selection=old            " Do not select past the EOL in visual mode.
 
 " This will show the popup menu even if there's only one match (menuone),
 " prevent automatic selection (noselect) and prevent automatic text injection
@@ -420,24 +422,42 @@ set completeopt=noinsert,menuone,noselect,preview
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/* " Completion ignore patterns.
 set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
 
-set smarttab                    " Emulate tab behaviour with spaces.
-set expandtab                   " Tabs are spaces.
-set shiftwidth=2                " Spaces per tab.
-set softtabstop=2               " Number of spaces in tab when editing.
-set tabstop=2                   " Number of visual spaces per tab.
-set cindent                     " Indent from previous line, with C syntax.
-set display+=lastline           " Display as much as possible of last line in window, '@@@' when truncated.
-set ruler                       " Show the line and column number of the cursor position.
-set viminfo^=%                  " Remember info about open buffers on close.
-set t_RV=                       " Temporary fix prevents unexpected keypresses on startup.
-set lazyredraw                  " Don't redraw while executing macros (good performance config).
-set ttyfast                     " Send more characters for redraws.
-set mouse=ar                    " Enable mouse use in all modes.
-set backspace=indent,eol,start  " Allow backspacing over autoindent, line breaks and start of insert action.
-set guicursor=a:blinkon0        " Disable cursor blink.
-set synmaxcol=250               " Don't try to highlight long lines.
-set foldmethod=indent           " Fold based on indent.
-set laststatus=2                " Always show the status line.
+set smarttab                   " Emulate tab behaviour with spaces.
+set expandtab                  " Tabs are spaces.
+set shiftwidth=2               " Spaces per tab.
+set softtabstop=2              " Number of spaces in tab when editing.
+set tabstop=2                  " Number of visual spaces per tab.
+set cindent                    " Indent from previous line, with C syntax.
+set display+=lastline          " Display as much as possible of last line in window, '@@@' when truncated.
+set ruler                      " Show the line and column number of the cursor position.
+set viminfo^=%                 " Remember info about open buffers on close.
+set t_RV=                      " Temporary fix prevents unexpected keypresses on startup.
+set lazyredraw                 " Don't redraw while executing macros (good performance config).
+set ttyfast                    " Send more characters for redraws.
+set mouse=ar                   " Enable mouse use in all modes.
+set backspace=indent,eol,start " Allow backspacing over autoindent, line breaks and start of insert action.
+set guicursor=a:blinkon0       " Disable cursor blink.
+set synmaxcol=250              " Don't try to highlight long lines.
+set fillchars=eob:\ ,fold:\ ,foldopen:,foldsep:\ ,foldclose:
+set laststatus=2               " Always show the status line.
+set nofoldenable
+if has('nvim')
+  set foldmethod=expr
+  set foldexpr=nvim_treesitter#foldexpr()
+else
+  set foldmethod=manual          " Manually fold.
+endif
+
+" Use a block cursor in normal mode, i-beam cursor in insert mode, and underline cursor in replace mode.
+if empty($TMUX)
+  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+else
+  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+  let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
+endif
 
 " Set the screen title to the current filename.
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servername}
@@ -504,6 +524,14 @@ let g:python_recommended_style = 0
 
 
 " ========================================================================
+" Language Provider Settings.                                            |
+" ========================================================================
+
+let g:loaded_ruby_provider = 0
+let g:loaded_perl_provider = 0
+
+
+" ========================================================================
 " GUI Mode Specific.                                                     |
 " ========================================================================
 
@@ -512,6 +540,22 @@ if has('gui_running')
   set guioptions-=m " Disable menu bar.
   set guioptions-=L " Disable left-hand scrollbar when vertical split open.
   set guioptions-=r " Disable right-hand scrollbar.
+endif
+
+if exists('g:neovide')
+  " Map OSX shortcuts.
+  let g:neovide_input_use_logo = v:true
+  let g:neovide_input_macos_alt_is_meta = v:true
+  map <D-v> "+p<CR>
+  map! <D-v> <C-R>+
+  tmap <D-v> <C-R>+
+  vmap <D-c> "+y<CR>
+endif
+
+if has('gui_running') || exists('g:neovide')
+  " Change font size.
+  nmap <D-=> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<CR>
+  nmap <D--> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<CR>
 endif
 
 
@@ -534,9 +578,6 @@ map <Leader>d :lclose<CR>:bwipe!<CR>
 " Toggle spell checking.
 map <Leader>ss :setlocal spell!<CR>
 
-" Strip trailing whitespace.
-nmap <Leader>sw :%s/\s\+$//e<CR>
-
 " Repeat f, F, T, t commands.
 noremap \ ;
 
@@ -547,9 +588,13 @@ nmap ; :
 nmap <Leader>fj :FormatJson<CR>
 nmap <Leader>fx :FormatXml<CR>
 
+" Don't lose selection when shifting sidewards.
+" xnoremap < <gv
+" xnoremap > >gv
+
 " Code folding options.
 nmap <Leader>fl- :setlocal nofoldenable<CR>
-nmap <Leader>fl+ :setlocal foldenable<CR>
+nmap <Leader>fl= :setlocal foldenable<CR>
 nmap <Leader>fl0 :setlocal foldlevel=0<CR>
 nmap <Leader>fl1 :setlocal foldlevel=1<CR>
 nmap <Leader>fl2 :setlocal foldlevel=2<CR>
@@ -573,8 +618,8 @@ map <Right> <NOP>
 nnoremap Q <NOP>
 
 " Easier way to move between windows.
-map <C-j> <C-W>j
 map <C-k> <C-W>k
+map <C-j> <C-W>j
 map <C-h> <C-W>h
 map <C-l> <C-W>l
 
@@ -620,6 +665,7 @@ augroup fold_level
   autocmd!
   " Disable folding by default.
   autocmd FileType * setlocal nofoldenable
+  " autocmd FileType markdown setlocal nofoldenable
 augroup END
 
 " Toggle search highlighting.
@@ -630,8 +676,15 @@ else
   autocmd InsertEnter * noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
 endif
 
+" Only set the cursorline when out of insert mode.
+autocmd InsertLeave,WinEnter * set cursorline
+autocmd InsertEnter,WinLeave * set nocursorline
+
 " Commenting.
 autocmd FileType apache setlocal commentstring=#\ %s
+autocmd FileType terraform setlocal commentstring=#\ %s
+autocmd FileType yaml setlocal commentstring=#\ %s
+autocmd FileType vim setlocal commentstring=\"\ %s
 
 " Custom filetypes.
 augroup custom_filetypes
@@ -654,6 +707,7 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.ipynb     setlocal filetype=python
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
+  autocmd BufNewFile,BufRead *.tftpl     setlocal filetype=terraform
 
   " Typescript/React.
   autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact
@@ -689,6 +743,14 @@ augroup END
 " Functions.                                                             |
 " ========================================================================
 
+function! DeleteHiddenBuffers()
+  let tpbl=[]
+  call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
+  for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+      silent execute 'bwipeout' buf
+  endfor
+endfunction
+
 function! ProfileStart()
   delete(expand('~/Desktop/profile.log'))
   profile start ~/Desktop/profile.log
@@ -699,33 +761,6 @@ endfunction
 function! ProfileEnd()
   profile pause
   noautocmd qall!
-endfunction
-
-" Change to random colorscheme from a defined list of awesome ones.
-function! NextColorScheme()
-  let colorschemes = [
-    \ 'OceanicNext',
-    \ 'badwolf',
-    \ 'bluechia',
-    \ 'gruvbox',
-    \ 'hybrid',
-    \ 'kanagawa',
-    \ 'monokain',
-    \ 'tokyonight',
-  \]
-  try
-    let colorscheme_index = index(colorschemes, g:colors_name) + 1
-    echo 'colorscheme_index1: ' . colorscheme_index
-  catch /^Vim:E121/
-    let colorscheme_index = 0
-    echo 'colorscheme_index2: ' . colorscheme_index
-  endtry
-  if colorscheme_index > len(colorschemes)
-    echo 'if colorscheme_index >= len(colorschemes)'
-    let colorscheme_index = 0
-  endif
-  let new_colorscheme = colorschemes[colorscheme_index]
-  execute ':colorscheme ' . new_colorscheme
 endfunction
 
 " Change to random font from a defined list of awesome ones.
@@ -773,7 +808,11 @@ endfunction
 " Custom commands.
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
-command! -bar FormatJson :%!python3 -m json.tool
+if executable('yq')
+  command! -bar FormatJson :%!yq -oj eval .
+elseif executable('python3')
+  command! -bar FormatJson :%!python3 -m json.tool
+endif
 command! -bar FormatXml :%!xmllint --format --recover -
 
 " Plugin commands.
@@ -787,30 +826,64 @@ command! -bang -nargs=* GGrep
 " Plugin Settings.                                                       |
 " ========================================================================
 
+" Disable some core plugins.
+let g:loaded_matchparen      = 1
+let g:loaded_zipPlugin       = 1
+let g:loaded_2html_plugin    = 1
+let g:loaded_getscriptPlugin = 1
+let g:loaded_netrwPlugin     = 1
+let g:loaded_rrhelper        = 1
+let g:loaded_tarPlugin       = 1
+let g:loaded_tar             = 1
+
+let g:better_whitespace_filetypes_blacklist = ['diff', 'gitcommit', 'lspsagafinder']
+let g:better_whitespace_guess = 1
+
 " Import Lua plugin configs.
 if has('nvim')
+  " lua require('plugins.whitespace')
+  lua require('plugins.lspsaga')
+  lua require('plugins.todo-comments')
+  lua require('plugins.lspconfig')
+  lua require('plugins.typescript')
   lua require('plugins.bufferline')
-  " lua require('plugins.diagnosticls-configs-nvim')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
-  " lua require('plugins.nvim-autopairs')
+  lua require('plugins.nvim-autopairs')
+  lua require('plugins.copilot-lua')
+  lua require('copilot_cmp').setup()
   lua require('plugins.nvim-cmp')
-  lua require('plugins.mason')
-  lua require('plugins.lspconfig')
+  lua require('plugins.lsp-zero')
+  lua require('plugins.null-ls')
+  lua require('plugins.mason-null-ls')
   lua require('plugins.nvim-treesitter')
   lua require('plugins.telescope')
   lua require('plugins.markid')
   lua require('plugins.telescope-file-browser')
   lua require('plugins.leap')
   lua require('plugins.lsp_lines')
+  lua require('plugins.boole')
+  " lua require('plugins.hover')
+  " lua require('plugin.nvim-lightbulb')
   lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
-  " lua require('package-info').setup({ package_manager = 'npm' })
+  lua require('gruvbox').setup()
+  lua require('node-type').setup()
+  " if has('statuscolumn')
+  lua require('plugins.statuscol')
+  lua require('plugins.nvim-ufo')
+  " endif
+  lua require('plugins.package-info')
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
+
+let g:indexed_search_mappings = 0
+
+" vim-move.
+let g:move_map_keys = 0
 
 " vim-coderunner.
 let g:vcr_languages = {}
@@ -842,14 +915,8 @@ let g:gitgutter_sign_modified           = '┃…'
 let g:gitgutter_sign_modified_removed   = '┃±'
 let g:gitgutter_sign_removed            = '┃−'
 let g:gitgutter_sign_removed_first_line = '┃⇈'
+let g:gitgutter_map_keys                = 0
 highlight clear SignColumn
-
-" Gutentags.
-let g:gutentags_ctags_executable = '/usr/local/bin/ctags'
-let g:gutentags_project_root     = ['index.php', '.git', '.hg', '.bzr', '_darcs']
-if has_key(g:plugs, 'vim-gutentags')
-  set statusline+=%{gutentags#statusline()}
-endif
 
 " indentLine.
 let g:indentLine_char            = '│'
@@ -962,25 +1029,28 @@ let g:gruvbox_contrast_dark = 'hard'
 " Plugin Mappings.                                                       |
 " ========================================================================
 
-" Default LSP config.
+if has_key(g:plugs, 'package-info.nvim')
+  nnoremap <silent> <Leader>nd <cmd>lua require('package-info').delete()<CR>
+  nnoremap <silent> <Leader>nv <cmd>lua require('package-info').change_version()<CR>
+  nnoremap <silent> <Leader>ni <cmd>lua require('package-info').install()<CR>
+  nnoremap <silent> <Leader>nt <cmd>lua require('package-info').toggle()<CR>
+  tnoremap <silent> <Leader>nu <cmd>lua require('package-info').update()<CR>
+  nnoremap <silent> <Leader>ns <cmd>lua require('package-info').show()<CR>
+  nnoremap <silent> <Leader>nh <cmd>lua require('package-info').hide()<CR>
+endif
+
 if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
   nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
   nmap <silent> gD :lua vim.lsp.buf.declaration()<CR>
   nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
   nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
-  nmap <silent> gr :lua vim.lsp.buf.references()<CR>
-  nmap <C-k> :lua vim.lsp.buf.signature_help()<CR>
-  nmap <silent> K :lua vim.lsp.buf.hover()<CR>
-  nmap <Leader>rn :lua vim.lsp.buf.rename()<CR>
-  nmap <Leader>ca :lua vim.lsp.buf.code_action()<CR>
-  nmap <silent> gl :lua vim.diagnostic.open_float()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
   nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
   nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
-  nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
-  nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
+"   nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
+"   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
 
 " coc.nvim.
@@ -1018,34 +1088,49 @@ if has_key(g:plugs, 'coc.nvim')
   inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
   " LSP.
-  nmap <silent> gd <Plug>(coc-definition)
-  nmap <silent> gi <Plug>(coc-implementation)
-  nmap <silent> gt <Plug>(coc-type-definition)
-  nmap <silent> gr <Plug>(coc-references)
-  nmap <silent> K :call <SID>show_documentation()<CR>
-  nmap <Leader>rn <Plug>(coc-rename)
-  nmap <Leader>ca <Plug>(coc-codeaction)
-  nmap <silent> [d <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]d <Plug>(coc-diagnostic-next)
-  nmap <Leader>ic :call CocAction('showIncomingCalls')
+  nnoremap <silent> gd <Plug>(coc-definition)
+  nnoremap <silent> gi <Plug>(coc-implementation)
+  nnoremap <silent> gt <Plug>(coc-type-definition)
+  nnoremap <silent> gr <Plug>(coc-references)
+  nnoremap <silent> K :call <SID>show_documentation()<CR>
+  nnoremap <silent> rn <Plug>(coc-rename)
+  nnoremap <Leader>ca <Plug>(coc-codeaction)
+  nnoremap <silent> [d <Plug>(coc-diagnostic-prev)
+  nnoremap <silent> ]d <Plug>(coc-diagnostic-next)
+  nnoremap <Leader>ic :call CocAction('showIncomingCalls')
 " Telescope.nvim.
 elseif has_key(g:plugs, 'telescope.nvim')
-  " LSP.
-  nmap <silent> gd :Telescope lsp_definitions<CR>
-  nmap <silent> gi :Telescope lsp_implementations<CR>
-  nmap <silent> gt :Telescope lsp_type_definitions<CR>
-  nmap <silent> gr :Telescope lsp_references<CR>
-  nmap <Leader>s :Telescope lsp_dynamic_workspace_symbols<CR>
-  nmap <silent> gl :Telescope diagnostics<CR>
-
-  " Find things.
-  nmap <nowait> <Leader>b :Telescope buffers<CR>
-  " nmap <nowait> <C-g> :lua require('plugins.telescope').project_files()<CR>
-  " @todo Fix
-  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
-  " nmap <nowait> <Leader>g :lua require('plugins.telescope').project_files()<CR>
-  nmap <Leader>fb :Telescope file_browser<CR>
+  nnoremap <nowait> <Leader>b :Telescope buffers<CR>
+  nnoremap <nowait> <C-g> :lua require('plugins.telescope').git_files_all()<CR>
+  nnoremap <nowait> <Leader>h :lua require('plugins.telescope').project_files()<CR>
+  nnoremap <Leader>fb :Telescope file_browser<CR>
+  nnoremap gr :Telescope lsp_references<CR>
 endif
+
+if has_key(g:plugs, 'lspsaga.nvim')
+  nnoremap <silent> gp <cmd>Lspsaga lsp_finder<CR>
+  nnoremap pgd <cmd>Lspsaga peek_definition<CR>
+  nnoremap pgt <cmd>Lspsaga peek_type_definition<CR>
+  nnoremap go <cmd>Lspsaga outline<CR>
+  nnoremap <Leader>gi  <cmd>Lspsaga incoming_calls<CR>
+  nnoremap <Leader>go <cmd>Lspsaga outgoing_calls<CR>
+  nnoremap <silent> <Leader>lp <cmd>Lspsaga lsp_finder<CR>
+  nnoremap <silent> rn <cmd>Lspsaga rename<CR>
+endif
+
+" weilbith/nvim-code-action-menu.
+if has_key(g:plugs, 'nvim-code-action-menu')
+  nnoremap <Leader>ca :lua require('code_action_menu').open_code_action_menu()<CR>
+endif
+
+nnoremap <C-h> :SidewaysLeft<cr>
+nnoremap <C-l> :SidewaysRight<cr>
+
+" vim-mode.
+nnoremap <D-k> <Plug>MoveLineUp
+nnoremap <D-j> <Plug>MoveLineDown
+vnoremap <D-k> <Plug>MoveBlockDown
+vnoremap <D-j> <Plug>MoveBlockUp
 
 " Trouble.nvim.
 if has_key(g:plugs, 'trouble.nvim')
@@ -1054,7 +1139,6 @@ if has_key(g:plugs, 'trouble.nvim')
   nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
   nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
   nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
-  nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 endif
 
 " FZF.
@@ -1062,8 +1146,9 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   if !has_key(g:plugs, 'telescope.nvim')
     nnoremap <nowait> <Leader>b :Buffers<CR>
   endif
-  nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
-  " nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
+  if !has_key(g:plugs, 'telescope.nvim')
+    nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
+  endif
   nnoremap <Leader>t :GGrep<CR>
 endif
 
@@ -1091,7 +1176,6 @@ vmap <Enter> <Plug>(EasyAlign)
 
 " fzf-project.
 if (executable('fzf') && has_key(g:plugs, 'fzf-project'))
-  nnoremap <nowait> <C-p> :FzfSwitchProject<CR>
   nnoremap <nowait> <Leader>p :FzfSwitchProject<CR>
 endif
 
@@ -1102,6 +1186,11 @@ endif
 
 " AutoClose. Disable for VimL files.
 autocmd FileType vim let b:AutoCloseOn = 0
+
+autocmd FileType sagacodeaction nnoremap <buffer> <ESC> :bw<CR>
+autocmd FileType sagarename nnoremap <buffer> <ESC> :bw<CR>
+
+autocmd FileType lspsagafinder let b:better_whitespace_enabled = 0
 
 " Show signature help on placeholder jump.
 if has_key(g:plugs, 'coc.nvim')
@@ -1135,6 +1224,7 @@ endif
 " ========================================================================
 
 command! -bar LSPLinesToggle call require('lsp_lines').toggle()
+command! CodeActionMenu lua require('code_action_menu').open_code_action_menu()
 
 
 " ========================================================================
