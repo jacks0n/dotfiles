@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Install Command Line Tools.
+sudo xcode-select --install
+
+# Mac software updates.
+softwareupdate --all --install --force
+
 # Install Brew.
 if [[ ! type "$1" &>/dev/null ]] ; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -23,14 +29,13 @@ brew install cowsay
 brew install curl
 brew install diffr
 brew install docker-compose
-brew install edgedb/tap/edgedb-cli
 brew install editorconfig
-brew install elcolorcode
 brew install exa
 brew install fd
 brew install findutils
 brew install fx
 brew install fzf
+brew install fzy
 brew install gawk
 brew install gh
 brew install git
@@ -39,7 +44,6 @@ brew install gnu-sed
 brew install gnu-tar
 brew install go # Required for SQL language server.
 brew install grep
-brew install hashicorp/tap/terraform-ls
 brew install homebrew/cask-fonts/font-droid-sans-mono-nerd-font
 brew install homebrew/cask-fonts/font-fantasque-sans-mono-nerd-font
 brew install homebrew/cask-fonts/font-fira-mono-nerd-font
@@ -53,7 +57,9 @@ brew install htop
 brew install jesseduffield/lazygit/lazygit
 brew install jq
 brew install lolcat
+brew install lsd
 brew install ms-jpq/sad/sad
+brew install neovide
 brew install neovim
 brew install netcat
 brew install nnn
@@ -71,7 +77,9 @@ brew install saulpw/vd/visidata
 brew install shellcheck
 brew install skype
 brew install sqlite
+brew install starship
 brew install svn
+brew install tccutil
 brew install the_silver_searcher
 brew install tig
 brew install tmux
@@ -87,6 +95,7 @@ brew install webtorrent
 brew install wget
 brew install whois
 brew install yarn
+brew install yq
 brew install z
 brew install zsh
 brew install zsh-autosuggestions
@@ -94,27 +103,30 @@ brew tap buo/cask-upgrade
 
 # Setup Java.
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
-# @todo Add to ~/.shrc.local
-# export JAVA_HOME="$(brew --prefix openjdk@11)/libexec/openjdk.jdk/Contents/Home"
 
 # Install Quick Look plugins.
-brew install --cask apparency                        # Preview the contents of a macOS app.
-brew install --cask qlcolorcode                      # Preview source code files with syntax highlighting.
-brew install --cask qlimagesize                      # Display image size and resolution.
-brew install --cask qlmarkdown                       # Preview Markdown files.
-brew install --cask qlstephen                        # Preview plain text files without or with unknown file extension.
-brew install --cask qlvideo                          # Preview most types of video files, as well as their thumbnails, cover art and metadata.
-brew install --cask quicklook-json                   # Preview JSON files.
-brew install --cask quicklookase                     # Preview Adobe ASE Color Swatches.
-brew install --cask suspicious-package               # Preview the contents of a standard Apple installer package.
-brew install --cask quicklookapk                     # Preview Android APK files.
-brew install --cask quicklook-pat                    # Preview Adobe Photoshop pattern files.
-brew install --cask --no-quarantine syntax-highlight # Preview many different source code files.
-brew install --cask qladdict                         # Preview subtitle (.srt) files.
+brew install --cask apparency          # Preview the contents of a macOS app.
+brew install --cask qlcolorcode        # Preview source code files with syntax highlighting.
+brew install --cask qlimagesize        # Display image size and resolution.
+brew install --cask qlmarkdown         # Preview Markdown files.
+brew install --cask qlstephen          # Preview plain text files without or with unknown file extension.
+brew install --cask qlvideo            # Preview most types of video files, as well as their thumbnails, cover art and metadata.
+brew install --cask QLPrettyPatch      # QuickLook generator for patch files.
+brew install --cask quicklook-json     # Preview JSON files.
+brew install --cask quicklookase       # Preview Adobe ASE Color Swatches.
+brew install --cask suspicious-package # Preview the contents of a standard Apple installer package.
+brew install --cask quicklookapk       # Preview Android APK files.
+brew install --cask quicklook-pat      # Preview Adobe Photoshop pattern files.
+brew install --cask syntax-highlight   # Preview many different source code files.
+brew install --cask qladdict           # Preview subtitle (.srt) files.
 sudo xattr -rd com.apple.quarantine /Library/QuickLook
+qlmanage -r
+qlmanage -r cache
+killall Finder
 
 # Install Brew cask packages.
 brew install --cask 1password
+brew install --cask macs-fan-control
 brew install --cask postman
 brew install --cask alfred
 brew install --cask arq
@@ -128,6 +140,7 @@ brew install --cask evernote
 brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
+brew install --cask db-browser-for-sqlite
 brew install --cask google-drive
 brew install --cask google-chrome
 brew install --cask homebrew/cask/docker
@@ -163,7 +176,10 @@ brew install --cask backblaze
 
 # Language servers.
 npm install --global @serverless-ide/language-server
-npm install --global diagnostic-languageserver
+
+# Alfred.
+npm install --global alfred-updater
+npm install --global alfred-caniuse
 
 # Linters.
 npm install --global stylelint
@@ -203,6 +219,7 @@ nvm install --lts
 
 # Install Neovim libraries.
 pip3 install pynvim --upgrade
+pip3 install neovim --upgrade
 npm install --global neovim
 
 # Install lehre. Required to generate JS docblocks in Vim (LJSDoc).
@@ -252,10 +269,7 @@ nvim +'TSInstall json' +qall
 nvim +'TSInstall json5' +qall
 nvim +'TSInstall jsonc' +qall
 nvim +'TSInstall php' +qall
-# Mac ARM not yet supported yet. https://github.com/claytonrcarter/tree-sitter-phpdoc/issues/15
-if [[ $(uname -m) !== 'arm' ]] ; then
-  nvim +'TSInstall phpdoc'
-fi
+nvim +'TSInstall phpdoc'
 nvim +'TSInstall scss' +qall
 nvim +'TSInstall typescript' +qall
 nvim +'TSInstall vim' +qall
