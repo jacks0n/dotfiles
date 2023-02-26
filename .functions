@@ -11,7 +11,7 @@ a()  { ag "$1" "${2:-.}"; }
 au() { ag -u "$1" "${2:-.}"; }
 al() { ag -l "$1" "${2:-.}"; }
 ae() {
-  ag --nobreak --nonumbers --noheading "${2:-.}" | \
+  ag --hidden --nobreak --nonumbers --noheading "${2:-.}" | \
     fzf --ansi --select-1 --query="$1" --extended --multi | \
       while read -r grep_line ; do
         filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
@@ -42,44 +42,6 @@ find-largest-file() {
 e() {
   local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --cycle $2)"
   [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
-}
-
-
-# Fuzzy find and edit a file in a Git repo.
-ge() {
-  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
-  if [ ! -d "$GIT_ROOT_DIR" ] ; then
-    echo 'ERROR: Not in a Git repo.' >&2
-    return 1
-  fi
-
-  local SELECTED_FILE="$(git ls-files --full-name | fzf --query="$1" --select-1 --extended --cycle)"
-  [ -f "$GIT_ROOT_DIR/$SELECTED_FILE" ] && "$VISUAL" "$GIT_ROOT_DIR/$SELECTED_FILE"
-}
-
-
-# Clone a Git repository, cd into the directory,
-# and checkout a branch/tag/commit if specified.
-gclone() {
-  local REPO="$1"
-  local CHECKOUT_ID="$2"
-  if [ -z "$REPO" ] ; then
-    echo '=> ERROR: No repository provided.' >&2
-    return 1
-  fi
-
-  git clone "$REPO" || {
-    echo "=> ERROR: Could not clone '$REPO'." >&2
-    return 1
-  }
-  repo_dir="$(basename "$REPO" | sed 's/\.git$//g')"
-  cd "$repo_dir" 2>/dev/null || {
-    echo "=> ERROR: Could not 'cd' into '$repo_dir'." >&2
-    return 1
-  }
-  if [ ! -z "$CHECKOUT_ID" ] ; then
-    git checkout "$CHECKOUT_ID"
-  fi
 }
 
 
@@ -235,7 +197,7 @@ pubkey() {
 
 # Lists file & directory sizes (defaults to current path), sorted by size.
 dl() {
-  sudo du --human-readable --total --max-depth=1 "${1:-.}" | sort --human-numeric-sort --reverse
+  du --human-readable --total --max-depth=1 "${1:-.}" | sort --human-numeric-sort --reverse
 }
 
 
@@ -361,8 +323,9 @@ update-user() {
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
 
-    echo "\n\n=> Vim Coc update."
-    vim -c 'CocUpdateSync|q'
+    # @todo Fix
+    # echo "\n\n=> Vim Coc update."
+    # vim -c 'CocUpdateSync|q'
 
     echo "\n\n=> TSServer update."
     nvim +TSUpdateSync +qall
@@ -372,11 +335,11 @@ update-user() {
     # nvim +LspUpdateAll +qall
   fi
 
-  # Update zplug and packages.
-  if [[ $(command_exists zplug) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
-    echo "\n\n=> Updating zplug and packages."
-    zplug clean --force
-    zplug update
+  # Update zinit and packages.
+  if [[ $(command_exists zinit) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
+    echo "\n\n=> Updating zinit and packages."
+    zinit self-update
+    zinit update --all
   fi
 
   # Update Composer packages.
@@ -394,7 +357,7 @@ update-user() {
   # Update Ruby Gems.
   # if command_exists gem ; then
   #   echo "\n\n Updating Gem packages."
-  #   sudo gem update $(gem list | cut -d ' ' -f 1)
+  #   gem update $(gem list | cut -d ' ' -f 1)
   # fi
 
   # Update `~/bin` repositories.
@@ -446,27 +409,29 @@ update-global() {
     sudo softwareupdate --install --all
   fi
 
+  # @todo Fix
   # Update Gem and Gems.
-  if command_exists gem ; then
-    echo "\n\n=> Updating Ruby Gems."
-    sudo gem update --system
-    sudo gem update
-    sudo gem clean
-  fi
+  # if command_exists gem ; then
+  #   echo "\n\n=> Updating Ruby Gems."
+  #   gem update --system
+  #   gem update
+  #   gem clean
+  # fi
 
+  # @todo Fix
   # Update pip (2 and 3) core and packages.
-  for PIP in pip2 pip3 ; do
-    if command_exists "$PIP" ; then
-      echo "\n\n=> Updating $PIP."
-      "$PIP" install --upgrade pip | \
-        grep -v 'Requirement already up-to-date'
-      "$PIP" freeze --local | \
-        grep -v '^\-e' | \
-        cut -d = -f 1  | \
-        xargs -n1 sudo -H "$PIP" install --upgrade | \
-        grep -v 'Requirement already up-to-date'
-    fi
-  done
+  # for PIP in pip2 pip3 ; do
+  #   if command_exists "$PIP" ; then
+  #     echo "\n\n=> Updating $PIP."
+  #     "$PIP" install --upgrade pip | \
+  #       grep -v 'Requirement already up-to-date'
+  #     "$PIP" freeze --local | \
+  #       grep -v '^\-e' | \
+  #       cut -d = -f 1  | \
+  #       xargs -n1 -H "$PIP" install --upgrade | \
+  #       grep -v 'Requirement already up-to-date'
+  #   fi
+  # done
 
   # Update npm and npm packages.
   if command_exists npm ; then
@@ -504,8 +469,11 @@ fix-zsh-permissions() {
 # - Dir: Directory to search and replace in.
 ##
 rename-and-replace() {
-  replace "$1" "$2" "${3:-.}"
-  rename "$1" "$2" "${3:-.}"
+  local FROM="$(preg-quote "$1")"
+  local TO="$(preg-quote "$2")"
+  local DIR="${3:-.}"
+  replace "$FROM" "$TO" "${DIR:-.}"
+  rename "$FROM" "$TO" "${DIR:-.}"
 }
 
 ##
@@ -517,12 +485,12 @@ rename-and-replace() {
 # - Dir: Directory to search and replace in.
 ##
 replace() {
-  local FROM="$(preg-quote "$1")"
-  local TO="$(preg-quote "$2")"
+  local FROM="$1"
+  local TO="$2"
   local DIR="${3:-.}"
 
   if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]] ; then
-    ag --files-with-matches "$FROM" | while read -r filepath ; do
+    ag --hidden --files-with-matches "$FROM" | while read -r filepath ; do
       echo "=> Replaced in file '$filepath'"
       perl -pi -e "s/$FROM/$TO/g" "$filepath"
     done
@@ -551,13 +519,16 @@ rename() {
   local TO="$2"
   local DIR="${3:-.}"
 
-  find "$DIR" -name "*$FROM*" -type f | while read FILEPATH ; do
-    echo "=> Replacing filepath '$FILEPATH'"
-    local TO_DIR="$(dirname "$FILEPATH" | sed "s/$FROM/$TO/g")"
-    if [ ! -d "$TO_DIR" ]; then
-      mkdir -p "$TO_DIR"
+  find "$DIR" -type f | while read -r FILEPATH ; do
+    if grep --quiet --fixed-strings "$FROM" 2>/dev/null ; then
+      echo "=> Replacing filepath '$FILEPATH'"
+      echo dirname "$FILEPATH" \| sed "s/$FROM/$TO/g"
+      local TO_DIR="$(dirname "$FILEPATH" | sed "s/$FROM/$TO/g")"
+      if [ ! -d "$TO_DIR" ]; then
+        mkdir -p "$TO_DIR"
+      fi
+      mv "$FILEPATH" "${FILEPATH/$FROM/$TO}"
     fi
-    mv "$FILEPATH" "$(echo $FILEPATH | sed "s/$FROM/$TO/g")"
   done
 }
 
@@ -582,7 +553,7 @@ find-largest-files() {
   local SEARCH_DIR="${1:-$HOME}"
   local NUM_RESULTS=${2:-100}
 
-  sudo find "$SEARCH_DIR" -type f -exec du -Sh {} + | sort -rh | head -n $NUM_RESULTS
+  sudo find "$SEARCH_DIR" -type f -exec du -Sh {} + | sort -rh | head -n "$NUM_RESULTS"
 }
 
 ##
@@ -642,13 +613,15 @@ difff() {
 ga() {
   git add --all "${@:-.}"
 }
+
 gpa() {
   git add --all
-  if [[ "$*" != '' ]] ; then
+  if [[ "$(git status --porcelain)" ]] ; then
     gcm "$*"
   fi
   gpu
 }
+
 gcm() {
   if [[ "$*" == '' ]] ; then
     git commit
@@ -656,11 +629,53 @@ gcm() {
     git commit --message "$*"
   fi
 }
+
 gpu() {
   local symbolic_ref=$(git symbolic-ref --short HEAD)
   local push_output="$(git push --set-upstream origin "$symbolic_ref" 2>&1)"
   pr_url=$(echo "$push_output" | tee /dev/tty | grep 'https' | sed -e 's/remote: *//g' -e 's/ //g')
   if [[ -n "$pr_url" ]] ; then
     open "$pr_url"
+  fi
+}
+
+gcbf() {
+  git checkout -b "feature/$*"
+}
+
+# Fuzzy find and edit a file in a Git repo.
+ge() {
+  local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
+  if [ ! -d "$GIT_ROOT_DIR" ] ; then
+    echo 'ERROR: Not in a Git repo.' >&2
+    return 1
+  fi
+
+  local SELECTED_FILE="$(git ls-files --full-name | fzf --query="$1" --select-1 --extended --cycle)"
+  [ -f "$GIT_ROOT_DIR/$SELECTED_FILE" ] && "$VISUAL" "$GIT_ROOT_DIR/$SELECTED_FILE"
+}
+
+
+# Clone a Git repository, cd into the directory,
+# and checkout a branch/tag/commit if specified.
+gclone() {
+  local REPO="$1"
+  local CHECKOUT_ID="$2"
+  if [ -z "$REPO" ] ; then
+    echo '=> ERROR: No repository provided.' >&2
+    return 1
+  fi
+
+  git clone "$REPO" || {
+    echo "=> ERROR: Could not clone '$REPO'." >&2
+    return 1
+  }
+  repo_dir="$(basename "$REPO" | sed 's/\.git$//g')"
+  cd "$repo_dir" 2>/dev/null || {
+    echo "=> ERROR: Could not 'cd' into '$repo_dir'." >&2
+    return 1
+  }
+  if [ ! -z "$CHECKOUT_ID" ] ; then
+    git checkout "$CHECKOUT_ID"
   fi
 }
