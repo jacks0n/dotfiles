@@ -444,11 +444,12 @@ else
   set foldmethod=manual          " Manually fold.
 endif
 
-" Use a block cursor in normal mode, i-beam cursor in insert mode, and underline cursor in replace mode.
+" Use a block cursor by default, i-beam cursor in insert mode, and underline cursor in replace mode.
+set guicursor=a:block-nCursor,i:ver25-Cursor,r-cr-o:hor20
 if empty($TMUX)
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-  let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+  let &t_SI = "\<esc>[5 q"
+  let &t_SR = "\<esc>[5 q"
+  let &t_EI = "\<esc>[2 q"
 else
   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
   let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
