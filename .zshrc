@@ -1,6 +1,5 @@
 # Fig pre block. Keep at the top of this file.
 [[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-
 # Not a tty.
 [ -z "$PS1" ] && return
 
@@ -31,12 +30,15 @@ setopt SHARE_HISTORY        # Share history between shell instances.
 setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
 setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
 setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
-# setopt COMPLETE_ALIASES     # Enable completion for aliases. Enabling breaks completion with Fig.
+setopt COMPLETE_ALIASES     # Enable completion for aliases. Enabling breaks completion with Fig.
 setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
-zstyle ':completion:*' use-cache true             # Enable the completion cache.
-zstyle ':completion:*' cache-path "$HOME/.zcache" # Set the completion cache path.
 zstyle ':completion:*' list-dirs-first yes        # Show directories first.
 zstyle ':completion:*' verbose yes                # Show descriptions for options.
+zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
+zstyle ':completion:*' menu select                          # Enable menu-driven completion.
+zstyle ':completion::complete:*' cache-path $ZSH_CACHE_DIR  # Set the completion caching directory.
+zstyle ':completion::complete:*' use-cache 1                # Enable completion caching.
 
 # Other.
 setopt AUTO_CD              # `cd` into directories.
@@ -51,12 +53,6 @@ setopt PROMPT_SUBST         # Perform parameter expansion, command substitution 
 # Break at '/' on CTRL-W.
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
-zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
-zstyle ':completion:*' menu select                          # Enable menu-driven completion.
-zstyle ':completion::complete:*' cache-path $ZSH_CACHE_DIR  # Set the completion caching directory.
-zstyle ':completion::complete:*' use-cache 1                # Enable completion caching.
-
 # Reduce Vim mode change to 0.1 seconds.
 # How long to wait (in hundredths of a second) for additional characters in sequence.
 export KEYTIMEOUT=1
@@ -69,61 +65,63 @@ export KEYTIMEOUT=1
 # Use Emacs bindings.
 bindkey -e
 
-
-##
-# zplug.
-##
-
-export ZPLUG_HOME="$HOME/.zplug"
-
-# Install zplug if it's not installed.
-if [ ! -f "$ZPLUG_HOME/init.zsh" ] ; then
-  echo '=> Installing zplug'
-  mkdir "$ZPLUG_HOME"
-  git clone https://github.com/zplug/zplug "$ZPLUG_HOME"
-fi
-
-source "$ZPLUG_HOME/init.zsh"
-
-zplug 'plugins/pip', from:oh-my-zsh, ignore:oh-my-zsh.sh
-zplug 'zplug/zplug', hook-build:'zplug --self-manage'
-zplug 'mafredri/zsh-async', from:github
-zplug 'sindresorhus/pure', use:pure.zsh, from:github, as:theme
-zplug 'djui/alias-tips'
-if [ type conda > /dev/null 2>&1 ]; then
-  zplug 'conda-incubator/conda-zsh-completion'
-fi
-if [ type jupyter > /dev/null 2>&1 ]; then
-  zplug 'jupyter/jupyter_core', as:command, use:examples/completions-zsh, rename-to:'_jupyter'
-fi
-# zplug 'wfxr/forgit'
-zplug 'b4b4r07/cli-finder'
-zplug 'zsh-users/zsh-completions'
-zplug 'changyuheng/fz', defer:1
-zplug 'rupa/z', use:z.sh
-zplug 'zsh-users/zsh-autosuggestions'
-zplug 'lukechilds/zsh-better-npm-completion'
-zplug 'plugins/phing', from:oh-my-zsh
-zplug 'docker/cli', use:contrib/completion/zsh
-zplug 'docker/compose', use:contrib/completion/zsh
-zplug 'zsh-users/zsh-syntax-highlighting', defer:2
-zplug 'zsh-users/zsh-history-substring-search', defer:3
-zplug 'hlissner/zsh-autopair', defer:3
-# zplug 'Aloxaf/fzf-tab', from:github
-# zplug 'plugins/fzf', from:oh-my-zsh
-
-# Install missing plugins.
-zplug check || zplug install
-
-zplug load
-
-
 ##
 # Package Settings.
 ##
 
 # Pure.
 export PURE_GIT_PULL=0 # Disable checking Git remote update status.
+
+export FORGIT_NO_ALIASES=1
+
+
+##
+# zinit packages.
+##
+
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+# Install zinit if it's not installed.
+if [[ ! -d "$ZINIT_HOME" ]] ; then
+  echo '=> Installing zinit'
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+
+source "$ZINIT_HOME/zinit.zsh"
+
+zinit snippet 'OMZ::plugins/pip/pip.plugin.zsh'
+zinit load 'mafredri/zsh-async'
+zinit ice pick'async.zsh' src'pure.zsh'; zinit light 'sindresorhus/pure'
+zinit load 'djui/alias-tips'
+if [ type conda > /dev/null 2>&1 ]; then
+  zinit load 'conda-incubator/conda-zsh-completion'
+fi
+if [ type jupyter > /dev/null 2>&1 ]; then
+  zinit load 'jupyter/jupyter_core'
+fi
+zinit load 'wfxr/forgit'
+zinit load 'b4b4r07/cli-finder'
+zinit light 'zsh-users/zsh-completions'
+zinit load 'changyuheng/fz'
+zinit load 'rupa/z'
+zinit light 'zsh-users/zsh-autosuggestions'
+zinit light 'lukechilds/zsh-better-npm-completion'
+zinit load 'docker/cli'
+zinit load 'docker/compose'
+zinit light 'zdharma-continuum/fast-syntax-highlighting'
+zinit light 'zsh-users/zsh-history-substring-search'
+zinit load 'hlissner/zsh-autopair'
+zinit light 'junegunn/fzf'
+# Not working. @see https://github.com/Aloxaf/fzf-tab/issues/336
+# zinit light 'Aloxaf/fzf-tab'
+# zinit light 'Freed-Wu/fzf-tab-source'
+if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
+  zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
+fi
+if hash saml2aws 2>/dev/null ; then
+  eval "$(saml2aws --completion-script-zsh)"
+fi
 
 # zsh-syntax-highlighting.
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
@@ -145,8 +143,6 @@ source "$HOME/.shrc"
 ##
 # 3rd Party.
 ##
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
 autoload -U add-zsh-hook
@@ -172,9 +168,6 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
-
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/opt/homebrew/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -189,3 +182,6 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
