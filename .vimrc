@@ -656,12 +656,25 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Autocommands.                                                          |
 " ========================================================================
 
-" Folding.
-augroup fold_level
+" Follow symlinks when opening files.
+function! FollowSymlink(...)
+  let fname = a:0 ? a:1 : expand('%')
+  if fname =~ '^\w\+:/'
+    " Do not mess with 'fugitive://', etc.
+    return
+  endif
+  let fname = simplify(fname)
+
+  let resolvedfile = resolve(fname)
+  if resolvedfile == fname
+    return
+  endif
+  let resolvedfile = fnameescape(resolvedfile)
+  exec 'file ' . resolvedfile
+endfunction
+augroup follow_symlink
   autocmd!
-  " Disable folding by default.
-  autocmd FileType * setlocal nofoldenable
-  " autocmd FileType markdown setlocal nofoldenable
+  autocmd BufReadPost * call FollowSymlink(expand('<afile>'))
 augroup END
 
 " Toggle search highlighting.
