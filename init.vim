@@ -24,6 +24,7 @@ call plug#begin('~/.vim/plugged')
 " Plug: Utility.                                                         |
 " ========================================================================
 
+Plug 'nat-418/boole.nvim'
 Plug 'Mizuchi/vim-ranger'
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
@@ -32,8 +33,12 @@ if has('nvim')
     \| Plug 'nvim-telescope/telescope.nvim'
   Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'windwp/nvim-autopairs'
+  " Plug 'windwp/nvim-autopairs'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'David-Kunz/markid'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'lewis6991/impatient.nvim'
+  Plug 'ggandor/leap.nvim'
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -66,37 +71,37 @@ endif
 
 " Plug 'SirVer/ultisnips'
 if has('nvim')
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'williamboman/nvim-lsp-installer'
-  Plug 'hrsh7th/nvim-cmp'
-    \| Plug 'hrsh7th/cmp-nvim-lsp'
+  Plug 'jose-elias-alvarez/null-ls.nvim'
+    \|
+  Plug 'VonHeikemen/lsp-zero.nvim'
+    \| Plug 'neovim/nvim-lspconfig'
+    \| Plug 'williamboman/mason.nvim'
+    \| Plug 'williamboman/mason-lspconfig.nvim'
+    \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-buffer'
     \| Plug 'hrsh7th/cmp-path'
+    \| Plug 'saadparwaiz1/cmp_luasnip'
+    \| Plug 'hrsh7th/cmp-nvim-lsp'
+    \| Plug 'hrsh7th/cmp-nvim-lua'
     \| Plug 'hrsh7th/cmp-cmdline'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
+    \| Plug 'b0o/schemastore.nvim'
   " Plug 'quangnguyen30192/cmp-nvim-ultisnips'
   "   \| Plug 'SirVer/ultisnips'
-  Plug 'tzachar/cmp-fuzzy-path'
-    \| Plug 'tzachar/fuzzy.nvim'
-    \| Plug 'nvim-lua/plenary.nvim'
-    \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  Plug 'David-Kunz/cmp-npm'
-    \| Plug 'nvim-lua/plenary.nvim'
+  Plug 'AndrewRadev/sideways.vim'
+  Plug 'onsails/lspkind.nvim'
+    \| Plug 'hrsh7th/nvim-cmp'
   Plug 'ray-x/lsp_signature.nvim'
   Plug 'folke/trouble.nvim'
+  Plug 'Maan2003/lsp_lines.nvim'
+  Plug 'weilbith/nvim-code-action-menu'
+  Plug 'rmagatti/goto-preview'
+  " Plug 'lewis6991/hover.nvim'
+  " Plug 'kosayoda/nvim-lightbulb'
+  "     \| Plug 'antoinemadec/FixCursorHold.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
-endif
-
-" AI pair programmer which suggests line completions and entire function bodies as you type.
-Plug 'github/copilot.vim'
-if has('nvim')
-  Plug 'zbirenbaum/copilot.lua'
-endif
-if has_key(g:plugs, 'nvim-cmp')
-  Plug 'hrsh7th/cmp-copilot'
-  Plug 'zbirenbaum/copilot-cmp'
 endif
 
 
@@ -114,12 +119,12 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
 Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
-Plug 'Yggdroot/indentLine'            " Adds vertical and/or horizontal alignment lines.
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
-Plug 'mhinz/vim-startify' " Fancy start screen.
+Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'liuchengxu/vista.vim'
 if has('nvim')
+  Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'kyazdani42/nvim-web-devicons'
   Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
@@ -127,9 +132,8 @@ if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'p00f/nvim-ts-rainbow'
-  Plug 'SmiteshP/nvim-gps'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
+  Plug 'Yggdroot/indentLine' " Adds vertical and/or horizontal alignment lines.
   Plug 'vim-airline/vim-airline'
     \| Plug 'vim-airline/vim-airline-themes'
 endif
@@ -171,11 +175,12 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " Syntax and Indent.                     |
 " ----------------------------------------
 
-if !has('nvim')
+if has('nvim')
+  Plug 'jose-elias-alvarez/typescript.nvim'
+else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
   Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
-  Plug 'jose-elias-alvarez/typescript.nvim'
 endif
 
 " ----------------------------------------
@@ -197,7 +202,7 @@ endif
 " Plug: Markdown.                                                        |
 " ========================================================================
 
-Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
+Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
 
 
 " ========================================================================
@@ -227,27 +232,21 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 " Plug: Themes.                                                          |
 " ========================================================================
 
+Plug 'yong1le/darkplus.nvim'
+Plug 'alessandroyorba/despacio'
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 Plug 'rakr/vim-one'           " Adaptation of one-light and one-dark colorschemes for Vim.
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
-Plug 'alessandroyorba/despacio'
-if has('nvim')
-  Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-endif
-Plug 'rebelot/kanagawa.nvim'
-
-Plug 'arcticicestudio/nord-vim'
-Plug 'projekt0n/github-nvim-theme'
 Plug 'sts10/vim-pink-moon'
-Plug 'catppuccin/nvim', {'as': 'catppuccin'}
-Plug 'EdenEast/nightfox.nvim'
-Plug 'rose-pine/neovim'
-
-
-let g:material_style = "deep ocean"
-Plug 'marko-cerovac/material.nvim'
-let g:material_style = "deep ocean"
-colorscheme material
+if has('nvim')
+  Plug 'EdenEast/nightfox.nvim'
+  Plug 'arcticicestudio/nord-vim'
+  Plug 'catppuccin/nvim', {'as': 'catppuccin'}
+  Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+  Plug 'projekt0n/github-nvim-theme'
+  Plug 'rebelot/kanagawa.nvim'
+  Plug 'rose-pine/neovim'
+endif
 
 
 " ========================================================================
@@ -277,13 +276,6 @@ Plug 'simnalamburt/vim-mundo'
 
 
 " ========================================================================
-" Plug: Linting.                                                         |
-" ========================================================================
-
-" Plug 'creativenull/diagnosticls-configs-nvim'
-"   \| Plug 'neovim/nvim-lspconfig'
-
-" ========================================================================
 " Plug: Functional.                                                      |
 " ========================================================================
 
@@ -297,6 +289,10 @@ Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
+endif
+
+if has('nvim')
+  Plug 'abecodes/tabout.nvim'
 endif
 
 call plug#end() " Required.
@@ -492,6 +488,10 @@ let g:php_htmlInStrings               = 1  " Enable HTML syntax highlighting ins
 let g:php_sync_method                 = -1 " Default, but it gives warnings without explicit `let`.
 let php_sql_query                     = 1  " Enable SQL syntax highlighting inside strings.
 
+" Python.
+let g:no_plugin_maps = 1
+let g:python_recommended_style = 0
+
 
 " ========================================================================
 " GUI Mode Specific.                                                     |
@@ -502,6 +502,15 @@ if has('gui_running')
   set guioptions-=m " Disable menu bar.
   set guioptions-=L " Disable left-hand scrollbar when vertical split open.
   set guioptions-=r " Disable right-hand scrollbar.
+endif
+
+if exists('g:neovide')
+  " Map OSX shortcuts.
+  let g:neovide_input_use_logo = v:true
+  map <D-v> "+p<CR>
+  map! <D-v> <C-R>+
+  tmap <D-v> <C-R>+
+  vmap <D-c> "+y<CR>
 endif
 
 
@@ -535,6 +544,7 @@ nmap ; :
 
 " Code formatting.
 nmap <Leader>fj :FormatJson<CR>
+nmap <Leader>fx :FormatXml<CR>
 
 " Code folding options.
 nmap <Leader>fl- :setlocal nofoldenable<CR>
@@ -640,6 +650,7 @@ augroup custom_filetypes
   " Other.
   autocmd BufRead,BufNewFile *.plist     setlocal filetype=xml
   autocmd BufRead,BufNewFile *.scss      setlocal filetype=scss.css
+  autocmd BufRead,BufNewFile *.ipynb     setlocal filetype=python
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
 
@@ -678,6 +689,7 @@ augroup END
 " ========================================================================
 
 function! ProfileStart()
+  delete(expand('~/Desktop/profile.log'))
   profile start ~/Desktop/profile.log
   profile func *
   profile file *
@@ -761,6 +773,7 @@ endfunction
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
 command! -bar FormatJson :%!python3 -m json.tool
+command! -bar FormatXml :%!xmllint --format --recover -
 
 " Plugin commands.
 command! -bang -nargs=* GGrep
@@ -774,34 +787,46 @@ command! -bang -nargs=* GGrep
 " ========================================================================
 
 " Import Lua plugin configs.
-lua << EOF
-require('material').setup()
-EOF
-colorscheme material
 if has('nvim')
+  lua require('plugins.typescript')
   lua require('plugins.bufferline')
-  " lua require('plugins.diagnosticls-configs-nvim')
+  lua require('plugins.goto-preview')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
-  lua require('plugins.nvim-autopairs')
+  " lua require('plugins.nvim-autopairs')
   lua require('plugins.nvim-cmp')
-  lua require('plugins.nvim-lsp-installer')
+  lua require('plugins.null-ls')
+  lua require('plugins.lsp-zero')
   lua require('plugins.nvim-treesitter')
   lua require('plugins.telescope')
+  lua require('plugins.markid')
   lua require('plugins.telescope-file-browser')
+  lua require('plugins.leap')
+  lua require('plugins.lsp_lines')
+  lua require('plugins.boole')
+  " lua require('plugins.hover')
+  " lua require('plugin.nvim-lightbulb')
+  lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
-  lua require('nvim-gps').setup()
-  lua require('lsp-diagnostic')
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
-  lua require('plugins.theme-material')
   " lua require('package-info').setup({ package_manager = 'npm' })
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
 
+" vim-coderunner.
+let g:vcr_languages = {}
+let g:vcr_languages['javascriptreact'] = {
+  \   'cmd': 'node',
+  \ }
+let g:vcr_languages['typescriptreact'] = {
+  \   'cmd': 'ts-node',
+  \ }
+
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
 
 " plasticboy/vim-markdown.
 let g:vim_markdown_conceal = 0             " Disable setting conceallevel for text.
@@ -863,13 +888,13 @@ let g:coc_global_extensions = [
   \ 'coc-pyright',
   \ 'coc-sh',
   \ 'coc-syntax',
-  \ 'coc-tabnine',
   \ 'coc-tag',
   \ 'coc-tsserver',
   \ 'coc-vimlsp',
   \ 'coc-word',
   \ 'coc-yaml',
   \ ]
+  " \ 'coc-tabnine',
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -897,20 +922,6 @@ let g:airline#extensions#tabline#enabled    = 1
 let g:airline#extensions#tabline#fnamemod   = ':t' " Only show filename.
 let g:airline#extensions#undotree#enabled   = 1
 let g:airline#extensions#whitespace#enabled = 0 " Makes scrolling super slow sometimes.
-
-" Neomake.
-let g:neomake_open_list                 = 2
-let g:neomake_serialize                 = 1
-let g:neomake_css_enabled_makers        = ['csslint']
-let g:neomake_json_enabled_makers       = ['jsonlint']
-let g:neomake_php_enabled_makers        = ['php', 'phpcs', 'phpmd']
-let g:neomake_php_phpcs_args_standard   = 'PSR2'
-let g:neomake_javascript_enabled_makers = ['eslint']
-let g:neomake_scss_enabled_makers       = ['scsslint']
-let g:neomake_text_enabled_makers       = ['proselint']
-" Symbols: ⚠️, ❌, 🚫,  😡, 😠, ⨉, ⚠
-let g:neomake_warning_sign              = { 'text': '⚠️'  }
-let g:neomake_error_sign                = { 'text': '❌' }
 
 " pangloss/vim-javascript.
 let g:javascript_enable_domhtmlcss = 1
@@ -954,7 +965,9 @@ let g:gruvbox_contrast_dark = 'hard'
 " Plugin Mappings.                                                       |
 " ========================================================================
 
-" Default LSP config.
+if has_key(g:plugs, 'goto-preview')
+elseif has_key(g:plugs, 'nvim-lspconfig')
+endif
 if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
   nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
@@ -969,9 +982,19 @@ if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> gl :lua vim.diagnostic.open_float()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
+  nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
+  nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
   nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
+
+" weilbith/nvim-code-action-menu.
+if has_key(g:plugs, 'nvim-code-action-menu')
+  nmap <Leader>ca :lua require('code_action_menu').open_code_action_menu()<CR>
+endif
+
+nnoremap <Left> :SidewaysLeft<cr>
+nnoremap <Right> :SidewaysRight<cr>
 
 " coc.nvim.
 if has_key(g:plugs, 'coc.nvim')
@@ -1021,18 +1044,30 @@ if has_key(g:plugs, 'coc.nvim')
 " Telescope.nvim.
 elseif has_key(g:plugs, 'telescope.nvim')
   " LSP.
-  nmap <silent> gd :Telescope lsp_definitions<CR>
-  nmap <silent> gi :Telescope lsp_implementations<CR>
-  nmap <silent> gt :Telescope lsp_type_definitions<CR>
-  nmap <silent> gr :Telescope lsp_references<CR>
-  nmap <Leader>s :Telescope lsp_dynamic_workspace_symbols<CR>
-  nmap <silent> gl :Telescope diagnostics<CR>
+  " nmap <silent> gd :Telescope lsp_definitions<CR>
+  " nmap <silent> gi :Telescope lsp_implementations<CR>
+  " nmap <silent> gt :Telescope lsp_type_definitions<CR>
+  " nmap <silent> gr :Telescope lsp_references<CR>
+  " nmap <Leader>s :Telescope lsp_dynamic_workspace_symbols<CR>
+  " nmap <silent> gl :Telescope diagnostics<CR>
 
   " Find things.
   nmap <nowait> <Leader>b :Telescope buffers<CR>
   " nmap <nowait> <C-g> :lua require('plugins.telescope').project_files()<CR>
-  nmap <nowait> <Leader>g :lua require('plugins.telescope').project_files()<CR>
+  " @todo Fix
+  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
+  " nmap <nowait> <Leader>g :lua require('plugins.telescope').project_files()<CR>
   nmap <Leader>fb :Telescope file_browser<CR>
+endif
+
+" Trouble.nvim.
+if has_key(g:plugs, 'trouble.nvim')
+  nnoremap <leader>xx <cmd>TroubleToggle<cr>
+  nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
+  nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
+  nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
+  nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
+  nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 endif
 
 " FZF.
@@ -1073,9 +1108,6 @@ if (executable('fzf') && has_key(g:plugs, 'fzf-project'))
   nnoremap <nowait> <Leader>p :FzfSwitchProject<CR>
 endif
 
-" Linting.
-nnoremap <Leader>l :Neomake<CR>
-
 
 " ========================================================================
 " Plugin Autocommands.                                                   |
@@ -1098,14 +1130,6 @@ augroup pencil
   autocmd FileType markdown,text :PencilSoft " Enable soft-wrapping.
 augroup END
 
-" Lint when saving files.
-if has_key(g:plugs, 'neomake')
-  augroup neomake
-    autocmd BufWritePost,BufEnter * Neomake
-    autocmd InsertChange,TextChanged * update | Neomake
-  augroup END
-endif
-
 " startify. Disable folding on the start screen.
 autocmd FileType startify setlocal nofoldenable
 
@@ -1117,6 +1141,14 @@ if has('nvim')
   " rather than going into the terminal's normal mode.
   autocmd FileType fzf tnoremap <buffer> <Esc> <Esc>
 endif
+
+
+" ========================================================================
+" Plugin Commands.                                                       |
+" ========================================================================
+
+command! -bar LSPLinesToggle call require('lsp_lines').toggle()
+command! CodeActionMenu lua require('code_action_menu').open_code_action_menu()
 
 
 " ========================================================================

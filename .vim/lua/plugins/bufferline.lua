@@ -1,6 +1,6 @@
 require('bufferline').setup {
   options = {
-    diagnostics = false,
+    diagnostics = 'nvim_lsp',
     diagnostics_update_in_insert = false,
     color_icons = true,
     show_buffer_icons = true,

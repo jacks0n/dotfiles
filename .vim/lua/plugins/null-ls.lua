@@ -1,0 +1,15 @@
+-- require('null-ls').setup({
+--   sources = {
+--     'hadolint',
+--     'eslint_d',
+--     'prettierd',
+--     'fixjson',
+--     'jq',
+--     'markdownlint',
+--     'phpcbf',
+--     'psalm',
+--     'autopep8',
+--     'shellcheck',
+--     -- require('typescript.extensions.null-ls.code-actions'),
+--   },
+-- })
