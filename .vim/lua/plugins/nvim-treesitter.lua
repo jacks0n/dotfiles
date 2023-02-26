@@ -15,7 +15,7 @@ require('nvim-treesitter.configs').setup {
     -- CSS doesn't highlight the colours yet.
     disable = { 'css' },
 
-    additional_vim_regex_highlighting = false,
+    additional_vim_regex_highlighting = true,
   },
 
   indent = {
