@@ -1,7 +1,6 @@
-# vim: filetype=sh
 # Fig pre block. Keep at the top of this file.
 [[ -f "$HOME/.fig/shell/zprofile.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zprofile.pre.zsh"
-
+# vim: filetype=sh
 # Note that /etc/paths will override $PATH after this file is executed.
 
 if [ -x /opt/homebrew/bin/brew ] ; then
@@ -41,12 +40,12 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 # Homebrew no-GA.
 export HOMEBREW_NO_ANALYTICS=1
 
+# Neovide.
+export NEOVIDE_FRAME='buttonless'
+export NEOVIDE_MULTIGRID='true'
+
 # Homebrew paths.
 if hash brew 2>/dev/null ; then
-  # export PATH="$HOMEBREW_PREFIX/bin:$PATH"
-  # export MANPATH="/usr/local/man:$MANPATH"
-  # export MANPATH="/usr/local/share/man:$MANPATH"
-
   # Homebrew Cask path preferences.
   HOMEBREW_CASK_OPTIONS=(
     --fontdir=/Library/Fonts
@@ -56,6 +55,7 @@ if hash brew 2>/dev/null ; then
     --dictionarydir=/Library/Dictionaries
     --fontdir=/Library/Fonts
     --servicedir=/Library/Services
+    --no-quarantine
   )
   export HOMEBREW_CASK_OPTS="$(IFS=' '; echo ${HOMEBREW_CASK_OPTIONS[@]})"
 
@@ -79,6 +79,7 @@ if hash brew 2>/dev/null ; then
 
   # Java.
   export PATH="$(brew --prefix openjdk)/bin:$PATH"
+  export JAVA_HOME="$(brew --prefix openjdk@11)/libexec/openjdk.jdk/Contents/Home"
 fi
 
 # Android emulator / SDK.
