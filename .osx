@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
-# vim: filetype=sh
+#o vim: filetype=sh
+
+# Close any open System Preferences panes, to prevent
+# them from overriding settings we’re about to change.
+osascript -e 'tell application "System Preferences" to quit'
+
+# Ask for the administrator password upfront.
+sudo -v
 
 ###############################################################################
 #  General OS X                                                               #
@@ -42,6 +49,9 @@ sudo systemsetup -setrestartfreeze on
 # Disable smart quotes as they're annoying when typing code.
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool NO
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool NO
+
+# Disable automatic period substitution as it's annoying when typing code.
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool NO
 
 # Require password immediately after sleep or screen saver begins.
 defaults write com.apple.screensaver askForPassword      -int 1
@@ -93,6 +103,82 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool NO
 
 # Don't show Siri in the menu bar.
 defaults write com.apple.Siri StatusMenuVisible -bool NO
+
+# Remove duplicates in the "Open With" menu (also see `lscleanup` alias).
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+  -kill -r -domain local -domain system -domain user
+
+# Keep all windows open from previous session.
+defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool true
+
+# Don't keep recent items for Documents, Apps and Servers.
+osascript << EOF
+  tell application "System Events"
+    tell appearance preferences
+      set recent documents limit to 5
+      set recent applications limit to 5
+      set recent servers limit to 5
+    end tell
+  end tell
+EOF
+
+
+###############################################################################
+# Permissions and Access                                                      #
+###############################################################################
+
+# tccutil commands below only works if SIP is disabled.
+if (( ${+SIP_DISABLED} )); then
+    echo "System Integrity Protection (SIP) is disabled."
+
+    # List existing entries for debug.
+    sudo tccutil --list
+
+    # Add Terminal as a developer tool. Any app referenced in the hidden Developer
+    # Tools category will be able to bypass GateKeeper.
+    # Source: an Apple Xcode engineer at:
+    #   https://news.ycombinator.com/item?id=23278629
+    #   https://news.ycombinator.com/item?id=23273867
+    sudo spctl developer-mode enable-terminal
+    sudo tccutil --service "kTCCServiceDeveloperTool" --insert "com.apple.Terminal"
+    sudo tccutil --service "kTCCServiceDeveloperTool" --enable "com.apple.Terminal"
+
+    # Since 10.15, BSD-userland processes now also deal with sandboxing, since the
+    # BSD syscall ABI is now reimplemented in terms of macOS security capabilities.
+    # Source: https://news.ycombinator.com/item?id=23274213
+    #
+    # Also, some plist preferences files are not readable either by the user or root
+    # unless the Terminal.app gets Full Disk Access permission.
+    #
+    #   ❯ cat /Users/kde/Library/Preferences/com.apple.AddressBook.plist
+    #   cat: /Users/kde/Library/Preferences/com.apple.AddressBook.plist: Operation not permitted
+    #
+    #   ❯ sudo cat /Users/kde/Library/Preferences/com.apple.AddressBook.plist
+    #   Password:
+    #   cat: /Users/kde/Library/Preferences/com.apple.AddressBook.plist: Operation not permitted
+
+    # Grant Full Disk Access permission
+    for app (
+        "com.apple.Terminal"
+        "/Applications/BlockBlock.app"
+        "/Applications/KnockKnock.app"
+    ); do
+        sudo tccutil --service "kTCCServiceSystemPolicyAllFiles" --insert "${app}"
+        sudo tccutil --service "kTCCServiceSystemPolicyAllFiles" --enable "${app}"
+    done
+
+    # Grant Accessibility permission
+    for app (
+        "/Applications/Amethyst.app"
+        "/Library/Application Support/Logitech.localized/Logitech Options.localized/Logi Options Daemon.app"
+        "/Applications/Logi Options.app"
+        "/Applications/MonitorControl.app"
+    ); do
+        sudo tccutil --insert "${app}"
+        sudo tccutil --enable "${app}"
+    done
+
+fi
 
 
 ###############################################################################
