@@ -126,7 +126,7 @@ else
   Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
 endif
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
-Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
+Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colour.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'liuchengxu/vista.vim'
 if has('nvim')
@@ -140,8 +140,6 @@ if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'p00f/nvim-ts-rainbow'
-  Plug 'nvim-treesitter/nvim-treesitter-context'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
 else
@@ -343,7 +341,7 @@ if has('persistent_undo')
   endif
   set undofile                 " Save undo after file closes.
   set undodir=~/.vim/undo      " Where to save undo histories.
-  set undolevels=10000         " How many undos to remember.
+  set undolevels=10000         " How many undoes to remember.
   set undoreload=100000        " Number of lines to save for undo.
 endif
 
@@ -370,6 +368,11 @@ set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
                              " │ a: All abbreviations.
                              " │ A: No existing swap file 'ATTENTION' message.
                              " ┘ I: No |:intro| starting message.
+if exists('+spelloptions')
+  set spelloptions+=camel
+  set spelloptions+=noplainbuffer
+endif
+set nospell                  " Disable spell checking by default.
 set spelllang=en_au          " Set the spell checking language.
 set cursorline               " Highlight line of the cursor.
 set showcmd                  " Show (partial) command being typed.
@@ -432,12 +435,11 @@ set lazyredraw                 " Don't redraw while executing macros (good perfo
 set ttyfast                    " Send more characters for redraws.
 set mouse=ar                   " Enable mouse use in all modes.
 set backspace=indent,eol,start " Allow backspacing over autoindent, line breaks and start of insert action.
-set guicursor=a:blinkon0       " Disable cursor blink.
 set synmaxcol=250              " Don't try to highlight long lines.
 set fillchars=eob:\ ,fold:\ ,foldopen:,foldsep:\ ,foldclose:
 set laststatus=2               " Always show the status line.
-set nofoldenable
-if has('nvim')
+set nofoldenable               " Disable folding by default.
+if has('nvim') && exists('*nvim_treesitter#foldexpr')
   set foldmethod=expr
   set foldexpr=nvim_treesitter#foldexpr()
 else
@@ -721,7 +723,6 @@ augroup custom_filetypes
 
   " Typescript/React.
   autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact
-  autocmd BufRead,BufNewFile *.tsx setlocal filetype=typescriptreact
   autocmd BufRead,BufNewFile *.js  setlocal filetype=javascriptreact
   autocmd BufRead,BufNewFile *.ts  setlocal filetype=typescriptreact
 augroup END
@@ -960,7 +961,6 @@ let g:coc_global_extensions = [
   \ 'coc-word',
   \ 'coc-yaml',
   \ ]
-  " \ 'coc-tabnine',
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -1114,7 +1114,7 @@ if has_key(g:plugs, 'lspsaga.nvim')
   nnoremap pgd <cmd>Lspsaga peek_definition<CR>
   nnoremap pgt <cmd>Lspsaga peek_type_definition<CR>
   nnoremap go <cmd>Lspsaga outline<CR>
-  nnoremap <Leader>gi  <cmd>Lspsaga incoming_calls<CR>
+  nnoremap <Leader>gi <cmd>Lspsaga incoming_calls<CR>
   nnoremap <Leader>go <cmd>Lspsaga outgoing_calls<CR>
   nnoremap <silent> <Leader>lp <cmd>Lspsaga lsp_finder<CR>
   nnoremap <silent> rn <cmd>Lspsaga rename<CR>
