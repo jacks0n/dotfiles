@@ -99,9 +99,6 @@ if has('nvim')
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
-  " Plug 'lewis6991/hover.nvim'
-  " Plug 'kosayoda/nvim-lightbulb'
-  "     \| Plug 'antoinemadec/FixCursorHold.nvim'
   Plug 'honza/vim-snippets'
   Plug 'roobert/node-type.nvim'
 elseif v:version >= 704 && has('patch1578')
@@ -123,11 +120,11 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 " ========================================================================
 
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
-" Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
-" if has('nvim')
-" else
-" endif
-Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
+if has('nvim')
+  Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
+else
+  Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
+endif
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different color.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
@@ -135,7 +132,6 @@ Plug 'liuchengxu/vista.vim'
 if has('nvim')
   Plug 'kevinhwang91/nvim-ufo'
     \| Plug 'kevinhwang91/promise-async'
-  Plug 'luukvbaal/statuscol.nvim'
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
@@ -836,12 +832,9 @@ let g:loaded_rrhelper        = 1
 let g:loaded_tarPlugin       = 1
 let g:loaded_tar             = 1
 
-let g:better_whitespace_filetypes_blacklist = ['diff', 'gitcommit', 'lspsagafinder']
-let g:better_whitespace_guess = 1
-
 " Import Lua plugin configs.
 if has('nvim')
-  " lua require('plugins.whitespace')
+  lua require('plugins.whitespace')
   lua require('plugins.lspsaga')
   lua require('plugins.todo-comments')
   lua require('plugins.lspconfig')
@@ -863,18 +856,13 @@ if has('nvim')
   lua require('plugins.leap')
   lua require('plugins.lsp_lines')
   lua require('plugins.boole')
-  " lua require('plugins.hover')
-  " lua require('plugin.nvim-lightbulb')
   lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
   lua require('lsp-diagnostic')
   lua require('trouble').setup()
   lua require('gruvbox').setup()
   lua require('node-type').setup()
-  " if has('statuscolumn')
-  lua require('plugins.statuscol')
   lua require('plugins.nvim-ufo')
-  " endif
   lua require('plugins.package-info')
 endif
 
@@ -1210,21 +1198,17 @@ augroup END
 autocmd FileType startify setlocal nofoldenable
 
 " Strip whitespace on save.
-autocmd BufWritePre * StripWhitespace
+if has_key(g:plugs, 'whitespace.nvim')
+  autocmd BufWritePre * lua require('whitespace-nvim').trim()
+elseif has_key(g:plugs, 'vim-better-whitespace')
+  autocmd BufWritePre * StripWhitespace
+endif
 
 if has('nvim')
   " Escape inside a FZF terminal window should exit the terminal window
   " rather than going into the terminal's normal mode.
   autocmd FileType fzf tnoremap <buffer> <Esc> <Esc>
 endif
-
-
-" ========================================================================
-" Plugin Commands.                                                       |
-" ========================================================================
-
-command! -bar LSPLinesToggle call require('lsp_lines').toggle()
-command! CodeActionMenu lua require('code_action_menu').open_code_action_menu()
 
 
 " ========================================================================
