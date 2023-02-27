@@ -886,7 +886,6 @@ if has('nvim')
   lua require('plugins.boole')
   lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
-  lua require('lsp-diagnostic')
   lua require('trouble').setup()
   lua require('gruvbox').setup()
   lua require('node-type').setup()
@@ -1120,6 +1119,7 @@ elseif has_key(g:plugs, 'telescope.nvim')
   nnoremap <nowait> <C-g> :lua require('plugins.telescope').git_files_all()<CR>
   nnoremap <nowait> <Leader>h :lua require('plugins.telescope').project_files()<CR>
   nnoremap <Leader>fb :Telescope file_browser<CR>
+  " TODO Fix default 'A' input .
   nnoremap gr :Telescope lsp_references<CR>
 endif
 
