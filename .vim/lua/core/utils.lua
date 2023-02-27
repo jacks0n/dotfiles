@@ -16,7 +16,6 @@ function M.json.encode(data, indent)
   end
   local toprint = '{\n'
   indent = indent + 2
-  M.to_file(type(data), '/Users/jackson.cooperflightcentre.com.au/Desktop/type.txt')
   for k, v in pairs(data) do
     toprint = toprint .. string.rep(' ', indent)
     if (type(k) == 'number') then

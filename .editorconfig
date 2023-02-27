@@ -16,3 +16,8 @@ trim_trailing_whitespace = true
 # Markdown uses the trailing whitespaces
 # https://daringfireball.net/projects/markdown/syntax#block
 trim_trailing_whitespace = false
+
+[*.lua]
+quote_style = single
+end_of_line = lf
+space_before_function_call_single_arg = false
