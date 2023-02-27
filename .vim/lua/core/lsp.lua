@@ -4,11 +4,24 @@ vim.lsp.set_log_level('error')
 
 require('mason.settings').set({
   ui = {
-    border = 'rounded'
-  }
+    border = 'rounded',
+  },
 })
 
-lsp.preset('recommended')
+lsp.preset({
+  set_lsp_keymaps = false,
+  cmp_capabilities = true,
+  manage_nvim_cmp = false,
+  suggest_lsp_servers = false,
+  configure_diagnostics = false,
+  call_servers = 'local',
+  sign_icons = {
+    error = '✘',
+    warn = '▲',
+    hint = '⚑',
+    info = '',
+  },
+})
 
 lsp.ensure_installed({
   'bashls',
@@ -17,7 +30,6 @@ lsp.ensure_installed({
   'diagnosticls',
   'docker_compose_language_service',
   'dockerls',
-  'eslint',
   'html',
   'intelephense',
   'jsonls',
@@ -32,6 +44,7 @@ lsp.ensure_installed({
   'tsserver',
   'vimls',
   'yamlls',
+  -- "vtsls",
   -- Doesn't show function documentaiion.
   -- 'jedi_language_server',
   -- 'pylsp',
@@ -39,10 +52,7 @@ lsp.ensure_installed({
   -- 'sourcery',
 })
 
-lsp.set_preferences({
-  set_lsp_keymaps = false,
-  manage_nvim_cmp = false
-})
+lsp.skip_server_setup({ 'diagnostic-languageserver', 'eslint', 'diagnosticls', 'shellcheck', 'bashls' })
 
 lsp.configure('jsonls', {
   filetypes = { 'json', 'jsonc' },
@@ -60,14 +70,6 @@ lsp.configure('jsonls', {
   },
 })
 
-lsp.configure('eslint', {
-  settings = {
-    codeActionOnSave = {
-      enable = true,
-    },
-  },
-})
-
 local lua_runtime_paths = vim.split(package.path, ';')
 table.insert(lua_runtime_paths, 'lua/?.lua')
 table.insert(lua_runtime_paths, 'lua/?/init.lua')
@@ -81,24 +83,32 @@ lsp.configure('lua_ls', {
         globals = { 'vim' },
         unusedLocalExclude = { '_*' },
       },
+      completion = {
+        callSnippet = 'Replace',
+      },
       workspace = {
         library = {
-          vim.api.nvim_get_runtime_file('lua', true),
-          vim.fn.expand('$VIMRUNTIME/lua'),
-          vim.fn.stdpath('config') .. '/lua',
-          lua_runtime_paths,
+          [vim.api.nvim_get_runtime_file('lua', true)] = true,
+          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
         },
         checkThirdParty = false,
+        ignoreDir = {
+          vim.o.undodir,
+          vim.o.backupdir,
+          'plugged',
+          '.git',
+          '.cache',
+        },
       },
       telemetry = {
-        enable = false,
+        enable = true,
       },
       format = {
-        enable = false,
+        enable = true,
         defaultConfig = {
           indent_style = 'space',
           indent_size = '2',
-        }
+        },
       },
     },
   },
@@ -153,7 +163,7 @@ lsp.configure('yamlls', {
         '!Sub sequence',
         '!Sub',
         '!Transform mapping',
-      }
+      },
     },
   },
 })
@@ -161,17 +171,17 @@ lsp.configure('yamlls', {
 lsp.configure('pyright', {
   settings = {
     pyright = {
-      autoImportCompletion = true
+      autoImportCompletion = true,
     },
     python = {
       analysis = {
         autoSearchPaths = true,
         diagnosticMode = 'openFilesOnly',
         useLibraryCodeForTypes = true,
-        typeCheckingMode = 'off'
-      }
-    }
-  }
+        typeCheckingMode = 'off',
+      },
+    },
+  },
 })
 
 lsp.configure('sourcery', {
@@ -179,104 +189,106 @@ lsp.configure('sourcery', {
     editor_version = 'vim',
     extension_version = 'vim.lsp',
     token = os.getenv('SOURCERY_TOKEN'),
-  }
+  },
 })
 
 lsp.configure('vimls', {
-  init_options = { isNeovim = true }
+  init_options = { isNeovim = true },
 })
 
+local tsserver_lang_config = {
+  inlayHints = {
+    includeInlayEnumMemberValueHints = true,
+    includeInlayFunctionLikeReturnTypeHints = true,
+    includeInlayFunctionParameterTypeHints = true,
+    includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+    includeInlayPropertyDeclarationTypeHints = true,
+    includeInlayVariableTypeHints = true,
+    includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+  },
+}
 lsp.configure('tsserver', {
   filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx' },
+  -- @see https://github.com/typescript-language-server/typescript-language-server#initializationoptions
   settings = {
+    typescript = tsserver_lang_config,
+    javascript = tsserver_lang_config,
     implicitProjectConfig = {
       checkJs = true,
       enableImplicitProjectConfig = true,
     },
+    completions = {
+      completeFunctionCalls = true,
+    },
+    format = {
+      indentSize = 2,
+      tabSize = 2,
+    },
   },
 })
 
-local function create_capabilities()
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities.textDocument.completion.completionItem.snippetSupport = true
-  capabilities.textDocument.completion.completionItem.preselectSupport = true
-  capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
-  capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
-  capabilities.textDocument.completion.completionItem.deprecatedSupport = true
-  capabilities.textDocument.completion.completionItem.commitCharactersSupport = true
-  capabilities.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
-  capabilities.textDocument.completion.completionItem.resolveSupport = {
-    properties = {
-      'documentation',
-      'detail',
-      'additionalTextEdits',
-    },
-  }
-  capabilities.textDocument.codeAction = {
-    dynamicRegistration = true,
-    codeActionLiteralSupport = {
-      codeActionKind = {
-      valueSet = {
-        '',
-        'quickfix',
-        'refactor',
-        'refactor.extract',
-        'refactor.inline',
-        'refactor.rewrite',
-        'source',
-        'source.organizeImports',
-      },
-      },
-    },
-  }
-  capabilities.textDocument.foldingRange = {
-    dynamicRegistration = false,
-    lineFoldingOnly = true
-  }
-  return capabilities
-end
 
-local lspconfig = require('lspconfig')
-lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
-  config.capabilities = create_capabilities()
+lsp.on_attach(function(client, bufnr)
+  client.server_capabilities.documentFormattingProvider = true
+  client.server_capabilities.documentFormattingRangeProvider = true
+  if client.supports_method('textDocument/formatting') then
+    vim.api.nvim_create_autocmd('BufWritePre', {
+      group = vim.api.nvim_create_augroup('LspFormat.' .. bufnr, {}),
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.buf.format()
+      end,
+    })
+  end
 end)
 
-lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
-  local incompatible_servers = { diagnosticls = true, jsonls = true, graphql = true, vimls = true, vtsls = true, eslint = true }
-  if incompatible_servers[config.name] ~= nil then
-    -- vim.notify(string.format('Not using Bun for incompatible client: %s', config.name), vim.log.levels.INFO)
-    return
-  end
+if vim.api.nvim_eval('g:use_bun') then
+  local lspconfig = require('lspconfig')
+  lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
+    local incompatible_servers = {
+      diagnosticls = true,
+      jsonls = true,
+      graphql = true,
+      vimls = true,
+      vtsls = true,
+      eslint = true,
+      lua_ls = true,
+    }
+    if incompatible_servers[config.name] ~= nil then
+      -- vim.notify(string.format('Not using Bun for incompatible client: %s', config.name), vim.log.levels.INFO)
+      return
+    end
 
-  if config.cmd[1] == 'node' then
-    -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
-    config.cmd[1] = 'bun'
-  else
-    local cmd_handle = io.popen('which ' .. config.cmd[1])
-    if not cmd_handle then
-      -- vim.notify(string.format('Error checking lsp client path "%s"', config.name), vim.log.levels.ERROR)
-      return
-    end
-    local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
-    if not cmd_path then
-      -- vim.notify(string.format('Error checking lsp client "%s" file', config.name), vim.log.levels.ERROR)
-      return
-    end
-    cmd_handle:close()
+    if config.cmd[1] == 'node' then
+      -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
+      config.cmd[1] = 'bun'
+    else
+      local cmd_handle = io.popen('which ' .. config.cmd[1])
+      if not cmd_handle then
+        -- vim.notify(string.format('Error checking lsp client path "%s"', config.name), vim.log.levels.ERROR)
+        return
+      end
+      local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
+      if not cmd_path then
+        -- vim.notify(string.format('Error checking lsp client "%s" file', config.name), vim.log.levels.ERROR)
+        return
+      end
+      cmd_handle:close()
 
-    local cmd_file = io.open(cmd_path)
-    if not cmd_file then
-      -- vim.notify(string.format('Error reading lsp client "%s" file', cmd_path), vim.log.levels.ERROR)
-      return
-    end
-    for l in cmd_file:lines() do
-      if (string.sub(l, -4) == 'node') then
-        -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
-        config.cmd[1] = cmd_path
-        table.insert(config.cmd, 1, 'bun')
+      local cmd_file = io.open(cmd_path)
+      if not cmd_file then
+        -- vim.notify(string.format('Error reading lsp client "%s" file', cmd_path), vim.log.levels.ERROR)
+        return
+      end
+      for l in cmd_file:lines() do
+        if string.sub(l, -4) == 'node' then
+          -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
+          config.cmd[1] = cmd_path
+          table.insert(config.cmd, 1, 'bun')
+        end
       end
     end
-  end
-end)
+  end)
+end
 
 lsp.setup()

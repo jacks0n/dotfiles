@@ -1,0 +1,7 @@
+cmdargs:
+  # Enable colouring.
+  color: true
+
+  # Enable Neovim syntax.
+  env:
+    neovim: true

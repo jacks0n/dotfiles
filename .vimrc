@@ -98,6 +98,7 @@ if has('nvim')
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'roobert/node-type.nvim'
+  Plug 'folke/neodev.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
@@ -108,13 +109,11 @@ endif
 " Plug: Snippets.                                                        |
 " ========================================================================
 
-" Plug 'honza/vim-snippets'
 if has('nvim')
   Plug 'L3MON4D3/LuaSnip', {'tag': 'v<CurrentMajor>.*', 'do': 'make install_jsregexp'}
     \| Plug 'rafamadriz/friendly-snippets'
     \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'saadparwaiz1/cmp_luasnip'
-    " \| Plug 'quangnguyen30192/cmp-nvim-ultisnips'
     \| Plug 'honza/vim-snippets'
 endif
 
@@ -865,18 +864,18 @@ if has('nvim')
   lua require('plugins.statuscol')
   lua require('plugins.todo-comments')
   lua require('lsp-diagnostic')
-  lua require('core.lsp')
-  lua require('plugins.nvim-cmp')
+  lua require('neodev').setup()
   lua require('plugins.typescript')
+  lua require('plugins.copilot-lua')
+  lua require('copilot_cmp').setup()
+  lua require('core.lsp')
+  lua require('core.linters')
+  lua require('plugins.nvim-cmp')
   lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
   lua require('plugins.nvim-autopairs')
-  lua require('plugins.copilot-lua')
-  lua require('copilot_cmp').setup()
-  lua require('plugins.null-ls')
-  lua require('plugins.mason-null-ls')
   lua require('plugins.nvim-treesitter')
   lua require('plugins.telescope')
   lua require('plugins.markid')
@@ -1108,7 +1107,7 @@ if has_key(g:plugs, 'coc.nvim')
   nnoremap <silent> gt <Plug>(coc-type-definition)
   nnoremap <silent> gr <Plug>(coc-references)
   nnoremap <silent> K :call <SID>show_documentation()<CR>
-  nnoremap <silent> rn <Plug>(coc-rename)
+  nnoremap <Leader>rn <Plug>(coc-rename)
   nnoremap <Leader>ca <Plug>(coc-codeaction)
   nnoremap <silent> [d <Plug>(coc-diagnostic-prev)
   nnoremap <silent> ]d <Plug>(coc-diagnostic-next)
@@ -1131,7 +1130,7 @@ if has_key(g:plugs, 'lspsaga.nvim')
   nnoremap <Leader>ic <cmd>Lspsaga incoming_calls<CR>
   nnoremap <Leader>oc <cmd>Lspsaga outgoing_calls<CR>
   nnoremap <silent> <Leader>lp <cmd>Lspsaga lsp_finder<CR>
-  nnoremap <silent> rn <cmd>Lspsaga rename<CR>
+  nnoremap <Leader>rn <cmd>Lspsaga rename<CR>
 endif
 
 " weilbith/nvim-code-action-menu.
