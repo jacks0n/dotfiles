@@ -278,3 +278,6 @@ nvim +'TSUpdate all' +qall
 
 # Setup Copilot.
 nvim +'Copilot setup'
+
+# Install Bun.
+curl -fsSL https://bun.sh/install | bash

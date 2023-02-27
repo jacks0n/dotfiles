@@ -136,6 +136,10 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 # Anaconda.
 export PATH="$HOMEBREW_PREFIX/anaconda3/bin:$PATH"
 
+# Bun.
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 # Local paths.
 export PATH="./vendor/bin:$PATH"
 export PATH="./node_modules/.bin:$PATH"

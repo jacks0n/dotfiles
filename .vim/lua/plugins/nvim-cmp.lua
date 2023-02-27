@@ -1,16 +1,16 @@
 local cmp = require('cmp')
 local lspkind = require('lspkind')
+local luasnip = require('luasnip')
 
 cmp.setup({
   formatting = {
     format = lspkind.cmp_format({
-      mode = 'symbol_text', -- Show only symbol annotations.
+      mode = 'symbol_text',
       maxwidth = 50,
       ellipsis_char = '...',
       symbol_map = { Copilot = "" }
     })
   },
-  -- completeopt = 'menu,menuone,noinsert',
   window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
@@ -26,12 +26,14 @@ cmp.setup({
       if cmp.visible() then
         cmp.confirm()
       else
-        fallback() -- If you use vim-endwise, this fallback will behave the same as vim-endwise.
+        fallback()
       end
     end,
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
       else
         fallback()
       end
@@ -39,33 +41,39 @@ cmp.setup({
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
       else
         fallback()
       end
     end, {'i', 's'}),
   }),
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end
+  },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
     { name = 'copilot', group_index = 2 },
-    -- { name = 'codeium' }
     { name = 'luasnip' },
+    { name = 'ultisnips' },
     { name = 'cmp_tabnine' },
-    { name = 'buffer' },
     { name = 'path' },
     { name = 'npm', keyword_length = 4 },
+    { name = 'spell' },
+    { name = 'buffer' },
   })
 })
 
--- Set configuration for specific filetype.
 cmp.setup.filetype('gitcommit', {
   sources = cmp.config.sources({
-    { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+    { name = 'cmp_git' },
   }, {
     { name = 'buffer' },
   })
 })
 
--- `/` cmdline setup.
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
@@ -73,7 +81,6 @@ cmp.setup.cmdline('/', {
   })
 })
 
--- `:` cmdline setup.
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({

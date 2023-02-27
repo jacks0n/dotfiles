@@ -79,8 +79,6 @@ if has('nvim')
     \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-buffer'
     \| Plug 'hrsh7th/cmp-path'
-    \| Plug 'L3MON4D3/LuaSnip'
-    \| Plug 'saadparwaiz1/cmp_luasnip'
     \| Plug 'hrsh7th/cmp-nvim-lsp'
     \| Plug 'hrsh7th/cmp-nvim-lua'
     \| Plug 'hrsh7th/cmp-cmdline'
@@ -99,11 +97,25 @@ if has('nvim')
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'honza/vim-snippets'
   Plug 'roobert/node-type.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
+endif
+
+
+" ========================================================================
+" Plug: Snippets.                                                        |
+" ========================================================================
+
+" Plug 'honza/vim-snippets'
+if has('nvim')
+  Plug 'L3MON4D3/LuaSnip', {'tag': 'v<CurrentMajor>.*', 'do': 'make install_jsregexp'}
+    \| Plug 'rafamadriz/friendly-snippets'
+    \| Plug 'hrsh7th/nvim-cmp'
+    \| Plug 'saadparwaiz1/cmp_luasnip'
+    " \| Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+    \| Plug 'honza/vim-snippets'
 endif
 
 
@@ -132,6 +144,7 @@ Plug 'liuchengxu/vista.vim'
 if has('nvim')
   Plug 'kevinhwang91/nvim-ufo'
     \| Plug 'kevinhwang91/promise-async'
+  Plug 'luukvbaal/statuscol.nvim'
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
@@ -202,10 +215,6 @@ Plug 'heavenshell/vim-jsdoc', {
   \ 'for': ['javascript', 'javascriptreact', 'javascript.jsx','typescript', 'typescriptreact'],
   \ 'do': 'make install'
 \}
-if has('nvim')
-  Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
-    \| Plug 'nvim-lua/plenary.nvim'
-endif
 
 
 " ========================================================================
@@ -378,7 +387,7 @@ set cursorline               " Highlight line of the cursor.
 set showcmd                  " Show (partial) command being typed.
 set showmode                 " Show current mode.
 set tags=./tags,tags;
-set clipboard=unnamed        " Use OS clipboard register by default.
+set clipboard=unnamedplus    " Use OS clipboard register by default.
 set history=10000            " Number of commands remembered.
 set smartindent              " Smart auto-indenting when starting a new line.
 set autoindent               " Auto-indent inserted lines.
@@ -413,10 +422,9 @@ set complete+=kspell         " Enable word completion.
 set complete-=i              " Disable current and included file scanning, use tags instead.
 set selection=old            " Do not select past the EOL in visual mode.
 
-" This will show the popup menu even if there's only one match (menuone),
-" prevent automatic selection (noselect) and prevent automatic text injection
-" into the current line (noinsert).
-set completeopt=noinsert,menuone,noselect,preview
+" This will show the popup menu (menu) even if there's only one match
+" (menuone), and show a preview (preview) if there's documentation related.
+set completeopt=menu,menuone,preview
 
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/* " Completion ignore patterns.
 set wildignore+=*.min.css,*.min.js        " Completion ignore patterns.
@@ -438,12 +446,16 @@ set backspace=indent,eol,start " Allow backspacing over autoindent, line breaks 
 set synmaxcol=250              " Don't try to highlight long lines.
 set fillchars=eob:\ ,fold:\ ,foldopen:,foldsep:\ ,foldclose:
 set laststatus=2               " Always show the status line.
-set nofoldenable               " Disable folding by default.
+
+set foldenable
+set foldcolumn=1
+set foldlevelstart=999
+set foldlevel=999
 if has('nvim') && exists('*nvim_treesitter#foldexpr')
   set foldmethod=expr
   set foldexpr=nvim_treesitter#foldexpr()
 else
-  set foldmethod=manual          " Manually fold.
+  set foldmethod=manual
 endif
 
 " Use a block cursor by default, i-beam cursor in insert mode, and underline cursor in replace mode.
@@ -850,18 +862,19 @@ let g:loaded_tar             = 1
 " Import Lua plugin configs.
 if has('nvim')
   lua require('plugins.whitespace')
-  lua require('plugins.lspsaga')
+  lua require('plugins.statuscol')
   lua require('plugins.todo-comments')
-  lua require('plugins.lspconfig')
+  lua require('lsp-diagnostic')
+  lua require('core.lsp')
+  lua require('plugins.nvim-cmp')
   lua require('plugins.typescript')
+  lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
   lua require('plugins.nvim-autopairs')
   lua require('plugins.copilot-lua')
   lua require('copilot_cmp').setup()
-  lua require('plugins.nvim-cmp')
-  lua require('plugins.lsp-zero')
   lua require('plugins.null-ls')
   lua require('plugins.mason-null-ls')
   lua require('plugins.nvim-treesitter')
@@ -1048,6 +1061,7 @@ if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
   nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
+  nmap <silent> gf :lua vim.lsp.buf.format()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
   nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
   nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
@@ -1111,11 +1125,11 @@ endif
 
 if has_key(g:plugs, 'lspsaga.nvim')
   nnoremap <silent> gp <cmd>Lspsaga lsp_finder<CR>
-  nnoremap pgd <cmd>Lspsaga peek_definition<CR>
-  nnoremap pgt <cmd>Lspsaga peek_type_definition<CR>
+  nnoremap <Leader>gd <cmd>Lspsaga peek_definition<CR>
+  nnoremap <Leader>gt <cmd>Lspsaga peek_type_definition<CR>
   nnoremap go <cmd>Lspsaga outline<CR>
-  nnoremap <Leader>gi <cmd>Lspsaga incoming_calls<CR>
-  nnoremap <Leader>go <cmd>Lspsaga outgoing_calls<CR>
+  nnoremap <Leader>ic <cmd>Lspsaga incoming_calls<CR>
+  nnoremap <Leader>oc <cmd>Lspsaga outgoing_calls<CR>
   nnoremap <silent> <Leader>lp <cmd>Lspsaga lsp_finder<CR>
   nnoremap <silent> rn <cmd>Lspsaga rename<CR>
 endif
