@@ -7,7 +7,7 @@ telescope.setup({
       fuzzy = true,
       override_generic_sorter = true,
       override_file_sorter = true,
-    }
+    },
   },
   defaults = {
     mappings = {
@@ -25,10 +25,10 @@ telescope.setup({
         height = 0.85,
       }
     },
-    path_display = function(opts, path)
+    path_display = function(_, path)
       local tail = require'telescope.utils'.path_tail(path)
       local fullPath = string.format('%s (%s)', tail, path)
-      return string.gsub(fullPath, os.getenv('HOME'), '~')
+      return string.gsub(fullPath, os.getenv('HOME') or '', '~')
     end
   },
 })
