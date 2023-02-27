@@ -640,7 +640,12 @@ gpu() {
 }
 
 gcbf() {
-  git checkout -b "feature/$*"
+  checkout=$(git checkout -b "feature/$*" 2>&1 | tee /dev/tty)
+  if [[ "$checkout" == 'fatal: a branch named'*'already exists' ]] ; then
+    git checkout "feature/$*"
+  else
+    echo "$checkout"
+  fi
 }
 
 # Fuzzy find and edit a file in a Git repo.
@@ -678,4 +683,12 @@ gclone() {
   if [ ! -z "$CHECKOUT_ID" ] ; then
     git checkout "$CHECKOUT_ID"
   fi
+}
+
+gpo() {
+  local branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
+  local remote=$(git remote)
+  local upstream_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+  git pull "$remote" "$upstream_branch"
+  git pull "$remote" "$branch"
 }
