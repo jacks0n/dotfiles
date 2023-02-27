@@ -185,3 +185,8 @@ unset __conda_setup
 
 # Fig post block. Keep at the bottom of this file.
 [[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+
+# bun completion.
+if [[ -s "$HOME/.bun/_bun" ]] ; then
+  source "$HOME/.bun/_bun"
+fi
