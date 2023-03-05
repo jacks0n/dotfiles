@@ -1,7 +1,8 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 # Not a tty.
 [ -z "$PS1" ] && return
+
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 
 
 ##
@@ -102,11 +103,11 @@ if [ type jupyter > /dev/null 2>&1 ]; then
 fi
 zinit load 'wfxr/forgit'
 zinit load 'b4b4r07/cli-finder'
-zinit light 'zsh-users/zsh-completions'
+zinit load 'zsh-users/zsh-completions'
+zinit load 'lukechilds/zsh-better-npm-completion'
 zinit load 'changyuheng/fz'
 zinit load 'rupa/z'
 zinit light 'zsh-users/zsh-autosuggestions'
-zinit light 'lukechilds/zsh-better-npm-completion'
 zinit load 'docker/cli'
 zinit load 'docker/compose'
 zinit light 'zdharma-continuum/fast-syntax-highlighting'
@@ -131,6 +132,12 @@ bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
+
+##
+# Autoloads.
+##
+
+autoload zmv
 
 
 ##
