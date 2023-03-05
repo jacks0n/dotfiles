@@ -104,51 +104,31 @@ brew tap buo/cask-upgrade
 # Setup Java.
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
-# Install Quick Look plugins.
-brew install --cask apparency          # Preview the contents of a macOS app.
-brew install --cask qlcolorcode        # Preview source code files with syntax highlighting.
-brew install --cask qlimagesize        # Display image size and resolution.
-brew install --cask qlmarkdown         # Preview Markdown files.
-brew install --cask qlstephen          # Preview plain text files without or with unknown file extension.
-brew install --cask qlvideo            # Preview most types of video files, as well as their thumbnails, cover art and metadata.
-brew install --cask QLPrettyPatch      # QuickLook generator for patch files.
-brew install --cask quicklook-json     # Preview JSON files.
-brew install --cask quicklookase       # Preview Adobe ASE Color Swatches.
-brew install --cask suspicious-package # Preview the contents of a standard Apple installer package.
-brew install --cask quicklookapk       # Preview Android APK files.
-brew install --cask quicklook-pat      # Preview Adobe Photoshop pattern files.
-brew install --cask syntax-highlight   # Preview many different source code files.
-brew install --cask qladdict           # Preview subtitle (.srt) files.
-sudo xattr -rd com.apple.quarantine /Library/QuickLook
-qlmanage -r
-qlmanage -r cache
-killall Finder
-
 # Install Brew cask packages.
 brew install --cask 1password
-brew install --cask macs-fan-control
-brew install --cask postman
 brew install --cask alfred
 brew install --cask arq
 brew install --cask bartender
 brew install --cask beekeeper-studio
 brew install --cask catch
 brew install --cask dash
+brew install --cask db-browser-for-sqlite
 brew install --cask drawio
 brew install --cask dropbox
 brew install --cask evernote
 brew install --cask fig
 brew install --cask firefox
 brew install --cask font-sf-mono-nerd-font
-brew install --cask db-browser-for-sqlite
-brew install --cask google-drive
+brew install --cask github
 brew install --cask google-chrome
+brew install --cask google-drive
 brew install --cask homebrew/cask/docker
 brew install --cask hyper
 brew install --cask insomnia
 brew install --cask istat-menus
 brew install --cask iterm2
 brew install --cask lastpass
+brew install --cask macs-fan-control
 brew install --cask macvim
 brew install --cask masscode
 brew install --cask microsoft-teams
@@ -170,9 +150,30 @@ brew install --cask zettlr
 brew install --cask slack
 
 # Install Brew cask personal packages.
+brew install --cask backblaze
+brew install --cask betaflight-configurator
 brew install --cask ledger-live
 brew install --cask tor-browser
-brew install --cask backblaze
+
+# Install Quick Look plugins.
+brew install --cask QLPrettyPatch      # QuickLook generator for patch files.
+brew install --cask apparency          # Preview the contents of a macOS app.
+brew install --cask qladdict           # Preview subtitle (.srt) files.
+brew install --cask qlcolorcode        # Preview source code files with syntax highlighting.
+brew install --cask qlimagesize        # Display image size and resolution.
+brew install --cask qlmarkdown         # Preview Markdown files.
+brew install --cask qlstephen          # Preview plain text files without or with unknown file extension.
+brew install --cask qlvideo            # Preview most types of video files, as well as their thumbnails, cover art and metadata.
+brew install --cask quicklook-json     # Preview JSON files.
+brew install --cask quicklook-pat      # Preview Adobe Photoshop pattern files.
+brew install --cask quicklookapk       # Preview Android APK files.
+brew install --cask quicklookase       # Preview Adobe ASE Color Swatches.
+brew install --cask suspicious-package # Preview the contents of a standard Apple installer package.
+brew install --cask syntax-highlight   # Preview many different source code files.
+sudo xattr -rd com.apple.quarantine /Library/QuickLook
+qlmanage -r
+qlmanage -r cache
+killall Finder
 
 # Language servers.
 npm install --global @serverless-ide/language-server
@@ -207,7 +208,7 @@ nvim +'LspInstall --sync phpactor' +qall
 nvim +'LspInstall --sync pyright' +qall
 nvim +'LspInstall --sync sourcery' +qall
 nvim +'LspInstall --sync sqlls' +qall
-nvim +'LspInstall --sync sumneko_lua' +qll
+nvim +'LspInstall --sync lsp_ls' +qll
 nvim +'LspInstall --sync terraformls' +qall
 nvim +'LspInstall --sync tflint' +qall
 nvim +'LspInstall --sync tsserver' +qall
