@@ -126,3 +126,4 @@
 
 [init]
   defaultBranch = master
+  templatedir = ~/.git-templates
