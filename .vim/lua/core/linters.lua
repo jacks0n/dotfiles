@@ -4,6 +4,11 @@ local null_opts = lsp.build_options('null-ls', {})
 
 null_ls.setup({
   on_attach = function(client, bufnr) null_opts.on_attach(client, bufnr) end,
+  should_attach = function(bufnr)
+    local max_filesize = 1024 * 1024 -- 1MB
+    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
+    return (ok and stats and stats.size > max_filesize)
+  end,
   sources = {
     -- Shell.
     null_ls.builtins.code_actions.shellcheck,
@@ -74,6 +79,16 @@ null_ls.setup({
     null_ls.builtins.formatting.sqlformat
   }
 })
+
+null_ls.register({
+  name = 'more_actions',
+  method = { null_ls.methods.CODE_ACTION },
+  filetypes = { '_all' },
+  generator = {
+    fn = require('ts-node-action').available_actions
+  }
+})
+
 require('mason-null-ls').setup({
   ensure_installed = nil,
   automatic_installation = true,
