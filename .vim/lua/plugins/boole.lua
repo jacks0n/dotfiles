@@ -1,7 +1,8 @@
+local keymap = require('core.keymap')
 require('boole').setup({
   mappings = {
-    increment = '<C-a>',
-    decrement = '<C-x>'
+    increment = '<C-Char-' .. keymap['='] .. '>',
+    decrement = '<C-Char-' .. keymap['-'] .. '>',
   },
   allow_caps_additions = {
     {'enable', 'disable'}

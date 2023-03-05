@@ -1,1 +1,3 @@
-require('lsp_signature').setup({})
+require('lsp_signature').setup({
+  noice = true,
+})

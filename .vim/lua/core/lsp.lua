@@ -228,21 +228,21 @@ lsp.configure('tsserver', {
 })
 
 
-lsp.on_attach(function(client, bufnr)
-  client.server_capabilities.documentFormattingProvider = true
-  client.server_capabilities.documentFormattingRangeProvider = true
-  if client.supports_method('textDocument/formatting') then
-    vim.api.nvim_create_autocmd('BufWritePre', {
-      group = vim.api.nvim_create_augroup('LspFormat.' .. bufnr, {}),
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.buf.format()
-      end,
-    })
-  end
-end)
+-- lsp.on_attach(function(client, bufnr)
+--   client.server_capabilities.documentFormattingProvider = true
+--   client.server_capabilities.documentFormattingRangeProvider = true
+--   if client.supports_method('textDocument/formatting') then
+--     vim.api.nvim_create_autocmd('BufWritePre', {
+--       group = vim.api.nvim_create_augroup('LspFormat.' .. bufnr, {}),
+--       buffer = bufnr,
+--       callback = function()
+--         vim.lsp.buf.format()
+--       end,
+--     })
+--   end
+-- end)
 
-if vim.api.nvim_eval('g:use_bun') then
+if vim.g.use_bun then
   local lspconfig = require('lspconfig')
   lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
     local incompatible_servers = {
