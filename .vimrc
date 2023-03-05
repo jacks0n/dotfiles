@@ -21,6 +21,15 @@ call plug#begin('~/.vim/plugged')
 
 
 " ========================================================================
+" Import local before .vimrc `~/.vimrc.before.local`.                    |
+" ========================================================================
+
+if filereadable(expand('~/.vimrc.before.local'))
+  source ~/.vimrc.before.local
+endif
+
+
+" ========================================================================
 " Plug: Utility.                                                         |
 " ========================================================================
 
@@ -29,16 +38,25 @@ Plug 'Mizuchi/vim-ranger'
 Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
 if has('nvim')
+  Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'windwp/nvim-autopairs'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'David-Kunz/markid'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
   Plug 'ggandor/leap.nvim'
+    \| Plug 'tpope/vim-repeat'
+  Plug 'CKolkey/ts-node-action'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'folke/noice.nvim'
+    \| Plug 'MunifTanjim/nui.nvim'
+    \| Plug 'rcarriga/nvim-notify'
+  Plug 'nvim-treesitter/nvim-treesitter-context'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -151,7 +169,7 @@ if has('nvim')
     \ | Plug 'kyazdani42/nvim-web-devicons'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
-  Plug 'p00f/nvim-ts-rainbow'
+  Plug 'luochen1990/rainbow'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
 else
@@ -220,7 +238,7 @@ Plug 'heavenshell/vim-jsdoc', {
 " Plug: Markdown.                                                        |
 " ========================================================================
 
-Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
+" Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
 
 
 " ========================================================================
@@ -250,6 +268,7 @@ Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 " Plug: Themes.                                                          |
 " ========================================================================
 
+Plug 'embark-theme/vim', { 'as': 'embark', 'branch': 'main' }
 Plug 'flazz/vim-colorschemes' " All single-file vim.org colour schemes.
 Plug 'Matsuuu/pinkmare'
 if has('nvim')
@@ -438,7 +457,6 @@ set display+=lastline          " Display as much as possible of last line in win
 set ruler                      " Show the line and column number of the cursor position.
 set viminfo^=%                 " Remember info about open buffers on close.
 set t_RV=                      " Temporary fix prevents unexpected keypresses on startup.
-set lazyredraw                 " Don't redraw while executing macros (good performance config).
 set ttyfast                    " Send more characters for redraws.
 set mouse=ar                   " Enable mouse use in all modes.
 set backspace=indent,eol,start " Allow backspacing over autoindent, line breaks and start of insert action.
@@ -450,7 +468,7 @@ set foldenable
 set foldcolumn=1
 set foldlevelstart=999
 set foldlevel=999
-if has('nvim') && exists('*nvim_treesitter#foldexpr')
+if has('nvim')
   set foldmethod=expr
   set foldexpr=nvim_treesitter#foldexpr()
 else
@@ -628,10 +646,10 @@ map <Right> <NOP>
 nnoremap Q <NOP>
 
 " Easier way to move between windows.
-map <C-k> <C-W>k
-map <C-j> <C-W>j
-map <C-h> <C-W>h
-map <C-l> <C-W>l
+" map <C-k> <C-W>k
+" map <C-j> <C-W>j
+" map <C-h> <C-W>h
+" map <C-l> <C-W>l
 
 " Move up/down by row rather than line in file, even when the line is wrapped.
 map j gj
@@ -733,9 +751,9 @@ augroup custom_filetypes
   autocmd BufNewFile,BufRead *.tftpl     setlocal filetype=terraform
 
   " Typescript/React.
-  autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact
-  autocmd BufRead,BufNewFile *.js  setlocal filetype=javascriptreact
-  autocmd BufRead,BufNewFile *.ts  setlocal filetype=typescriptreact
+  autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact.javascript
+  autocmd BufRead,BufNewFile *.js  setlocal filetype=javascriptreact.javascript
+  autocmd BufRead,BufNewFile *.ts  setlocal filetype=typescriptreact.typescript
 augroup END
 
 " Override vim-coderunner.
@@ -860,6 +878,14 @@ let g:loaded_tar             = 1
 
 " Import Lua plugin configs.
 if has('nvim')
+  lua require('plugins.cmp-tabnine')
+  lua require('plugins.notify')
+  lua require('plugins.noice')
+  lua require('plugins.treesitter-context')
+  lua require('plugins.treesitter-textobjects')
+  lua require('plugins.ts-node-action')
+  lua require('plugins.luasnip')
+  lua require('plugins.bigfile')
   lua require('plugins.whitespace')
   lua require('plugins.statuscol')
   lua require('plugins.todo-comments')
@@ -870,13 +896,13 @@ if has('nvim')
   lua require('copilot_cmp').setup()
   lua require('core.lsp')
   lua require('core.linters')
-  lua require('plugins.nvim-cmp')
+  lua require('plugins.cmp')
   lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
   lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
   lua require('plugins.nvim-autopairs')
-  lua require('plugins.nvim-treesitter')
+  lua require('plugins.treesitter')
   lua require('plugins.telescope')
   lua require('plugins.markid')
   lua require('plugins.telescope-file-browser')
@@ -893,6 +919,29 @@ if has('nvim')
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
+
+let g:embark_terminal_italics = 1
+
+let g:rainbow_active = 1
+let g:rainbow_conf = {
+\	'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick'],
+\	'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
+\	'guis': [''],
+\	'cterms': [''],
+\	'operators': '_,_',
+\	'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+\	'separately': {
+\		'*': {},
+\		'markdown': {
+\			'parentheses_options': 'containedin=markdownCode contained',
+\		},
+\		'vim': {
+\			'parentheses_options': 'containedin=vimFuncBody',
+\		},
+\		'css': 0,
+\		'nerdtree': 0,
+\	}
+\}
 
 let g:indexed_search_mappings = 0
 
@@ -1239,9 +1288,9 @@ endif
 
 
 " ========================================================================
-" Import local vimrc `~/.vimrc.local`.                                   |
+" Import local after .vimrc `~/.vimrc.after.local`.                      |
 " ========================================================================
 
-if filereadable(expand('~/.vimrc.local'))
-  source ~/.vimrc.local
+if filereadable(expand('~/.vimrc.after.local'))
+  source ~/.vimrc.after.local
 endif
