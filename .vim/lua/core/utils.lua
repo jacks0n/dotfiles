@@ -1,7 +1,13 @@
+local lspconfig_util = require('lspconfig.util')
+
 local M = {
-    json = {},
-    logger = {},
+  json = {},
+  logger = {},
 }
+
+function M.project_dir()
+  return lspconfig_util.find_git_ancestor(vim.fn.expand('%:p'))
+end
 
 --- Encode a table into a JSON string.
 -- @param data Data to encode.

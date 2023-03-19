@@ -19,8 +19,7 @@ require('noice').setup({
     enabled = true,
   },
   popupmenu = {
-    backend = 'cmp', -- default is 'nui'
-    -- kind_icons = '' kind something
+    backend = 'cmp',
   },
   cmdline = {
     enabled = false,
@@ -29,12 +28,12 @@ require('noice').setup({
 
 vim.keymap.set({ 'n', 'i', 's' }, '<C-j>', function()
   if not require('noice.lsp').scroll(4) then
-    return '<c-j>'
+    return '<C-j>'
   end
 end, { silent = true, expr = true })
 
 vim.keymap.set({ 'n', 'i', 's' }, '<C-k>', function()
   if not require('noice.lsp').scroll( -4) then
-    return '<c-k>'
+    return '<C-k>'
   end
 end, { silent = true, expr = true })

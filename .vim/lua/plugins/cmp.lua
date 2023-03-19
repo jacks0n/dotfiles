@@ -65,11 +65,10 @@ cmp.setup({
     end
   },
   sources = cmp.config.sources({
-    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2 },
     { name = 'nvim_lsp' },
     { name = 'copilot',    group_index = 2 },
-    { name = 'ultisnips' },
     { name = 'cmp_tabnine' },
+    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2 },
     { name = 'path' },
     { name = 'npm',        keyword_length = 4 },
     { name = 'spell' },
