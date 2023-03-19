@@ -1,4 +1,7 @@
 local lsp = require('lsp-zero')
+local lspconfig = require('lspconfig')
+
+require('neodev').setup()
 
 vim.lsp.set_log_level('error')
 
@@ -52,7 +55,7 @@ lsp.ensure_installed({
   -- 'sourcery',
 })
 
-lsp.skip_server_setup({ 'diagnostic-languageserver', 'eslint', 'diagnosticls', 'shellcheck', 'bashls' })
+lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'eslint' })
 
 lsp.configure('jsonls', {
   filetypes = { 'json', 'jsonc' },
@@ -88,8 +91,8 @@ lsp.configure('lua_ls', {
       },
       workspace = {
         library = {
-          [vim.api.nvim_get_runtime_file('lua', true)] = true,
-          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+          vim.api.nvim_get_runtime_file('lua', true),
+          vim.fn.expand('$VIMRUNTIME/lua/vim/lsp'),
         },
         checkThirdParty = false,
         ignoreDir = {
@@ -197,6 +200,9 @@ lsp.configure('vimls', {
 })
 
 local tsserver_lang_config = {
+  preferences = {
+    importModuleSpecifier = 'non-relative',
+  },
   inlayHints = {
     includeInlayEnumMemberValueHints = true,
     includeInlayFunctionLikeReturnTypeHints = true,
@@ -206,10 +212,37 @@ local tsserver_lang_config = {
     includeInlayVariableTypeHints = true,
     includeInlayVariableTypeHintsWhenTypeMatchesName = true,
   },
+  suggest = {
+    completeFunctionCalls = true,
+    includeAutomaticOptionalChainCompletions = true,
+  },
+  updateImportsOnFileMove = {
+    enabled = 'always',
+  },
+  -- @todo Is this needed? What does it do?
+  experimental = {
+    tsserver = {
+      web = {
+        enableProjectWideIntellisense = true,
+      },
+    },
+  },
 }
 lsp.configure('tsserver', {
-  filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx' },
+  filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx', 'typescriptreact.typescript' },
+  commands = {
+    OrganizeImports = {
+      function()
+        vim.lsp.buf.execute_command({
+          command = '_typescript.organizeImports',
+          arguments = { vim.fn.expand('%:p') },
+        })
+      end,
+      description = 'Organize Imports'
+    }
+  },
   -- @see https://github.com/typescript-language-server/typescript-language-server#initializationoptions
+  -- @see https://code.visualstudio.com/docs/getstarted/settings
   settings = {
     typescript = tsserver_lang_config,
     javascript = tsserver_lang_config,
@@ -228,63 +261,34 @@ lsp.configure('tsserver', {
 })
 
 
--- lsp.on_attach(function(client, bufnr)
---   client.server_capabilities.documentFormattingProvider = true
---   client.server_capabilities.documentFormattingRangeProvider = true
---   if client.supports_method('textDocument/formatting') then
---     vim.api.nvim_create_autocmd('BufWritePre', {
---       group = vim.api.nvim_create_augroup('LspFormat.' .. bufnr, {}),
---       buffer = bufnr,
---       callback = function()
---         vim.lsp.buf.format()
---       end,
---     })
---   end
--- end)
+lsp.on_attach(function(client)
+  client.server_capabilities.documentFormattingProvider = true
+  client.server_capabilities.documentFormattingRangeProvider = true
+end)
 
 if vim.g.use_bun then
-  local lspconfig = require('lspconfig')
   lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
-    local incompatible_servers = {
-      diagnosticls = true,
-      jsonls = true,
-      graphql = true,
-      vimls = true,
-      vtsls = true,
-      eslint = true,
-      lua_ls = true,
-    }
-    if incompatible_servers[config.name] ~= nil then
-      -- vim.notify(string.format('Not using Bun for incompatible client: %s', config.name), vim.log.levels.INFO)
-      return
-    end
-
     if config.cmd[1] == 'node' then
-      -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
-      config.cmd[1] = 'bun'
+      config.cmd = vim.list_extend({ 'bun', 'run', '--bun' }, config.cmd)
     else
       local cmd_handle = io.popen('which ' .. config.cmd[1])
       if not cmd_handle then
-        -- vim.notify(string.format('Error checking lsp client path "%s"', config.name), vim.log.levels.ERROR)
         return
       end
       local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
       if not cmd_path then
-        -- vim.notify(string.format('Error checking lsp client "%s" file', config.name), vim.log.levels.ERROR)
         return
       end
       cmd_handle:close()
 
       local cmd_file = io.open(cmd_path)
       if not cmd_file then
-        -- vim.notify(string.format('Error reading lsp client "%s" file', cmd_path), vim.log.levels.ERROR)
         return
       end
       for l in cmd_file:lines() do
         if string.sub(l, -4) == 'node' then
-          -- vim.notify(string.format('Using bun for client: %s', config.name), vim.log.levels.INFO)
           config.cmd[1] = cmd_path
-          table.insert(config.cmd, 1, 'bun')
+          table.insert(config.cmd, 1, 'bun run --bun')
         end
       end
     end

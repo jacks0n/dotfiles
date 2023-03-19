@@ -1,13 +1,19 @@
 local lsp = require('lsp-zero')
 local null_ls = require('null-ls')
 local null_opts = lsp.build_options('null-ls', {})
+local mason_null_ls = require('mason-null-ls')
 
 null_ls.setup({
-  on_attach = function(client, bufnr) null_opts.on_attach(client, bufnr) end,
+  on_attach = null_opts.on_attach,
   should_attach = function(bufnr)
+    local filepath = vim.api.nvim_buf_get_name(bufnr)
+    if (filepath:match('^' .. vim.o.undodir)) then
+      return false
+    end
+
     local max_filesize = 1024 * 1024 -- 1MB
     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
-    return (ok and stats and stats.size > max_filesize)
+    return (ok and stats and stats.size < max_filesize)
   end,
   sources = {
     -- Shell.
@@ -15,12 +21,15 @@ null_ls.setup({
     null_ls.builtins.diagnostics.shellcheck,
     null_ls.builtins.formatting.shfmt,
     null_ls.builtins.diagnostics.zsh,
+
     -- CloudFormation.
     null_ls.builtins.diagnostics.cfn_lint,
+
     -- Lua.
     -- null_ls.builtins.formatting.lua_format,
     -- null_ls.builtins.formatting.stylua,
     -- null_ls.builtins.diagnostics.luacheck,
+
     -- PHP.
     null_ls.builtins.diagnostics.php,
     -- null_ls.builtins.diagnostics.phpmd,
@@ -32,6 +41,7 @@ null_ls.setup({
         })
       end
     }),
+
     -- CSS/Sass/SCSS/Less.
     null_ls.builtins.diagnostics.stylelint.with({
       condition = function(utils)
@@ -42,6 +52,7 @@ null_ls.setup({
         })
       end
     }),
+
     -- GitHub Actions.
     null_ls.builtins.diagnostics.actionlint.with({
       runtime_condition = function(params)
@@ -52,29 +63,65 @@ null_ls.setup({
             )
       end
     }),
+
     -- Vim Script.
     null_ls.builtins.diagnostics.vint,
+
     -- Python.
     null_ls.builtins.formatting.autopep8,
+
     -- FIXME Installation fails.
     -- null_ls.builtins.diagnostics.vamllint,
+
     -- JS/TS/JSX/TSX/Vue.
-    null_ls.builtins.formatting.eslint_d,
-    null_ls.builtins.code_actions.eslint_d,
-    null_ls.builtins.diagnostics.eslint_d,
-    null_ls.builtins.formatting.prettierd,
+    null_ls.builtins.formatting.eslint_d.with({
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+        'vue',
+        'typescriptreact.typescript',
+      },
+    }),
+    null_ls.builtins.code_actions.eslint_d.with({
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+        'vue',
+        'typescriptreact.typescript',
+      },
+    }),
+    null_ls.builtins.diagnostics.eslint_d.with({
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+        'vue',
+        'typescriptreact.typescript',
+      },
+    }),
     require('typescript.extensions.null-ls.code-actions'),
+
     -- Terraform.
     null_ls.builtins.formatting.terrafmt,
     null_ls.builtins.formatting.terraform_fmt,
+
     -- JSON.
     null_ls.builtins.formatting.fixjson,
+    null_ls.builtins.diagnostics.jsonlint,
+
     -- YAML.
     null_ls.builtins.diagnostics.yamllint.with({
       diagnostics_format = '[#{c}] #{m} (#{s})'
     }),
+
     -- XML.
     null_ls.builtins.formatting.xmllint,
+
     -- SQL.
     null_ls.builtins.formatting.sqlformat
   }
@@ -89,8 +136,26 @@ null_ls.register({
   }
 })
 
-require('mason-null-ls').setup({
-  ensure_installed = nil,
+mason_null_ls.setup({
+  ensure_installed = {
+    'eslint_d',
+    'shellcheck',
+    'shfmt',
+    'zsh',
+    'fixjson',
+    'terrafmt',
+    'terraform_fmt',
+    'xmllint',
+    'sqlformat',
+    'autopep8',
+    'shfmt',
+    'cfn_lint',
+    'php',
+    'phpcsfixer',
+    'actionlint',
+    'stylelint',
+    'vint',
+  },
   automatic_installation = true,
-  automatic_setup = true
+  automatic_setup = true,
 })

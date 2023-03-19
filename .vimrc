@@ -1,9 +1,13 @@
+" @todo
+" Get unit testing working with Jest.
+" Move all neovim plugin mappings to their lua file.
+
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
 function! SynGroup()
-    let l:s = synID(line('.'), col('.'), 1)
-    echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
+  let l:s = synID(line('.'), col('.'), 1)
+  echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
 endfun
 
 " Create the backup directory, if it doesn't already exist.
@@ -27,42 +31,6 @@ call plug#begin('~/.vim/plugged')
 if filereadable(expand('~/.vimrc.before.local'))
   source ~/.vimrc.before.local
 endif
-
-
-" ========================================================================
-" Plug: Utility.                                                         |
-" ========================================================================
-
-Plug 'nat-418/boole.nvim'
-Plug 'Mizuchi/vim-ranger'
-Plug 'DataWraith/auto_mkdir'
-Plug 'tpope/vim-commentary'
-if has('nvim')
-  Plug 'LunarVim/bigfile.nvim'
-  Plug 'nvim-telescope/telescope-file-browser.nvim'
-    \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'windwp/nvim-autopairs'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'David-Kunz/markid'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'lewis6991/impatient.nvim'
-  Plug 'ggandor/leap.nvim'
-    \| Plug 'tpope/vim-repeat'
-  Plug 'CKolkey/ts-node-action'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
-     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'folke/noice.nvim'
-    \| Plug 'MunifTanjim/nui.nvim'
-    \| Plug 'rcarriga/nvim-notify'
-  Plug 'nvim-treesitter/nvim-treesitter-context'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-else
-  Plug 'cohama/lexima.vim'
-endif
-
-Plug 'vuki656/package-info.nvim'
-  \| Plug 'MunifTanjim/nui.nvim'
 
 
 " ========================================================================
@@ -109,14 +77,16 @@ if has('nvim')
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'ray-x/lsp_signature.nvim'
   Plug 'folke/trouble.nvim'
-  Plug 'Maan2003/lsp_lines.nvim'
+  Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
   Plug 'weilbith/nvim-code-action-menu'
   Plug 'SmiteshP/nvim-navic'
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'roobert/node-type.nvim'
   Plug 'folke/neodev.nvim'
+  Plug 'bennypowers/nvim-regexplainer'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'MunifTanjim/nui.nvim'
 elseif v:version >= 704 && has('patch1578')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   Plug 'antoinemadec/coc-fzf'
@@ -128,7 +98,7 @@ endif
 " ========================================================================
 
 if has('nvim')
-  Plug 'L3MON4D3/LuaSnip', {'tag': 'v<CurrentMajor>.*', 'do': 'make install_jsregexp'}
+  Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
     \| Plug 'rafamadriz/friendly-snippets'
     \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'saadparwaiz1/cmp_luasnip'
@@ -149,16 +119,18 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 " ========================================================================
 
 Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
-if has('nvim')
-  Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
+if has('termguicolors')
+  Plug 'norcalli/nvim-colorizer.lua'
 else
-  Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
+  Plug 'ap/vim-css-color'
 endif
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colour.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'liuchengxu/vista.vim'
+Plug 'wuelnerdotexe/vim-enfocado'
 if has('nvim')
+  Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
   Plug 'kevinhwang91/nvim-ufo'
     \| Plug 'kevinhwang91/promise-async'
   Plug 'luukvbaal/statuscol.nvim'
@@ -166,27 +138,70 @@ if has('nvim')
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
-    \ | Plug 'kyazdani42/nvim-web-devicons'
+    \| Plug 'kyazdani42/nvim-web-devicons'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'luochen1990/rainbow'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
 else
+  Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
   Plug 'Yggdroot/indentLine' " Adds vertical and/or horizontal alignment lines.
   Plug 'vim-airline/vim-airline'
     \| Plug 'vim-airline/vim-airline-themes'
 endif
 
 
-" ----------------------------------------
-" Features.                              |
-" ----------------------------------------
+" ========================================================================
+" Plug: Utility.                                                         |
+" ========================================================================
 
-if has('termguicolors')
-  Plug 'norcalli/nvim-colorizer.lua'
+Plug 'nat-418/boole.nvim'
+Plug 'Mizuchi/vim-ranger'
+Plug 'DataWraith/auto_mkdir'
+Plug 'tpope/vim-commentary'
+Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
+Plug 'editorconfig/editorconfig-vim' " Some default configs.
+Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
+Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
+Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
+" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
+Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
+if !has_key(g:plugs, 'nvim-treesitter')
+  Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
+endif
+if has('nvim')
+  Plug 'rareitems/printer.nvim'
+  Plug 'LunarVim/bigfile.nvim'
+  Plug 'nvim-telescope/telescope-file-browser.nvim'
+    \| Plug 'nvim-telescope/telescope.nvim'
+  Plug 'windwp/nvim-autopairs'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'David-Kunz/markid'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'lewis6991/impatient.nvim'
+  Plug 'ggandor/leap.nvim'
+    \| Plug 'tpope/vim-repeat'
+  Plug 'CKolkey/ts-node-action'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'folke/noice.nvim'
+    \| Plug 'MunifTanjim/nui.nvim'
+    \| Plug 'rcarriga/nvim-notify'
+  Plug 'Wansmer/treesj'
+
+  Plug 'nvim-neotest/neotest'
+    \| Plug 'nvim-lua/plenary.nvim'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'antoinemadec/FixCursorHold.nvim'
+  Plug 'haydenmeade/neotest-jest'
+  Plug 'abecodes/tabout.nvim'
+  Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
+  Plug 'vuki656/package-info.nvim'
+    \| Plug 'MunifTanjim/nui.nvim'
 else
-  Plug 'ap/vim-css-color'
+  Plug 'cohama/lexima.vim'
 endif
 
 
@@ -247,7 +262,6 @@ Plug 'heavenshell/vim-jsdoc', {
 
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
-Plug 'reedes/vim-pencil'
 
 
 " ========================================================================
@@ -307,26 +321,6 @@ Plug 'simnalamburt/vim-mundo'
 " Plug 'joereynolds/SQHell.vim'
 
 
-" ========================================================================
-" Plug: Functional.                                                      |
-" ========================================================================
-
-Plug '0x84/vim-coderunner'           " Run the buffer on the fly.
-Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
-Plug 'editorconfig/editorconfig-vim' " Some default configs.
-Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
-Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
-Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
-" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
-Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-if !has_key(g:plugs, 'nvim-treesitter')
-  Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
-endif
-
-if has('nvim')
-  Plug 'abecodes/tabout.nvim'
-endif
-
 call plug#end() " Required.
 
 
@@ -344,7 +338,6 @@ set background=dark
 set conceallevel=0            " Don't conceal quotes in JSON files.
 set omnifunc=syntaxcomplete#Complete
 
-set autochdir                 " Automatically change to the directory of the file open.
 set autoread                  " Re-load files on external modifications and none locally.
 set autowrite                 " Automatically save before :next, :make etc.
 set whichwrap=b,s,h,l,<,>,[,] " Characters which wrap lines (b = <BS>, s = <Space>).
@@ -395,8 +388,8 @@ set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
                              " │ a: All abbreviations.
                              " │ A: No existing swap file 'ATTENTION' message.
                              " ┘ I: No |:intro| starting message.
-if exists('+spelloptions')
-  set spelloptions+=camel
+set spelloptions+=camel
+if exists('+spelloptions') && has('nvim')
   set spelloptions+=noplainbuffer
 endif
 set nospell                  " Disable spell checking by default.
@@ -603,9 +596,6 @@ map <Leader>z :e ~/.zshrc<CR>
 " Close buffer.
 map <Leader>d :lclose<CR>:bwipe!<CR>
 
-" Toggle spell checking.
-map <Leader>ss :setlocal spell!<CR>
-
 " Repeat f, F, T, t commands.
 noremap \ ;
 
@@ -634,7 +624,11 @@ nmap <Leader>fl7 :setlocal foldlevel=7<CR>
 nmap <Leader>fl8 :setlocal foldlevel=8<CR>
 nmap <Leader>fl9 :setlocal foldlevel=9<CR>
 
-" LSP.
+" Conceal lavel.
+nmap <Leader>cl0 :setlocal conceallevel=0<CR>
+nmap <Leader>cl1 :setlocal conceallevel=1<CR>
+nmap <Leader>cl2 :setlocal conceallevel=2<CR>
+nmap <Leader>cl3 :setlocal conceallevel=3<CR>
 
 " Disable arrow keys. Get off my lawn.
 map <Up> <NOP>
@@ -688,6 +682,14 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Autocommands.                                                          |
 " ========================================================================
 
+" This autocmd will set the current working directory as the current file
+" directory. The Vim, "set autochdir" exists to do the same,
+" but seems to confuse some plugins like LSP.
+augroup autochdir
+  autocmd!
+  autocmd BufEnter * if &buftype !=# 'terminal' | silent! lcd %:p:h:gs/ /\\ / | endif
+augroup END
+
 " Follow symlinks when opening files.
 function! FollowSymlink(...)
   let fname = a:0 ? a:1 : expand('%')
@@ -702,7 +704,7 @@ function! FollowSymlink(...)
     return
   endif
   let resolvedfile = fnameescape(resolvedfile)
-  exec 'file ' . resolvedfile
+  exec 'silent! edit ' . resolvedfile
 endfunction
 augroup follow_symlink
   autocmd!
@@ -751,16 +753,9 @@ augroup custom_filetypes
   autocmd BufNewFile,BufRead *.tftpl     setlocal filetype=terraform
 
   " Typescript/React.
-  autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact.javascript
-  autocmd BufRead,BufNewFile *.js  setlocal filetype=javascriptreact.javascript
-  autocmd BufRead,BufNewFile *.ts  setlocal filetype=typescriptreact.typescript
-augroup END
-
-" Override vim-coderunner.
-augroup dockerfile_build
-  autocmd!
-
-  autocmd BufRead,BufNewFile Dockerfile nnoremap <Leader>r :!docker build .<CR>
+  " autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact.javascript
+  " autocmd BufRead,BufNewFile *.js  setlocal filetype=javascriptreact.javascript
+  " autocmd BufRead,BufNewFile *.ts  setlocal filetype=typescriptreact.typescript
 augroup END
 
 " Prevent stopping on - characters for CSS files.
@@ -825,7 +820,7 @@ endfunction
 
 " Automatically fit a quickfix window height, depending on number of lines.
 " https://gist.github.com/juanpabloaj/5845848
-au FileType qf call AdjustWindowHeight(3, 10)
+autocmd FileType qf call AdjustWindowHeight(3, 10)
 function! AdjustWindowHeight(minheight, maxheight)
   let l = 1
   let n_lines = 0
@@ -878,24 +873,27 @@ let g:loaded_tar             = 1
 
 " Import Lua plugin configs.
 if has('nvim')
+  lua require('core.diagnostic')
+  lua require('core.lsp')
+  lua require('core.linters')
+  lua require('plugins.code-action-menu')
+  lua require('plugins.printer')
+  lua require('plugins.neotest')
+  lua require('plugins.sniprun')
+  lua require('plugins.treesj')
+  lua require('plugins.regexplainer')
   lua require('plugins.cmp-tabnine')
   lua require('plugins.notify')
   lua require('plugins.noice')
-  lua require('plugins.treesitter-context')
-  lua require('plugins.treesitter-textobjects')
   lua require('plugins.ts-node-action')
   lua require('plugins.luasnip')
   lua require('plugins.bigfile')
   lua require('plugins.whitespace')
   lua require('plugins.statuscol')
   lua require('plugins.todo-comments')
-  lua require('lsp-diagnostic')
-  lua require('neodev').setup()
   lua require('plugins.typescript')
   lua require('plugins.copilot-lua')
   lua require('copilot_cmp').setup()
-  lua require('core.lsp')
-  lua require('core.linters')
   lua require('plugins.cmp')
   lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
@@ -907,13 +905,11 @@ if has('nvim')
   lua require('plugins.markid')
   lua require('plugins.telescope-file-browser')
   lua require('plugins.leap')
-  lua require('plugins.lsp_lines')
   lua require('plugins.boole')
   lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
   lua require('trouble').setup()
   lua require('gruvbox').setup()
-  lua require('node-type').setup()
   lua require('plugins.nvim-ufo')
   lua require('plugins.package-info')
 endif
@@ -948,22 +944,9 @@ let g:indexed_search_mappings = 0
 " vim-move.
 let g:move_map_keys = 0
 
-" vim-coderunner.
-let g:vcr_languages = {}
-let g:vcr_languages['javascriptreact'] = {
-  \   'cmd': 'node',
-  \ }
-let g:vcr_languages['typescriptreact'] = {
-  \   'cmd': 'ts-node',
-  \ }
-
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
-
-" plasticboy/vim-markdown.
-let g:vim_markdown_conceal = 0             " Disable setting conceallevel for text.
-let g:vim_markdown_conceal_code_blocks = 0 " Disable setting conceallevel for code blocks.
 
 " vim-jsdoc.
 let g:jsdoc_allow_input_prompt = 1 " Allow prompt for interactive input.
@@ -1091,30 +1074,23 @@ let g:gruvbox_contrast_dark = 'hard'
 " Plugin Mappings.                                                       |
 " ========================================================================
 
-if has_key(g:plugs, 'package-info.nvim')
-  nnoremap <silent> <Leader>nd <cmd>lua require('package-info').delete()<CR>
-  nnoremap <silent> <Leader>nv <cmd>lua require('package-info').change_version()<CR>
-  nnoremap <silent> <Leader>ni <cmd>lua require('package-info').install()<CR>
-  nnoremap <silent> <Leader>nt <cmd>lua require('package-info').toggle()<CR>
-  tnoremap <silent> <Leader>nu <cmd>lua require('package-info').update()<CR>
-  nnoremap <silent> <Leader>ns <cmd>lua require('package-info').show()<CR>
-  nnoremap <silent> <Leader>nh <cmd>lua require('package-info').hide()<CR>
+if has_key(g:plugs, 'nvim-lspconfig') && !has_key(g:plugs, 'telescope.nvim')
+  nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
+  nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
+  nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
+  nmap <silent> gr :lua vim.lsp.buf.references()<CR>
+  nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
+  nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
 
 if has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
-  nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
-  nmap <silent> gD :lua vim.lsp.buf.declaration()<CR>
-  nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
-  nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
-  nmap <silent> gf :lua vim.lsp.buf.format()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
+  nmap <silent> gf :lua vim.lsp.buf.format()<CR>
   nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
   nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
-"   nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
-"   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
-endif
+end
 
 " coc.nvim.
 if has_key(g:plugs, 'coc.nvim')
@@ -1161,40 +1137,14 @@ if has_key(g:plugs, 'coc.nvim')
   nnoremap <silent> [d <Plug>(coc-diagnostic-prev)
   nnoremap <silent> ]d <Plug>(coc-diagnostic-next)
   nnoremap <Leader>ic :call CocAction('showIncomingCalls')
-" Telescope.nvim.
-elseif has_key(g:plugs, 'telescope.nvim')
-  nnoremap <nowait> <Leader>b :Telescope buffers<CR>
-  nnoremap <nowait> <C-g> :lua require('plugins.telescope').git_files_all()<CR>
-  nnoremap <nowait> <Leader>h :lua require('plugins.telescope').project_files()<CR>
+end
+
+if has_key(g:plugs, 'telescope-file-browser.nvim')
   nnoremap <Leader>fb :Telescope file_browser<CR>
-  " TODO Fix default 'A' input .
-  nnoremap gr :Telescope lsp_references<CR>
-endif
-
-if has_key(g:plugs, 'lspsaga.nvim')
-  nnoremap <silent> gp <cmd>Lspsaga lsp_finder<CR>
-  nnoremap <Leader>gd <cmd>Lspsaga peek_definition<CR>
-  nnoremap <Leader>gt <cmd>Lspsaga peek_type_definition<CR>
-  nnoremap go <cmd>Lspsaga outline<CR>
-  nnoremap <Leader>ic <cmd>Lspsaga incoming_calls<CR>
-  nnoremap <Leader>oc <cmd>Lspsaga outgoing_calls<CR>
-  nnoremap <silent> <Leader>lp <cmd>Lspsaga lsp_finder<CR>
-  nnoremap <Leader>rn <cmd>Lspsaga rename<CR>
-endif
-
-" weilbith/nvim-code-action-menu.
-if has_key(g:plugs, 'nvim-code-action-menu')
-  nnoremap <Leader>ca :lua require('code_action_menu').open_code_action_menu()<CR>
 endif
 
 nnoremap <C-h> :SidewaysLeft<cr>
 nnoremap <C-l> :SidewaysRight<cr>
-
-" vim-mode.
-nnoremap <D-k> <Plug>MoveLineUp
-nnoremap <D-j> <Plug>MoveLineDown
-vnoremap <D-k> <Plug>MoveBlockDown
-vnoremap <D-j> <Plug>MoveBlockUp
 
 " Trouble.nvim.
 if has_key(g:plugs, 'trouble.nvim')
@@ -1213,7 +1163,7 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   if !has_key(g:plugs, 'telescope.nvim')
     nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
   endif
-  nnoremap <Leader>t :GGrep<CR>
+  nnoremap <Leader>tg :GGrep<CR>
 endif
 
 " Bufferline.
@@ -1222,18 +1172,12 @@ map <Leader>. :lclose<CR>:BufferLineCycleNext<CR>
 noremap <C-Tab> :lclose<CR>:BufferLineCycleNext<CR>
 noremap <C-S-Tab> :lclose<CR>:BufferLineCyclePrev<CR>
 
-" Execute the buffer contents.
-nmap <Leader>r :RunCode<CR>:setlocal nofoldenable<CR>
-
 nmap <C-n> :NERDTreeToggle<CR>
 
-nmap <nowait> <Leader>st :Vista!!<CR>
+nmap <nowait> <Leader>gs :Vista!!<CR>
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object (e.g. gaip).
-nmap ga <Plug>(EasyAlign)
 
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
 vmap <Enter> <Plug>(EasyAlign)
@@ -1256,6 +1200,8 @@ autocmd FileType sagarename nnoremap <buffer> <ESC> :bw<CR>
 
 autocmd FileType lspsagafinder let b:better_whitespace_enabled = 0
 
+autocmd FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
+
 " Show signature help on placeholder jump.
 if has_key(g:plugs, 'coc.nvim')
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
@@ -1263,12 +1209,6 @@ endif
 
 " Fugitive.
 autocmd BufRead fugitive://* setlocal norelativenumber
-
-" Pencil.
-augroup pencil
-  autocmd!
-  autocmd FileType markdown,text :PencilSoft " Enable soft-wrapping.
-augroup END
 
 " startify. Disable folding on the start screen.
 autocmd FileType startify setlocal nofoldenable

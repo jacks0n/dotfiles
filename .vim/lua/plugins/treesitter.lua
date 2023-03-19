@@ -1,14 +1,6 @@
 require('nvim-treesitter.configs').setup {
   ensure_installed = 'all',
 
-    attach = function(_, lang)
-      print('attach: ' .. lang)
-      if string.find(lang, 'typescript') then
-        vim.api.nvim_command('setlocal indentexpr=v:lua.javascript_docblock_indent()')
-        -- vim.cmd[[autocmd FileType javascript,typescript,typescriptreact.typescript setlocal indentexpr=v:lua.javascript_docblock_indent()]]
-      end
-    end,
-
   -- Install parsers synchronously (only applied to `ensure_installed`).
   sync_install = false,
 
@@ -38,4 +30,46 @@ require('nvim-treesitter.configs').setup {
       return true
     end
   end,
+
+  textobjects = {
+    move = {
+      enable = true,
+      set_jumps = true,
+      goto_next = {
+        [']f'] = { query = '@function.outer', desc = 'Next function start' },
+        [']c'] = { query = '@class.outer', desc = 'Next class start' },
+        [']s'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
+        [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
+        [']p'] = { query = '@parameter.outer', desc = 'Next parameter' },
+      },
+      goto_previous = {
+        ['[f'] = { query = '@function.outer', desc = 'Previous function start' },
+        ['[c'] = { query = '@class.outer', desc = 'Next class start' },
+        ['[s'] = { query = '@scope', query_group = 'locals', desc = 'Previous scope' },
+        ['[z'] = { query = '@fold', query_group = 'folds', desc = 'Previous fold' },
+        ['[p'] = { query = '@parameter.outer', desc = 'Previous parameter' },
+      }
+    },
+    swap = {
+      enable = true,
+      swap_next = {
+        ['<C-Right>'] = '@parameter.inner',
+      },
+      swap_previous = {
+        ['<C-Left>'] = '@parameter.inner',
+      },
+    },
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ['fo'] = '@function.outer',
+        ['fi'] = '@function.inner',
+        ['co'] = '@class.outer',
+        ['ci'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+        ['ts'] = { query = '@scope', desc = 'Select language scope' },
+      },
+      -- include_surrounding_whitespace = true,
+    },
+  },
 }

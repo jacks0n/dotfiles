@@ -1,4 +1,23 @@
 require('lspsaga').setup({
+  rename = {
+    quit = '<Esc>',
+  },
+  code_action = {
+    keys = {
+      quit = '<Esc>',
+    },
+  },
+  definition = {
+    quit = '<Esc>',
+  },
+  outline = {
+    quit = '<Esc>',
+  },
+  callhierarchy = {
+    keys = {
+      quit = '<Esc>',
+    },
+  },
   symbol_in_winbar = {
     enable = true,
     separator = '  ',
@@ -10,3 +29,9 @@ require('lspsaga').setup({
     color_mode = true,
   }
 })
+
+vim.keymap.set('n', 'gp', ':Lspsaga lsp_finder<CR>', { desc = 'LSP finder', silent = true })
+vim.keymap.set('n', 'Gd', ':Lspsaga peek_definition<CR>', { desc = 'Peek LSP definition', silent = true })
+vim.keymap.set('n', 'Gt', ':Lspsaga peek_type_definition<CR>', { desc = 'Peek LSP type definition', silent = true })
+vim.keymap.set('n', 'go', ':Lspsaga outline<CR>', { desc = 'LSP outline', silent = true })
+vim.keymap.set('n', '<Leader>rn', ':Lspsaga rename<CR>', { desc = 'LSP rename', silent = true, noremap = true, buffer = bufnr })

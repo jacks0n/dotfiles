@@ -18,6 +18,7 @@ brew install bash-completion
 brew install bat
 brew install betterzip
 brew install bfg
+brew install difftastic
 brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
@@ -271,6 +272,7 @@ nvim +'TSInstall json5' +qall
 nvim +'TSInstall jsonc' +qall
 nvim +'TSInstall php' +qall
 nvim +'TSInstall phpdoc'
+nvim +'TSInstall regex' +qall
 nvim +'TSInstall scss' +qall
 nvim +'TSInstall typescript' +qall
 nvim +'TSInstall vim' +qall

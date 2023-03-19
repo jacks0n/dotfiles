@@ -1,5 +1,7 @@
 local actions = require('telescope.actions')
 local telescope = require('telescope')
+local telescope_builtin = require('telescope.builtin')
+local utils = require('core.utils')
 
 telescope.setup({
   extensions = {
@@ -10,9 +12,24 @@ telescope.setup({
     },
   },
   defaults = {
+    -- Show hidden files.
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--hidden',
+    },
     mappings = {
       i = {
         ['<Esc>'] = actions.close,
+        ['<C-j>'] = actions.move_selection_next,
+        ['<Tab>'] = actions.move_selection_next,
+        ['<C-k>'] = actions.move_selection_previous,
+        ['<S-Tab>'] = actions.move_selection_previous,
       },
     },
     layout_config = {
@@ -37,21 +54,55 @@ telescope.load_extension('fzf')
 telescope.load_extension('frecency')
 telescope.load_extension('noice')
 
-local M = {}
-M.git_files_all = function()
-  local git_opts = { git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate', '--others' } }
-  local ok = pcall(require'telescope.builtin'.git_files, git_opts)
+local function git_files_all()
+  local git_opts = {
+    git_command = { 'git', 'ls-files', '--modified', '--cached', '--others', '--deduplicate'  },
+    layout_strategy = 'vertical',
+  }
+  local ok = pcall(require('telescope.builtin').git_files, git_opts)
   if not ok then
-    require'telescope.builtin'.find_files({})
+    require('telescope.builtin').find_files({ layout_strategy = 'vertical' })
   end
 end
 
-M.project_files = function()
-  local git_opts = { git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate' } }
-  local ok = pcall(require'telescope.builtin'.git_files, git_opts)
+local function grep_project()
+  telescope_builtin.live_grep({ cwd = utils.project_dir(), layout_strategy = 'vertical' })
+end
+
+local function git_files_source()
+  local git_opts = {
+    git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate' },
+    layout_strategy = 'vertical',
+  }
+  local ok = pcall(telescope_builtin.git_files, git_opts)
   if not ok then
-    require'telescope.builtin'.find_files({})
+    telescope_builtin.find_files({ layout_strategy = 'vertical' })
   end
 end
 
-return M
+vim.keymap.set('n', 'gs', function()
+  local query = vim.fn.input('LSP Workspace Symbols❯ ')
+  if query ~= '' then
+    telescope_builtin.lsp_workspace_symbols({
+      query = query,
+      layout_strategy = 'vertical',
+    })
+  end
+end)
+
+local function call_telescope_vertical(callback)
+  return function()
+    callback({ layout_strategy = 'vertical' })
+  end
+end
+
+vim.keymap.set('n', 'gr', call_telescope_vertical(telescope_builtin.lsp_references), { desc = 'LSP references' })
+vim.keymap.set('n', 'gt', call_telescope_vertical(telescope_builtin.lsp_type_definitions), { desc = 'LSP type definition(s)' })
+vim.keymap.set('n', 'gd', call_telescope_vertical(telescope_builtin.lsp_definitions), { desc = 'LSP definition(s)' })
+vim.keymap.set('n', 'gi', call_telescope_vertical(telescope_builtin.lsp_implementations), { desc = 'LSP implementation(s)' })
+vim.keymap.set('n', '<Leader>ic', call_telescope_vertical(telescope_builtin.lsp_incoming_calls), { desc = 'LSP incoming calls' })
+vim.keymap.set('n', '<Leader>oc', call_telescope_vertical(telescope_builtin.lsp_outgoing_calls), { desc = 'LSP outgoing calls' })
+vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
+vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
+vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files all' })
+vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
