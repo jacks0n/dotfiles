@@ -12,6 +12,7 @@
   ds = diff --stat
   g  = grep
   ls = ls-files
+  l = log -p --ext-diff
   rt = remote
   ss = stash
   st = status

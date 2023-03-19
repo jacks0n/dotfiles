@@ -306,33 +306,24 @@ update-user() {
   # Update Vim plugins.
   if command_exists vim ; then
     echo '=> Vim Plug install, update, upgrade, clean.'
-    # (
-    #   cd "$HOME/.vim/plugged" || exit 1
-    #   find . -maxdepth 1 -mindepth 1 -type 'd' -printf '%f\n' | while read -r VIM_PLUGIN_DIR ; do
-    #     ( [ ! -d "$VIM_PLUGIN_DIR/.git" ] && exit 1
-    #       cd "$VIM_PLUGIN_DIR" || exit 1
-    #       git reset --hard > /dev/null
-    #       git clean -fd    > /dev/null )
-    #   done
-    # )
     vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
   fi
 
   # Update NeoVim plugins.
   if command_exists nvim ; then
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
-    nvim +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +qall
+    nvim --headless +MasonUpdate +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
 
     # @todo Fix
     # echo "\n\n=> Vim Coc update."
     # vim -c 'CocUpdateSync|q'
 
     echo "\n\n=> TSServer update."
-    nvim +TSUpdateSync +qall
+    nvim --headless +TSUpdateSync +quitall
 
     echo "\n\n=> NeoVim LSP servers."
     # @see https://github.com/williamboman/nvim-lsp-installer/issues/194
-    # nvim +LspUpdateAll +qall
+    nvim --headless +LspUpdateAll +quitall
   fi
 
   # Update zinit and packages.
@@ -349,10 +340,10 @@ update-user() {
   fi
 
   # Update Go packages.
-  # if command_exists go ; then
-  #   echo "\n\n=> Updating Go packages."
-  #   go get -u all
-  # fi
+  if command_exists go ; then
+    echo "\n\n=> Updating Go packages."
+    go get -u all
+  fi
 
   # Update Ruby Gems.
   # if command_exists gem ; then
@@ -485,20 +476,20 @@ rename-and-replace() {
 # - Dir: Directory to search and replace in.
 ##
 replace() {
-  local FROM="$1"
-  local TO="$2"
+  local FROM="$(preg-quote "$1")"
+  local TO="$(preg-quote "$2")"
   local DIR="${3:-.}"
 
   if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]] ; then
     ag --hidden --files-with-matches "$FROM" | while read -r filepath ; do
       echo "=> Replaced in file '$filepath'"
-      perl -pi -e "s/$FROM/$TO/g" "$filepath"
+      sed -i'' -e "s/$FROM/$TO/g" "$filepath"
     done
   else
     find "$DIR" -type f | while read -r filepath ; do
       if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null ; then
         echo "=> Replaced in file '$FILEPATH'"
-        perl -pi -e "s/$FROM/$TO/g" "$FILEPATH"
+        sed -i'' -e "s/$FROM/$TO/g" "$FILEPATH"
       fi
     done
   fi
