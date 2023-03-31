@@ -1,6 +1,8 @@
 " @todo
 " Get unit testing working with Jest.
 " Move all neovim plugin mappings to their lua file.
+" Do not attach LSP servers to large files.
+" Try to get NULL_LS to use the local binary.
 
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
@@ -55,7 +57,35 @@ endif
 " Plug: Completion/LSP.                                                  |
 " ========================================================================
 
+if has('nvim') && g:use_coc
+  " Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
+  " Plug 'weilbith/nvim-code-action-menu'
+  " Plug 'SmiteshP/nvim-navic'
+endif
 if has('nvim')
+  Plug 'AndrewRadev/sideways.vim' " Move function arguments.
+  Plug 'onsails/lspkind.nvim'
+    \| Plug 'hrsh7th/nvim-cmp'
+  " Plug 'ray-x/lsp_signature.nvim'
+  Plug 'folke/trouble.nvim'
+  " Plug 'glepnir/lspsaga.nvim'
+  "   \| Plug 'nvim-tree/nvim-web-devicons'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter'
+  " Plug 'folke/neodev.nvim'
+  Plug 'bennypowers/nvim-regexplainer'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'MunifTanjim/nui.nvim'
+  " Plug 'DNLHC/glance.nvim'
+endif
+
+Plug 'neovim/nvim-lspconfig'
+
+if g:use_coc
+  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+  if v:version >= 704 && has('patch1578')
+    Plug 'antoinemadec/coc-fzf'
+  endif
+else
   Plug 'jose-elias-alvarez/null-ls.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
   Plug 'VonHeikemen/lsp-zero.nvim'
@@ -70,26 +100,11 @@ if has('nvim')
     \| Plug 'hrsh7th/cmp-cmdline'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
     \| Plug 'b0o/schemastore.nvim'
+  Plug 'williamboman/mason.nvim'
+    \| Plug 'williamboman/mason-lspconfig.nvim'
+    \| Plug 'neovim/nvim-lspconfig'
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
-  Plug 'AndrewRadev/sideways.vim'
-  Plug 'onsails/lspkind.nvim'
-    \| Plug 'hrsh7th/nvim-cmp'
-  Plug 'ray-x/lsp_signature.nvim'
-  Plug 'folke/trouble.nvim'
-  Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
-  Plug 'weilbith/nvim-code-action-menu'
-  Plug 'SmiteshP/nvim-navic'
-  Plug 'glepnir/lspsaga.nvim'
-    \| Plug 'nvim-tree/nvim-web-devicons'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'folke/neodev.nvim'
-  Plug 'bennypowers/nvim-regexplainer'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    \| Plug 'MunifTanjim/nui.nvim'
-elseif v:version >= 704 && has('patch1578')
-  Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  Plug 'antoinemadec/coc-fzf'
 endif
 
 
@@ -175,8 +190,6 @@ if has('nvim')
   Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'windwp/nvim-autopairs'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'David-Kunz/markid'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
@@ -184,20 +197,20 @@ if has('nvim')
     \| Plug 'tpope/vim-repeat'
   Plug 'CKolkey/ts-node-action'
     \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'folke/noice.nvim'
     \| Plug 'MunifTanjim/nui.nvim'
     \| Plug 'rcarriga/nvim-notify'
   Plug 'Wansmer/treesj'
-
   Plug 'nvim-neotest/neotest'
     \| Plug 'nvim-lua/plenary.nvim'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'antoinemadec/FixCursorHold.nvim'
   Plug 'haydenmeade/neotest-jest'
   Plug 'abecodes/tabout.nvim'
-  Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
+  Plug 'CRAG666/code_runner.nvim'
+    \| Plug 'nvim-lua/plenary.nvim'
   Plug 'vuki656/package-info.nvim'
     \| Plug 'MunifTanjim/nui.nvim'
 else
@@ -300,7 +313,14 @@ endif
 " ========================================================================
 
 Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
-Plug 'tpope/vim-surround'
+if !g:use_coc && has('nvim')
+  " altermo/ultimate-autopair.nvim
+  " kylechui/nvim-surround
+  Plug 'windwp/nvim-autopairs'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+else
+  Plug 'tpope/vim-surround'
+end
 
 
 " ========================================================================
@@ -873,16 +893,24 @@ let g:loaded_tar             = 1
 
 " Import Lua plugin configs.
 if has('nvim')
-  lua require('core.diagnostic')
-  lua require('core.lsp')
-  lua require('core.linters')
-  lua require('plugins.code-action-menu')
+  if !g:use_coc
+    lua require('core.diagnostic')
+    lua require('core.lsp')
+    lua require('core.linters')
+    lua require('plugins.code-action-menu')
+    lua require('plugins.cmp-tabnine')
+    lua require('plugins.typescript')
+    lua require('plugins.copilot-lua')
+    lua require('copilot_cmp').setup()
+    lua require('plugins.nvim-autopairs')
+    lua require('plugins.cmp')
+  endif
+  " lua require('plugins.glance')
   lua require('plugins.printer')
   lua require('plugins.neotest')
-  lua require('plugins.sniprun')
+  lua require('plugins.code_runner')
   lua require('plugins.treesj')
   lua require('plugins.regexplainer')
-  lua require('plugins.cmp-tabnine')
   lua require('plugins.notify')
   lua require('plugins.noice')
   lua require('plugins.ts-node-action')
@@ -891,15 +919,10 @@ if has('nvim')
   lua require('plugins.whitespace')
   lua require('plugins.statuscol')
   lua require('plugins.todo-comments')
-  lua require('plugins.typescript')
-  lua require('plugins.copilot-lua')
-  lua require('copilot_cmp').setup()
-  lua require('plugins.cmp')
-  lua require('plugins.lspsaga')
+  " lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
-  lua require('plugins.lsp_signature')
+  " lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
-  lua require('plugins.nvim-autopairs')
   lua require('plugins.treesitter')
   lua require('plugins.telescope')
   lua require('plugins.markid')
@@ -943,6 +966,9 @@ let g:indexed_search_mappings = 0
 
 " vim-move.
 let g:move_map_keys = 0
+" let g:move_key_modifier = 'A'
+nnoremap <silent> <A-j> <Plug>MoveLineDown
+nnoremap <silent> <A-k> <Plug>MoveLineUp
 
 " FZF.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
@@ -984,26 +1010,48 @@ endif
 
 " coc.nvim.
 let g:coc_global_extensions = [
+  \ '@yaegassy/coc-intelephense',
+  \ '@yaegassy/coc-phpstan',
+  \ '@yaegassy/coc-pylsp',
+  \ 'coc-cfn-lint',
+  \ 'coc-copilot',
   \ 'coc-css',
+  \ 'coc-diagnostic',
   \ 'coc-dictionary',
   \ 'coc-docker',
   \ 'coc-eslint',
   \ 'coc-fzf-preview',
+  \ 'coc-git',
   \ 'coc-html',
+  \ 'coc-html-css-support',
+  \ 'coc-htmlhint',
+  \ 'coc-jedi',
   \ 'coc-json',
+  \ 'coc-lightbulb',
+  \ 'coc-lua',
   \ 'coc-markdownlint',
   \ 'coc-omni',
-  \ 'coc-phpactor',
+  \ 'coc-pairs',
+  \ 'coc-php-cs-fixer',
   \ 'coc-phpls',
+  \ 'coc-psalm',
+  \ 'coc-pydocstring',
   \ 'coc-pyright',
+  \ 'coc-python',
   \ 'coc-sh',
+  \ 'coc-sql',
+  \ 'coc-stylua',
+  \ 'coc-sumneko-lua',
   \ 'coc-syntax',
+  \ 'coc-tabnine',
   \ 'coc-tag',
   \ 'coc-tsserver',
   \ 'coc-vimlsp',
   \ 'coc-word',
+  \ 'coc-xml',
   \ 'coc-yaml',
   \ ]
+  " \ 'coc-phpactor',
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -1083,7 +1131,7 @@ if has_key(g:plugs, 'nvim-lspconfig') && !has_key(g:plugs, 'telescope.nvim')
   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
 
-if has_key(g:plugs, 'nvim-lspconfig')
+if has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
@@ -1137,14 +1185,15 @@ if has_key(g:plugs, 'coc.nvim')
   nnoremap <silent> [d <Plug>(coc-diagnostic-prev)
   nnoremap <silent> ]d <Plug>(coc-diagnostic-next)
   nnoremap <Leader>ic :call CocAction('showIncomingCalls')
+  nnoremap <silent> gf <Plug>(coc-format)
 end
 
 if has_key(g:plugs, 'telescope-file-browser.nvim')
   nnoremap <Leader>fb :Telescope file_browser<CR>
 endif
 
-nnoremap <C-h> :SidewaysLeft<cr>
-nnoremap <C-l> :SidewaysRight<cr>
+nnoremap <A-h> :SidewaysLeft<cr>
+nnoremap <A-l> :SidewaysRight<cr>
 
 " Trouble.nvim.
 if has_key(g:plugs, 'trouble.nvim')
