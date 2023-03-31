@@ -12,24 +12,15 @@ require('nvim-treesitter.configs').setup {
   highlight = {
     enable = true,
 
-    -- CSS doesn't highlight the colours yet.
-    disable = { 'css' },
-
     additional_vim_regex_highlighting = true,
+
+    disable = { 'css' }
   },
 
   indent = {
-    enable = false,
+    enable = true,
     disable = { 'json' },
   },
-
-  disable = function(_, buf)
-    local max_filesize = 1000 * 1024 -- 1MB
-    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-    if ok and stats and stats.size > max_filesize then
-      return true
-    end
-  end,
 
   textobjects = {
     move = {

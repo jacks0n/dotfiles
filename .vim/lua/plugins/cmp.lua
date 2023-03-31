@@ -1,6 +1,9 @@
 local cmp = require('cmp')
 local lspkind = require('lspkind')
 local luasnip = require('luasnip')
+local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+
+cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({  map_char = { tex = '' } }))
 
 local function next_item_callback(fallback)
   if cmp.visible() then
@@ -89,6 +92,10 @@ cmp.setup.cmdline('/', {
   sources = cmp.config.sources({
     { name = 'buffer' }
   })
+})
+
+cmp.setup.filetype('sagarename', {
+  sources = {},
 })
 
 cmp.setup.cmdline(':', {
