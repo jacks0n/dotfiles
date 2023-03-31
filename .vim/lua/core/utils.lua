@@ -9,6 +9,19 @@ function M.project_dir()
   return lspconfig_util.find_git_ancestor(vim.fn.expand('%:p'))
 end
 
+function M.is_large_file(bufnr)
+  local max_filesize = 1000 * 1024 -- 1MB
+  return (
+    vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr)) > max_filesize
+    or vim.api.nvim_buf_line_count(bufnr) > 10000
+  )
+end
+
+function M.is_in_undo_dir(bufnr)
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  return filepath:match('^' .. vim.o.undodir)
+end
+
 --- Encode a table into a JSON string.
 -- @param data Data to encode.
 -- @param[opt=0]? Indent level.

@@ -18,10 +18,10 @@ brew install bash-completion
 brew install bat
 brew install betterzip
 brew install bfg
-brew install difftastic
 brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
+brew install chezmoi
 brew install cmake # Required for YouCompleteMe.
 brew install colordiff
 brew install composer
@@ -29,6 +29,7 @@ brew install coreutils
 brew install cowsay
 brew install curl
 brew install diffr
+brew install difftastic
 brew install docker-compose
 brew install editorconfig
 brew install exa
@@ -136,6 +137,7 @@ brew install --cask microsoft-teams
 brew install --cask notion
 brew install --cask oracle-jdk
 brew install --cask postman
+brew install --cask redisinsight
 brew install --cask sequel-pro
 brew install --cask sourcetree
 brew install --cask spectacle
@@ -228,11 +230,17 @@ npm install --global neovim
 npm install --global lehre
 
 # Install Typescript.
-npm install --global typescript
-npm install --global ts-node
+brew install ts-node
+brew install typescript
 
 # Instant Markdown.
-npm --global install instant-markdown-d
+npm install --global instant-markdown-d
+
+# Install Bun.
+npm install --global bun
+
+# Other dev tools.
+npm install --global fix-package-conflicts
 
 # Install coc.nvim plugins.
 nvim -c +'CocInstall -sync coc-css' +qall
@@ -281,6 +289,3 @@ nvim +'TSUpdate all' +qall
 
 # Setup Copilot.
 nvim +'Copilot setup'
-
-# Install Bun.
-curl -fsSL https://bun.sh/install | bash

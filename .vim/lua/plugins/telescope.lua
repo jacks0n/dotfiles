@@ -12,6 +12,8 @@ telescope.setup({
     },
   },
   defaults = {
+    -- @todo Is this the default?
+    file_previewer = require('telescope.previewers').vim_buffer_cat.new,
     -- Show hidden files.
     vimgrep_arguments = {
       'rg',
@@ -27,6 +29,8 @@ telescope.setup({
       i = {
         ['<Esc>'] = actions.close,
         ['<C-j>'] = actions.move_selection_next,
+        ['<C-gg>'] = actions.move_to_top,
+        ['<C-G>'] = actions.move_to_bottom,
         ['<Tab>'] = actions.move_selection_next,
         ['<C-k>'] = actions.move_selection_previous,
         ['<S-Tab>'] = actions.move_selection_previous,
@@ -92,7 +96,7 @@ end)
 
 local function call_telescope_vertical(callback)
   return function()
-    callback({ layout_strategy = 'vertical' })
+    callback({ layout_strategy = 'vertical', path_display = { 'smart' }, show_line = false })
   end
 end
 

@@ -55,7 +55,7 @@ lsp.ensure_installed({
   -- 'sourcery',
 })
 
-lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'eslint' })
+lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'eslint', 'prettier' })
 
 lsp.configure('jsonls', {
   filetypes = { 'json', 'jsonc' },
@@ -259,7 +259,6 @@ lsp.configure('tsserver', {
     },
   },
 })
-
 
 lsp.on_attach(function(client)
   client.server_capabilities.documentFormattingProvider = true

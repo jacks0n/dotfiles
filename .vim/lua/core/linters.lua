@@ -2,18 +2,12 @@ local lsp = require('lsp-zero')
 local null_ls = require('null-ls')
 local null_opts = lsp.build_options('null-ls', {})
 local mason_null_ls = require('mason-null-ls')
+local core_utils = require('core.utils')
 
 null_ls.setup({
   on_attach = null_opts.on_attach,
   should_attach = function(bufnr)
-    local filepath = vim.api.nvim_buf_get_name(bufnr)
-    if (filepath:match('^' .. vim.o.undodir)) then
-      return false
-    end
-
-    local max_filesize = 1024 * 1024 -- 1MB
-    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
-    return (ok and stats and stats.size < max_filesize)
+    return not core_utils.is_large_file(bufnr) and not core_utils.is_in_undo_dir(bufnr)
   end,
   sources = {
     -- Shell.
@@ -58,9 +52,9 @@ null_ls.setup({
       runtime_condition = function(params)
         local bufpath = vim.api.nvim_buf_get_name(params.bufnr)
         return (
-            string.match(bufpath, '^.github/workflows/.*.ya?ml') ~= nil
-            or string.match(bufpath, 'action.yml$') ~= nil
-            )
+          string.match(bufpath, '^.github/workflows/.*.ya?ml') ~= nil
+          or string.match(bufpath, 'action.yml$') ~= nil
+        )
       end
     }),
 
@@ -95,6 +89,16 @@ null_ls.setup({
       },
     }),
     null_ls.builtins.diagnostics.eslint_d.with({
+      filetypes = {
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+        'vue',
+        'typescriptreact.typescript',
+      },
+    }),
+    null_ls.builtins.formatting.prettierd.with({
       filetypes = {
         'javascript',
         'javascriptreact',
@@ -156,6 +160,6 @@ mason_null_ls.setup({
     'stylelint',
     'vint',
   },
-  automatic_installation = true,
-  automatic_setup = true,
+  automatic_installation = false,
+  automatic_setup = false,
 })
