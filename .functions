@@ -602,10 +602,13 @@ difff() {
 ###
 # Git
 ##
+
+# Git add all.
 ga() {
   git add --all "${@:-.}"
 }
 
+# Git add all, commit if there are inputs, and push.
 gpa() {
   git add --all
   if [[ "$(git status --porcelain)" ]] ; then
@@ -614,6 +617,7 @@ gpa() {
   gpu
 }
 
+# Git commit, optionally with a message.
 gcm() {
   if [[ "$*" == '' ]] ; then
     git commit
@@ -622,6 +626,7 @@ gcm() {
   fi
 }
 
+# Git push, and open the pull request URL if there is one.
 gpu() {
   local symbolic_ref=$(git symbolic-ref --short HEAD)
   local push_output="$(git push --set-upstream origin "$symbolic_ref" 2>&1)"
@@ -631,6 +636,7 @@ gpu() {
   fi
 }
 
+# Checkout or create a feature/$input branch.
 gcbf() {
   checkout=$(git checkout -b "feature/$*" 2>&1 | tee /dev/tty)
   if [[ "$checkout" == 'fatal: a branch named'*'already exists' ]] ; then
@@ -677,10 +683,9 @@ gclone() {
   fi
 }
 
+# Git pull the upstream branch and master/main.
 gpo() {
-  local branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
   local remote=$(git remote)
-  local upstream_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
-  git pull "$remote" "$upstream_branch"
-  git pull "$remote" "$branch"
+  git pull "$remote" "$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
+  git pull "$remote" "$(git config init.defaultBranch)"
 }
