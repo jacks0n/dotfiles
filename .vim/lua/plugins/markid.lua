@@ -1,3 +1,3 @@
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter.configs').setup({
   markid = { enable = true }
-}
+})

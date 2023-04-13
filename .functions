@@ -389,6 +389,7 @@ update-global() {
       brew update
       brew cu --all --cleanup --yes
       brew upgrade
+      brew autoremove
       brew cleanup -s --prune=all
       rm -rf "$(brew --cache)"
     )
