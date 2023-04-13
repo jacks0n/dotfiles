@@ -68,46 +68,46 @@ null_ls.setup({
     -- null_ls.builtins.diagnostics.vamllint,
 
     -- JS/TS/JSX/TSX/Vue.
-    null_ls.builtins.formatting.eslint_d.with({
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'typescriptreact.typescript',
-      },
-    }),
-    null_ls.builtins.code_actions.eslint_d.with({
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'typescriptreact.typescript',
-      },
-    }),
-    null_ls.builtins.diagnostics.eslint_d.with({
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'typescriptreact.typescript',
-      },
-    }),
-    null_ls.builtins.formatting.prettierd.with({
-      filetypes = {
-        'javascript',
-        'javascriptreact',
-        'typescript',
-        'typescriptreact',
-        'vue',
-        'typescriptreact.typescript',
-      },
-    }),
+    -- null_ls.builtins.formatting.eslint_d.with({
+    --   filetypes = {
+    --     'javascript',
+    --     'javascriptreact',
+    --     'typescript',
+    --     'typescriptreact',
+    --     'vue',
+    --     'typescriptreact.typescript',
+    --   },
+    -- }),
+    -- null_ls.builtins.code_actions.eslint_d.with({
+    --   filetypes = {
+    --     'javascript',
+    --     'javascriptreact',
+    --     'typescript',
+    --     'typescriptreact',
+    --     'vue',
+    --     'typescriptreact.typescript',
+    --   },
+    -- }),
+    -- null_ls.builtins.diagnostics.eslint_d.with({
+    --   filetypes = {
+    --     'javascript',
+    --     'javascriptreact',
+    --     'typescript',
+    --     'typescriptreact',
+    --     'vue',
+    --     'typescriptreact.typescript',
+    --   },
+    -- }),
+    -- null_ls.builtins.formatting.prettierd.with({
+    --   filetypes = {
+    --     'javascript',
+    --     'javascriptreact',
+    --     'typescript',
+    --     'typescriptreact',
+    --     'vue',
+    --     'typescriptreact.typescript',
+    --   },
+    -- }),
     require('typescript.extensions.null-ls.code-actions'),
 
     -- Terraform.

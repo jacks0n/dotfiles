@@ -75,7 +75,7 @@ end
 
 local function git_files_source()
   local git_opts = {
-    git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate' },
+    git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate', '--others', '--exclude-standard' },
     layout_strategy = 'vertical',
   }
   local ok = pcall(telescope_builtin.git_files, git_opts)
