@@ -92,7 +92,6 @@ brew install unzip
 brew install vim
 brew install viu
 brew install watchman
-brew install webtorrent
 brew install wget
 brew install whois
 brew install yarn
@@ -108,10 +107,12 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 # Install Brew cask packages.
 brew install --cask 1password
 brew install --cask alfred
-brew install --cask arq
-brew install --cask bartender
+
+# Optional.
 brew install --cask beekeeper-studio
-brew install --cask catch
+brew install --cask arq
+
+brew install --cask bartender
 brew install --cask dash
 brew install --cask db-browser-for-sqlite
 brew install --cask drawio
@@ -151,7 +152,6 @@ brew install --cask zettlr
 brew install --cask slack
 
 # Install Brew cask personal packages.
-brew install --cask backblaze
 brew install --cask betaflight-configurator
 brew install --cask ledger-live
 brew install --cask tor-browser
@@ -182,13 +182,6 @@ npm install --global @serverless-ide/language-server
 # Alfred.
 npm install --global alfred-updater
 npm install --global alfred-caniuse
-
-# Linters.
-npm install --global stylelint
-npm install --global prettier
-npm install --global eslint
-composer global require 'squizlabs/php_codesniffer=*'
-pip3 install vim-vint --upgrade
 
 # NVim language servers.
 nvim +'LspInstall --sync bashls' +qall
@@ -231,56 +224,53 @@ npm install --global lehre
 npm install --global typescript
 npm install --global ts-node
 
-# Instant Markdown.
-npm --global install instant-markdown-d
-
 # Install coc.nvim plugins.
-nvim -c +'CocInstall -sync coc-css' +qall
-nvim +'CocInstall -sync coc-dictionary' +qall
-nvim +'CocInstall -sync coc-docker' +qall
-nvim +'CocInstall -sync coc-eslint' +qall
-nvim +'CocInstall -sync coc-fzf-preview' +qall
-nvim +'CocInstall -sync coc-html' +qall
-nvim +'CocInstall -sync coc-json' +qall
-nvim +'CocInstall -sync coc-markdownlint' +qall
-nvim +'CocInstall -sync coc-omni' +qall
-nvim +'CocInstall -sync coc-phpactor' +qall
-nvim +'CocInstall -sync coc-phpls' +qall
-nvim +'CocInstall -sync coc-pyright' +qall
-nvim +'CocInstall -sync coc-sh' +qall
-nvim +'CocInstall -sync coc-syntax' +qall
-nvim +'CocInstall -sync coc-tabnine' +qall
-nvim +'CocInstall -sync coc-tag' +qall
-nvim +'CocInstall -sync coc-tsserver' +qall
-nvim +'CocInstall -sync coc-vimlsp' +qall
-nvim +'CocInstall -sync coc-word' +qall
-nvim +'CocInstall -sync coc-yaml' +qall
-nvim +CocUpdateSync +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-css' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-dictionary' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-docker' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-eslint' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-fzf-preview' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-html' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-json' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-markdownlint' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-omni' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-phpactor' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-phpls' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-pyright' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-sh' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-syntax' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-tabnine' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-tag' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-tsserver' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-vimlsp' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-word' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-yaml' +qall
+nvim --cmd 'let g:use_coc = 1' +'CocUpdateSync' +qall
 
 # Install Treesitter plugins.
-nvim +'TSInstall bash' +qall
-nvim +'TSInstall comment' +qall
-nvim +'TSInstall css' +qall
-nvim +'TSInstall graphql' +qall
-nvim +'TSInstall help' +qall
-nvim +'TSInstall html' +qall
-nvim +'TSInstall http' +qall
-nvim +'TSInstall javascript' +qall
-nvim +'TSInstall jsdoc' +qall
-nvim +'TSInstall json' +qall
-nvim +'TSInstall json5' +qall
-nvim +'TSInstall jsonc' +qall
-nvim +'TSInstall php' +qall
-nvim +'TSInstall phpdoc'
-nvim +'TSInstall regex' +qall
-nvim +'TSInstall scss' +qall
-nvim +'TSInstall typescript' +qall
-nvim +'TSInstall vim' +qall
-nvim +'TSInstall yaml' +qall
+nvim +'TSInstall! bash' +qall
+nvim +'TSInstall! comment' +qall
+nvim +'TSInstall! css' +qall
+nvim +'TSInstall! graphql' +qall
+nvim +'TSInstall! help' +qall
+nvim +'TSInstall! html' +qall
+nvim +'TSInstall! http' +qall
+nvim +'TSInstall! javascript' +qall
+nvim +'TSInstall! jsdoc' +qall
+nvim +'TSInstall! json' +qall
+nvim +'TSInstall! json5' +qall
+nvim +'TSInstall! jsonc' +qall
+nvim +'TSInstall! php' +qall
+nvim +'TSInstall! phpdoc'
+nvim +'TSInstall! regex' +qall
+nvim +'TSInstall! scss' +qall
+nvim +'TSInstall! typescript' +qall
+nvim +'TSInstall! vim' +qall
+nvim +'TSInstall! yaml' +qall
 nvim +'TSUpdate all' +qall
 
 # Setup Copilot.
-nvim +'Copilot setup'
+nvim -c 'Copilot setup'
 
 # Install Bun.
 curl -fsSL https://bun.sh/install | bash
