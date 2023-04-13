@@ -133,7 +133,9 @@ if has('nvim')
   Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
   Plug 'kevinhwang91/nvim-ufo'
     \| Plug 'kevinhwang91/promise-async'
-  Plug 'luukvbaal/statuscol.nvim'
+  if exists('&statuscolumn')
+    Plug 'luukvbaal/statuscol.nvim'
+  endif
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
@@ -889,7 +891,9 @@ if has('nvim')
   lua require('plugins.luasnip')
   lua require('plugins.bigfile')
   lua require('plugins.whitespace')
-  lua require('plugins.statuscol')
+  if exists('&statuscolumn')
+    lua require('plugins.statuscol')
+  endif
   lua require('plugins.todo-comments')
   lua require('plugins.typescript')
   lua require('plugins.copilot-lua')

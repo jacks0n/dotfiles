@@ -1,5 +1,5 @@
 require('ufo').setup({
-  provider_selector = function(bufnr, filetype, buftype)
+  provider_selector = function(_bufnr, filetype, buftype)
     if filetype == 'lspsagafinder' then
       return ''
     end
