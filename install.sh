@@ -106,13 +106,11 @@ brew tap buo/cask-upgrade
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
 # Install Brew cask packages.
-brew install --cask 1password
-brew install --cask alfred
-
 # Optional.
 brew install --cask beekeeper-studio
 brew install --cask arq
-
+brew install --cask 1password
+brew install --cask alfred
 brew install --cask bartender
 brew install --cask dash
 brew install --cask db-browser-for-sqlite
@@ -148,6 +146,7 @@ brew install --cask telegram-desktop
 brew install --cask todoist
 brew install --cask vimr
 brew install --cask vlc
+brew install --cask whatsapp
 brew install --cask zettlr
 
 # Install Brew cask work packages.
