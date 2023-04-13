@@ -3,6 +3,8 @@
 " Move all neovim plugin mappings to their lua file.
 " Do not attach LSP servers to large files.
 " Try to get NULL_LS to use the local binary.
+" Only include eslint and other linters if there's a config available in the
+" repo.
 
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
@@ -58,34 +60,21 @@ endif
 " ========================================================================
 
 if has('nvim') && g:use_coc
-  " Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
-  " Plug 'weilbith/nvim-code-action-menu'
-  " Plug 'SmiteshP/nvim-navic'
-endif
-if has('nvim')
-  Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  Plug 'onsails/lspkind.nvim'
-    \| Plug 'hrsh7th/nvim-cmp'
-  " Plug 'ray-x/lsp_signature.nvim'
-  Plug 'folke/trouble.nvim'
-  " Plug 'glepnir/lspsaga.nvim'
-  "   \| Plug 'nvim-tree/nvim-web-devicons'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter'
-  " Plug 'folke/neodev.nvim'
-  Plug 'bennypowers/nvim-regexplainer'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    \| Plug 'MunifTanjim/nui.nvim'
-  " Plug 'DNLHC/glance.nvim'
-endif
-
-Plug 'neovim/nvim-lspconfig'
-
-if g:use_coc
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   if v:version >= 704 && has('patch1578')
     Plug 'antoinemadec/coc-fzf'
   endif
-else
+elseif has('nvim')
+  Plug 'chikko80/error-lens.nvim'
+  Plug 'weilbith/nvim-code-action-menu'
+  Plug 'SmiteshP/nvim-navic'
+  Plug 'glepnir/lspsaga.nvim'
+    \| Plug 'nvim-tree/nvim-web-devicons'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'onsails/lspkind.nvim'
+    \| Plug 'hrsh7th/nvim-cmp'
+  Plug 'folke/trouble.nvim'
+  Plug 'folke/neodev.nvim'
   Plug 'jose-elias-alvarez/null-ls.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
   Plug 'VonHeikemen/lsp-zero.nvim'
@@ -98,6 +87,7 @@ else
     \| Plug 'hrsh7th/cmp-nvim-lsp'
     \| Plug 'hrsh7th/cmp-nvim-lua'
     \| Plug 'hrsh7th/cmp-cmdline'
+    \| Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
     \| Plug 'b0o/schemastore.nvim'
   Plug 'williamboman/mason.nvim'
@@ -105,7 +95,12 @@ else
     \| Plug 'neovim/nvim-lspconfig'
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
+  Plug 'AndrewRadev/sideways.vim' " Move function arguments.
+  Plug 'jcdickinson/codeium.nvim'
+  " Plug 'DNLHC/glance.nvim'
 endif
+
+Plug 'neovim/nvim-lspconfig'
 
 
 " ========================================================================
@@ -115,9 +110,11 @@ endif
 if has('nvim')
   Plug 'L3MON4D3/LuaSnip', {'do': 'make install_jsregexp'}
     \| Plug 'rafamadriz/friendly-snippets'
-    \| Plug 'hrsh7th/nvim-cmp'
-    \| Plug 'saadparwaiz1/cmp_luasnip'
     \| Plug 'honza/vim-snippets'
+endif
+
+if has('nvim') && !g:use_coc
+  Plug 'saadparwaiz1/cmp_luasnip'
 endif
 
 
@@ -188,6 +185,9 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
+  Plug 'bennypowers/nvim-regexplainer'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'MunifTanjim/nui.nvim'
   Plug 'rareitems/printer.nvim'
   Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
@@ -315,9 +315,9 @@ endif
 " ========================================================================
 
 Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
-if !g:use_coc && has('nvim')
+if has('nvim')
   " altermo/ultimate-autopair.nvim
-  " kylechui/nvim-surround
+  Plug 'kylechui/nvim-surround'
   Plug 'windwp/nvim-autopairs'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
@@ -905,7 +905,11 @@ if has('nvim')
     lua require('plugins.copilot-lua')
     lua require('copilot_cmp').setup()
     lua require('plugins.nvim-autopairs')
+    lua require('plugins.codeium')
     lua require('plugins.cmp')
+    lua require('plugins.lspsaga')
+    lua require('plugins.ts-node-action')
+    lua require('trouble').setup()
   endif
   " lua require('plugins.glance')
   lua require('plugins.printer')
@@ -915,7 +919,6 @@ if has('nvim')
   lua require('plugins.regexplainer')
   lua require('plugins.notify')
   lua require('plugins.noice')
-  lua require('plugins.ts-node-action')
   lua require('plugins.luasnip')
   lua require('plugins.bigfile')
   lua require('plugins.whitespace')
@@ -923,9 +926,7 @@ if has('nvim')
     lua require('plugins.statuscol')
   endif
   lua require('plugins.todo-comments')
-  " lua require('plugins.lspsaga')
   lua require('plugins.bufferline')
-  " lua require('plugins.lsp_signature')
   lua require('plugins.lualine')
   lua require('plugins.treesitter')
   lua require('plugins.telescope')
@@ -935,10 +936,10 @@ if has('nvim')
   lua require('plugins.boole')
   lua require('plugins.tabout')
   lua require('colorizer').setup({ '*' })
-  lua require('trouble').setup()
   lua require('gruvbox').setup()
   lua require('plugins.nvim-ufo')
   lua require('plugins.package-info')
+  lua require('nvim-surround').setup()
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
@@ -1025,7 +1026,6 @@ let g:coc_global_extensions = [
   \ 'coc-docker',
   \ 'coc-eslint',
   \ 'coc-fzf-preview',
-  \ 'coc-git',
   \ 'coc-html',
   \ 'coc-html-css-support',
   \ 'coc-htmlhint',
@@ -1037,7 +1037,6 @@ let g:coc_global_extensions = [
   \ 'coc-omni',
   \ 'coc-pairs',
   \ 'coc-php-cs-fixer',
-  \ 'coc-phpls',
   \ 'coc-psalm',
   \ 'coc-pydocstring',
   \ 'coc-pyright',
@@ -1050,6 +1049,7 @@ let g:coc_global_extensions = [
   \ 'coc-tabnine',
   \ 'coc-tag',
   \ 'coc-tsserver',
+  \ 'coc-ultisnips',
   \ 'coc-vimlsp',
   \ 'coc-word',
   \ 'coc-xml',
@@ -1135,7 +1135,7 @@ if has_key(g:plugs, 'nvim-lspconfig') && !has_key(g:plugs, 'telescope.nvim')
   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
 endif
 
-if has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
+if !has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
   nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
   nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
@@ -1161,22 +1161,31 @@ if has_key(g:plugs, 'coc.nvim')
     endif
   endfunction
 
-  " Use <Enter> to confirm completion.
-  inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+  inoremap <silent><expr> <C-x><C-z> coc#pum#visible() ? coc#pum#stop() : "\<C-x>\<C-z>"
+  " remap for complete to use tab and <cr>
+  inoremap <silent><expr> <TAB>
+        \ coc#pum#visible() ? coc#pum#next(1):
+        \ <SID>check_back_space() ? "\<Tab>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+  inoremap <silent><expr> <C-space> coc#refresh()
 
-  inoremap <silent><expr> <c-@> coc#refresh()
+  " Use <Enter> to confirm completion.
+  " inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  " inoremap <silent><expr> <c-@> coc#refresh()
 
   " Make <CR> auto-select the first completion item and notify coc.nvim to
   " format on enter, <CR> could be remapped by other vim plugin.
-  inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
-                                \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+  " inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
+  "                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
   " <TAB> completion.
-  inoremap <silent><expr> <TAB>
-        \ pumvisible() ? "\<C-n>" :
-        \ <SID>check_back_space() ? "\<TAB>" :
-        \ coc#refresh()
-  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+  " inoremap <silent><expr> <TAB>
+  "       \ pumvisible() ? "\<C-n>" :
+  "       \ <SID>check_back_space() ? "\<TAB>" :
+  "       \ coc#refresh()
+  " inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
   " LSP.
   nnoremap <silent> gd <Plug>(coc-definition)

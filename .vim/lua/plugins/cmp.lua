@@ -41,7 +41,10 @@ cmp.setup({
       mode = 'symbol_text',
       maxwidth = 120,
       ellipsis_char = '…',
-      symbol_map = { Copilot = '' },
+      symbol_map = {
+        Copilot = '',
+        Codeium = '',
+      },
     })
   },
   window = {
@@ -68,12 +71,15 @@ cmp.setup({
     end
   },
   sources = cmp.config.sources({
+    { name = 'nvim_lsp_signature_help' },
     { name = 'nvim_lsp' },
-    { name = 'copilot',    group_index = 2 },
+    { name = 'nvim_lua' },
+    { name = 'codeium' },
+    { name = 'copilot', group_index = 2 },
     { name = 'cmp_tabnine' },
     { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2 },
     { name = 'path' },
-    { name = 'npm',        keyword_length = 4 },
+    { name = 'npm', keyword_length = 4 },
     { name = 'spell' },
     { name = 'buffer' },
   })

@@ -1,5 +1,6 @@
 local lsp = require('lsp-zero')
 local lspconfig = require('lspconfig')
+local error_lens = require('error-lens')
 
 require('neodev').setup()
 
@@ -33,6 +34,7 @@ lsp.ensure_installed({
   'diagnosticls',
   'docker_compose_language_service',
   'dockerls',
+  'eslint',
   'html',
   'intelephense',
   'jsonls',
@@ -55,7 +57,7 @@ lsp.ensure_installed({
   -- 'sourcery',
 })
 
-lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'eslint', 'prettier' })
+lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'prettier' })
 
 lsp.configure('jsonls', {
   filetypes = { 'json', 'jsonc' },
@@ -263,6 +265,8 @@ lsp.configure('tsserver', {
 lsp.on_attach(function(client)
   client.server_capabilities.documentFormattingProvider = true
   client.server_capabilities.documentFormattingRangeProvider = true
+
+  error_lens.setup(client)
 end)
 
 if vim.g.use_bun then
