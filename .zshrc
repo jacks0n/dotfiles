@@ -1,9 +1,6 @@
 # Not a tty.
 [ -z "$PS1" ] && return
 
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-
 
 ##
 # Zsh
@@ -190,10 +187,10 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
-
 # bun completion.
 if [[ -s "$HOME/.bun/_bun" ]] ; then
   source "$HOME/.bun/_bun"
 fi
+
+# bun completions
+[ -s "/Users/jackson/.bun/_bun" ] && source "/Users/jackson/.bun/_bun"
