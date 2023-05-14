@@ -329,8 +329,8 @@ update-user() {
   # Update zinit and packages.
   if [[ $(command_exists zinit) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
     echo "\n\n=> Updating zinit and packages."
-    zinit self-update
-    zinit update --all
+    zinit self-update --no-pager
+    zinit update --all --no-pager
   fi
 
   # Update Composer packages.
@@ -612,13 +612,16 @@ ga() {
 gpa() {
   git add --all
   if [[ "$(git status --porcelain)" ]] ; then
-    gcm "$*"
+    if ! gcm "$*" ; then
+      return $?
+    fi
   fi
   gpu
 }
 
-# Git commit, optionally with a message.
+# Git adds all, then Git commit, optionally with a message.
 gcm() {
+  ga
   if [[ "$*" == '' ]] ; then
     git commit
   else
