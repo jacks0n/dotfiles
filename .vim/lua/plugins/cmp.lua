@@ -3,13 +3,57 @@ local lspkind = require('lspkind')
 local luasnip = require('luasnip')
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
 
-cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({  map_char = { tex = '' } }))
+-- cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({ map_char = { tex = '' }}))
+-- If you want insert `(` after select function or method item
+local autopairs_handlers = require('nvim-autopairs.completion.handlers')
+cmp.event:on(
+  'confirm_done',
+  function()
+    print('confirm done')
+    -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
+    cmp_autopairs.on_confirm_done({
+      filetypes = {
+        ['*'] = {
+          ['('] = {
+            kind = {
+              cmp.lsp.CompletionItemKind.Function,
+              cmp.lsp.CompletionItemKind.Method,
+            },
+            handler = autopairs_handlers['*'],
+          },
+        },
+      }
+    })
+  end
+)
+cmp.event:on(
+  'complete_done',
+  function()
+    print('complete done')
+    -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
+    cmp_autopairs.on_confirm_done({
+      filetypes = {
+        ['*'] = {
+          ['('] = {
+            kind = {
+              cmp.lsp.CompletionItemKind.Function,
+              cmp.lsp.CompletionItemKind.Method,
+            },
+            handler = autopairs_handlers['*'],
+          },
+        },
+      }
+    })
+  end
+)
 
 local function next_item_callback(fallback)
   if cmp.visible() then
-    cmp.select_next_item()
+    cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
   elseif luasnip.expand_or_locally_jumpable() then
     luasnip.expand_or_jump()
+  -- elseif has_words_before() then
+  --   cmp.complete()
   else
     fallback()
   end
@@ -17,7 +61,7 @@ end
 
 local function prev_item_callback(fallback)
   if cmp.visible() then
-    cmp.select_prev_item()
+    cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
   elseif luasnip.jumpable(-1) then
     luasnip.jump(-1)
   else

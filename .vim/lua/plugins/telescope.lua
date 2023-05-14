@@ -108,5 +108,5 @@ vim.keymap.set('n', '<Leader>ic', call_telescope_vertical(telescope_builtin.lsp_
 vim.keymap.set('n', '<Leader>oc', call_telescope_vertical(telescope_builtin.lsp_outgoing_calls), { desc = 'LSP outgoing calls' })
 vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
 vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
-vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files all' })
+-- vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files all' })
 vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
