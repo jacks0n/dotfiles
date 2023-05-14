@@ -94,6 +94,9 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 # Git bins.
 export PATH="$(brew --prefix git)/share/git-core/contrib/diff-highlight/diff-highlight:$PATH"
 
+# Docker.
+export PATH="$HOME/.docker/bin:$PATH"
+
 # Golang.
 if hash go 2>/dev/null ; then
   export GOROOT="$(brew --prefix go)/libexec"
@@ -140,7 +143,14 @@ export PATH="$HOMEBREW_PREFIX/anaconda3/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# Orb.
+export PATH="/Applications/OrbStack.app/Contents/MacOS/xbin:$PATH"
+export PATH="/Applications/OrbStack.app/Contents/MacOS/bin:$PATH"
+
 # Local paths.
 export PATH="./vendor/bin:$PATH"
 export PATH="./node_modules/.bin:$PATH"
 export PATH="bin:$PATH"
+
+# Added by OrbStack: command-line tools and integration
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
