@@ -28,8 +28,11 @@ brew install composer
 brew install coreutils
 brew install cowsay
 brew install curl
+brew install devutils
 brew install diffr
 brew install difftastic
+brew install docker
+brew link docker
 brew install docker-compose
 brew install editorconfig
 brew install exa
@@ -123,7 +126,6 @@ brew install --cask font-sf-mono-nerd-font
 brew install --cask github
 brew install --cask google-chrome
 brew install --cask google-drive
-brew install --cask homebrew/cask/docker
 brew install --cask hyper
 brew install --cask insomnia
 brew install --cask istat-menus
@@ -135,6 +137,7 @@ brew install --cask masscode
 brew install --cask microsoft-teams
 brew install --cask notion
 brew install --cask oracle-jdk
+brew install --cask orbstack
 brew install --cask postman
 brew install --cask redisinsight
 brew install --cask sequel-pro
