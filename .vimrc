@@ -3,8 +3,7 @@
 " Move all neovim plugin mappings to their lua file.
 " Do not attach LSP servers to large files.
 " Try to get NULL_LS to use the local binary.
-" Only include eslint and other linters if there's a config available in the
-" repo.
+" Only include eslint and other linters if there's a config available in the repo.
 
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
@@ -96,7 +95,7 @@ elseif has('nvim')
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  Plug 'jcdickinson/codeium.nvim'
+  " Plug 'jcdickinson/codeium.nvim'
   " Plug 'DNLHC/glance.nvim'
 endif
 
@@ -893,6 +892,8 @@ let g:loaded_rrhelper        = 1
 let g:loaded_tarPlugin       = 1
 let g:loaded_tar             = 1
 
+let g:better_whitespace_filetypes_blacklist=['lspsagafinder', 'mason']
+
 " Import Lua plugin configs.
 if has('nvim')
   if !g:use_coc
@@ -904,9 +905,9 @@ if has('nvim')
     lua require('plugins.typescript')
     lua require('plugins.copilot-lua')
     lua require('copilot_cmp').setup()
-    lua require('plugins.nvim-autopairs')
-    lua require('plugins.codeium')
+    " lua require('plugins.codeium')
     lua require('plugins.cmp')
+    lua require('plugins.nvim-autopairs')
     lua require('plugins.lspsaga')
     lua require('plugins.ts-node-action')
     lua require('trouble').setup()
@@ -1222,9 +1223,7 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   if !has_key(g:plugs, 'telescope.nvim')
     nnoremap <nowait> <Leader>b :Buffers<CR>
   endif
-  if !has_key(g:plugs, 'telescope.nvim')
-    nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
-  endif
+  nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <Leader>tg :GGrep<CR>
 endif
 
@@ -1259,8 +1258,6 @@ autocmd FileType vim let b:AutoCloseOn = 0
 
 autocmd FileType sagacodeaction nnoremap <buffer> <ESC> :bw<CR>
 autocmd FileType sagarename nnoremap <buffer> <ESC> :bw<CR>
-
-autocmd FileType lspsagafinder let b:better_whitespace_enabled = 0
 
 autocmd FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
 
