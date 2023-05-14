@@ -3,9 +3,13 @@ local null_ls = require('null-ls')
 local null_opts = lsp.build_options('null-ls', {})
 local mason_null_ls = require('mason-null-ls')
 local core_utils = require('core.utils')
+local null_ls_helpers = require('null-ls.helpers')
+local null_ls_utils = require('null-ls.utils')
+local cmd_resolver = require('null-ls.helpers.command_resolver')
 
 null_ls.setup({
   on_attach = null_opts.on_attach,
+  debug = true,
   should_attach = function(bufnr)
     return not core_utils.is_large_file(bufnr) and not core_utils.is_in_undo_dir(bufnr)
   end,
@@ -127,8 +131,39 @@ null_ls.setup({
     null_ls.builtins.formatting.xmllint,
 
     -- SQL.
-    null_ls.builtins.formatting.sqlformat
+    null_ls.builtins.formatting.sqlformat,
+
+    -- OpenAPI.
+    -- null_ls.builtins.diagnostics.vacuum,
+    -- null_ls.builtins.diagnostics.spectral.with({
+    --   dynamic_command = cmd_resolver.from_node_modules(),
+    --   cwd = null_ls_helpers.cache.by_bufnr(function(params)
+    --     return null_ls_utils.root_pattern('.spectral.yaml')(params.bufname)
+    --   end),
+    --   filetypes = { 'yaml.openapi', 'json.openapi' },
+    --   condition = function(utils)
+    --     return utils.root_has_file({ '.spectral.yaml' })
+    --   end
+    -- })
   }
+})
+
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Set OpenAPI yaml file types',
+  pattern = '*.openapi.yaml,*.openapi.yml',
+  callback = function(data)
+    vim.api.nvim_buf_set_option(data.buf, 'filetype', 'yaml.openapi')
+  end,
+  group = vim.api.nvim_create_augroup('NullLs.YAML.OpenAPI', {}),
+})
+
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Set OpenAPI JSON file types',
+  pattern = '*.openapi.json',
+  callback = function(data)
+    vim.api.nvim_buf_set_option(data.buf, 'filetype', 'yaml.json')
+  end,
+  group = vim.api.nvim_create_augroup('NullLs.JSON.OpenAPI', {}),
 })
 
 null_ls.register({
@@ -142,23 +177,24 @@ null_ls.register({
 
 mason_null_ls.setup({
   ensure_installed = {
-    'eslint_d',
-    'shellcheck',
-    'shfmt',
-    'zsh',
-    'fixjson',
-    'terrafmt',
-    'terraform_fmt',
-    'xmllint',
-    'sqlformat',
+    'actionlint',
     'autopep8',
-    'shfmt',
     'cfn_lint',
+    'eslint_d',
+    'fixjson',
     'php',
     'phpcsfixer',
-    'actionlint',
+    'shellcheck',
+    'shfmt',
+    -- 'spectral',
+    'sqlformat',
     'stylelint',
+    'terrafmt',
+    'terraform_fmt',
+    'vacuum',
     'vint',
+    'xmllint',
+    'zsh',
   },
   automatic_installation = false,
   automatic_setup = false,
