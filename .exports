@@ -147,6 +147,9 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/Applications/OrbStack.app/Contents/MacOS/xbin:$PATH"
 export PATH="/Applications/OrbStack.app/Contents/MacOS/bin:$PATH"
 
+# Visual Studio Code.
+export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+
 # Local paths.
 export PATH="./vendor/bin:$PATH"
 export PATH="./node_modules/.bin:$PATH"

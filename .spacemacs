@@ -126,7 +126,6 @@
      lsp-ui
      company-lsp
      ;; @todo Move to a private init.el.
-     wakatime-mode
      company-php
      ac-php
      feature-mode

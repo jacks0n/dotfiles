@@ -28,6 +28,7 @@ brew install composer
 brew install coreutils
 brew install cowsay
 brew install curl
+brew install dateutils
 brew install devutils
 brew install diffr
 brew install difftastic
@@ -186,6 +187,9 @@ npm install --global @serverless-ide/language-server
 # Alfred.
 npm install --global alfred-updater
 npm install --global alfred-caniuse
+
+# Install FZF key bindings and completion.
+$(brew --prefix)/opt/fzf/install
 
 # NVim language servers.
 nvim +'LspInstall --sync bashls' +qall

@@ -100,7 +100,7 @@ fi
 zinit load 'wfxr/forgit'
 zinit load 'b4b4r07/cli-finder'
 zinit load 'zsh-users/zsh-completions'
-zinit load 'lukechilds/zsh-better-npm-completion'
+zinit ice wait'1' lucid; zinit light 'lukechilds/zsh-better-npm-completion'
 zinit load 'changyuheng/fz'
 zinit load 'rupa/z'
 zinit light 'zsh-users/zsh-autosuggestions'
@@ -109,7 +109,7 @@ zinit load 'docker/compose'
 zinit light 'zdharma-continuum/fast-syntax-highlighting'
 zinit light 'zsh-users/zsh-history-substring-search'
 zinit load 'hlissner/zsh-autopair'
-zinit light 'junegunn/fzf'
+# zinit light 'junegunn/fzf'
 # Not working. @see https://github.com/Aloxaf/fzf-tab/issues/336
 # zinit light 'Aloxaf/fzf-tab'
 # zinit light 'Freed-Wu/fzf-tab-source'
@@ -190,3 +190,5 @@ unset __conda_setup
 if [[ -s "$HOME/.bun/_bun" ]] ; then
   source "$HOME/.bun/_bun"
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
