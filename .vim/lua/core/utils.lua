@@ -3,6 +3,7 @@ local lspconfig_util = require('lspconfig.util')
 local M = {
   json = {},
   logger = {},
+  file = {},
 }
 
 function M.project_dir()
@@ -55,6 +56,20 @@ function M.json.encode(data, indent)
   toprint = toprint .. string.rep(' ', indent - 2) .. '}'
 
   return toprint
+end
+
+function M.file.append_line(filename, ...)
+  local file = io.open(filename, 'a')
+  local data = {}
+  for _index, value in pairs({ ... }) do
+    if type(value) == 'boolean' or type(value) == 'number' or type(value) == 'string' then
+      table.insert(data, tostring(value))
+    else
+      table.insert(data, M.json.encode(value))
+    end
+  end
+  file:write(table.concat(data, ', ') .. '\n')
+  file:close()
 end
 
 --- Log an error message.

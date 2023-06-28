@@ -1,6 +1,8 @@
 require('nvim-treesitter.configs').setup {
   ensure_installed = 'all',
 
+  markid = { enable = true },
+
   -- Install parsers synchronously (only applied to `ensure_installed`).
   sync_install = false,
 
@@ -12,7 +14,7 @@ require('nvim-treesitter.configs').setup {
   highlight = {
     enable = true,
 
-    additional_vim_regex_highlighting = true,
+    additional_vim_regex_highlighting = false,
 
     disable = { 'css' }
   },
@@ -20,6 +22,12 @@ require('nvim-treesitter.configs').setup {
   indent = {
     enable = true,
     disable = { 'json', 'typescript', 'javascript' },
+  },
+
+  refactor = {
+    highlight_definitions = {
+      enable = true,
+    },
   },
 
   textobjects = {

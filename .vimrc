@@ -70,15 +70,21 @@ elseif has('nvim')
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'SmiteshP/nvim-navbuddy'
+    \| Plug 'neovim/nvim-lspconfig'
+    \| Plug 'SmiteshP/nvim-navic'
+    \| Plug 'MunifTanjim/nui.nvim'
+    \| Plug 'numToStr/Comment.nvim'
+    \| Plug 'nvim-telescope/telescope.nvim'
   Plug 'onsails/lspkind.nvim'
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
   Plug 'folke/neodev.nvim'
   Plug 'jose-elias-alvarez/null-ls.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
-  Plug 'VonHeikemen/lsp-zero.nvim'
+  Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
     \| Plug 'neovim/nvim-lspconfig'
-    \| Plug 'williamboman/mason.nvim'
+    \| Plug 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
     \| Plug 'williamboman/mason-lspconfig.nvim'
     \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-buffer'
@@ -89,14 +95,15 @@ elseif has('nvim')
     \| Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
     \| Plug 'b0o/schemastore.nvim'
-  Plug 'williamboman/mason.nvim'
+  Plug 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
     \| Plug 'williamboman/mason-lspconfig.nvim'
     \| Plug 'neovim/nvim-lspconfig'
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  " Plug 'jcdickinson/codeium.nvim'
+  Plug 'jcdickinson/codeium.nvim'
   " Plug 'DNLHC/glance.nvim'
+  Plug 'yioneko/nvim-vtsls'
 endif
 
 Plug 'neovim/nvim-lspconfig'
@@ -150,9 +157,9 @@ if has('nvim')
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
-  Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
-    \| Plug 'kyazdani42/nvim-web-devicons'
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'akinsho/bufferline.nvim', { 'tag': 'v3.*' }
+    \| Plug 'nvim-tree/nvim-web-devicons'
+  Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
   Plug 'luochen1990/rainbow'
   Plug 'folke/todo-comments.nvim'
@@ -191,15 +198,15 @@ if has('nvim')
   Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'David-Kunz/markid'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  " Plug 'David-Kunz/markid'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lewis6991/impatient.nvim'
   Plug 'ggandor/leap.nvim'
     \| Plug 'tpope/vim-repeat'
   Plug 'CKolkey/ts-node-action'
     \| Plug 'nvim-treesitter/nvim-treesitter'
-  " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'folke/noice.nvim'
     \| Plug 'MunifTanjim/nui.nvim'
     \| Plug 'rcarriga/nvim-notify'
@@ -214,6 +221,7 @@ if has('nvim')
     \| Plug 'nvim-lua/plenary.nvim'
   Plug 'vuki656/package-info.nvim'
     \| Plug 'MunifTanjim/nui.nvim'
+  Plug 'folke/which-key.nvim'
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -245,7 +253,7 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " ----------------------------------------
 
 if has('nvim')
-  Plug 'jose-elias-alvarez/typescript.nvim'
+  " Plug 'jose-elias-alvarez/typescript.nvim'
 else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
@@ -373,7 +381,8 @@ set shortmess=aAI             " ┐ Avoid all the hit-enter prompts.
                               " ┘ I: No |:intro| starting message.
 
 set iskeyword+=/              " Include slashes as part of a word
-set scrolloff=7               " 7 lines to the cursor when moving vertically using j/k.
+set mousemoveevent            " Enable hover events.
+set confirm                   " Auto confirm.
 
 " Persistent undo.
 if has('persistent_undo')
@@ -623,6 +632,9 @@ noremap \ ;
 " Easier EX mode.
 nmap ; :
 
+" Do not jump back to where you started after yanking.
+vmap y ygv<Esc>
+
 " Code formatting.
 nmap <Leader>fj :FormatJson<CR>
 nmap <Leader>fx :FormatXml<CR>
@@ -808,7 +820,7 @@ function! DeleteHiddenBuffers()
 endfunction
 
 function! ProfileStart()
-  delete(expand('~/Desktop/profile.log'))
+  call delete(expand('~/Desktop/profile.log'))
   profile start ~/Desktop/profile.log
   profile func *
   profile file *
@@ -897,16 +909,17 @@ let g:better_whitespace_filetypes_blacklist=['lspsagafinder', 'mason']
 " Import Lua plugin configs.
 if has('nvim')
   if !g:use_coc
-    lua require('core.diagnostic')
+    " lua require('core.diagnostic')
     lua require('core.lsp')
     lua require('core.linters')
     lua require('plugins.code-action-menu')
     lua require('plugins.cmp-tabnine')
-    lua require('plugins.typescript')
+    " lua require('plugins.typescript')
     lua require('plugins.copilot-lua')
     lua require('copilot_cmp').setup()
     " lua require('plugins.codeium')
     lua require('plugins.cmp')
+    lua require('plugins.nvim-navbuddy')
     lua require('plugins.nvim-autopairs')
     lua require('plugins.lspsaga')
     lua require('plugins.ts-node-action')
@@ -914,6 +927,7 @@ if has('nvim')
   endif
   " lua require('plugins.glance')
   lua require('plugins.printer')
+  lua require('plugins.which-key')
   lua require('plugins.neotest')
   lua require('plugins.code_runner')
   lua require('plugins.treesj')
@@ -921,7 +935,7 @@ if has('nvim')
   lua require('plugins.notify')
   lua require('plugins.noice')
   lua require('plugins.luasnip')
-  lua require('plugins.bigfile')
+  " lua require('plugins.bigfile')
   lua require('plugins.whitespace')
   if exists('&statuscolumn')
     lua require('plugins.statuscol')
@@ -1061,10 +1075,6 @@ let g:coc_global_extensions = [
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
 
-" vim-php-refactoring-toolbox.
-let g:vim_php_refactoring_use_default_mapping = 0
-let g:vim_php_refactoring_make_setter_fluent  = 1
-
 " Airline.
 let g:airline_theme = 'badwolf'
 let g:airline_symbols = extend(get(g:, 'airline_symbols', {}), {
@@ -1138,8 +1148,14 @@ endif
 
 if !has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
-  nmap <silent> [d :lua vim.diagnostic.goto_prev()<CR>
-  nmap <silent> ]d :lua vim.diagnostic.goto_next()<CR>
+  nmap <silent> [d :lua vim.diagnostic.goto_prev({ desc = 'Go to previous diagnostic message' })<CR>
+  nmap <silent> ]d :lua vim.diagnostic.goto_next({ desc = 'Go to next diagnostic message' })<CR>
+  nmap <silent> [e :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.ERROR })<CR>
+  nmap <silent> ]e :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.ERROR })<CR>
+  nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
+  nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
+  nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
+  nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
   nmap <silent> gf :lua vim.lsp.buf.format()<CR>
   nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
   nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
@@ -1226,12 +1242,6 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
   nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
   nnoremap <Leader>tg :GGrep<CR>
 endif
-
-" Bufferline.
-map <Leader>, :lclose<CR>:BufferLineCyclePrev<CR>
-map <Leader>. :lclose<CR>:BufferLineCycleNext<CR>
-noremap <C-Tab> :lclose<CR>:BufferLineCycleNext<CR>
-noremap <C-S-Tab> :lclose<CR>:BufferLineCyclePrev<CR>
 
 nmap <C-n> :NERDTreeToggle<CR>
 

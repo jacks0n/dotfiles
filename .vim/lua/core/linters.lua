@@ -112,7 +112,8 @@ null_ls.setup({
     --     'typescriptreact.typescript',
     --   },
     -- }),
-    require('typescript.extensions.null-ls.code-actions'),
+    -- require('vtsls.extensions.null-ls.code-actions'),
+    -- require('typescript.extensions.null-ls.code-actions'),
 
     -- Terraform.
     null_ls.builtins.formatting.terrafmt,
