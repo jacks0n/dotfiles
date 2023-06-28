@@ -1,6 +1,10 @@
 local lsp = require('lsp-zero')
 local lspconfig = require('lspconfig')
 local error_lens = require('error-lens')
+local lspconfig_util = require('lspconfig/util')
+local navbuddy = require('nvim-navbuddy')
+
+require('lspconfig.configs').vtsls = require('vtsls').lspconfig
 
 require('neodev').setup()
 
@@ -14,17 +18,16 @@ require('mason.settings').set({
 
 lsp.preset({
   set_lsp_keymaps = false,
-  cmp_capabilities = true,
   manage_nvim_cmp = false,
-  suggest_lsp_servers = false,
   configure_diagnostics = false,
   call_servers = 'local',
-  sign_icons = {
-    error = '✘',
-    warn = '▲',
-    hint = '⚑',
-    info = '',
-  },
+})
+
+lsp.set_sign_icons({
+  error = '✘',
+  warn = '▲',
+  hint = '⚑',
+  info = ''
 })
 
 lsp.ensure_installed({
@@ -46,18 +49,61 @@ lsp.ensure_installed({
   'sqlls',
   'terraformls',
   'tflint',
-  'tsserver',
+  -- 'tsserver',
   'vimls',
   'yamlls',
-  -- "vtsls",
-  -- Doesn't show function documentaiion.
-  -- 'jedi_language_server',
+  'pyright',
+  'jdtls',
+  -- 'mypy',
+  'vtsls',
+  -- 'jedi-language-server',
   -- 'pylsp',
-  -- 'pyright',
   -- 'sourcery',
 })
 
-lsp.skip_server_setup({ 'diagnostic-languageserver', 'diagnosticls', 'shellcheck', 'bashls', 'prettier' })
+lsp.skip_server_setup({
+  'diagnostic-languageserver',
+  'diagnosticls',
+  'shellcheck',
+  'bashls',
+  'prettier',
+  'sourcery',
+  'tsserver',
+  'typescript-language-server'
+})
+
+lsp.configure('jdtls', {
+  settings = {
+    java = {
+      signatureHelp = {
+        enabled = true
+      },
+    }
+  }
+})
+
+lsp.configure('pyright', {
+  filetypes = { 'python' },
+  root_dir = function(filename)
+    return lspconfig_util.root_pattern('setup.py', 'setup.cfg', 'pyproject.toml', 'requirements.txt', '.git')(filename) or
+    lspconfig_util.path.dirname(filename);
+  end,
+  settings = {
+    defaultVenv = { '.env' },
+    pyright = {
+      disableOrganizeImports = false, -- ??
+      autoImportCompletions = true,
+    },
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = 'workspace',
+        typeCheckingMode = 'on',
+      },
+    },
+  },
+})
 
 lsp.configure('jsonls', {
   filetypes = { 'json', 'jsonc' },
@@ -173,30 +219,6 @@ lsp.configure('yamlls', {
   },
 })
 
-lsp.configure('pyright', {
-  settings = {
-    pyright = {
-      autoImportCompletion = true,
-    },
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        diagnosticMode = 'openFilesOnly',
-        useLibraryCodeForTypes = true,
-        typeCheckingMode = 'off',
-      },
-    },
-  },
-})
-
-lsp.configure('sourcery', {
-  init_options = {
-    editor_version = 'vim',
-    extension_version = 'vim.lsp',
-    token = os.getenv('SOURCERY_TOKEN'),
-  },
-})
-
 lsp.configure('vimls', {
   init_options = { isNeovim = true },
 })
@@ -230,8 +252,16 @@ local tsserver_lang_config = {
     },
   },
 }
-lsp.configure('tsserver', {
-  filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx', 'typescriptreact.typescript' },
+lsp.configure('vtsls', {
+  filetypes = {
+    'javascript',
+    'javascriptreact',
+    'javascript.jsx',
+    'typescript',
+    'typescriptreact',
+    'typescript.tsx',
+    'typescriptreact.typescript',
+  },
   commands = {
     OrganizeImports = {
       function()
@@ -262,9 +292,19 @@ lsp.configure('tsserver', {
   },
 })
 
-lsp.on_attach(function(client)
-  client.server_capabilities.documentFormattingProvider = true
-  client.server_capabilities.documentFormattingRangeProvider = true
+lsp.on_attach(function(client, buffer)
+  if client.server_capabilities.documentSymbolProvider then
+    navbuddy.attach(client, buffer)
+  end
+
+  -- Let eslint handle formatting.
+  if client.name == 'vtsls' then
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentFormattingRangeProvider = false
+  else
+    client.server_capabilities.documentFormattingProvider = true
+    client.server_capabilities.documentFormattingRangeProvider = true
+  end
 
   error_lens.setup(client)
 end)

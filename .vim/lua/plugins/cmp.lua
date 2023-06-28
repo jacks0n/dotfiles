@@ -9,7 +9,6 @@ local autopairs_handlers = require('nvim-autopairs.completion.handlers')
 cmp.event:on(
   'confirm_done',
   function()
-    print('confirm done')
     -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
     cmp_autopairs.on_confirm_done({
       filetypes = {
@@ -29,7 +28,6 @@ cmp.event:on(
 cmp.event:on(
   'complete_done',
   function()
-    print('complete done')
     -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
     cmp_autopairs.on_confirm_done({
       filetypes = {
@@ -115,17 +113,17 @@ cmp.setup({
     end
   },
   sources = cmp.config.sources({
-    { name = 'nvim_lsp_signature_help' },
-    { name = 'nvim_lsp' },
-    { name = 'nvim_lua' },
-    { name = 'codeium' },
-    { name = 'copilot', group_index = 2 },
-    { name = 'cmp_tabnine' },
-    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2 },
-    { name = 'path' },
-    { name = 'npm', keyword_length = 4 },
-    { name = 'spell' },
-    { name = 'buffer' },
+    { name = 'nvim_lsp_signature_help', priority_weight = 100 },
+    { name = 'nvim_lsp', priority_weight = 90 },
+    { name = 'nvim_lua', priority_weight = 90 },
+    { name = 'codeium', priority_weight = 90 },
+    { name = 'copilot', priority_weight = 70 }, -- group_index = 2,
+    { name = 'cmp_tabnine', priority_weight = 70 },
+    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2, priority_weight = 60 },
+    { name = 'path', priority_weight = 50 },
+    { name = 'buffer', priority_weight = 40 },
+    { name = 'npm', keyword_length = 4, priority_weight = 40 },
+    { name = 'spell', priority_weight = 30 },
   })
 })
 
