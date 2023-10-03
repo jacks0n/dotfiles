@@ -4,7 +4,7 @@ local error_lens = require('error-lens')
 local lspconfig_util = require('lspconfig/util')
 local navbuddy = require('nvim-navbuddy')
 
-require('lspconfig.configs').vtsls = require('vtsls').lspconfig
+-- require('lspconfig.configs').vtsls = require('vtsls').lspconfig
 
 require('neodev').setup()
 
@@ -49,13 +49,13 @@ lsp.ensure_installed({
   'sqlls',
   'terraformls',
   'tflint',
-  -- 'tsserver',
+  'tsserver',
   'vimls',
   'yamlls',
   'pyright',
   'jdtls',
   -- 'mypy',
-  'vtsls',
+  -- 'vtsls',
   -- 'jedi-language-server',
   -- 'pylsp',
   -- 'sourcery',
@@ -68,8 +68,9 @@ lsp.skip_server_setup({
   'bashls',
   'prettier',
   'sourcery',
-  'tsserver',
-  'typescript-language-server'
+  'vtsls',
+  -- 'tsserver',
+  -- 'typescript-language-server'
 })
 
 lsp.configure('jdtls', {
@@ -100,6 +101,9 @@ lsp.configure('pyright', {
         useLibraryCodeForTypes = true,
         diagnosticMode = 'workspace',
         typeCheckingMode = 'on',
+        diagnosticSeverityOverrides = {
+          reportGeneralTypeIssues = 'none',
+        },
       },
     },
   },
@@ -252,7 +256,7 @@ local tsserver_lang_config = {
     },
   },
 }
-lsp.configure('vtsls', {
+lsp.configure('tsserver', {
   filetypes = {
     'javascript',
     'javascriptreact',
