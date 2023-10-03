@@ -314,9 +314,8 @@ update-user() {
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim --headless +MasonUpdate +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
 
-    # @todo Fix
-    # echo "\n\n=> Vim Coc update."
-    # vim -c 'CocUpdateSync|q'
+    echo "\n\n=> Vim Coc update."
+    vim -c 'CocUpdateSync|q'
 
     echo "\n\n=> TSServer update."
     nvim --headless +TSUpdateSync +quitall
@@ -482,7 +481,7 @@ replace() {
   local DIR="${3:-.}"
 
   if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]] ; then
-    ag --hidden --files-with-matches "$FROM" | while read -r filepath ; do
+    ag --hidden --files-with-matches "$FROM" "$DIR" | while read -r filepath ; do
       echo "=> Replaced in file '$filepath'"
       sed -i'' -e "s/$FROM/$TO/g" "$filepath"
     done
@@ -681,16 +680,35 @@ gclone() {
     echo "=> ERROR: Could not 'cd' into '$repo_dir'." >&2
     return 1
   }
-  if [ ! -z "$CHECKOUT_ID" ] ; then
+  if [ -n "$CHECKOUT_ID" ] ; then
     git checkout "$CHECKOUT_ID"
   fi
+}
+
+# Get the default Git branch.
+git-default-branch() {
+  if [[ -n $(git show-ref main 2>/dev/null) ]] ; then
+    echo 'main';
+    return 0
+  elif [[ -n $(git show-ref master 2>/dev/null) ]] ; then
+    echo 'master'
+    return 0
+  fi
+
+  local default_branch=$(git config init.defaultBranch)
+  if [ -n "$default_branch" ] ; then
+    echo "$default_branch"
+    return 0
+  fi
+
+  return 1
 }
 
 # Git pull the upstream branch and master/main.
 gpo() {
   local remote=$(git remote)
   git pull "$remote" "$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
-  git pull "$remote" "$(git config init.defaultBranch)"
+  git pull "$remote" "$(git-default-branch)"
 }
 
 # Git checkout with fzf.
@@ -707,4 +725,14 @@ gch() {
     fzf --no-hscroll --no-multi -n 2 \
         --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'") || return
   git checkout $(awk '{print $2}' <<<"$target" )
+}
+
+# 'git fetch' all repositories in the current directory.
+git-refresh-branches() {
+  find . -name .git -type d | while read -r GIT_DIR ; do
+    (
+      cd "$(dirname "$GIT_DIR")" || exit
+      git fetch --all
+    )
+  done
 }

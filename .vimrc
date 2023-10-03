@@ -58,7 +58,7 @@ endif
 " Plug: Completion/LSP.                                                  |
 " ========================================================================
 
-if has('nvim') && g:use_coc
+if has('nvim') && g:use_coc || !has('nvim')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   if v:version >= 704 && has('patch1578')
     Plug 'antoinemadec/coc-fzf'
@@ -101,9 +101,11 @@ elseif has('nvim')
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  Plug 'jcdickinson/codeium.nvim'
+  " Plug 'jcdickinson/codeium.nvim'
+  "   \| Plug 'nvim-lua/plenary.nvim'
+  "   \| Plug 'hrsh7th/nvim-cmp'
   " Plug 'DNLHC/glance.nvim'
-  Plug 'yioneko/nvim-vtsls'
+  " Plug 'yioneko/nvim-vtsls'
 endif
 
 Plug 'neovim/nvim-lspconfig'
@@ -191,6 +193,7 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
+  Plug 'tomiis4/hypersonic.nvim'
   Plug 'bennypowers/nvim-regexplainer'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'MunifTanjim/nui.nvim'
@@ -228,15 +231,6 @@ endif
 
 
 " ========================================================================
-" Language: Python.                                                      |
-" ========================================================================
-
-if !has('nvim')
-  Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins' }
-endif
-
-
-" ========================================================================
 " Language: HTML, XML.                                                   |
 " ========================================================================
 
@@ -253,7 +247,7 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " ----------------------------------------
 
 if has('nvim')
-  " Plug 'jose-elias-alvarez/typescript.nvim'
+  Plug 'jose-elias-alvarez/typescript.nvim'
 else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
@@ -430,9 +424,8 @@ set showmode                 " Show current mode.
 set tags=./tags,tags;
 set clipboard=unnamedplus    " Use OS clipboard register by default.
 set history=10000            " Number of commands remembered.
-set smartindent              " Smart auto-indenting when starting a new line.
+set nosmartindent            " Doesn't work well with treesitter.
 set autoindent               " Auto-indent inserted lines.
-set smartindent              " Smart auto indenting when starting a new line.
 set magic                    " Enable extended regex.
 set copyindent               " Use current line indenting when starting a new line.
 set hidden                   " Hide unsaved buffers instead of close on file open.
@@ -914,10 +907,10 @@ if has('nvim')
     lua require('core.linters')
     lua require('plugins.code-action-menu')
     lua require('plugins.cmp-tabnine')
-    " lua require('plugins.typescript')
+    lua require('plugins.typescript')
     lua require('plugins.copilot-lua')
-    lua require('copilot_cmp').setup()
     " lua require('plugins.codeium')
+    lua require('copilot_cmp').setup()
     lua require('plugins.cmp')
     lua require('plugins.nvim-navbuddy')
     lua require('plugins.nvim-autopairs')
@@ -954,7 +947,8 @@ if has('nvim')
   lua require('gruvbox').setup()
   lua require('plugins.nvim-ufo')
   lua require('plugins.package-info')
-  lua require('nvim-surround').setup()
+  lua require('nvim-surround').setup({})
+  lua require('hypersonic').setup({})
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
@@ -1189,20 +1183,7 @@ if has_key(g:plugs, 'coc.nvim')
   inoremap <silent><expr> <C-space> coc#refresh()
 
   " Use <Enter> to confirm completion.
-  " inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
   " inoremap <silent><expr> <c-@> coc#refresh()
-
-  " Make <CR> auto-select the first completion item and notify coc.nvim to
-  " format on enter, <CR> could be remapped by other vim plugin.
-  " inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
-  "                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-  " <TAB> completion.
-  " inoremap <silent><expr> <TAB>
-  "       \ pumvisible() ? "\<C-n>" :
-  "       \ <SID>check_back_space() ? "\<TAB>" :
-  "       \ coc#refresh()
-  " inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
   " LSP.
   nnoremap <silent> gd <Plug>(coc-definition)

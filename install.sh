@@ -7,7 +7,7 @@ sudo xcode-select --install
 softwareupdate --all --install --force
 
 # Install Brew.
-if [[ ! type "$1" &>/dev/null ]] ; then
+if ! type brew &>/dev/null ; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
@@ -15,6 +15,7 @@ fi
 brew install awscli
 brew install bash
 brew install bash-completion
+brew install ast-grep
 brew install bat
 brew install betterzip
 brew install bfg
@@ -105,6 +106,8 @@ brew install z
 brew install zsh
 brew install zsh-autosuggestions
 brew tap buo/cask-upgrade
+brew tap lucagrulla/tap
+brew install cw
 
 # Setup Java.
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
@@ -112,7 +115,11 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 # Install Brew cask packages.
 # Optional.
 brew install --cask beekeeper-studio
+brew install --cask jupyterlab
+brew install --cask airflow
 brew install --cask arq
+brew install --cask r rstudio
+brew install --cask codeedit
 brew install --cask 1password
 brew install --cask alfred
 brew install --cask bartender
@@ -152,6 +159,8 @@ brew install --cask vimr
 brew install --cask vlc
 brew install --cask whatsapp
 brew install --cask zettlr
+brew install --cask chatgpt --no-quarantine
+brew tap lencx/chatgpt https://github.com/lencx/ChatGPT.git
 
 # Install Brew cask work packages.
 brew install --cask slack
@@ -224,6 +233,12 @@ nvm install --lts
 pip3 install pynvim --upgrade
 pip3 install neovim --upgrade
 npm install --global neovim
+
+pip3 install saws
+
+pip install dev-gpt
+dev-gpt generate
+dev-gpt configure --openai_api_key "$OPENAI_API_KEY"
 
 # Install lehre. Required to generate JS docblocks in Vim (LJSDoc).
 npm install --global lehre

@@ -8,6 +8,9 @@ require('noice').setup({
     signature = {
       enabled = false,
     },
+    hover = {
+      enabled = false,
+    }
   },
   presets = {
     lsp_doc_border = true,
@@ -23,6 +26,7 @@ require('noice').setup({
   },
   cmdline = {
     enabled = false,
+    view = 'cmdline',
   }
 })
 

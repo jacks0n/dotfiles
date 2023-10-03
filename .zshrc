@@ -171,6 +171,13 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
+# bun completion.
+if [[ -s "$HOME/.bun/_bun" ]] ; then
+  source "$HOME/.bun/_bun"
+fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/opt/homebrew/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -186,9 +193,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-# bun completion.
-if [[ -s "$HOME/.bun/_bun" ]] ; then
-  source "$HOME/.bun/_bun"
 fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
