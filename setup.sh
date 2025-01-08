@@ -73,5 +73,9 @@ mkdir -p ~/intelephense
 read -e -p 'Intelephense license: ' intelephense_license
 echo "$intelephense_license" > ~/intelephense/license.txt
 
+# Sudoers.
+sudo ln -s ~/.dotfiles/private/etc/sudoers.d/timeout /private/etc/sudoers.d/timeout
+sudo chown root:wheel /private/etc/sudoers.d/timeout
+
 # Setup Git aliases.
 curl https://raw.githubusercontent.com/Git Alias/gitalias/main/gitalias.txt -o ~/.dotfiles/.gitalias

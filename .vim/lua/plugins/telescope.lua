@@ -1,4 +1,5 @@
 local actions = require('telescope.actions')
+-- local telescope_utils = require('telescope.utils')
 local telescope = require('telescope')
 local telescope_builtin = require('telescope.builtin')
 local utils = require('core.utils')
@@ -46,16 +47,16 @@ telescope.setup({
         height = 0.85,
       }
     },
-    path_display = function(_, path)
-      local tail = require'telescope.utils'.path_tail(path)
-      local fullPath = string.format('%s (%s)', tail, path)
-      return string.gsub(fullPath, os.getenv('HOME') or '', '~')
-    end
+    -- path_display = function(_, path)
+    --   local tail = telescope_utils.path_tail(path)
+    --   local fullPath = string.format('%s (%s)', tail, path)
+    --   return telescope_utils.path_display(string.gsub(fullPath, os.getenv('HOME') or '', '~'))
+    -- end
   },
 })
 
 telescope.load_extension('fzf')
-telescope.load_extension('frecency')
+-- telescope.load_extension('frecency')
 telescope.load_extension('noice')
 
 local function git_files_all()

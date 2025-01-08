@@ -1,6 +1,67 @@
 # Not a tty.
 [ -z "$PS1" ] && return
 
+#
+# zsh-autosuggestions
+#
+
+# Disable automatic widget re-binding on each precmd. This can be set when
+# zsh-users/zsh-autosuggestions is the last module in your ~/.zimrc.
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
+# Customize the style that the suggestions are shown with.
+# See https://github.com/zsh-users/zsh-autosuggestions/blob/master/README.md#suggestion-highlight-style
+# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
+
+#
+# zsh-syntax-highlighting
+#
+
+# Set what highlighters will be used.
+# See https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/docs/highlighters.md
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
+
+# ------------------
+# Initialise modules
+# ------------------
+
+ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
+# Download zimfw plugin manager if missing.
+if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+  if (( ${+commands[curl]} )); then
+    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  else
+    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
+        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  fi
+fi
+
+# Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
+if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init -q
+fi
+
+# Initialize modules.
+source ${ZIM_HOME}/init.zsh
+
+# ------------------------------
+# Post-init module configuration
+# ------------------------------
+
+#
+# zsh-history-substring-search
+#
+
+zmodload -F zsh/terminfo +p:terminfo
+# Bind ^[[A/^[[B manually so up/down works both before and after zle-line-init
+for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
+for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
+for key ('k') bindkey -M vicmd ${key} history-substring-search-up
+for key ('j') bindkey -M vicmd ${key} history-substring-search-down
+unset key
+
+
 ##
 # Zsh
 ##
@@ -50,6 +111,9 @@ setopt PROMPT_SUBST         # Perform parameter expansion, command substitution 
 # Break at '/' on CTRL-W.
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
+# Remove path separator from WORDCHARS.
+# WORDCHARS=${WORDCHARS//[\/]}
+
 # Reduce Vim mode change to 0.1 seconds.
 # How long to wait (in hundredths of a second) for additional characters in sequence.
 export KEYTIMEOUT=1
@@ -73,61 +137,27 @@ export FORGIT_NO_ALIASES=1
 
 
 ##
-# zinit packages.
+# zim packages.
 ##
 
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-
-# Install zinit if it's not installed.
-if [[ ! -d "$ZINIT_HOME" ]] ; then
-  echo '=> Installing zinit'
-  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-fi
-
-
-source "$ZINIT_HOME/zinit.zsh"
-
-zinit snippet 'OMZ::plugins/pip/pip.plugin.zsh'
-zinit load 'mafredri/zsh-async'
-zinit ice pick'async.zsh' src'pure.zsh'; zinit light 'sindresorhus/pure'
-zinit load 'djui/alias-tips'
-if [ type conda > /dev/null 2>&1 ]; then
-  zinit load 'conda-incubator/conda-zsh-completion'
-fi
-if [ type jupyter > /dev/null 2>&1 ]; then
-  zinit load 'jupyter/jupyter_core'
-fi
-zinit load 'wfxr/forgit'
-zinit load 'b4b4r07/cli-finder'
-zinit load 'zsh-users/zsh-completions'
-zinit ice wait'1' lucid; zinit light 'lukechilds/zsh-better-npm-completion'
-zinit load 'changyuheng/fz'
-zinit load 'rupa/z'
-zinit light 'zsh-users/zsh-autosuggestions'
-zinit load 'docker/cli'
-zinit load 'docker/compose'
-zinit light 'zdharma-continuum/fast-syntax-highlighting'
-zinit light 'zsh-users/zsh-history-substring-search'
-zinit load 'hlissner/zsh-autopair'
-# zinit light 'junegunn/fzf'
-# Not working. @see https://github.com/Aloxaf/fzf-tab/issues/336
-# zinit light 'Aloxaf/fzf-tab'
-# zinit light 'Freed-Wu/fzf-tab-source'
-if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
-  zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
-fi
 if hash saml2aws 2>/dev/null ; then
   eval "$(saml2aws --completion-script-zsh)"
 fi
 
-# zsh-syntax-highlighting.
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
+# https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-completion.html
+# autoload bashcompinit && bashcompinit
+# complete -C '$(brew --prefix)/bin/aws_completer' aws
+
+# Install missing modules, and update ${zim_HOME}/init.zsh if missing or outdated.
+# if [[ ! "$zim_HOME/init.zsh" -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
+#   source "$zim_HOME/zimfw.zsh" init -q
+# fi
 
 # zsh-history-substring-search.
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
-bindkey -M vicmd 'k' history-substring-search-up
-bindkey -M vicmd 'j' history-substring-search-down
+# bindkey '^[[A' history-substring-search-up
+# bindkey '^[[B' history-substring-search-down
+# bindkey -M vicmd 'k' history-substring-search-up
+# bindkey -M vicmd 'j' history-substring-search-down
 
 ##
 # Autoloads.
@@ -174,25 +204,6 @@ load-nvmrc
 # bun completion.
 if [[ -s "$HOME/.bun/_bun" ]] ; then
   source "$HOME/.bun/_bun"
-fi
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/opt/homebrew/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/opt/homebrew/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/opt/homebrew/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/opt/homebrew/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
 fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

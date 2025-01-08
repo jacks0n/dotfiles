@@ -11,7 +11,11 @@ if ! type brew &>/dev/null ; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+# Install zim.
+curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
+
 # Install Brew packages.
+brew install tflint
 brew install awscli
 brew install bash
 brew install bash-completion
@@ -22,12 +26,15 @@ brew install bfg
 brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
-brew install chezmoi
-brew install cmake # Required for YouCompleteMe.
+brew install claude
+# brew install chezmoi
+# brew install cmake # Required for YouCompleteMe.
+# brew install hashicorp/tap/terraform-ls
 brew install colordiff
 brew install composer
 brew install coreutils
 brew install cowsay
+brew install stats
 brew install curl
 brew install dateutils
 brew install devutils
@@ -51,17 +58,9 @@ brew install gnu-sed
 brew install gnu-tar
 brew install go # Required for SQL language server.
 brew install grep
-brew install homebrew/cask-fonts/font-droid-sans-mono-nerd-font
-brew install homebrew/cask-fonts/font-fantasque-sans-mono-nerd-font
-brew install homebrew/cask-fonts/font-fira-mono-nerd-font
-brew install homebrew/cask-fonts/font-hack-nerd-font
-brew install homebrew/cask-fonts/font-inconsolata-nerd-font
-brew install homebrew/cask-fonts/font-jetbrains-mono-nerd-font
-brew install homebrew/cask-fonts/font-liberation-mono-for-powerline
-brew install homebrew/cask-fonts/font-mononoki-nerd-font
-brew install homebrew/cask-fonts/font-ubuntu-mono-nerd-font
 brew install htop
 brew install jesseduffield/lazygit/lazygit
+brew install jordanbaird-ice
 brew install jq
 brew install lolcat
 brew install lsd
@@ -72,7 +71,7 @@ brew install netcat
 brew install nnn
 brew install node
 brew install nvm
-brew install openapi-generator
+# brew install openapi-generator
 brew install openjdk@11
 brew install php
 brew install pure
@@ -84,8 +83,8 @@ brew install saulpw/vd/visidata
 brew install shellcheck
 brew install skype
 brew install sqlite
-brew install starship
-brew install svn
+# brew install starship
+# brew install svn
 brew install tccutil
 brew install the_silver_searcher
 brew install tig
@@ -93,7 +92,7 @@ brew install tmux
 brew install tree
 brew install tree-sitter
 brew install unar
-brew install universal-ctags
+# brew install universal-ctags
 brew install unzip
 brew install vim
 brew install viu
@@ -114,15 +113,15 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 
 # Install Brew cask packages.
 # Optional.
-brew install --cask beekeeper-studio
-brew install --cask jupyterlab
-brew install --cask airflow
-brew install --cask arq
-brew install --cask r rstudio
-brew install --cask codeedit
 brew install --cask 1password
+brew install --cask webtorrent
+brew install --cask airflow
+brew install --cask ollama
 brew install --cask alfred
-brew install --cask bartender
+brew install --cask arq
+brew install --cask beekeeper-studio
+brew install --cask chatgpt --no-quarantine
+brew install --cask codeedit
 brew install --cask dash
 brew install --cask db-browser-for-sqlite
 brew install --cask drawio
@@ -130,7 +129,6 @@ brew install --cask dropbox
 brew install --cask evernote
 brew install --cask fig
 brew install --cask firefox
-brew install --cask font-sf-mono-nerd-font
 brew install --cask github
 brew install --cask google-chrome
 brew install --cask google-drive
@@ -138,15 +136,15 @@ brew install --cask hyper
 brew install --cask insomnia
 brew install --cask istat-menus
 brew install --cask iterm2
-brew install --cask lastpass
+brew install --cask jupyterlab
 brew install --cask macs-fan-control
-brew install --cask macvim
 brew install --cask masscode
 brew install --cask microsoft-teams
 brew install --cask notion
 brew install --cask oracle-jdk
 brew install --cask orbstack
 brew install --cask postman
+brew install --cask r rstudio
 brew install --cask redisinsight
 brew install --cask sequel-pro
 brew install --cask sourcetree
@@ -156,14 +154,27 @@ brew install --cask tabby
 brew install --cask telegram-desktop
 brew install --cask todoist
 brew install --cask vimr
+brew install --cask visual-studio-code
 brew install --cask vlc
 brew install --cask whatsapp
 brew install --cask zettlr
-brew install --cask chatgpt --no-quarantine
+brew install --cask zoom
 brew tap lencx/chatgpt https://github.com/lencx/ChatGPT.git
 
 # Install Brew cask work packages.
 brew install --cask slack
+
+# Install Brew cask fonts.
+brew install --cask font-sf-mono-nerd-font
+brew install --cask homebrew/cask-fonts/font-droid-sans-mono-nerd-font
+brew install --cask homebrew/cask-fonts/font-fantasque-sans-mono-nerd-font
+brew install --cask homebrew/cask-fonts/font-fira-mono-nerd-font
+brew install --cask homebrew/cask-fonts/font-hack-nerd-font
+brew install --cask homebrew/cask-fonts/font-inconsolata-nerd-font
+brew install --cask homebrew/cask-fonts/font-jetbrains-mono-nerd-font
+brew install --cask homebrew/cask-fonts/font-liberation-mono-for-powerline
+brew install --cask homebrew/cask-fonts/font-mononoki-nerd-font
+brew install --cask homebrew/cask-fonts/font-ubuntu-mono-nerd-font
 
 # Install Brew cask personal packages.
 brew install --cask betaflight-configurator
@@ -189,9 +200,6 @@ sudo xattr -rd com.apple.quarantine /Library/QuickLook
 qlmanage -r
 qlmanage -r cache
 killall Finder
-
-# Language servers.
-npm install --global @serverless-ide/language-server
 
 # Alfred.
 npm install --global alfred-updater

@@ -79,7 +79,7 @@ if hash brew 2>/dev/null ; then
 
   # Java.
   export PATH="$(brew --prefix openjdk)/bin:$PATH"
-  export JAVA_HOME="$(brew --prefix openjdk@11)/libexec/openjdk.jdk/Contents/Home"
+  export JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home"
 fi
 
 # Android emulator / SDK.
@@ -129,6 +129,7 @@ export _Z_NO_RESOLVE_SYMLINKS=1
 
 # Python 3.
 export PATH="/usr/local/opt/python@3/bin:$PATH"
+# export PATH="./.venv/bin:$PATH"
 
 # Cargo packages.
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -138,6 +139,10 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 # Anaconda.
 export PATH="$HOMEBREW_PREFIX/anaconda3/bin:$PATH"
+
+# icu4c
+export PATH="$HOMEBREW_PREFIX/opt/icu4c/bin:$PATH"
+export PATH="$HOMEBREW_PREFIX/opt/icu4c/sbin:$PATH"
 
 # Bun.
 export BUN_INSTALL="$HOME/.bun"
@@ -149,6 +154,9 @@ export PATH="/Applications/OrbStack.app/Contents/MacOS/bin:$PATH"
 
 # Visual Studio Code.
 export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+
+# Dotnet.
+export PATH="/Users/jackson/.dotnet/tools:$PATH"
 
 # Local paths.
 export PATH="./vendor/bin:$PATH"

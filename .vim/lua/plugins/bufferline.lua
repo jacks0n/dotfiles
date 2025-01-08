@@ -9,7 +9,7 @@ require('bufferline').setup {
         elseif type == 'warning' then
           table.insert(s, num .. ' ')
         else
-          table.insert(s, num .. ' ')
+          table.insert(s, num .. ' ')
         end
       end
       return table.concat(s, '  ') .. ' '
@@ -18,7 +18,8 @@ require('bufferline').setup {
     color_icons = true,
     show_buffer_icons = true,
     show_buffer_close_icons = true,
-    show_buffer_default_icon = true,
+    -- Deprecated.
+    -- show_buffer_default_icon = true,
     show_close_icon = true,
     indicator = {
       style = 'icon'

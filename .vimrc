@@ -49,8 +49,8 @@ if has('nvim')
   Plug 'nvim-telescope/telescope.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
     \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  Plug 'nvim-telescope/telescope-frecency.nvim'
-    \| Plug 'tami5/sqlite.lua'
+  " Plug 'nvim-telescope/telescope-frecency.nvim'
+  "   \| Plug 'tami5/sqlite.lua'
 endif
 
 
@@ -64,8 +64,8 @@ if has('nvim') && g:use_coc || !has('nvim')
     Plug 'antoinemadec/coc-fzf'
   endif
 elseif has('nvim')
-  Plug 'chikko80/error-lens.nvim'
-  Plug 'weilbith/nvim-code-action-menu'
+  " Plug 'chikko80/error-lens.nvim'
+  Plug 'aznhe21/actions-preview.nvim'
   Plug 'SmiteshP/nvim-navic'
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
@@ -80,7 +80,7 @@ elseif has('nvim')
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
   Plug 'folke/neodev.nvim'
-  Plug 'jose-elias-alvarez/null-ls.nvim'
+  Plug 'nvimtools/none-ls.nvim'
   Plug 'jay-babu/mason-null-ls.nvim'
   Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
     \| Plug 'neovim/nvim-lspconfig'
@@ -159,7 +159,7 @@ if has('nvim')
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
-  Plug 'akinsho/bufferline.nvim', { 'tag': 'v3.*' }
+  Plug 'akinsho/bufferline.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
@@ -193,12 +193,12 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
-  Plug 'tomiis4/hypersonic.nvim'
+  " Plug 'tomiis4/hypersonic.nvim'
   Plug 'bennypowers/nvim-regexplainer'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'MunifTanjim/nui.nvim'
   Plug 'rareitems/printer.nvim'
-  Plug 'LunarVim/bigfile.nvim'
+  " Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
   " Plug 'David-Kunz/markid'
@@ -206,8 +206,9 @@ if has('nvim')
   Plug 'lewis6991/impatient.nvim'
   Plug 'ggandor/leap.nvim'
     \| Plug 'tpope/vim-repeat'
-  Plug 'CKolkey/ts-node-action'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
+  " Constant annoying "no node found at cursor" info messages.
+  " Plug 'CKolkey/ts-node-action'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'nvim-treesitter/nvim-treesitter-textobjects'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'folke/noice.nvim'
@@ -215,16 +216,16 @@ if has('nvim')
     \| Plug 'rcarriga/nvim-notify'
   Plug 'Wansmer/treesj'
   Plug 'nvim-neotest/neotest'
+    \| Plug 'nvim-neotest/nvim-nio'
     \| Plug 'nvim-lua/plenary.nvim'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'antoinemadec/FixCursorHold.nvim'
+    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'haydenmeade/neotest-jest'
   Plug 'abecodes/tabout.nvim'
   Plug 'CRAG666/code_runner.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
-  Plug 'vuki656/package-info.nvim'
-    \| Plug 'MunifTanjim/nui.nvim'
-  Plug 'folke/which-key.nvim'
+  " Plug 'vuki656/package-info.nvim'
+  "   \| Plug 'MunifTanjim/nui.nvim'
 else
   Plug 'cohama/lexima.vim'
 endif
@@ -247,7 +248,8 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 " ----------------------------------------
 
 if has('nvim')
-  Plug 'jose-elias-alvarez/typescript.nvim'
+  Plug 'pmizio/typescript-tools.nvim'
+  " Plug 'jose-elias-alvarez/typescript.nvim'
 else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
@@ -269,7 +271,7 @@ Plug 'heavenshell/vim-jsdoc', {
 " Plug: Markdown.                                                        |
 " ========================================================================
 
-" Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
+Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
 
 
 " ========================================================================
@@ -589,7 +591,7 @@ endif
 if exists('g:neovide')
   " Map OSX shortcuts.
   let g:neovide_input_use_logo = v:true
-  let g:neovide_input_macos_alt_is_meta = v:true
+  let g:neovide_input_macos_option_key_is_meta = v:true
   map <D-v> "+p<CR>
   map! <D-v> <C-R>+
   tmap <D-v> <C-R>+
@@ -776,7 +778,8 @@ augroup custom_filetypes
   autocmd BufRead,BufNewFile *.ipynb     setlocal filetype=python
   autocmd BufRead,BufNewFile *.yml.dist  setlocal filetype=yaml
   autocmd BufRead,BufNewFile Jenkinsfile setlocal filetype=groovy
-  autocmd BufNewFile,BufRead *.tftpl     setlocal filetype=terraform
+  autocmd BufRead,BufNewFile *.tftpl     setlocal filetype=terraform
+  autocmd BufRead,BufNewFile *.tf        setlocal filetype=terraform
 
   " Typescript/React.
   " autocmd BufRead,BufNewFile *.jsx setlocal filetype=javascriptreact.javascript
@@ -861,12 +864,21 @@ function! AdjustWindowHeight(minheight, maxheight)
   exe max([min([n_lines, a:maxheight]), a:minheight]) . 'wincmd _'
 endfunction
 
+" Wipe all deleted (unloaded & unlisted) or all unloaded buffers.
+function! BufferWipeoutAll(listed)
+    let l:buffers = filter(getbufinfo(), {_, v -> !v.loaded && (!v.listed || a:listed)})
+    if !empty(l:buffers)
+        execute 'bwipeout' join(map(l:buffers, {_, v -> v.bufnr}))
+    endif
+endfunction
+
 
 " ========================================================================
 " Commands.                                                              |
 " ========================================================================
 
 " Custom commands.
+command! -bar BufferWipeoutAll call BufferWipeoutAll(<bang>0)
 command! -bar NextColorScheme call NextColorScheme()
 command! -bar NextFont call NextFont()
 if executable('yq')
@@ -905,9 +917,9 @@ if has('nvim')
     " lua require('core.diagnostic')
     lua require('core.lsp')
     lua require('core.linters')
-    lua require('plugins.code-action-menu')
     lua require('plugins.cmp-tabnine')
-    lua require('plugins.typescript')
+    lua require('plugins.typescript-tools')
+    " lua require('plugins.typescript')
     lua require('plugins.copilot-lua')
     " lua require('plugins.codeium')
     lua require('copilot_cmp').setup()
@@ -915,12 +927,13 @@ if has('nvim')
     lua require('plugins.nvim-navbuddy')
     lua require('plugins.nvim-autopairs')
     lua require('plugins.lspsaga')
-    lua require('plugins.ts-node-action')
+    " lua require('plugins.ts-node-action')
     lua require('trouble').setup()
   endif
+  lua require('plugins.actions-preview')
+  lua require('nvim-web-devicons').setup({})
   " lua require('plugins.glance')
   lua require('plugins.printer')
-  lua require('plugins.which-key')
   lua require('plugins.neotest')
   lua require('plugins.code_runner')
   lua require('plugins.treesj')
@@ -933,6 +946,7 @@ if has('nvim')
   if exists('&statuscolumn')
     lua require('plugins.statuscol')
   endif
+  lua require('Comment').setup()
   lua require('plugins.todo-comments')
   lua require('plugins.bufferline')
   lua require('plugins.lualine')
@@ -946,9 +960,10 @@ if has('nvim')
   lua require('colorizer').setup({ '*' })
   lua require('gruvbox').setup()
   lua require('plugins.nvim-ufo')
-  lua require('plugins.package-info')
+  " lua require('plugins.package-info')
   lua require('nvim-surround').setup({})
-  lua require('hypersonic').setup({})
+  " lua require('hypersonic').setup({})
+  lua require('ibl').setup()
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
