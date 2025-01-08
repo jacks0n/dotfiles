@@ -167,14 +167,14 @@ vim.api.nvim_create_autocmd('BufReadPre', {
   group = vim.api.nvim_create_augroup('NullLs.JSON.OpenAPI', {}),
 })
 
-null_ls.register({
-  name = 'more_actions',
-  method = { null_ls.methods.CODE_ACTION },
-  filetypes = { '_all' },
-  generator = {
-    fn = require('ts-node-action').available_actions
-  }
-})
+-- null_ls.register({
+--   name = 'more_actions',
+--   method = { null_ls.methods.CODE_ACTION },
+--   filetypes = { '_all' },
+--   generator = {
+--     fn = require('ts-node-action').available_actions
+--   }
+-- })
 
 mason_null_ls.setup({
   ensure_installed = {

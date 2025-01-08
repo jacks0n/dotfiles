@@ -1,0 +1,11 @@
+fork = false
+frame = "buttonless"
+idle = true
+maximized = true
+no-multigrid = false
+srgb = false
+tabs = true
+theme = "auto"
+title-hidden = true
+vsync = true
+wsl = false

@@ -1,12 +1,10 @@
 {
   "codeLens.enable": true,
-  "eslint.formatterPriority": 999,
-  "prettier.formatterPriority": 999,
   "diagnostic.floatConfig": {
     "border": true,
     "rounded": true,
     "highlight": "CocFloating",
-    "shadow": false,
+    "shadow": false
   },
   "diagnostic.errorSign": "",
   "diagnostic.warningSign": "▲",
@@ -116,4 +114,20 @@
   "yaml.format.singleQuote": true,
   "yaml.hover": true,
   "yaml.validate": true,
+	"languageserver": {
+		"terraform": {
+			"command": "terraform-ls",
+			"args": ["serve"],
+			"filetypes": [
+				"terraform",
+				"tf"
+			],
+			"initializationOptions": {},
+			"settings": {}
+		},
+    "lua": {
+      "command": "lua-lsp",
+      "filetypes": ["lua"]
+    }
+	}
 }

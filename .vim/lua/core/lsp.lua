@@ -1,6 +1,6 @@
 local lsp = require('lsp-zero')
 local lspconfig = require('lspconfig')
-local error_lens = require('error-lens')
+-- local error_lens = require('error-lens')
 local lspconfig_util = require('lspconfig/util')
 local navbuddy = require('nvim-navbuddy')
 
@@ -8,7 +8,7 @@ local navbuddy = require('nvim-navbuddy')
 
 require('neodev').setup()
 
-vim.lsp.set_log_level('error')
+vim.lsp.set_log_level('info')
 
 require('mason.settings').set({
   ui = {
@@ -49,15 +49,15 @@ lsp.ensure_installed({
   'sqlls',
   'terraformls',
   'tflint',
-  'tsserver',
+  -- 'tsserver',
   'vimls',
   'yamlls',
-  'pyright',
   'jdtls',
-  -- 'mypy',
+  -- Python.
+  'pyright',
+  'pylsp',
+  'jedi_language_server',
   -- 'vtsls',
-  -- 'jedi-language-server',
-  -- 'pylsp',
   -- 'sourcery',
 })
 
@@ -84,19 +84,62 @@ lsp.configure('jdtls', {
 })
 
 lsp.configure('pyright', {
-  filetypes = { 'python' },
-  root_dir = function(filename)
-    return lspconfig_util.root_pattern('setup.py', 'setup.cfg', 'pyproject.toml', 'requirements.txt', '.git')(filename) or
-    lspconfig_util.path.dirname(filename);
+  single_file_support = false, -- ?
+  on_attach = function(client, bufnr)
+    local util = require('lspconfig/util')
+    local path = util.path
+    local filename = vim.api.nvim_buf_get_name(bufnr)
+    local repo_root = lspconfig_util.root_pattern(
+      'setup.py', 'setup.cfg', 'requirements.txt',
+      '.venv', '.virtualenv', 'pyproject.toml', '.git'
+    )(filename)
+
+    local function get_python_path()
+      -- Use activated virtualenv.
+      if vim.env.VIRTUAL_ENV then
+        return path.join(vim.env.VIRTUAL_ENV, 'bin', 'python')
+      end
+
+      -- Fallback to system Python.
+      return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
+    end
+
+    client.config.settings.python.pythonPath = get_python_path()
+
+    -- Path to a directory containing one or more subdirectories, each of which contains a virtual environment.
+    local venv_dir = lspconfig_util.root_pattern('.venv', '.virtualenv')(filename)
+    if venv_dir then
+      client.config.settings.venvPath = path.join(venv_dir, 'bin', 'python')
+    end
+
+    -- Used in conjunction with the venvPath, specifies the virtual environment to use.
+    if vim.env.VENV_ROOT then
+      client.config.settings.venv = vim.env.VENV_ROOT -- Defined in ~/.shrc.local
+    end
   end,
+  filetypes = { 'python' },
+  -- root_dir = function(filename)
+  --   return lspconfig_util.root_pattern('setup.py', 'setup.cfg', 'pyproject.toml', 'requirements.txt', '.git')(filename) or
+  --   lspconfig_util.path.dirname(filename);
+  -- end,
   settings = {
-    defaultVenv = { '.env' },
+    defaultVenv = { '.venv' },
     pyright = {
-      disableOrganizeImports = false, -- ??
+      disableOrganizeImports = false,
       autoImportCompletions = true,
     },
     python = {
+      -- pythonPath = '/Users/jackson/Code/bom/aviation-message-broker/.venv/bin/python',
+      -- venvPath = '/Users/jackson/Code/bom/aviation-message-broker/.venv',
+      venvPath = '.venv',
+      -- venv = '.',
       analysis = {
+        extraPaths = {
+          '.',
+          '/users/jackson/code/bom/aviation-message-broker/tests',
+          '/users/jackson/code/bom/aviation-message-broker/src',
+        },
+        completeFunctionParens = true,
         autoSearchPaths = true,
         useLibraryCodeForTypes = true,
         diagnosticMode = 'workspace',
@@ -256,45 +299,45 @@ local tsserver_lang_config = {
     },
   },
 }
-lsp.configure('tsserver', {
-  filetypes = {
-    'javascript',
-    'javascriptreact',
-    'javascript.jsx',
-    'typescript',
-    'typescriptreact',
-    'typescript.tsx',
-    'typescriptreact.typescript',
-  },
-  commands = {
-    OrganizeImports = {
-      function()
-        vim.lsp.buf.execute_command({
-          command = '_typescript.organizeImports',
-          arguments = { vim.fn.expand('%:p') },
-        })
-      end,
-      description = 'Organize Imports'
-    }
-  },
-  -- @see https://github.com/typescript-language-server/typescript-language-server#initializationoptions
-  -- @see https://code.visualstudio.com/docs/getstarted/settings
-  settings = {
-    typescript = tsserver_lang_config,
-    javascript = tsserver_lang_config,
-    implicitProjectConfig = {
-      checkJs = true,
-      enableImplicitProjectConfig = true,
-    },
-    completions = {
-      completeFunctionCalls = true,
-    },
-    format = {
-      indentSize = 2,
-      tabSize = 2,
-    },
-  },
-})
+-- lsp.configure('tsserver', {
+--   filetypes = {
+--     'javascript',
+--     'javascriptreact',
+--     'javascript.jsx',
+--     'typescript',
+--     'typescriptreact',
+--     'typescript.tsx',
+--     'typescriptreact.typescript',
+--   },
+--   commands = {
+--     OrganizeImports = {
+--       function()
+--         vim.lsp.buf.execute_command({
+--           command = '_typescript.organizeImports',
+--           arguments = { vim.fn.expand('%:p') },
+--         })
+--       end,
+--       description = 'Organize Imports'
+--     }
+--   },
+--   -- @see https://github.com/typescript-language-server/typescript-language-server#initializationoptions
+--   -- @see https://code.visualstudio.com/docs/getstarted/settings
+--   settings = {
+--     typescript = tsserver_lang_config,
+--     javascript = tsserver_lang_config,
+--     implicitProjectConfig = {
+--       checkJs = true,
+--       enableImplicitProjectConfig = true,
+--     },
+--     completions = {
+--       completeFunctionCalls = true,
+--     },
+--     format = {
+--       indentSize = 2,
+--       tabSize = 2,
+--     },
+--   },
+-- })
 
 lsp.on_attach(function(client, buffer)
   if client.server_capabilities.documentSymbolProvider then
@@ -310,7 +353,7 @@ lsp.on_attach(function(client, buffer)
     client.server_capabilities.documentFormattingRangeProvider = true
   end
 
-  error_lens.setup(client)
+  -- error_lens.setup(client)
 end)
 
 if vim.g.use_bun then
@@ -343,3 +386,8 @@ if vim.g.use_bun then
 end
 
 lsp.setup()
+
+local registry = require('mason-registry')
+registry.refresh(function ()
+  registry.get_package('lua-language-server')
+end)

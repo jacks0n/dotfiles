@@ -1,16 +1,24 @@
 local neotest = require('neotest');
 
 neotest.setup({
-  adapters = {
-    require('neotest-jest')({
-      jestCommand = '/Users/jackson.cooperflightcentre.com.au/Code/fares-data-processing/node_modules/.bin/jest --silent=false --detectOpenHandles --maxWorkers=1 --colors',
-      jestConfigFile = 'jest.config.ts',
-      env = { CI = true, STAGE = 'dev' },
-      cwd = function(_path)
-        return '/Users/jackson.cooperflightcentre.com.au/Code/fares-data-processing';
-      end,
-    }),
-  },
+  require('neotest-jest')({
+    jestCommand = 'npm test --',
+    jestConfigFile = '/Users/jackson/Code/bom/admin-portal-cloud/jest.config.js',
+    env = { CI = true },
+    cwd = function()
+      return '/Users/jackson/Code/bom/admin-portal-cloud';
+    end,
+  }),
+  -- adapters = {
+  --   require('neotest-jest')({
+  --     jestCommand = '/Users/jackson.cooperflightcentre.com.au/Code/fares-data-processing/node_modules/.bin/jest --silent=false --detectOpenHandles --maxWorkers=1 --colors',
+  --     jestConfigFile = 'jest.config.ts',
+  --     env = { CI = true, STAGE = 'dev' },
+  --     cwd = function(_path)
+  --       return '/Users/jackson.cooperflightcentre.com.au/Code/fares-data-processing';
+  --     end,
+  --   }),
+  -- },
   output = {
     enabled = true,
     open_on_run = 'short',
