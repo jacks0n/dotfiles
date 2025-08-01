@@ -1,0 +1,20 @@
+{
+  "includeCoAuthoredBy": false,
+  "model": "opus",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'tell application \"iTerm2\" to activate'"
+          }
+        ]
+      }
+    ]
+  },
+  "feedbackSurveyState": {
+    "lastShownTime": 1754050973294
+  }
+}

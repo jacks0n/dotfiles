@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+# Turn off indexing for all disks.
+sudo mdutil -a -i -off
+sudo rm -rf /.Spotlight*
+sudo rm -r /System/Volumes/Data/.Spotlight-V100
+# Re-enable indexing.
+sudo mdiutil -a -i on
+sudo mdiutil -E
+
+
+echo 'Clearing history and indexes...'
+
+############################################
+# 1. Clear/Delete Spotlight Indexes
+############################################
+
+echo 'Clearing Spotlight indexes...'
+sudo mdutil -i off / >/dev/null 2>&1
+sudo mdutil -E / >/dev/null 2>&1
+sudo mdutil -i on / >/dev/null 2>&1
+
+############################################
+# 2. Delete TextEdit recent history
+############################################
+echo 'Deleting TextEdit recent history...'
+defaults delete com.apple.TextEdit NSRecentDocuments 2>/dev/null
+rm -f ~/Library/Application\ Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.apple.textedit.sfl* 2>/dev/null
+
+############################################
+# 3. Delete VLC history
+############################################
+echo 'Deleting VLC recent files...'
+rm -f ~/Library/Preferences/org.videolan.vlc/vlc-qt-interface.conf 2>/dev/null
+rm -f ~/Library/Preferences/org.videolan.vlc.plist 2>/dev/null
+
+############################################
+# 4. Delete all app recent history (system-wide recents)
+############################################
+echo 'Clearing system-wide recent items...'
+rm -f ~/Library/Application\ Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/* 2>/dev/null
+
+############################################
+# 5. Delete Chrome and Firefox history
+############################################
+
+## Chrome
+echo 'Clearing Chrome history...'
+pkill 'Google Chrome'
+sleep 2
+rm -f ~/Library/Application\ Support/Google/Chrome/Default/History
+rm -f ~/Library/Application\ Support/Google/Chrome/Default/History-journal
+
+## Firefox
+echo 'Clearing Firefox history...'
+pkill 'firefox'
+sleep 2
+FIREFOX_PROFILE=$(find ~/Library/Application\ Support/Firefox/Profiles -type d -name '*.default-release' | head -n 1)
+if [[ -d "$FIREFOX_PROFILE" ]]; then
+  rm -f "$FIREFOX_PROFILE"/places.sqlite
+  rm -f "$FIREFOX_PROFILE"/places.sqlite-wal
+  rm -f "$FIREFOX_PROFILE"/places.sqlite-shm
+else
+  echo 'Firefox default profile not found.'
+fi
+
+echo '✅ All done! Reboot or relaunch apps to see changes.'

@@ -49,8 +49,6 @@ if has('nvim')
   Plug 'nvim-telescope/telescope.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
     \| Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-  " Plug 'nvim-telescope/telescope-frecency.nvim'
-  "   \| Plug 'tami5/sqlite.lua'
 endif
 
 
@@ -64,28 +62,26 @@ if has('nvim') && g:use_coc || !has('nvim')
     Plug 'antoinemadec/coc-fzf'
   endif
 elseif has('nvim')
-  " Plug 'chikko80/error-lens.nvim'
   Plug 'aznhe21/actions-preview.nvim'
   Plug 'SmiteshP/nvim-navic'
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'SmiteshP/nvim-navbuddy'
-    \| Plug 'neovim/nvim-lspconfig'
-    \| Plug 'SmiteshP/nvim-navic'
     \| Plug 'MunifTanjim/nui.nvim'
     \| Plug 'numToStr/Comment.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
   Plug 'onsails/lspkind.nvim'
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
-  Plug 'folke/neodev.nvim'
-  Plug 'nvimtools/none-ls.nvim'
-  Plug 'jay-babu/mason-null-ls.nvim'
-  Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
-    \| Plug 'neovim/nvim-lspconfig'
+  Plug 'folke/lazydev.nvim'
+  Plug 'stevearc/conform.nvim'
+  Plug 'mfussenegger/nvim-lint'
+  Plug 'neovim/nvim-lspconfig'
     \| Plug 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
     \| Plug 'williamboman/mason-lspconfig.nvim'
+    \| Plug 'zapling/mason-conform.nvim'
+    \| Plug 'rshkarin/mason-nvim-lint'
     \| Plug 'hrsh7th/nvim-cmp'
     \| Plug 'hrsh7th/cmp-buffer'
     \| Plug 'hrsh7th/cmp-path'
@@ -95,16 +91,9 @@ elseif has('nvim')
     \| Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
     \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
     \| Plug 'b0o/schemastore.nvim'
-  Plug 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
-    \| Plug 'williamboman/mason-lspconfig.nvim'
-    \| Plug 'neovim/nvim-lspconfig'
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  " Plug 'jcdickinson/codeium.nvim'
-  "   \| Plug 'nvim-lua/plenary.nvim'
-  "   \| Plug 'hrsh7th/nvim-cmp'
-  " Plug 'DNLHC/glance.nvim'
   " Plug 'yioneko/nvim-vtsls'
 endif
 
@@ -147,7 +136,7 @@ endif
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colour.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
-Plug 'liuchengxu/vista.vim'
+Plug 'liuchengxu/vista.vim', { 'on': ['Vista', 'Vista!', 'Vista!!'] }
 Plug 'wuelnerdotexe/vim-enfocado'
 if has('nvim')
   Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
@@ -180,14 +169,13 @@ endif
 
 Plug 'nat-418/boole.nvim'
 Plug 'Mizuchi/vim-ranger'
-Plug 'DataWraith/auto_mkdir'
+" Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
 Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
-" Plug 'joonty/vdebug'                 " DBGP protocol debugger  (e.g. Xdebug).
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
@@ -203,7 +191,6 @@ if has('nvim')
     \| Plug 'nvim-telescope/telescope.nvim'
   " Plug 'David-Kunz/markid'
   "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'lewis6991/impatient.nvim'
   Plug 'ggandor/leap.nvim'
     \| Plug 'tpope/vim-repeat'
   " Constant annoying "no node found at cursor" info messages.
@@ -332,10 +319,10 @@ end
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
   \| Plug 'ryanoasis/vim-devicons'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
+Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
 Plug 'simnalamburt/vim-mundo'
 
 
@@ -410,10 +397,6 @@ set wildmenu
 set pumheight=20             " Maximum number of items to show in the omni complete menu.
 
 set nostartofline            " Don't reset cursor to start of line when moving around.
-set shortmess=aAI            " ┐ Avoid all the hit-enter prompts.
-                             " │ a: All abbreviations.
-                             " │ A: No existing swap file 'ATTENTION' message.
-                             " ┘ I: No |:intro| starting message.
 set spelloptions+=camel
 if exists('+spelloptions') && has('nvim')
   set spelloptions+=noplainbuffer
@@ -517,7 +500,9 @@ if has('vim_starting')
   set encoding=utf-8 nobomb " Better default than latin1.
   scriptencoding utf-8
 endif
-let &termencoding = &encoding
+if !has('nvim')
+  let &termencoding = &encoding
+endif
 setglobal fileencoding=UTF-8  " Change default file encoding when writing new files.
 set listchars=tab:→\          " ┐
 set listchars+=trail:·        " │ Use custom symbols to
@@ -582,7 +567,10 @@ let g:loaded_perl_provider = 0
 " ========================================================================
 
 if has('gui_running')
-  set guioptions+=c " Use console dialogs instead of popup dialogs for simple choices.
+  " @todo Get working
+  " if !exists('g:neovide')
+  "   set guioptions+=c " Use console dialogs instead of popup dialogs for simple choices.
+  " endif
   set guioptions-=m " Disable menu bar.
   set guioptions-=L " Disable left-hand scrollbar when vertical split open.
   set guioptions-=r " Disable right-hand scrollbar.
@@ -713,10 +701,11 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " This autocmd will set the current working directory as the current file
 " directory. The Vim, "set autochdir" exists to do the same,
 " but seems to confuse some plugins like LSP.
-augroup autochdir
-  autocmd!
-  autocmd BufEnter * if &buftype !=# 'terminal' | silent! lcd %:p:h:gs/ /\\ / | endif
-augroup END
+" DISABLED for performance - this is also duplicated in lua/core/autocmds.lua
+" augroup autochdir
+"   autocmd!
+"   autocmd BufEnter * if &buftype !=# 'terminal' | silent! lcd %:p:h:gs/ /\\ / | endif
+" augroup END
 
 " Follow symlinks when opening files.
 function! FollowSymlink(...)
@@ -738,14 +727,6 @@ augroup follow_symlink
   autocmd!
   autocmd BufReadPost * call FollowSymlink(expand('<afile>'))
 augroup END
-
-" Toggle search highlighting.
-if has('nvim')
-  noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
-else
-  " Vim starts with '2R' in ex mode otherwise.
-  autocmd InsertEnter * noremap <silent><Esc> :set hlsearch! hlsearch?<CR>
-endif
 
 " Only set the cursorline when out of insert mode.
 autocmd InsertLeave,WinEnter * set cursorline
@@ -913,57 +894,68 @@ let g:better_whitespace_filetypes_blacklist=['lspsagafinder', 'mason']
 
 " Import Lua plugin configs.
 if has('nvim')
+  " Load core configuration
+  lua require('core.settings').setup()
+  lua require('core.keymaps').setup()
+  lua require('core.autocmds').setup()
+
   if !g:use_coc
-    " lua require('core.diagnostic')
+    " Core modules loaded immediately
+    lua require('core.diagnostic')
     lua require('core.lsp')
     lua require('core.linters')
-    lua require('plugins.cmp-tabnine')
-    lua require('plugins.typescript-tools')
-    " lua require('plugins.typescript')
-    lua require('plugins.copilot-lua')
-    " lua require('plugins.codeium')
-    lua require('copilot_cmp').setup()
-    lua require('plugins.cmp')
-    lua require('plugins.nvim-navbuddy')
-    lua require('plugins.nvim-autopairs')
-    lua require('plugins.lspsaga')
-    " lua require('plugins.ts-node-action')
-    lua require('trouble').setup()
+    " Load mason integrations after conform and nvim-lint are configured
+    lua require('plugins.mason-conform')
+    lua require('plugins.mason-nvim-lint')
+
+    " Plugin modules loaded on demand
+    augroup LazyLoadLua
+      autocmd!
+      autocmd BufReadPre * ++once lua require('plugins.cmp-tabnine')
+      autocmd BufReadPre * ++once lua require('plugins.typescript-tools')
+      autocmd BufReadPre * ++once lua require('plugins.copilot-lua')
+      autocmd BufReadPre * ++once lua require('copilot_cmp').setup()
+      autocmd BufReadPre * ++once lua require('plugins.cmp')
+      autocmd BufReadPre * ++once lua require('plugins.nvim-navbuddy')
+      autocmd BufReadPre * ++once lua require('plugins.nvim-autopairs')
+      autocmd BufReadPre * ++once lua require('plugins.lspsaga')
+      autocmd BufReadPre * ++once lua require('trouble').setup()
+    augroup END
   endif
-  lua require('plugins.actions-preview')
-  lua require('nvim-web-devicons').setup({})
-  " lua require('plugins.glance')
-  lua require('plugins.printer')
-  lua require('plugins.neotest')
-  lua require('plugins.code_runner')
-  lua require('plugins.treesj')
-  lua require('plugins.regexplainer')
-  lua require('plugins.notify')
-  lua require('plugins.noice')
-  lua require('plugins.luasnip')
-  " lua require('plugins.bigfile')
-  lua require('plugins.whitespace')
+  augroup LazyLoadLuaUI
+    autocmd!
+    autocmd VimEnter * ++once lua require('plugins.actions-preview')
+    autocmd VimEnter * ++once lua require('nvim-web-devicons').setup({})
+    autocmd VimEnter * ++once lua require('plugins.printer')
+    autocmd VimEnter * ++once lua require('plugins.neotest')
+    autocmd VimEnter * ++once lua require('plugins.code_runner')
+    autocmd VimEnter * ++once lua require('plugins.treesj')
+    autocmd VimEnter * ++once lua require('plugins.regexplainer')
+    autocmd VimEnter * ++once lua require('plugins.notify')
+    autocmd VimEnter * ++once lua require('plugins.noice')
+    autocmd VimEnter * ++once lua require('plugins.luasnip')
+    autocmd VimEnter * ++once lua require('plugins.whitespace')
+    autocmd VimEnter * ++once lua require('Comment').setup()
+    autocmd VimEnter * ++once lua require('plugins.todo-comments')
+    autocmd VimEnter * ++once lua require('plugins.bufferline')
+    autocmd VimEnter * ++once lua require('plugins.lualine')
+    autocmd VimEnter * ++once lua require('plugins.treesitter')
+    autocmd VimEnter * ++once lua require('plugins.telescope')
+    autocmd VimEnter * ++once lua require('plugins.markid')
+    autocmd VimEnter * ++once lua require('plugins.telescope-file-browser')
+    autocmd VimEnter * ++once lua require('plugins.leap')
+    autocmd VimEnter * ++once lua require('plugins.boole')
+    autocmd VimEnter * ++once lua require('plugins.tabout')
+    autocmd VimEnter * ++once lua require('colorizer').setup({ '*' })
+    autocmd VimEnter * ++once lua require('gruvbox').setup()
+    autocmd VimEnter * ++once lua require('plugins.nvim-ufo')
+    autocmd VimEnter * ++once lua require('nvim-surround').setup({})
+    autocmd VimEnter * ++once lua require('ibl').setup()
+  augroup END
+
   if exists('&statuscolumn')
-    lua require('plugins.statuscol')
+    autocmd VimEnter * ++once lua require('plugins.statuscol')
   endif
-  lua require('Comment').setup()
-  lua require('plugins.todo-comments')
-  lua require('plugins.bufferline')
-  lua require('plugins.lualine')
-  lua require('plugins.treesitter')
-  lua require('plugins.telescope')
-  lua require('plugins.markid')
-  lua require('plugins.telescope-file-browser')
-  lua require('plugins.leap')
-  lua require('plugins.boole')
-  lua require('plugins.tabout')
-  lua require('colorizer').setup({ '*' })
-  lua require('gruvbox').setup()
-  lua require('plugins.nvim-ufo')
-  " lua require('plugins.package-info')
-  lua require('nvim-surround').setup({})
-  " lua require('hypersonic').setup({})
-  lua require('ibl').setup()
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
@@ -1079,7 +1071,6 @@ let g:coc_global_extensions = [
   \ 'coc-xml',
   \ 'coc-yaml',
   \ ]
-  " \ 'coc-phpactor',
 
 " vim-instant-markdown.
 let g:instant_markdown_autostart = 0
@@ -1236,6 +1227,7 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
     nnoremap <nowait> <Leader>b :Buffers<CR>
   endif
   nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
+  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
   nnoremap <Leader>tg :GGrep<CR>
 endif
 
