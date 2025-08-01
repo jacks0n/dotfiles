@@ -1,3 +1,6 @@
+-- Set showtabline to always show the bufferline
+vim.opt.showtabline = 2
+
 require('bufferline').setup {
   options = {
     diagnostics = 'nvim_lsp',
@@ -47,7 +50,7 @@ require('bufferline').setup {
   },
 }
 
-vim.keymap.set('n', '<Leader>,', ':lclose<CR>:BufferLineCyclePrev<CR>', { desc = 'Previous buffer' })
-vim.keymap.set('n', '<Leader>.', ':lclose<CR>:BufferLineCycleNext<CR>', { desc = 'Next buffer' })
-vim.keymap.set('n', '<C-Tab>', ':lclose<CR>:BufferLineCyclePrev<CR>', { desc = 'Previous buffer' })
-vim.keymap.set('n', '<C-S-Tab>', ':lclose<CR>:BufferLineCycleNext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<Leader>,', function() vim.cmd('lclose'); require('bufferline').cycle(-1) end, { desc = 'Previous buffer' })
+vim.keymap.set('n', '<Leader>.', function() vim.cmd('lclose'); require('bufferline').cycle(1) end, { desc = 'Next buffer' })
+vim.keymap.set('n', '<C-Tab>', function() vim.cmd('lclose'); require('bufferline').cycle(-1) end, { desc = 'Previous buffer' })
+vim.keymap.set('n', '<C-S-Tab>', function() vim.cmd('lclose'); require('bufferline').cycle(1) end, { desc = 'Next buffer' })

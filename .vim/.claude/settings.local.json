@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(nvim:*)",
+      "Bash(timeout 30 nvim:*)",
+      "WebFetch(domain:luals.github.io)",
+      "WebFetch(domain:formulae.brew.sh)"
+    ],
+    "deny": []
+  }
+}

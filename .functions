@@ -320,9 +320,12 @@ update-user() {
     echo "\n\n=> TSServer update."
     nvim --headless +TSUpdateSync +quitall
 
-    echo "\n\n=> NeoVim LSP servers."
-    # @see https://github.com/williamboman/nvim-lsp-installer/issues/194
-    nvim --headless +LspUpdateAll +quitall
+    echo "\n\n=> Updating Mason and all packages."
+    # Update Mason registry first
+    nvim --headless -c 'MasonUpdate' -c 'qa'
+    # Update all installed packages
+    echo "=> Reinstalling all Mason packages to ensure latest versions."
+    nvim --headless -c "lua vim.defer_fn(function() for _, pkg in ipairs(require('mason-registry').get_installed_packages()) do pkg:install() end; vim.cmd('qa!') end, 1000)" 2>/dev/null
   fi
 
   # Update zinit and packages.
@@ -330,6 +333,9 @@ update-user() {
     echo "\n\n=> Updating zinit and packages."
     zinit self-update --no-pager
     zinit update --all --no-pager
+    # Force complete rebuild of cache (equivalent to removing and rebuilding).
+    autoload -Uz compinit
+    compinit -i -C -d
   fi
 
   # Update Composer packages.
