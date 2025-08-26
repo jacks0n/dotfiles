@@ -7,19 +7,18 @@ command_exists() {
 
 # ag / The Silver Searcher shortcuts.
 # https://github.com/ggreer/the_silver_searcher.
-a()  { ag "$1" "${2:-.}"; }
+a() { ag "$1" "${2:-.}"; }
 au() { ag -u "$1" "${2:-.}"; }
 al() { ag -l "$1" "${2:-.}"; }
 ae() {
-  ag --hidden --nobreak --nonumbers --noheading "${2:-.}" | \
-    fzf --ansi --select-1 --query="$1" --extended --multi | \
-      while read -r grep_line ; do
-        filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
-        linenum="$(echo "$grep_line" | cut -d ':' -f 2)"
-        $EDITOR "${filepath}:${linenum}" 2>/dev/null
-      done
+  ag --hidden --nobreak --nonumbers --noheading "${2:-.}" |
+    fzf --ansi --select-1 --query="$1" --extended --multi |
+    while read -r grep_line; do
+      filepath="$(echo "$grep_line" | cut -d ':' -f 1)"
+      linenum="$(echo "$grep_line" | cut -d ':' -f 2)"
+      $EDITOR "${filepath}:${linenum}" 2>/dev/null
+    done
 }
-
 
 # find shortcuts, matches highlighted inline.
 # Wildcard find, matching *<keyword>*
@@ -37,25 +36,23 @@ find-largest-file() {
   find "$1" -maxdepth "${2:-9999}" -type f -printf '%s %p\n' 2>/dev/null | sort -nr | sed 's/^[[:digit:]]* //g' | head -n "${3:-500}"
 }
 
-
 # Edit the selected file(s). USAGE: e FUZZY_PATTERN
 e() {
   local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --cycle $2)"
   [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
 }
 
-
 # Alias for the nearest Symfony `bin/console`.
 symfony-console-closet() {
   (
-    while true ; do
+    while true; do
       local SEARCH_DIR="$(pwd)"
-      if [[ $SEARCH_DIR == "$HOME" || $SEARCH_DIR == '/' ]] ; then
+      if [[ $SEARCH_DIR == "$HOME" || $SEARCH_DIR == '/' ]]; then
         echo 'ERROR: Could not find `app/console`.' 2>&1
         return 1
       fi
 
-      if [ -f 'app/console' ] ; then
+      if [ -f 'app/console' ]; then
         app/console $@
         return
       fi
@@ -65,13 +62,12 @@ symfony-console-closet() {
   )
 }
 
-
 random-joke() {
   local jokes_path="$HOME/.config/jokes.py"
-  if [ ! -f "$jokes_path" ] ; then
+  if [ ! -f "$jokes_path" ]; then
     mkdir -p "$HOME/.config"
     local curl_output="$(curl 'https://raw.githubusercontent.com/pyjokes/pyjokes/master/pyjokes/jokes_en.py' --silent -o "$jokes_path")"
-    if [ $? -ne 0 ] ; then
+    if [ $? -ne 0 ]; then
       echo "=> ERROR: Failed to fetch jokes. $curl_output"
       return 1
     fi
@@ -81,21 +77,18 @@ random-joke() {
   " | python3 -
 }
 
-
 # Random joke, with random rainbow coloured ASCII art.
 cowjoke() {
-  if command_exists cowsay && command_exists random-joke && command_exists lolcat ; then
+  if command_exists cowsay && command_exists random-joke && command_exists lolcat; then
     local COWSAY_FILE="$(shuf -n1 -e $(cowsay -l | tail -n +2))"
-    random-joke| cowsay -f "$COWSAY_FILE" | lolcat
+    random-joke | cowsay -f "$COWSAY_FILE" | lolcat
   fi
 }
-
 
 # Recursively change ownerwhip of the path to $USER.
 chownme() {
   sudo chown -R "${USER}:staff" "$@"
 }
-
 
 # cd to a previously visited directory matching FUZZY_PATTERN
 unalias z 2>/dev/null
@@ -107,7 +100,6 @@ z() {
     _z "$@"
   fi
 }
-
 
 git_maintain() {
   # Remove dangling commits/blobs.
@@ -127,7 +119,6 @@ git_maintain() {
   git gc --prune=now
 }
 
-
 git_assume_unchanged() {
   # TDOO: check input, combine with `git-assume-changed()`.
   git ls-files -z "${@:-.}" | xargs -0 git update-index --assume-unchanged
@@ -135,23 +126,20 @@ git_assume_unchanged() {
   git update-index --really-refresh
 }
 
-
 git_no_assume_unchanged() {
   git ls-files -z "${@:-.}" | xargs -0 git update-index --no-assume-unchanged
   git ls-files -z "${@:-.}" | xargs -0 git update-index --no-skip-worktree
   git update-index --really-refresh
 }
 
-
 # View `man` pages with Preview.app, fancy!
 gman() {
   local PS_FILEPATH='/tmp/man-to-ps.ps'
 
   # Output `man` as Postscript to a temporary file.
-  man -t "$@" > "$PS_FILEPATH"
+  man -t "$@" >"$PS_FILEPATH"
   open "$PS_FILEPATH"
 }
-
 
 # Add colours to man pages.
 man() {
@@ -165,7 +153,6 @@ man() {
     man $@
 }
 
-
 # Reload shell - Zsh or Bash.
 # Sources ~/.zshrc or ~/.profile by default. If the `--new` argument is given,
 # the current shell will be re-launched, disregarding any environment changes.
@@ -174,37 +161,33 @@ reload() {
   ME="$(ps -p $$ -o 'comm=')" # zsh and bash usually prefixed with '-'
 
   # `--new` specified. Lose changes, start new shell.
-  if [[ $1 == '--new' ]] ; then
-    [[ $ME == *zsh  ]] && exec zsh -li
+  if [[ $1 == '--new' ]]; then
+    [[ $ME == *zsh ]] && exec zsh -li
     [[ $ME == *bash ]] && exec bash -li
   else
-    [[ $ME == *zsh  ]] && source ~/.zshrc
-    [[ $ME == *bash ]] && source ~/.bashrc  # Assumes it sources .bash_profile
+    [[ $ME == *zsh ]] && source ~/.zshrc
+    [[ $ME == *bash ]] && source ~/.bashrc # Assumes it sources .bash_profile
   fi
 }
 
-
 # Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard.
 pubkey() {
-  if [ -f "$HOME/.ssh/id_rsa.pub" ] ; then
+  if [ -f "$HOME/.ssh/id_rsa.pub" ]; then
     echo '=> Public key copied to clipboard.'
-    tee >(pbcopy) < "$HOME/.ssh/id_rsa.pub"
+    tee >(pbcopy) <"$HOME/.ssh/id_rsa.pub"
   else
     echo '=> ERROR: `~/.ssh/id_rsa.pub` is missing'
   fi
 }
-
 
 # Lists file & directory sizes (defaults to current path), sorted by size.
 dl() {
   du --human-readable --total --max-depth=1 "${1:-.}" | sort --human-numeric-sort --reverse
 }
 
-
 todo() {
-  echo "$@" >> ~/.todo
+  echo "$@" >>~/.todo
 }
-
 
 # Get the public IP address from OpenDNS, print it and copy to clipboard.
 ip() {
@@ -214,13 +197,11 @@ ip() {
   echo "=> Public IP: $IP copied to clipboard"
 }
 
-
 # Create directory and `cd` into it.
 mkcd() {
   [[ $1 == '' ]] && echo 'ERROR: No directory argument supplied.' && return 1
   mkdir -p "$1" && cd "$1" || exit 1
 }
-
 
 # Get the local IPv4 addres(sses) from ifconfig, and copy to clipboard.
 localip() {
@@ -228,7 +209,7 @@ localip() {
   [[ "$IPS" == '' ]] && echo '=> No local IP addresses found'
 
   # Print all if multiple found.
-  if [ "$(echo "$IPS" | wc -l)" -ne 1 ] ; then
+  if [ "$(echo "$IPS" | wc -l)" -ne 1 ]; then
     echo -e "=> Multiple IP addresses found:\n$IPS"
   fi
 
@@ -236,23 +217,20 @@ localip() {
   echo "=> IP address $IPS copied to clipboard"
 }
 
-
 # Checks if a website is down with downforeveryoneorjustme.com (URL or raw domain).
 isdown() {
   # Strip scheme first.
   local URL="$(echo "$1" | sed 's/http\(s\|\):\/\///g')"
-  curl -s "http://www.downforeveryoneorjustme.com/$URL" | \
-    grep 'just you' | \
+  curl -s "http://www.downforeveryoneorjustme.com/$URL" |
+    grep 'just you' |
     php -r 'echo html_entity_decode(trim(strip_tags(fgets(STDIN))));'
   echo
 }
-
 
 # Kill all the tabs in Chrome to free up memory.
 chromekill() {
   pgrep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill
 }
-
 
 # Show the HTTP headers of a given URL.
 httpheaders() {
@@ -261,24 +239,22 @@ httpheaders() {
   curl --silent --user-agent "$CURL_USER_AGENT" --dump-header - "$1" --output /dev/null
 }
 
-
 # Delete shell history lines containing $1, in $HISTFILE (if set), ~/.zsh_history, ~/.bash_history
 rmhist() {
-  if [ -z "$1" ] ; then
+  if [ -z "$1" ]; then
     echo '=> ERROR: No history string argument to delete.' >&2
     return 1
   fi
   local HIST_FILES=(~/.zsh_history ~/.bash_history "$HISTFILE")
-  for HIST_FILE in "${HIST_FILES[@]}" ; do
+  for HIST_FILE in "${HIST_FILES[@]}"; do
     echo HIST_FILE=$HIST_FILE
-    if [ -f "$HIST_FILE" ] ; then
+    if [ -f "$HIST_FILE" ]; then
       local MATCH_COUNT="$(grep "$1" "$HIST_FILE" &>/dev/null | wc -l)"
       LC_ALL=C sed -i "/$1/d" "$HIST_FILE"
       echo "=> Deleted $MATCH_COUNT matches from $HIST_FILE"
     fi
   done
 }
-
 
 # Automatically `cd` into last directory in ranger.
 # Based on ranger/doc/examples/bash_automatic_cd.sh
@@ -288,11 +264,10 @@ rangercd() {
   ranger --choosedir="$TEMPFILE" "${@:-.}"
   test -f "$TEMPFILE" &&
     if [ "$(cat -- "$TEMPFILE")" != "$(echo -n "$(pwd)")" ]; then
-    cd -- "$(cat "$TEMPFILE")" || exit 1
-  fi
+      cd -- "$(cat "$TEMPFILE")" || exit 1
+    fi
   rm -f -- "$TEMPFILE"
 }
-
 
 # Global and user updates.
 update() {
@@ -300,17 +275,16 @@ update() {
   update-user
 }
 
-
 # User wide update.
 update-user() {
   # Update Vim plugins.
-  if command_exists vim ; then
-    echo '=> Vim Plug install, update, upgrade, clean.'
-    vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
-  fi
+  # if command_exists vim; then
+  #   echo '=> Vim Plug install, update, upgrade, clean.'
+  #   vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  # fi
 
   # Update NeoVim plugins.
-  if command_exists nvim ; then
+  if command_exists nvim; then
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim --headless +MasonUpdate +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
 
@@ -329,7 +303,7 @@ update-user() {
   fi
 
   # Update zinit and packages.
-  if [[ $(command_exists zinit) -eq 0 && $(basename $SHELL) == 'zsh' ]] ; then
+  if [[ $(command_exists zinit) -eq 0 && $(basename $SHELL) == 'zsh' ]]; then
     echo "\n\n=> Updating zinit and packages."
     zinit self-update --no-pager
     zinit update --all --no-pager
@@ -339,13 +313,13 @@ update-user() {
   fi
 
   # Update Composer packages.
-  if command_exists composer ; then
+  if command_exists composer; then
     echo "\n\n=> Updating Composer packages."
     composer global update
   fi
 
   # Update Go packages.
-  if command_exists go ; then
+  if command_exists go; then
     echo "\n\n=> Updating Go packages."
     go get -u all
   fi
@@ -357,20 +331,20 @@ update-user() {
   # fi
 
   # Update `~/bin` repositories.
-  if [ -d "$HOME/bin/" ] ; then
-    find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR ; do
+  if [ -d "$HOME/bin/" ]; then
+    find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR; do
       (
         cd "$BIN_DIR"
-        if [ -d .git ] ; then
+        if [ -d .git ]; then
           echo "\n=> Updating Git repository in '$(pwd)'."
           git fetch --all
           git pull origin --rebase
         fi
-        if [ -f composer.json ] ; then
+        if [ -f composer.json ]; then
           echo "\n=> Updating Composer packages in '$(pwd)'."
           composer update --quiet
         fi
-        if [ -f package.json ] ; then
+        if [ -f package.json ]; then
           echo "\n=> Updating npm packages in '$(pwd)'."
           npm update
         fi
@@ -379,16 +353,15 @@ update-user() {
   fi
 
   # Execute the local update function, if it exists.
-  if hash _update &>/dev/null ; then
+  if hash _update &>/dev/null; then
     _update
   fi
 }
 
-
 # Global update.
 update-global() {
   # Download latest repo from Homebrew, and update all packages.
-  if command_exists brew ; then
+  if command_exists brew; then
     echo '=> Homebrew cleanup, update, repair and link fixes.'
     (
       brew update
@@ -401,9 +374,15 @@ update-global() {
   fi
 
   # Update OS X.
-  if command_exists softwareupdate ; then
+  if command_exists softwareupdate; then
     echo "\n\n=> Running OS X Software Update."
     sudo softwareupdate --install --all
+  fi
+
+  # Update uv.
+  if command_exists uv; then
+    echo "\n\n=> Updating uv."
+    uv self update
   fi
 
   # @todo Fix
@@ -431,7 +410,7 @@ update-global() {
   # done
 
   # Update npm and npm packages.
-  if command_exists npm ; then
+  if command_exists npm; then
     echo "\n\n=> Updating npm and npm packages."
     npm install --global npm@latest
     npm update --global
@@ -452,8 +431,8 @@ drush8() {
 
 # Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
 fix-zsh-permissions() {
-  compaudit 2>/dev/null | while read dir ; do
-    sudo chmod g-w "$dir";
+  compaudit 2>/dev/null | while read dir; do
+    sudo chmod g-w "$dir"
   done
 }
 
@@ -486,14 +465,14 @@ replace() {
   local TO="$(preg-quote "$2")"
   local DIR="${3:-.}"
 
-  if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]] ; then
-    ag --hidden --files-with-matches "$FROM" "$DIR" | while read -r filepath ; do
+  if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]]; then
+    ag --hidden --files-with-matches "$FROM" "$DIR" | while read -r filepath; do
       echo "=> Replaced in file '$filepath'"
       sed -i'' -e "s/$FROM/$TO/g" "$filepath"
     done
   else
-    find "$DIR" -type f | while read -r filepath ; do
-      if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null ; then
+    find "$DIR" -type f | while read -r filepath; do
+      if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null; then
         echo "=> Replaced in file '$FILEPATH'"
         sed -i'' -e "s/$FROM/$TO/g" "$FILEPATH"
       fi
@@ -516,8 +495,8 @@ rename() {
   local TO="$2"
   local DIR="${3:-.}"
 
-  find "$DIR" -type f | while read -r FILEPATH ; do
-    if grep --quiet --fixed-strings "$FROM" 2>/dev/null ; then
+  find "$DIR" -type f | while read -r FILEPATH; do
+    if grep --quiet --fixed-strings "$FROM" 2>/dev/null; then
       echo "=> Replacing filepath '$FILEPATH'"
       echo dirname "$FILEPATH" \| sed "s/$FROM/$TO/g"
       local TO_DIR="$(dirname "$FILEPATH" | sed "s/$FROM/$TO/g")"
@@ -533,7 +512,7 @@ rename() {
 # Escape a regex quote.
 ##
 preg-quote() {
-  if [ -n "$1" ] ; then
+  if [ -n "$1" ]; then
     php --run 'echo preg_quote($argv[1], "/");' "$1"
   else
     php --run 'echo preg_quote(file_get_contents("php://stdin", "/"));'
@@ -616,8 +595,8 @@ ga() {
 # Git add all, commit if there are inputs, and push.
 gpa() {
   git add --all
-  if [[ "$(git status --porcelain)" ]] ; then
-    if ! gcm "$*" ; then
+  if [[ "$(git status --porcelain)" ]]; then
+    if ! gcm "$*"; then
       return $?
     fi
   fi
@@ -626,8 +605,7 @@ gpa() {
 
 # Git adds all, then Git commit, optionally with a message.
 gcm() {
-  ga
-  if [[ "$*" == '' ]] ; then
+  if [[ "$*" == '' ]]; then
     git commit
   else
     git commit --message "$*"
@@ -639,7 +617,7 @@ gpu() {
   local symbolic_ref=$(git symbolic-ref --short HEAD)
   local push_output="$(git push --set-upstream origin "$symbolic_ref" 2>&1)"
   pr_url=$(echo "$push_output" | tee /dev/tty | grep 'https' | sed -e 's/remote: *//g' -e 's/ //g')
-  if [[ -n "$pr_url" ]] ; then
+  if [[ -n "$pr_url" ]]; then
     open "$pr_url"
   fi
 }
@@ -647,7 +625,7 @@ gpu() {
 # Checkout or create a feature/$input branch.
 gcbf() {
   checkout=$(git checkout -b "feature/$*" 2>&1 | tee /dev/tty)
-  if [[ "$checkout" == 'fatal: a branch named'*'already exists' ]] ; then
+  if [[ "$checkout" == 'fatal: a branch named'*'already exists' ]]; then
     git checkout "feature/$*"
   else
     echo "$checkout"
@@ -657,7 +635,7 @@ gcbf() {
 # Fuzzy find and edit a file in a Git repo.
 ge() {
   local GIT_ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)"
-  if [ ! -d "$GIT_ROOT_DIR" ] ; then
+  if [ ! -d "$GIT_ROOT_DIR" ]; then
     echo 'ERROR: Not in a Git repo.' >&2
     return 1
   fi
@@ -666,13 +644,12 @@ ge() {
   [ -f "$GIT_ROOT_DIR/$SELECTED_FILE" ] && "$VISUAL" "$GIT_ROOT_DIR/$SELECTED_FILE"
 }
 
-
 # Clone a Git repository, cd into the directory,
 # and checkout a branch/tag/commit if specified.
 gclone() {
   local REPO="$1"
   local CHECKOUT_ID="$2"
-  if [ -z "$REPO" ] ; then
+  if [ -z "$REPO" ]; then
     echo '=> ERROR: No repository provided.' >&2
     return 1
   fi
@@ -686,23 +663,23 @@ gclone() {
     echo "=> ERROR: Could not 'cd' into '$repo_dir'." >&2
     return 1
   }
-  if [ -n "$CHECKOUT_ID" ] ; then
+  if [ -n "$CHECKOUT_ID" ]; then
     git checkout "$CHECKOUT_ID"
   fi
 }
 
 # Get the default Git branch.
 git-default-branch() {
-  if [[ -n $(git show-ref main 2>/dev/null) ]] ; then
-    echo 'main';
+  if [[ -n $(git show-ref main 2>/dev/null) ]]; then
+    echo 'main'
     return 0
-  elif [[ -n $(git show-ref master 2>/dev/null) ]] ; then
+  elif [[ -n $(git show-ref master 2>/dev/null) ]]; then
     echo 'master'
     return 0
   fi
 
   local default_branch=$(git config init.defaultBranch)
-  if [ -n "$default_branch" ] ; then
+  if [ -n "$default_branch" ]; then
     echo "$default_branch"
     return 0
   fi
@@ -722,23 +699,67 @@ gch() {
   local tags branches target
   branches=$(
     git --no-pager branch \
-      --format="%(if)%(HEAD)%(then)%(else)%(if:equals=HEAD)%(refname:strip=3)%(then)%(else)%1B[0;34;1mbranch%09%1B[m%(refname:short)%(end)%(end)" \
-    | sed '/^$/d') || return
+      --format="%(if)%(HEAD)%(then)%(else)%(if:equals=HEAD)%(refname:strip=3)%(then)%(else)%1B[0;34;1mbranch%09%1B[m%(refname:short)%(end)%(end)" |
+      sed '/^$/d'
+  ) || return
   tags=$(
-    git --no-pager tag | awk '{print "\x1b[35;1mtag\x1b[m\t" $1}') || return
+    git --no-pager tag | awk '{print "\x1b[35;1mtag\x1b[m\t" $1}'
+  ) || return
   target=$(
-    (echo "$branches"; echo "$tags") |
-    fzf --no-hscroll --no-multi -n 2 \
-        --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'") || return
-  git checkout $(awk '{print $2}' <<<"$target" )
+    (
+      echo "$branches"
+      echo "$tags"
+    ) |
+      fzf --no-hscroll --no-multi -n 2 \
+        --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'"
+  ) || return
+  git checkout $(awk '{print $2}' <<<"$target")
 }
 
 # 'git fetch' all repositories in the current directory.
 git-refresh-branches() {
-  find . -name .git -type d | while read -r GIT_DIR ; do
+  find . -name .git -type d | while read -r GIT_DIR; do
     (
       cd "$(dirname "$GIT_DIR")" || exit
       git fetch --all
     )
   done
+}
+
+claude-code-mcp-setup() {
+  claude mcp add todoist --env TODOIST_API_TOKEN="$TODOIST_API_TOKEN" -- npx -y @abhiz123/todoist-mcp-server
+  claude mcp add gemini-cli -- npx -y gemini-mcp-tool
+  claude mcp add Context7 -- npx -y @upstash/context7-mcp
+  claude mcp add playwright -- npx @playwright/mcp@latest
+  if [[ $(pwd) == $HOME ]]; then
+    claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem \
+      ~/Code \
+      ~/Desktop \
+      ~/Google\ Drive \
+      ~/Library/CloudStorage/GoogleDrive-jackson@jacksonc.com/My\ Drive
+  else
+    claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem "$(pwd)"
+  fi
+  claude mcp add fetch -- uvx mcp-server-fetch
+  [[ ! -d ~/.mcp ]] && mkdir ~/.mcp
+  claude mcp add memory --env MEMORY_FILE_PATH=$HOME/.mcp/memory.claude.json -- npx -y @modelcontextprotocol/server-memory
+  claude mcp add git -- uvx mcp-server-git
+  claude mcp add ddg-search -- uvx duckduckgo-mcp-server
+  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project $(pwd)
+  claude mcp add postgres-mcp -- uv run postgres-mcp --access-mode=unrestricted
+  claude mcp add dbhub-postgres -- npx -y @bytebase/dbhub --transport stdio --dsn postgres://user:password@localhost:5432/dbname?sslmode=disable
+  claude mcp add google-calendar -- npx -y @cocal/google-calendar-mcp
+  claude mcp add gmail -- npx -y @gongrzhe/server-gmail-autoauth-mcp
+  claude mcp add google_workspace \
+    --env GOOGLE_OAUTH_CLIENT_ID="$GOOGLE_OAUTH_CLIENT_ID" \
+    --env GOOGLE_OAUTH_CLIENT_SECRET="$GOOGLE_OAUTH_CLIENT_SECRET" \
+    -- uvx workspace-mcp
+  claude mcp add leann-server -- leann_mcp
+  lean build
+  claude mcp add awslabs-aws-documentation-mcp-server \
+    -- env FASTMCP_LOG_LEVEL=ERROR \
+    -- env AWS_DOCUMENTATION_PARTITION=aws \
+    -- uvx awslabs.aws-documentation-mcp-server@latest
+  claude mcp add awslabs-aws-api-mcp-server \
+    -- uvx awslabs.aws-api-mcp-server@latest
 }
