@@ -23,7 +23,7 @@ alias vimdiff='nvim -d'
 
 # ls shortcuts.
 # @see https://github.com/Peltoche/lsd
-if hash lsd 2>/dev/null ; then
+if hash lsd 2>/dev/null; then
   alias lsd='lsd --blocks permission,user,group,size,date,name --date relative'
   alias l='lsd --oneline'                               # Files and directories in long format.
   alias la='lsd --oneline --almost-all'                 # Files and directories in long format, including dotfiles.
@@ -32,7 +32,7 @@ if hash lsd 2>/dev/null ; then
   alias ld='lsd --directory-only --oneline *(/)'        # Only directories.
   alias lda='lsd --directory-only --oneline .*(/) *(/)' # Only directories, including dotdirectories.
 # @see https://the.exa.website/
-elif hash exa 2>/dev/null ; then
+elif hash exa 2>/dev/null; then
   alias l='exa --long --binary --header --git'        # Files and directories in long format.
   alias la='exa --long --binary --all --header --git' # Files and directories in long format, including dotfiles.
   alias lf='l | grep -v "^d"'                         # Only files.
@@ -142,30 +142,32 @@ alias quicklook-reset='qlmanage -r'
 [[ "$(uname)" == 'Darwin' ]] && alias repairpermissions='sudo diskutil repairPermissions /'
 
 # OS X has no `md5sum`, so use `md5` as a fallback.
-command -v md5sum > /dev/null || alias md5sum='md5'
+command -v md5sum >/dev/null || alias md5sum='md5'
 
 # OS X has no `sha1sum`, so use `shasum` as a fallback.
-command -v sha1sum > /dev/null || alias sha1sum='shasum'
+command -v sha1sum >/dev/null || alias sha1sum='shasum'
 
 # URL-encode strings.
 alias urlencode="python -c 'import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);'"
 
 # Lock the screen.
-[[ "$(uname)" == "Darwin" ]] && \
+[[ "$(uname)" == "Darwin" ]] &&
   alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
 # Watch logs with lnav.
 MAMP_LOG_PATH='/Applications/MAMP/logs'
-type lnav &>/dev/null && \
+type lnav &>/dev/null &&
   alias phpwatch="lnav $MAMP_LOG_PATH/php_error.log"
-  alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
-  alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
+alias mysqlwatch="lnav $MAMP_LOG_PATH/mysql_error_log.err"
+alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
 
 # https://github.com/tomnomnom/gron.
 alias ungron='gron --ungron'
 
 # https://github.com/sharkdp/bat
 # alias cat='bat'
+
+alias gl='glow'
 
 # Sourcetree.
 alias stree='/Applications/SourceTree.app/Contents/Resources/stree'
