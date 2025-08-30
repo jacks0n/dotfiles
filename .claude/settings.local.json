@@ -1,0 +1,51 @@
+{
+  "rules": [
+    {
+      "pattern": "**/*",
+      "action": "allow",
+      "description": "Allow all file operations in working directory and subdirectories"
+    }
+  ],
+  "globalRules": [
+    {
+      "pattern": "../*",
+      "action": "ask",
+      "description": "Prompt for operations outside working directory"
+    },
+    {
+      "pattern": "~/*",
+      "action": "ask",
+      "description": "Prompt for operations in home directory"
+    },
+    {
+      "pattern": "/etc/*",
+      "action": "deny",
+      "description": "Block system configuration changes"
+    },
+    {
+      "pattern": "/usr/*",
+      "action": "deny",
+      "description": "Block system directory changes"
+    },
+    {
+      "pattern": "/var/*",
+      "action": "deny",
+      "description": "Block system variable directory changes"
+    }
+  ],
+  "confirmations": {
+    "fileOperations": false,
+    "directoryOperations": false,
+    "largeFileOperations": true,
+    "binaryFileOperations": true
+  },
+  "limits": {
+    "maxFileSize": "10MB",
+    "maxFilesPerOperation": 50
+  },
+  "safety": {
+    "backupBeforeOverwrite": false,
+    "validateFileExtensions": false,
+    "warnOnLargeChanges": true
+  }
+}

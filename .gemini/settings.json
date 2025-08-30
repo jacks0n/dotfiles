@@ -9,13 +9,6 @@
         "@abhiz123/todoist-mcp-server"
       ]
     },
-    "gemini-cli": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "gemini-mcp-tool"
-      ]
-    },
     "Context7": {
       "command": "npx",
       "args": [
@@ -35,7 +28,8 @@
         "-y",
         "@modelcontextprotocol/server-filesystem",
         "/Users/jackson/Code",
-        "/Users/jackson/Google Drive"
+        "/Users/jackson/Google Drive",
+        "/Users/jackson/.dotfiles"
       ]
     },
     "fetch": {
@@ -49,12 +43,32 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-memory"
-      ]
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/Users/jackson/.mcp/memory.gemini.json"
+      }
     },
     "git": {
       "command": "uvx",
       "args": [
         "mcp-server-git"
+      ]
+    },
+    "ddg-search": {
+      "command": "uvx",
+      "args": [
+        "duckduckgo-mcp-server"
+      ]
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
       ]
     }
   }

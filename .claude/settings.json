@@ -1,6 +1,5 @@
 {
   "includeCoAuthoredBy": false,
-  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -15,6 +14,7 @@
     ]
   },
   "feedbackSurveyState": {
-    "lastShownTime": 1754050973294
-  }
+    "lastShownTime": 1754218440032
+  },
+  "model": "opus"
 }
