@@ -134,14 +134,8 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 " Plug: Visual.                                                          |
 " ========================================================================
 
-Plug 'henrik/vim-indexed-search'      " Show 'At match #N out of M matches.' when searching.
-if has('termguicolors')
-  Plug 'norcalli/nvim-colorizer.lua'
-else
-  Plug 'ap/vim-css-color'
-endif
+Plug 'norcalli/nvim-colorizer.lua'
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
-Plug 'jaxbot/semantic-highlight.vim'  " Where every variable is a different colour.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'liuchengxu/vista.vim', { 'on': ['Vista', 'Vista!', 'Vista!!'] }
 Plug 'wuelnerdotexe/vim-enfocado'
@@ -175,34 +169,25 @@ endif
 " ========================================================================
 
 Plug 'nat-418/boole.nvim'
-Plug 'Mizuchi/vim-ranger'
-" Plug 'DataWraith/auto_mkdir'
 Plug 'tpope/vim-commentary'
-Plug 'chrisbra/Recover.vim'          " Show a diff whenever recovering a buffer.
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
-Plug 'vim-utils/vim-troll-stopper'   " Highlight Unicode trolls/homoglyph.
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
-  " Plug 'tomiis4/hypersonic.nvim'
   Plug 'bennypowers/nvim-regexplainer'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'MunifTanjim/nui.nvim'
   Plug 'rareitems/printer.nvim'
-  " Plug 'LunarVim/bigfile.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  " Plug 'David-Kunz/markid'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'ggandor/leap.nvim'
     \| Plug 'tpope/vim-repeat'
-  " Constant annoying "no node found at cursor" info messages.
-  " Plug 'CKolkey/ts-node-action'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter'
+  Plug 'CKolkey/ts-node-action'
+    \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'nvim-treesitter/nvim-treesitter-textobjects'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'folke/noice.nvim'
@@ -218,10 +203,8 @@ if has('nvim')
   Plug 'abecodes/tabout.nvim'
   Plug 'CRAG666/code_runner.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
-  " Plug 'vuki656/package-info.nvim'
-  "   \| Plug 'MunifTanjim/nui.nvim'
-else
-  Plug 'cohama/lexima.vim'
+  Plug 'vuki656/package-info.nvim'
+    \| Plug 'MunifTanjim/nui.nvim'
 endif
 
 
@@ -243,10 +226,6 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 
 if has('nvim')
   Plug 'pmizio/typescript-tools.nvim'
-else
-  Plug 'leafgarland/typescript-vim'  " TypeScript syntax
-  Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
-  Plug 'styled-components/vim-styled-components', { 'branch': 'main' } " Syntax for styled components. Unmaintained.
 endif
 
 " ----------------------------------------
@@ -325,18 +304,16 @@ end
 " Plug: Sidebars.                                                        |
 " ========================================================================
 
-Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
+Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
   \| Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
 Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
-Plug 'simnalamburt/vim-mundo'
 
 
 " ========================================================================
 " Plug: SQL.                                                             |
 " ========================================================================
 
-" Plug 'joereynolds/SQHell.vim'
 
 
 call plug#end() " Required.

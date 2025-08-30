@@ -20,7 +20,8 @@
       "mcp__serena__list_dir",
       "mcp__serena__search_for_pattern",
       "mcp__serena__find_symbol",
-      "Read(//Users/jackson/.dotfiles/**)"
+      "Read(//Users/jackson/.dotfiles/**)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }
