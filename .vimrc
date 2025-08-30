@@ -45,10 +45,6 @@ endif
 " Plug: Search.                                                          |
 " ========================================================================
 
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  \| Plug 'junegunn/fzf.vim'
-Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
-Plug 'benwainwright/fzf-project'
 Plug 'romainl/vim-cool' " Disables search highlighting when you are done searching and re-enables it when you search again.
 if has('nvim')
   Plug 'nvim-telescope/telescope.nvim'
@@ -66,9 +62,6 @@ if has('nvim')
 endif
 if (has('nvim') && exists('g:use_coc') && g:use_coc) || !has('nvim')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-  if v:version >= 704 && has('patch1578')
-    Plug 'antoinemadec/coc-fzf'
-  endif
 elseif has('nvim')
   Plug 'SmiteshP/nvim-navic'
   Plug 'glepnir/lspsaga.nvim'
@@ -880,11 +873,6 @@ elseif executable('python3')
 endif
 command! -bar FormatXml :%!xmllint --format --recover -
 
-" Plugin commands.
-command! -bang -nargs=* GGrep
-  \ call fzf#vim#grep(
-  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
-  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 
 
 " ========================================================================
@@ -930,6 +918,8 @@ if has('nvim')
       autocmd BufReadPre * ++once lua require('plugins.nvim-navbuddy')
       autocmd BufReadPre * ++once lua require('plugins.nvim-autopairs')
       autocmd BufReadPre * ++once lua require('plugins.lspsaga')
+      autocmd BufReadPre * ++once lua require('plugins.package-info')
+      autocmd BufReadPre * ++once lua require('plugins.ts-node-action')
       autocmd BufReadPre * ++once lua require('trouble').setup()
     augroup END
   endif
@@ -1002,9 +992,6 @@ let g:move_map_keys = 0
 nnoremap <silent> <A-j> <Plug>MoveLineDown
 nnoremap <silent> <A-k> <Plug>MoveLineUp
 
-" FZF.
-let g:fzf_history_dir = '~/.local/share/fzf-history'
-let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
 
 " vim-jsdoc.
 let g:jsdoc_allow_input_prompt = 1 " Allow prompt for interactive input.
@@ -1232,14 +1219,6 @@ if has_key(g:plugs, 'trouble.nvim')
   nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
 endif
 
-" FZF.
-if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
-  if !has_key(g:plugs, 'telescope.nvim')
-    nnoremap <nowait> <Leader>b :Buffers<CR>
-  endif
-  nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
-  nnoremap <Leader>gg :GGrep<CR>
-endif
 
 nmap <C-n> :NERDTreeToggle<CR>
 
@@ -1251,10 +1230,6 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
 vmap <Enter> <Plug>(EasyAlign)
 
-" fzf-project.
-if (executable('fzf') && has_key(g:plugs, 'fzf-project'))
-  nnoremap <nowait> <Leader>p :FzfSwitchProject<CR>
-endif
 
 
 " ========================================================================
@@ -1287,11 +1262,6 @@ elseif has_key(g:plugs, 'vim-better-whitespace')
   autocmd BufWritePre * StripWhitespace
 endif
 
-if has('nvim')
-  " Escape inside a FZF terminal window should exit the terminal window
-  " rather than going into the terminal's normal mode.
-  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc>
-endif
 
 
 " ========================================================================

@@ -82,15 +82,19 @@ lint.linters.eslint_d.args = {
   'json',
   '--stdin',
   '--stdin-filename',
-  function() return vim.api.nvim_buf_get_name(0) end,
+  function()
+    return vim.api.nvim_buf_get_name(0)
+  end,
 }
 
 lint.linters.luacheck.args = {
-  '--globals', 'vim',
-  '--formatter', 'plain',
+  '--globals',
+  'vim',
+  '--formatter',
+  'plain',
   '--codes',
   '--ranges',
-  '-'
+  '-',
 }
 
 -- Function to check if a linter/formatter is available
@@ -105,19 +109,19 @@ local config_cache = {}
 local function has_config_file(patterns)
   local cwd = vim.fn.getcwd()
   local cache_key = cwd .. ':' .. table.concat(patterns, ',')
-  
+
   -- Check cache first
   if config_cache[cache_key] ~= nil then
     return config_cache[cache_key]
   end
-  
+
   for _, pattern in ipairs(patterns) do
     if vim.fn.glob(pattern) ~= '' then
       config_cache[cache_key] = true
       return true
     end
   end
-  
+
   config_cache[cache_key] = false
   return false
 end
@@ -130,19 +134,26 @@ local function setup_conditional_linting()
 
   for _, linter in ipairs(linters) do
     if linter == 'eslint_d' and is_executable('eslint_d') then
-      if has_config_file({
-        '.eslintrc.js', '.eslintrc.json', '.eslintrc.yaml', '.eslintrc.yml',
-        'eslint.config.js', 'eslint.config.mjs', 'eslint.config.cjs',
-        'package.json'
-      }) then
+      if
+        has_config_file({
+          '.eslintrc.js',
+          '.eslintrc.json',
+          '.eslintrc.yaml',
+          '.eslintrc.yml',
+          'eslint.config.js',
+          'eslint.config.mjs',
+          'eslint.config.cjs',
+          'package.json',
+        })
+      then
         table.insert(available_linters, linter)
       end
     elseif linter == 'phpcs' and is_executable('phpcs') then
-      if has_config_file({'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml'}) then
+      if has_config_file({ 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' }) then
         table.insert(available_linters, linter)
       end
     elseif linter == 'flake8' and is_executable('flake8') then
-      if has_config_file({'.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml'}) then
+      if has_config_file({ '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' }) then
         table.insert(available_linters, linter)
       end
     elseif is_executable(linter) then

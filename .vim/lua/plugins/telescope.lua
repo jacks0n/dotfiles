@@ -45,7 +45,7 @@ telescope.setup({
       horizontal = {
         width = 0.85,
         height = 0.85,
-      }
+      },
     },
     -- path_display = function(_, path)
     --   local tail = telescope_utils.path_tail(path)
@@ -61,7 +61,7 @@ telescope.load_extension('noice')
 
 local function git_files_all()
   local git_opts = {
-    git_command = { 'git', 'ls-files', '--modified', '--cached', '--others', '--deduplicate'  },
+    git_command = { 'git', 'ls-files', '--modified', '--cached', '--others', '--deduplicate' },
     layout_strategy = 'vertical',
   }
   local ok = pcall(require('telescope.builtin').git_files, git_opts)
@@ -110,3 +110,32 @@ vim.keymap.set('n', '<Leader>oc', call_telescope_vertical(telescope_builtin.lsp_
 vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
 vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
 vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
+vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files (all)' })
+vim.keymap.set('n', '<Leader>gg', grep_project, { desc = 'Git grep in project' })
+
+-- Project switching with configurable workspaces
+vim.keymap.set('n', '<Leader>p', function()
+  local workspaces = vim.g.telescope_project_workspaces
+  local dirs = {}
+
+  -- Expand and collect all directories from workspaces
+  for _, workspace in ipairs(workspaces) do
+    local expanded = vim.fn.expand(workspace)
+    if vim.fn.isdirectory(expanded) == 1 then
+      table.insert(dirs, expanded)
+    end
+  end
+
+  if #dirs == 0 then
+    vim.notify('No valid project workspaces found', vim.log.levels.WARN)
+    return
+  end
+
+  -- Use Telescope to find directories in workspaces
+  telescope_builtin.find_files({
+    search_dirs = dirs,
+    prompt_title = 'Switch Project',
+    layout_strategy = 'vertical',
+    find_command = { 'fd', '--type', 'd', '--max-depth', '1' },
+  })
+end, { desc = 'Switch project' })

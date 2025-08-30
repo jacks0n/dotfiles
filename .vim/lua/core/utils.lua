@@ -12,10 +12,7 @@ end
 
 function M.is_large_file(bufnr)
   local max_filesize = 1000 * 1024 -- 1MB
-  return (
-    vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr)) > max_filesize
-    or vim.api.nvim_buf_line_count(bufnr) > 10000
-  )
+  return (vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr)) > max_filesize or vim.api.nvim_buf_line_count(bufnr) > 10000)
 end
 
 function M.is_in_undo_dir(bufnr)
@@ -28,7 +25,7 @@ end
 -- @param[opt=0]? Indent level.
 -- @return Encoded table as a JSON string.
 function M.json.encode(data, indent)
-  if (type(data) == 'string') then
+  if type(data) == 'string' then
     return '"' .. data .. '"'
   end
   if not indent then
@@ -38,19 +35,19 @@ function M.json.encode(data, indent)
   indent = indent + 2
   for k, v in pairs(data) do
     toprint = toprint .. string.rep(' ', indent)
-    if (type(k) == 'number') then
+    if type(k) == 'number' then
       toprint = toprint .. '[' .. k .. '] = '
-    elseif (type(k) == 'string') then
+    elseif type(k) == 'string' then
       toprint = toprint .. k .. ' = '
     end
-    if (type(v) == 'number') then
+    if type(v) == 'number' then
       toprint = toprint .. v .. ',\n'
-    elseif (type(v) == 'string') then
+    elseif type(v) == 'string' then
       toprint = toprint .. "'" .. v .. "',\n"
-    elseif (type(v) == 'table') then
+    elseif type(v) == 'table' then
       toprint = toprint .. M.json.encode(v, indent) .. ',\n'
     else
-      toprint = toprint .. '\'' .. tostring(v) .. '\',\n'
+      toprint = toprint .. "'" .. tostring(v) .. "',\n"
     end
   end
   toprint = toprint .. string.rep(' ', indent - 2) .. '}'

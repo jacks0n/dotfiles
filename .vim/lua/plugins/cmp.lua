@@ -6,44 +6,38 @@ local cmp_autopairs = require('nvim-autopairs.completion.cmp')
 -- cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({ map_char = { tex = '' }}))
 -- If you want insert `(` after select function or method item
 local autopairs_handlers = require('nvim-autopairs.completion.handlers')
-cmp.event:on(
-  'confirm_done',
-  function()
-    -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
-    cmp_autopairs.on_confirm_done({
-      filetypes = {
-        ['*'] = {
-          ['('] = {
-            kind = {
-              cmp.lsp.CompletionItemKind.Function,
-              cmp.lsp.CompletionItemKind.Method,
-            },
-            handler = autopairs_handlers['*'],
+cmp.event:on('confirm_done', function()
+  -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
+  cmp_autopairs.on_confirm_done({
+    filetypes = {
+      ['*'] = {
+        ['('] = {
+          kind = {
+            cmp.lsp.CompletionItemKind.Function,
+            cmp.lsp.CompletionItemKind.Method,
           },
+          handler = autopairs_handlers['*'],
         },
-      }
-    })
-  end
-)
-cmp.event:on(
-  'complete_done',
-  function()
-    -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
-    cmp_autopairs.on_confirm_done({
-      filetypes = {
-        ['*'] = {
-          ['('] = {
-            kind = {
-              cmp.lsp.CompletionItemKind.Function,
-              cmp.lsp.CompletionItemKind.Method,
-            },
-            handler = autopairs_handlers['*'],
+      },
+    },
+  })
+end)
+cmp.event:on('complete_done', function()
+  -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
+  cmp_autopairs.on_confirm_done({
+    filetypes = {
+      ['*'] = {
+        ['('] = {
+          kind = {
+            cmp.lsp.CompletionItemKind.Function,
+            cmp.lsp.CompletionItemKind.Method,
           },
+          handler = autopairs_handlers['*'],
         },
-      }
-    })
-  end
-)
+      },
+    },
+  })
+end)
 
 local function next_item_callback(fallback)
   if cmp.visible() then
@@ -59,7 +53,7 @@ end
 
 local function prev_item_callback(fallback)
   if cmp.visible() then
-    cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
+    cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
   elseif luasnip.jumpable(-1) then
     luasnip.jump(-1)
   else
@@ -85,9 +79,8 @@ cmp.setup({
       ellipsis_char = '…',
       symbol_map = {
         Copilot = '',
-        Codeium = '',
       },
-    })
+    }),
   },
   window = {
     completion = cmp.config.window.bordered(),
@@ -96,7 +89,7 @@ cmp.setup({
   mapping = cmp.mapping.preset.insert({
     ['<C-p>'] = cmp.mapping(prev_item_callback, { 'i', 's' }),
     ['<C-n>'] = cmp.mapping(next_item_callback, { 'i', 's' }),
-    ['<C-d>'] = cmp.mapping.scroll_docs( -4),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<C-e>'] = cmp.mapping.close(),
@@ -110,13 +103,12 @@ cmp.setup({
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
-    end
+    end,
   },
   sources = cmp.config.sources({
     { name = 'nvim_lsp_signature_help', priority_weight = 100 },
     { name = 'nvim_lsp', priority_weight = 90 },
     { name = 'nvim_lua', priority_weight = 90 },
-    { name = 'codeium', priority_weight = 90 },
     { name = 'copilot', priority_weight = 70 }, -- group_index = 2,
     { name = 'cmp_tabnine', priority_weight = 70 },
     { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2, priority_weight = 60 },
@@ -124,7 +116,7 @@ cmp.setup({
     { name = 'buffer', priority_weight = 40 },
     { name = 'npm', keyword_length = 4, priority_weight = 40 },
     { name = 'spell', priority_weight = 30 },
-  })
+  }),
 })
 
 cmp.setup.filetype('gitcommit', {
@@ -132,14 +124,14 @@ cmp.setup.filetype('gitcommit', {
     { name = 'cmp_git' },
   }, {
     { name = 'buffer' },
-  })
+  }),
 })
 
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
-    { name = 'buffer' }
-  })
+    { name = 'buffer' },
+  }),
 })
 
 cmp.setup.filetype('sagarename', {
@@ -149,8 +141,8 @@ cmp.setup.filetype('sagarename', {
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
-    { name = 'path' }
+    { name = 'path' },
   }, {
-    { name = 'cmdline' }
-  })
+    { name = 'cmdline' },
+  }),
 })

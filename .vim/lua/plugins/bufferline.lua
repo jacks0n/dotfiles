@@ -1,7 +1,7 @@
 -- Set showtabline to always show the bufferline
 vim.opt.showtabline = 2
 
-require('bufferline').setup {
+require('bufferline').setup({
   options = {
     diagnostics = 'nvim_lsp',
     diagnostics_indicator = function(_count, _level, diagnostics_dict)
@@ -21,11 +21,9 @@ require('bufferline').setup {
     color_icons = true,
     show_buffer_icons = true,
     show_buffer_close_icons = true,
-    -- Deprecated.
-    -- show_buffer_default_icon = true,
     show_close_icon = true,
     indicator = {
-      style = 'icon'
+      style = 'icon',
     },
     buffer_close_icon = '',
     modified_icon = '●',
@@ -45,12 +43,24 @@ require('bufferline').setup {
     hover = {
       enabled = true,
       delay = 50,
-      reveal = { 'close' }
-    }
+      reveal = { 'close' },
+    },
   },
-}
+})
 
-vim.keymap.set('n', '<Leader>,', function() vim.cmd('lclose'); require('bufferline').cycle(-1) end, { desc = 'Previous buffer' })
-vim.keymap.set('n', '<Leader>.', function() vim.cmd('lclose'); require('bufferline').cycle(1) end, { desc = 'Next buffer' })
-vim.keymap.set('n', '<C-Tab>', function() vim.cmd('lclose'); require('bufferline').cycle(-1) end, { desc = 'Previous buffer' })
-vim.keymap.set('n', '<C-S-Tab>', function() vim.cmd('lclose'); require('bufferline').cycle(1) end, { desc = 'Next buffer' })
+vim.keymap.set('n', '<Leader>,', function()
+  vim.cmd('lclose')
+  require('bufferline').cycle(-1)
+end, { desc = 'Previous buffer' })
+vim.keymap.set('n', '<Leader>.', function()
+  vim.cmd('lclose')
+  require('bufferline').cycle(1)
+end, { desc = 'Next buffer' })
+vim.keymap.set('n', '<C-Tab>', function()
+  vim.cmd('lclose')
+  require('bufferline').cycle(-1)
+end, { desc = 'Previous buffer' })
+vim.keymap.set('n', '<C-S-Tab>', function()
+  vim.cmd('lclose')
+  require('bufferline').cycle(1)
+end, { desc = 'Next buffer' })

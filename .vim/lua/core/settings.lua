@@ -13,10 +13,10 @@ M.setup = function()
   vim.opt.backupdir = vim.fn.expand('~/.vim/backup')
   vim.opt.backupskip = '/tmp/*,/private/tmp/*,~/tmp/*'
   vim.opt.writebackup = true
-  
+
   -- Swap files
   vim.opt.directory = vim.fn.expand('~/.vim/swap') .. '//,/tmp//,~/tmp//'
-  
+
   -- Persistent undo
   if vim.fn.has('persistent_undo') == 1 then
     vim.opt.undofile = true
@@ -102,7 +102,7 @@ M.setup = function()
   vim.opt.conceallevel = 0
   vim.opt.synmaxcol = 500 -- Increased from 250
   vim.opt.display:append('lastline')
-  
+
   -- Listchars
   vim.opt.listchars = {
     tab = '→ ',
@@ -110,7 +110,7 @@ M.setup = function()
     eol = '↲',
     extends = '»',
     precedes = '«',
-    nbsp = '⣿'
+    nbsp = '⣿',
   }
   vim.opt.showbreak = '↪'
 

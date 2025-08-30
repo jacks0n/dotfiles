@@ -43,7 +43,7 @@ M.setup = function()
         return
       end
       file = vim.fn.simplify(file)
-      
+
       -- Check cache first
       if symlink_cache[file] then
         if symlink_cache[file] ~= file then
@@ -51,7 +51,7 @@ M.setup = function()
         end
         return
       end
-      
+
       local resolved = vim.fn.resolve(file)
       symlink_cache[file] = resolved
       if resolved ~= file then
@@ -150,7 +150,7 @@ M.setup = function()
     group = 'RestorePosition',
     pattern = '*',
     callback = function()
-      local line = vim.fn.line("'\"")
+      local line = vim.fn.line('\'"')
       if line > 0 and line <= vim.fn.line('$') then
         vim.cmd('normal! g`"')
       end
