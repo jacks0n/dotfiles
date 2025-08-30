@@ -11,7 +11,7 @@ actions_preview.setup({
   -- disabled by defalt, must be set by yourself
   highlight_command = {
     -- require("actions-preview.highlight").delta(),
-    -- require("actions-preview.highlight").diff_so_fancy(),
+    require("actions-preview.highlight").diff_so_fancy(),
     -- require("actions-preview.highlight").diff_highlight(),
   },
 
@@ -73,3 +73,4 @@ actions_preview.setup({
 })
 
 vim.keymap.set({ "v", "n" }, "ca", actions_preview.code_actions)
+vim.keymap.set("n", "<Leader>ca", actions_preview.code_actions)

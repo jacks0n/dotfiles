@@ -1,18 +1,18 @@
 -- Configure diagnostic signs
 local signs = {
-  Error = '✘',
-  Warn = '▲',
-  Hint = '⚑',
-  Info = ''
+  Error = "✘",
+  Warn = "▲",
+  Hint = "⚑",
+  Info = "",
 }
 
 for type, icon in pairs(signs) do
-  local hl = 'DiagnosticSign' .. type
+  local hl = "DiagnosticSign" .. type
   vim.fn.sign_define(hl, {
     text = icon,
     texthl = hl,
     numhl = hl,
-    linehl = '',
+    linehl = "",
   })
 end
 
@@ -31,40 +31,40 @@ vim.diagnostic.config({
   severity_sort = true,
   float = {
     focusable = false,
-    style = 'minimal',
-    border = 'rounded',
-    source = 'always',
-    header = '',
-    prefix = '',
+    style = "minimal",
+    border = "rounded",
+    source = "always",
+    header = "",
+    prefix = "",
     max_width = 80,
     max_height = 20,
     wrap = true,
-    close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
+    close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
   },
 })
 
 -- Set up diagnostic keymaps
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
+vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, { desc = "Open diagnostic float" })
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic quickfix list" })
 
 -- Customize diagnostic severity navigation
-vim.keymap.set('n', '[e', function()
+vim.keymap.set("n", "[e", function()
   vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
-end, { desc = 'Go to previous error' })
+end, { desc = "Go to previous error" })
 
-vim.keymap.set('n', ']e', function()
+vim.keymap.set("n", "]e", function()
   vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
-end, { desc = 'Go to next error' })
+end, { desc = "Go to next error" })
 
-vim.keymap.set('n', '[w', function()
+vim.keymap.set("n", "[w", function()
   vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
-end, { desc = 'Go to previous warning' })
+end, { desc = "Go to previous warning" })
 
-vim.keymap.set('n', ']w', function()
+vim.keymap.set("n", "]w", function()
   vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })
-end, { desc = 'Go to next warning' })
+end, { desc = "Go to next warning" })
 
 -- Toggle diagnostics
 -- vim.keymap.set('n', '<leader>dd', function()
@@ -90,17 +90,17 @@ vim.cmd([[
 ]])
 
 -- Auto-show diagnostic in float when cursor holds
-vim.api.nvim_create_autocmd('CursorHold', {
+vim.api.nvim_create_autocmd("CursorHold", {
   -- Removed buffer = 0 to apply globally instead of just current buffer
   callback = function()
     local opts = {
       focusable = false,
-      close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
-      border = 'rounded',
-      source = 'always',
-      prefix = ' ',
-      scope = 'cursor',
+      close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+      border = "rounded",
+      source = "always",
+      prefix = " ",
+      scope = "cursor",
     }
     vim.diagnostic.open_float(nil, opts)
-  end
+  end,
 })

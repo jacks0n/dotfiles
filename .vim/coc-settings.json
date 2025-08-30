@@ -124,10 +124,9 @@
 			],
 			"initializationOptions": {},
 			"settings": {}
-		},
-    "lua": {
-      "command": "lua-lsp",
-      "filetypes": ["lua"]
-    }
-	}
+		}
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }
