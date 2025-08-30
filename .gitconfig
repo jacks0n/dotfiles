@@ -27,7 +27,7 @@
   ui = auto
 
 [core]
-  excludesfile = ~/.gitignore
+	excludesfile = /Users/jackson/.gitignore_global
   editor = nvim
   ; Enable additional caching of file system data for some operations.
   ; Git for Windows uses this to bulk-read and cache lstat data of
@@ -40,7 +40,8 @@
 
 [credential]
   ; Cache authentication credentials in OS X's keychain.
-  helper = osxkeychain
+	helper = !aws codecommit credential-helper $@
+	UseHttpPath = true
 
 [delta]
   ; Use n and N to move between diff sections.
@@ -69,8 +70,8 @@
   prompt = false
 
 [difftool "sourcetree"]
-  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-  path =
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
 
 [filter "media"]
   required = true
@@ -110,8 +111,8 @@
   trustExitCode = true
 
 [mergetool "sourcetree"]
-  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-  trustExitCode = true
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
 
 [push]
   default = current
