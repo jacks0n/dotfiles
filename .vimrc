@@ -31,6 +31,11 @@ call plug#begin('~/.vim/plugged')
 " Import local before .vimrc `~/.vimrc.before.local`.                    |
 " ========================================================================
 
+" Initialize g:use_coc variable if not set
+if !exists('g:use_coc')
+  let g:use_coc = 0
+endif
+
 if filereadable(expand('~/.vimrc.before.local'))
   source ~/.vimrc.before.local
 endif
@@ -56,21 +61,23 @@ endif
 " Plug: Completion/LSP.                                                  |
 " ========================================================================
 
-if has('nvim') && g:use_coc || !has('nvim')
+if has('nvim')
+  Plug 'aznhe21/actions-preview.nvim'
+endif
+if (has('nvim') && exists('g:use_coc') && g:use_coc) || !has('nvim')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
   if v:version >= 704 && has('patch1578')
     Plug 'antoinemadec/coc-fzf'
   endif
 elseif has('nvim')
-  Plug 'aznhe21/actions-preview.nvim'
   Plug 'SmiteshP/nvim-navic'
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'SmiteshP/nvim-navbuddy'
     \| Plug 'MunifTanjim/nui.nvim'
-    \| Plug 'numToStr/Comment.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
+  Plug 'terrortylor/nvim-comment'
   Plug 'onsails/lspkind.nvim'
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
@@ -110,7 +117,7 @@ if has('nvim')
     \| Plug 'honza/vim-snippets'
 endif
 
-if has('nvim') && !g:use_coc
+if has('nvim') && (!exists('g:use_coc') || !g:use_coc)
   Plug 'saadparwaiz1/cmp_luasnip'
 endif
 
@@ -236,7 +243,6 @@ Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
 
 if has('nvim')
   Plug 'pmizio/typescript-tools.nvim'
-  " Plug 'jose-elias-alvarez/typescript.nvim'
 else
   Plug 'leafgarland/typescript-vim'  " TypeScript syntax
   Plug 'peitalin/vim-jsx-typescript' " Syntax and indentation for JSX in Typescript (typescriptreact filetypes).
@@ -808,6 +814,34 @@ function! ProfileEnd()
   noautocmd qall!
 endfunction
 
+" Change to random colorscheme from a defined list of awesome ones.
+function! NextColorScheme()
+  let colorschemes = [
+    \ 'OceanicNext',
+    \ 'badwolf',
+    \ 'bluechia',
+    \ 'gruvbox',
+    \ 'hybrid',
+    \ 'kanagawa',
+    \ 'monokain',
+    \ 'tokyonight',
+  \]
+  try
+    let colorscheme_index = index(colorschemes, g:colors_name) + 1
+    echo 'colorscheme_index1: ' . colorscheme_index
+  catch /^Vim:E121/
+    let colorscheme_index = 0
+    echo 'colorscheme_index2: ' . colorscheme_index
+  endtry
+  if colorscheme_index >= len(colorschemes)
+    echo 'if colorscheme_index >= len(colorschemes)'
+    let colorscheme_index = 0
+  endif
+  let new_colorscheme = colorschemes[colorscheme_index]
+  execute ':colorscheme ' . new_colorscheme
+  echo new_colorscheme
+endfunction
+
 " Change to random font from a defined list of awesome ones.
 function! NextFont()
   let guifonts = [
@@ -899,7 +933,7 @@ if has('nvim')
   lua require('core.keymaps').setup()
   lua require('core.autocmds').setup()
 
-  if !g:use_coc
+  if !exists('g:use_coc') || !g:use_coc
     " Core modules loaded immediately
     lua require('core.diagnostic')
     lua require('core.lsp')
@@ -935,7 +969,6 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.noice')
     autocmd VimEnter * ++once lua require('plugins.luasnip')
     autocmd VimEnter * ++once lua require('plugins.whitespace')
-    autocmd VimEnter * ++once lua require('Comment').setup()
     autocmd VimEnter * ++once lua require('plugins.todo-comments')
     autocmd VimEnter * ++once lua require('plugins.bufferline')
     autocmd VimEnter * ++once lua require('plugins.lualine')
@@ -945,6 +978,7 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.telescope-file-browser')
     autocmd VimEnter * ++once lua require('plugins.leap')
     autocmd VimEnter * ++once lua require('plugins.boole')
+    autocmd VimEnter * ++once lua require('plugins.nvim-comment')
     autocmd VimEnter * ++once lua require('plugins.tabout')
     autocmd VimEnter * ++once lua require('colorizer').setup({ '*' })
     autocmd VimEnter * ++once lua require('gruvbox').setup()
@@ -1227,8 +1261,7 @@ if (executable('fzf') && has_key(g:plugs, 'fzf.vim'))
     nnoremap <nowait> <Leader>b :Buffers<CR>
   endif
   nnoremap <nowait> <C-g> :GFiles --cached --modified --others<CR>
-  nnoremap <nowait> <Leader>g :GFiles --cached --modified --others<CR>
-  nnoremap <Leader>tg :GGrep<CR>
+  nnoremap <Leader>gg :GGrep<CR>
 endif
 
 nmap <C-n> :NERDTreeToggle<CR>

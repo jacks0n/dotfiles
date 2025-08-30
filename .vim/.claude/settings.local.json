@@ -8,7 +8,19 @@
       "Bash(nvim:*)",
       "Bash(timeout 30 nvim:*)",
       "WebFetch(domain:luals.github.io)",
-      "WebFetch(domain:formulae.brew.sh)"
+      "WebFetch(domain:formulae.brew.sh)",
+      "mcp__filesystem__list_directory",
+      "mcp__serena__get_symbols_overview",
+      "Bash(brew list:*)",
+      "mcp__serena__activate_project",
+      "WebSearch",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__find_file",
+      "mcp__serena__list_dir",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__find_symbol",
+      "Read(//Users/jackson/.dotfiles/**)"
     ],
     "deny": []
   }

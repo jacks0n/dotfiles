@@ -1,53 +1,50 @@
-local lspconfig = require('lspconfig')
-local lspconfig_util = require('lspconfig/util')
-local navbuddy = require('nvim-navbuddy')
+local lspconfig = require("lspconfig")
+local navbuddy = require("nvim-navbuddy")
 
 -- Setup lazydev before lua_ls for fast Neovim development
-require('plugins.lazydev')
+require("plugins.lazydev")
 
-vim.lsp.set_log_level('warn')
+vim.lsp.set_log_level("warn")
 
-require('mason').setup({
+require("mason").setup({
   ui = {
-    border = 'rounded',
+    border = "rounded",
   },
 })
 
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    'bashls',
-    'cssls',
-    'cucumber_language_server',
-    'docker_compose_language_service',
-    'dockerls',
-    'eslint',
-    'html',
-    'intelephense',
-    'jsonls',
-    'lemminx',
-    'lua_ls',
-    'marksman',
-    'phpactor',
-    'psalm',
-    'sqlls',
-    'terraformls',
-    'tflint',
-    'ts_ls',
-    'vimls',
-    'yamlls',
-    'jdtls',
-    'pyright',
-    'pylsp',
-    'jedi_language_server',
-  },
-  automatic_installation = true,
+require("mason-lspconfig").setup({
+  -- ensure_installed = {
+  --   "bashls",
+  --   "cssls",
+  --   "cucumber_language_server",
+  --   "docker_compose_language_service",
+  --   "dockerls",
+  --   "eslint",
+  --   "html",
+  --   "intelephense",
+  --   "jsonls",
+  --   "lemminx",
+  --   "lua_ls",
+  --   "marksman",
+  --   "phpactor",
+  --   "psalm",
+  --   "sqlls",
+  --   "terraformls",
+  --   "tflint",
+  --   "ts_ls",
+  --   "vimls",
+  --   "yamlls",
+  --   "jdtls",
+  --   "pyright",
+  -- },
+  -- automatic_installation = false,
 })
 
 -- Diagnostics are configured in core.diagnostic
 
 local tsserver_lang_config = {
   preferences = {
-    importModuleSpecifier = 'non-relative',
+    importModuleSpecifier = "non-relative",
   },
   inlayHints = {
     includeInlayEnumMemberValueHints = true,
@@ -63,7 +60,7 @@ local tsserver_lang_config = {
     includeAutomaticOptionalChainCompletions = true,
   },
   updateImportsOnFileMove = {
-    enabled = 'always',
+    enabled = "always",
   },
   experimental = {
     tsserver = {
@@ -80,20 +77,19 @@ local on_attach = function(client, buffer)
   end
 
   -- Let eslint handle formatting for TypeScript
-  if client.name == 'ts_ls' or client.name == 'vtsls' then
+  if client.name == "ts_ls" or client.name == "vtsls" then
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentFormattingRangeProvider = false
   end
 
   -- Set up LSP key mappings (diagnostic keymaps are in core.diagnostic)
   local opts = { noremap = true, silent = true, buffer = buffer }
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+  vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
   -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts) -- Use Telescope mapping instead
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  vim.keymap.set('n', 'gf', vim.lsp.buf.format, opts)
-  vim.keymap.set('n', '<Leader>ca', vim.lsp.buf.code_action, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "gf", vim.lsp.buf.format, opts)
 end
 
 -- LSP servers are now configured individually below as needed
@@ -101,21 +97,23 @@ end
 -- Lazy load LSP servers based on filetype
 local lsp_configs = {
   jdtls = {
-    filetypes = { 'java' },
+    filetypes = { "java" },
     settings = {
       java = {
         signatureHelp = {
-          enabled = true
+          enabled = true,
         },
-      }
-    }
+      },
+    },
   },
   jsonls = {
-    filetypes = { 'json', 'jsonc' },
+    filetypes = { "json", "jsonc" },
     init_options = { provideFormatter = true },
     settings = {
       json = {
-        schemas = function() return require('schemastore').json.schemas() end,
+        schemas = function()
+          return require("schemastore").json.schemas()
+        end,
         validate = {
           enable = true,
         },
@@ -126,18 +124,18 @@ local lsp_configs = {
     },
   },
   lua_ls = {
-    filetypes = { 'lua' },
+    filetypes = { "lua" },
     settings = {
       Lua = {
         runtime = {
-          version = 'LuaJIT',
+          version = "LuaJIT",
         },
         diagnostics = {
-          globals = { 'vim' },
-          unusedLocalExclude = { '_*' },
+          globals = { "vim" },
+          unusedLocalExclude = { "_*" },
         },
         completion = {
-          callSnippet = 'Replace',
+          callSnippet = "Replace",
         },
         workspace = {
           -- lazydev handles library loading dynamically
@@ -150,13 +148,13 @@ local lsp_configs = {
           ignoreDir = {
             vim.o.undodir,
             vim.o.backupdir,
-            'plugged',
-            '.git',
-            '.cache',
-            'node_modules',
-            '.vim/backup',
-            '.vim/swap',
-            '.vim/undo',
+            "plugged",
+            ".git",
+            ".cache",
+            "node_modules",
+            ".vim/backup",
+            ".vim/swap",
+            ".vim/undo",
           },
         },
         telemetry = {
@@ -165,91 +163,93 @@ local lsp_configs = {
         format = {
           enable = true,
           defaultConfig = {
-            indent_style = 'space',
-            indent_size = '2',
+            indent_style = "space",
+            indent_size = "2",
           },
         },
       },
     },
   },
   yamlls = {
-    filetypes = { 'yaml', 'yml' },
+    filetypes = { "yaml", "yml" },
     settings = {
       yaml = {
         hover = true,
         completion = true,
         validate = true,
-        schemas = function() return require('schemastore').json.schemas() end,
+        schemas = function()
+          return require("schemastore").json.schemas()
+        end,
         schemastore = {
           enable = true,
         },
         customTags = {
-          '!And sequence',
-          '!And',
-          '!Base64 scalar',
-          '!Base64',
-          '!Cidr scalar',
-          '!Cidr sequence',
-          '!Cidr',
-          '!Condition scalar',
-          '!Equals sequence',
-          '!Equals',
-          '!FindInMap sequence',
-          '!FindInMap',
-          '!GetAZs scalar',
-          '!GetAZs',
-          '!GetAtt scalar',
-          '!GetAtt sequence',
-          '!GetAtt',
-          '!If sequence',
-          '!If',
-          '!ImportValue scalar',
-          '!ImportValue sequence',
-          '!ImportValue',
-          '!Join sequence',
-          '!Join',
-          '!Not sequence',
-          '!Not',
-          '!Or sequence',
-          '!Or',
-          '!Ref scalar',
-          '!Ref',
-          '!Select sequence',
-          '!Select',
-          '!Split sequence',
-          '!Split',
-          '!Sub scalar',
-          '!Sub sequence',
-          '!Sub',
-          '!Transform mapping',
+          "!And sequence",
+          "!And",
+          "!Base64 scalar",
+          "!Base64",
+          "!Cidr scalar",
+          "!Cidr sequence",
+          "!Cidr",
+          "!Condition scalar",
+          "!Equals sequence",
+          "!Equals",
+          "!FindInMap sequence",
+          "!FindInMap",
+          "!GetAZs scalar",
+          "!GetAZs",
+          "!GetAtt scalar",
+          "!GetAtt sequence",
+          "!GetAtt",
+          "!If sequence",
+          "!If",
+          "!ImportValue scalar",
+          "!ImportValue sequence",
+          "!ImportValue",
+          "!Join sequence",
+          "!Join",
+          "!Not sequence",
+          "!Not",
+          "!Or sequence",
+          "!Or",
+          "!Ref scalar",
+          "!Ref",
+          "!Select sequence",
+          "!Select",
+          "!Split sequence",
+          "!Split",
+          "!Sub scalar",
+          "!Sub sequence",
+          "!Sub",
+          "!Transform mapping",
         },
       },
     },
   },
   vimls = {
-    filetypes = { 'vim' },
+    filetypes = { "vim" },
     init_options = { isNeovim = true },
   },
   ts_ls = {
     filetypes = {
-      'javascript',
-      'javascriptreact',
-      'javascript.jsx',
-      'typescript',
-      'typescriptreact',
-      'typescript.tsx',
-      'typescriptreact.typescript',
+      "javascript",
+      "javascriptreact",
+      "javascript.jsx",
+      "typescript",
+      "typescriptreact",
+      "typescript.tsx",
+      "typescriptreact.typescript",
     },
     commands = {
       OrganizeImports = {
         function()
           vim.lsp.buf.execute_command({
-            command = '_typescript.organizeImports',
-            arguments = { vim.fn.expand('%:p') },
+            command = "_typescript.organizeImports",
+            arguments = { vim.fn.expand("%:p") },
           })
         end,
-        description = 'Organize Imports'
-      }
+        description = "Organize Imports",
+      },
     },
     settings = {
       typescript = tsserver_lang_config,
@@ -278,9 +278,9 @@ local function setup_lsp_server(server_name)
   if config.settings then
     local function resolve_functions(tbl)
       for k, v in pairs(tbl) do
-        if type(v) == 'function' then
+        if type(v) == "function" then
           tbl[k] = v()
-        elseif type(v) == 'table' then
+        elseif type(v) == "table" then
           resolve_functions(v)
         end
       end
@@ -317,7 +317,7 @@ local function get_poetry_venv_path_async(callback)
     return
   end
 
-  vim.fn.jobstart({"poetry", "env", "info", "--path"}, {
+  vim.fn.jobstart({ "poetry", "env", "info", "--path" }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
       if data and data[1] and data[1]:match("^/") then
@@ -356,7 +356,7 @@ local function get_python_path_async(callback)
       callback(python_path)
     else
       -- Fall back to pipenv
-      vim.fn.jobstart({"pipenv", "--venv"}, {
+      vim.fn.jobstart({ "pipenv", "--venv" }, {
         stdout_buffered = true,
         on_stdout = function(_, data)
           if data and data[1] and data[1]:match("^/") then
@@ -400,14 +400,14 @@ local function setup_python_lsp()
   local python_settings = {
     python_path = "python3",
     venv_path = ".venv",
-    extra_paths = extra_paths
+    extra_paths = extra_paths,
   }
 
   -- Setup pyright with default settings first
   lspconfig.pyright.setup({
     on_attach = on_attach,
     single_file_support = false,
-    filetypes = { 'python' },
+    filetypes = { "python" },
     settings = {
       python = {
         pythonPath = python_settings.python_path,
@@ -417,13 +417,13 @@ local function setup_python_lsp()
           completeFunctionParens = true,
           autoSearchPaths = true,
           useLibraryCodeForTypes = true,
-          diagnosticMode = 'workspace',
-          typeCheckingMode = 'off',
+          diagnosticMode = "workspace",
+          typeCheckingMode = "off",
           diagnosticSeverityOverrides = {
-            reportGeneralTypeIssues = 'none',
-            reportOptionalMemberAccess = 'none',
-            reportOptionalSubscript = 'none',
-            reportPrivateImportUsage = 'none',
+            reportGeneralTypeIssues = "none",
+            reportOptionalMemberAccess = "none",
+            reportOptionalSubscript = "none",
+            reportPrivateImportUsage = "none",
           },
         },
       },
@@ -457,7 +457,7 @@ local function setup_python_lsp()
         client.config.settings.python.venvPath = python_settings.venv_path
         client.config.settings.python.analysis.extraPaths = python_settings.extra_paths
         client.notify("workspace/didChangeConfiguration", {
-          settings = client.config.settings
+          settings = client.config.settings,
         })
       end
     end)
@@ -475,14 +475,14 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Setup basic LSP servers from Mason on demand
 local basic_servers = {
-  bashls = { 'sh', 'bash' },
-  cssls = { 'css', 'scss', 'less' },
-  html = { 'html' },
-  dockerls = { 'dockerfile' },
-  terraformls = { 'terraform', 'tf' },
-  marksman = { 'markdown' },
-  sqlls = { 'sql' },
-  intelephense = { 'php' },
+  bashls = { "sh", "bash" },
+  cssls = { "css", "scss", "less" },
+  html = { "html" },
+  dockerls = { "dockerfile" },
+  terraformls = { "terraform", "tf" },
+  marksman = { "markdown" },
+  sqlls = { "sql" },
+  intelephense = { "php" },
 }
 
 for server, filetypes in pairs(basic_servers) do
@@ -497,14 +497,14 @@ end
 
 if vim.g.use_bun then
   lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
-    if config.cmd[1] == 'node' then
-      config.cmd = vim.list_extend({ 'bun', 'run', '--bun' }, config.cmd)
+    if config.cmd[1] == "node" then
+      config.cmd = vim.list_extend({ "bun", "run", "--bun" }, config.cmd)
     else
-      local cmd_handle = io.popen('which ' .. config.cmd[1])
+      local cmd_handle = io.popen("which " .. config.cmd[1])
       if not cmd_handle then
         return
       end
-      local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
+      local cmd_path = string.gsub(cmd_handle:read("*a"), "%s+", "")
       if not cmd_path then
         return
       end
@@ -515,9 +515,9 @@ if vim.g.use_bun then
         return
       end
       for l in cmd_file:lines() do
-        if string.sub(l, -4) == 'node' then
+        if string.sub(l, -4) == "node" then
           config.cmd[1] = cmd_path
-          table.insert(config.cmd, 1, 'bun run --bun')
+          table.insert(config.cmd, 1, "bun run --bun")
         end
       end
     end
