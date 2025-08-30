@@ -745,7 +745,7 @@ claude-code-mcp-setup() {
   claude mcp add memory --env MEMORY_FILE_PATH=$HOME/.mcp/memory.claude.json -- npx -y @modelcontextprotocol/server-memory
   claude mcp add git -- uvx mcp-server-git
   claude mcp add ddg-search -- uvx duckduckgo-mcp-server
-  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project $(pwd)
+  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)"
   claude mcp add postgres-mcp -- uv run postgres-mcp --access-mode=unrestricted
   claude mcp add dbhub-postgres -- npx -y @bytebase/dbhub --transport stdio --dsn postgres://user:password@localhost:5432/dbname?sslmode=disable
   claude mcp add google-calendar -- npx -y @cocal/google-calendar-mcp

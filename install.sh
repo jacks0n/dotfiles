@@ -25,8 +25,10 @@ brew install bfg
 brew install brave-browser
 brew install brew-cask-completion
 brew install ccat
+brew install charmbracelet/tap/crush
 brew install claude
 brew install colordiff
+brew install comby
 brew install composer
 brew install coreutils
 brew install cowsay
@@ -109,12 +111,12 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 brew install --cask 1password
 brew install --cask airflow
 brew install --cask alfred
+brew install --cask alt-tab
 brew install --cask arq
 brew install --cask beekeeper-studio
 brew install --cask chatgpt
 brew install --cask codeedit
 brew install --cask cursor
-brew install --cask standard-notes
 brew install --cask dash
 brew install --cask db-browser-for-sqlite
 brew install --cask drawio
@@ -130,7 +132,10 @@ brew install --cask insomnia
 brew install --cask istat-menus
 brew install --cask iterm2
 brew install --cask jupyterlab
+brew install --cask kiro
+brew install --cask lepton
 brew install --cask macs-fan-control
+brew install --cask mark-text
 brew install --cask masscode
 brew install --cask microsoft-teams
 brew install --cask notion
@@ -139,13 +144,13 @@ brew install --cask onyx
 brew install --cask oracle-jdk
 brew install --cask orbstack
 brew install --cask postman
-brew install --cask lepton
 brew install --cask r rstudio
 brew install --cask redisinsight
 brew install --cask sequel-pro
 brew install --cask sourcetree
 brew install --cask spectacle
 brew install --cask spotify
+brew install --cask standard-notes
 brew install --cask tabby
 brew install --cask telegram-desktop
 brew install --cask todoist
@@ -163,7 +168,6 @@ brew install --cask zoom
 brew install --cask slack
 
 # Install Brew cask fonts.
-brew install --cask font-sf-mono-nerd-font
 brew install --cask font-droid-sans-mono-nerd-font
 brew install --cask font-fantasque-sans-mono-nerd-font
 brew install --cask font-fira-mono-nerd-font
@@ -172,6 +176,7 @@ brew install --cask font-inconsolata-nerd-font
 brew install --cask font-jetbrains-mono-nerd-font
 brew install --cask font-liberation-mono-for-powerline
 brew install --cask font-mononoki-nerd-font
+brew install --cask font-sf-mono-nerd-font
 brew install --cask font-ubuntu-mono-nerd-font
 
 # Install Brew cask personal packages.
@@ -241,31 +246,23 @@ npm install --global neovim
 
 pip3 install saws
 
-pip install dev-gpt
-dev-gpt generate
-dev-gpt configure --openai_api_key "$OPENAI_API_KEY"
-
-# Install lehre. Required to generate JS docblocks in Vim (LJSDoc).
-npm install --global lehre
-
 # Install Typescript.
 brew install ts-node
 brew install typescript
 
-# Install Bun.
 npm install --global bun
+npm install --global fix-package-conflicts
+npm install --global lehre # Required to generate JS docblocks in Vim (LJSDoc).
+npm install --global uv
 
-# Install Claude Code.
-npm install -g @anthropic-ai/claude-code
-
-# Install Gemini cli.
-npm install -g @google/gemini-cli
-
-# Install uv.
-npm install -g uv
+# Install LLM cli tools
+npm install --global @anthropic-ai/claude-code
+npm install --global @google/gemini-cli
+npm install --global @openai/codex
+npm install --global @qwen-code/qwen-code@latest
 
 # Install MCP servers.
-npm install -g @abhiz123/todoist-mcp-server
+npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
 npm install -g gemini-mcp-tool
 npm install -g @upstash/context7-mcp
 npm install -g @playwright/mcp@latest
@@ -274,9 +271,9 @@ pip install mcp-server-fetch
 npm install -g @modelcontextprotocol/server-memory
 pip install mcp-server-git
 npm install -g @cocal/google-calendar-mcp # Unused
-
-# Other dev tools.
-npm install --global fix-package-conflicts
+mkdir ~/.mcp                              # Used by @modelcontextprotocol/server-memory
+pip install lean
+uv tool install leann-core
 
 # Install coc.nvim plugins.
 nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-css' +qall
@@ -325,6 +322,3 @@ nvim +'TSUpdate all' +qall
 
 # Setup Copilot.
 nvim +'Copilot setup'
-
-# Install Bun.
-curl -fsSL https://bun.sh/install | bash
