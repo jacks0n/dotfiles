@@ -1,28 +1,31 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(ls:*)",
-      "WebFetch(domain:github.com)",
-      "Bash(nvim:*)",
-      "Bash(timeout 30 nvim:*)",
-      "WebFetch(domain:luals.github.io)",
-      "WebFetch(domain:formulae.brew.sh)",
-      "mcp__filesystem__list_directory",
-      "mcp__serena__get_symbols_overview",
-      "Bash(brew list:*)",
-      "mcp__serena__activate_project",
-      "WebSearch",
-      "mcp__serena__get_symbols_overview",
-      "mcp__serena__check_onboarding_performed",
-      "mcp__serena__find_file",
-      "mcp__serena__list_dir",
-      "mcp__serena__search_for_pattern",
       "mcp__serena__find_symbol",
-      "Read(//Users/jackson/.dotfiles/**)",
-      "Bash(touch:*)"
+      "mcp__serena__find_file",
+      "mcp__serena__search_for_pattern",
+      "Read(/Users/jackson/.local/share/nvim/mason/packages/lua-language-server/**)",
+      "Read(/Users/jackson/.local/share/nvim/mason/packages/lua-language-server/libexec/log/cache/**)",
+      "mcp__serena__think_about_collected_information",
+      "mcp__serena__list_dir",
+      "Read(/Users/jackson/.local/share/nvim/mason/packages/lua-language-server/libexec/log/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Bash(stylua:*)",
+      "Bash(~/.local/share/nvim/mason/bin/stylua --version)",
+      "Bash(luacheck:*)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "mcp__serena__get_symbols_overview",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "Read(/Users/jackson/.dotfiles/**)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "mcp__fetch__fetch"
     ],
-    "deny": []
+    "deny": [],
+    "ask": []
   }
 }

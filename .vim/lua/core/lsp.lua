@@ -1,7 +1,6 @@
 local lspconfig = require('lspconfig')
 local navbuddy = require('nvim-navbuddy')
 
--- Setup lazydev before lua_ls for fast Neovim development
 require('plugins.lazydev')
 
 vim.lsp.set_log_level('warn')
@@ -12,55 +11,45 @@ require('mason').setup({
   },
 })
 
-require('mason-lspconfig').setup({
-  -- ensure_installed = {
-  --   "bashls",
-  --   "cssls",
-  --   "cucumber_language_server",
-  --   "docker_compose_language_service",
-  --   "dockerls",
-  --   "eslint",
-  --   "html",
-  --   "intelephense",
-  --   "jsonls",
-  --   "lemminx",
-  --   "lua_ls",
-  --   "marksman",
-  --   "phpactor",
-  --   "psalm",
-  --   "sqlls",
-  --   "terraformls",
-  --   "tflint",
-  --   "ts_ls",
-  --   "vimls",
-  --   "yamlls",
-  --   "jdtls",
-  --   "pyright",
-  -- },
-  -- automatic_installation = false,
-})
+require('mason-lspconfig').setup()
 
--- Diagnostics are configured in core.diagnostic
+-- Set up capabilities for nvim-cmp
+local lsp_capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+local capabilities = vim.tbl_deep_extend('force', lsp_capabilities, cmp_capabilities)
 
+-- TypeScript/JavaScript language server configuration
 local tsserver_lang_config = {
   preferences = {
-    importModuleSpecifier = 'non-relative',
+    importModuleSpecifier = 'shortest',
+    importModuleSpecifierEnding = 'auto',
+    includePackageJsonAutoImports = 'auto',
+    quotePreference = 'auto',
   },
   inlayHints = {
     includeInlayEnumMemberValueHints = true,
     includeInlayFunctionLikeReturnTypeHints = true,
     includeInlayFunctionParameterTypeHints = true,
-    includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+    includeInlayParameterNameHints = 'all',
+    includeInlayParameterNameHintsWhenArgumentMatchesName = false,
     includeInlayPropertyDeclarationTypeHints = true,
     includeInlayVariableTypeHints = true,
-    includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+    includeInlayVariableTypeHintsWhenTypeMatchesName = false,
   },
   suggest = {
     completeFunctionCalls = true,
     includeAutomaticOptionalChainCompletions = true,
+    includeCompletionsForModuleExports = true,
+    includeCompletionsForImportStatements = true,
+    includeCompletionsWithInsertText = true,
   },
   updateImportsOnFileMove = {
     enabled = 'always',
+  },
+  codeActions = {
+    disableRuleComment = {
+      enable = true,
+    },
   },
   experimental = {
     tsserver = {
@@ -77,10 +66,11 @@ local on_attach = function(client, buffer)
   end
 
   -- Let eslint handle formatting for TypeScript
-  if client.name == 'ts_ls' or client.name == 'vtsls' then
-    client.server_capabilities.documentFormattingProvider = false
-    client.server_capabilities.documentFormattingRangeProvider = false
-  end
+  -- Commented out since we're using typescript-tools.nvim
+  -- if client.name == 'ts_ls' or client.name == 'vtsls' then
+  --   client.server_capabilities.documentFormattingProvider = false
+  --   client.server_capabilities.documentFormattingRangeProvider = false
+  -- end
 
   -- Set up LSP key mappings (diagnostic keymaps are in core.diagnostic)
   local opts = { noremap = true, silent = true, buffer = buffer }
@@ -89,10 +79,38 @@ local on_attach = function(client, buffer)
   vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
   -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts) -- Use Telescope mapping instead
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  vim.keymap.set('n', 'gf', vim.lsp.buf.format, opts)
+
+  -- Manually trigger signature help (useful when auto-trigger doesn't work)
+  vim.keymap.set({ 'n', 'i' }, '<C-k>', vim.lsp.buf.signature_help, opts)
 end
 
--- LSP servers are now configured individually below as needed
+-- Setup typescript-tools.nvim (replaces ts_ls)
+require('typescript-tools').setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  settings = {
+    expose_as_code_action = 'all',
+    complete_function_calls = true,
+    include_completions_with_insert_text = true,
+    tsserver_file_preferences = vim.tbl_extend(
+      'force',
+      tsserver_lang_config.preferences or {},
+      tsserver_lang_config.inlayHints or {},
+      tsserver_lang_config.suggest or {},
+      {
+        updateImportsOnFileMove = tsserver_lang_config.updateImportsOnFileMove,
+      }
+    ),
+    tsserver_format_options = {
+      allowIncompleteCompletions = true,
+      allowRenameOfImportPath = true,
+    },
+    jsx_close_tag = {
+      enable = true,
+      filetypes = { 'javascriptreact', 'typescriptreact' },
+    },
+  },
+})
 
 -- Lazy load LSP servers based on filetype
 local lsp_configs = {
@@ -125,26 +143,31 @@ local lsp_configs = {
   },
   lua_ls = {
     filetypes = { 'lua' },
+    root_dir = require('lspconfig.util').root_pattern('.luarc.json', '.luarc.jsonc', '.git'),
+    single_file_support = true,
     settings = {
       Lua = {
         runtime = {
           version = 'LuaJIT',
+          path = vim.split(package.path, ';'),
+          pathStrict = true,
         },
         diagnostics = {
-          globals = { 'vim' },
+          globals = { 'vim' }, -- Lazydev should handle this, but adding as fallback
           unusedLocalExclude = { '_*' },
+          workspaceDelay = 3000,
+          workspaceRate = 100,
         },
         completion = {
           callSnippet = 'Replace',
+          workspaceWord = true,
+          showWord = 'Enable',
         },
         workspace = {
-          -- lazydev handles library loading dynamically
-          checkThirdParty = false, -- Prevents the annoying workspace popup
-          -- Limit workspace diagnostics to improve performance
-          diagnosticRate = 30, -- 30% speed to reduce CPU usage
-          workspaceDelay = 1000, -- 1 second delay before diagnosing workspace
-          maxPreload = 10000, -- Increased to prevent preload limit popup
-          preloadFileSize = 100, -- KB, limit file size for preloading
+          checkThirdParty = false,
+          library = {}, -- Let lazydev handle this completely
+          maxPreload = 10000,
+          preloadFileSize = 1000,
           ignoreDir = {
             vim.o.undodir,
             vim.o.backupdir,
@@ -155,17 +178,14 @@ local lsp_configs = {
             '.vim/backup',
             '.vim/swap',
             '.vim/undo',
+            '.vim/plugged',
           },
         },
         telemetry = {
-          enable = true,
+          enable = false,
         },
         format = {
-          enable = true,
-          defaultConfig = {
-            indent_style = 'space',
-            indent_size = '2',
-          },
+          enable = false,
         },
       },
     },
@@ -230,49 +250,36 @@ local lsp_configs = {
     filetypes = { 'vim' },
     init_options = { isNeovim = true },
   },
-  ts_ls = {
-    filetypes = {
-      'javascript',
-      'javascriptreact',
-      'javascript.jsx',
-      'typescript',
-      'typescriptreact',
-      'typescript.tsx',
-      'typescriptreact.typescript',
-    },
-    commands = {
-      OrganizeImports = {
-        function()
-          vim.lsp.buf.execute_command({
-            command = '_typescript.organizeImports',
-            arguments = { vim.fn.expand('%:p') },
-          })
-        end,
-        description = 'Organize Imports',
-      },
-    },
-    settings = {
-      typescript = tsserver_lang_config,
-      javascript = tsserver_lang_config,
-      implicitProjectConfig = {
-        checkJs = true,
-        enableImplicitProjectConfig = true,
-      },
-      completions = {
-        completeFunctionCalls = true,
-      },
-      format = {
-        indentSize = 2,
-        tabSize = 2,
-      },
-    },
-  },
+  -- Commented out in favor of typescript-tools.nvim
+  -- ts_ls = {
+  --   filetypes = {
+  --     'javascript',
+  --     'javascriptreact',
+  --     'javascript.jsx',
+  --     'typescript',
+  --     'typescriptreact',
+  --     'typescript.tsx',
+  --     'typescriptreact.typescript',
+  --   },
+  --   settings = {
+  --     typescript = tsserver_lang_config,
+  --     javascript = tsserver_lang_config,
+  --     implicitProjectConfig = {
+  --       checkJs = true,
+  --       enableImplicitProjectConfig = true,
+  --     },
+  --     completions = {
+  --       completeFunctionCalls = true,
+  --     },
+  --   },
+  -- },
 }
 
 -- Setup function for LSP servers
 local function setup_lsp_server(server_name)
   local config = lsp_configs[server_name] or {}
   config.on_attach = on_attach
+  config.capabilities = capabilities
 
   -- Resolve functions in settings
   if config.settings then
@@ -403,15 +410,18 @@ local function setup_python_lsp()
     extra_paths = extra_paths,
   }
 
-  -- Setup pyright with default settings first
-  lspconfig.pyright.setup({
+  -- Setup basedpyright with default settings first
+  lspconfig.basedpyright.setup({
     on_attach = on_attach,
+    capabilities = capabilities,
     single_file_support = false,
     filetypes = { 'python' },
     settings = {
       python = {
         pythonPath = python_settings.python_path,
         venvPath = python_settings.venv_path,
+      },
+      basedpyright = {
         analysis = {
           extraPaths = python_settings.extra_paths,
           completeFunctionParens = true,
@@ -426,8 +436,6 @@ local function setup_python_lsp()
             reportPrivateImportUsage = 'none',
           },
         },
-      },
-      pyright = {
         disableOrganizeImports = false,
         autoImportCompletions = true,
       },
@@ -450,15 +458,20 @@ local function setup_python_lsp()
         end
       end
 
-      -- Update pyright config if it's already attached to buffers
-      local clients = vim.lsp.get_active_clients({ name = 'pyright' })
+      -- Update basedpyright config if it's already attached to buffers
+      local clients = vim.lsp.get_clients({ name = 'basedpyright' })
       for _, client in ipairs(clients) do
-        client.config.settings.python.pythonPath = python_settings.python_path
-        client.config.settings.python.venvPath = python_settings.venv_path
-        client.config.settings.python.analysis.extraPaths = python_settings.extra_paths
-        client.notify('workspace/didChangeConfiguration', {
-          settings = client.config.settings,
-        })
+        if client.config.settings then
+          client.config.settings.python = client.config.settings.python or {}
+          client.config.settings.python.pythonPath = python_settings.python_path
+          client.config.settings.python.venvPath = python_settings.venv_path
+          if client.config.settings.basedpyright and client.config.settings.basedpyright.analysis then
+            client.config.settings.basedpyright.analysis.extraPaths = python_settings.extra_paths
+          end
+          client:notify('workspace/didChangeConfiguration', {
+            settings = client.config.settings,
+          })
+        end
       end
     end)
   end)
@@ -490,36 +503,42 @@ for server, filetypes in pairs(basic_servers) do
     pattern = filetypes,
     once = true,
     callback = function()
-      lspconfig[server].setup({ on_attach = on_attach })
+      lspconfig[server].setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+      })
     end,
   })
 end
 
+-- Bun support - intercept LSP configs to use bun instead of node
 if vim.g.use_bun then
-  lspconfig.util.on_setup = lspconfig.util.add_hook_after(lspconfig.util.on_setup, function(config)
-    if config.cmd[1] == 'node' then
+  local original_setup = lspconfig.util.on_setup
+  lspconfig.util.on_setup = function(config)
+    if config.cmd and config.cmd[1] == 'node' then
       config.cmd = vim.list_extend({ 'bun', 'run', '--bun' }, config.cmd)
-    else
+    elseif config.cmd then
       local cmd_handle = io.popen('which ' .. config.cmd[1])
-      if not cmd_handle then
-        return
-      end
-      local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
-      if not cmd_path then
-        return
-      end
-      cmd_handle:close()
-
-      local cmd_file = io.open(cmd_path)
-      if not cmd_file then
-        return
-      end
-      for l in cmd_file:lines() do
-        if string.sub(l, -4) == 'node' then
-          config.cmd[1] = cmd_path
-          table.insert(config.cmd, 1, 'bun run --bun')
+      if cmd_handle then
+        local cmd_path = string.gsub(cmd_handle:read('*a'), '%s+', '')
+        cmd_handle:close()
+        if cmd_path and cmd_path ~= '' then
+          local cmd_file = io.open(cmd_path)
+          if cmd_file then
+            for line in cmd_file:lines() do
+              if string.sub(line, -4) == 'node' then
+                config.cmd[1] = cmd_path
+                table.insert(config.cmd, 1, 'bun')
+                table.insert(config.cmd, 2, 'run')
+                table.insert(config.cmd, 3, '--bun')
+                break
+              end
+            end
+            cmd_file:close()
+          end
         end
       end
     end
-  end)
+    return original_setup(config)
+  end
 end

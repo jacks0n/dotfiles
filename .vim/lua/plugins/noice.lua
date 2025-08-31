@@ -6,11 +6,11 @@ require('noice').setup({
       ['cmp.entry.get_documentation'] = true,
     },
     signature = {
-      enabled = false,
+      enabled = true,
     },
     hover = {
       enabled = false,
-    }
+    },
   },
   presets = {
     lsp_doc_border = true,
@@ -27,7 +27,7 @@ require('noice').setup({
   cmdline = {
     enabled = false,
     view = 'cmdline',
-  }
+  },
 })
 
 vim.keymap.set({ 'n', 'i', 's' }, '<C-j>', function()
@@ -37,7 +37,7 @@ vim.keymap.set({ 'n', 'i', 's' }, '<C-j>', function()
 end, { silent = true, expr = true })
 
 vim.keymap.set({ 'n', 'i', 's' }, '<C-k>', function()
-  if not require('noice.lsp').scroll( -4) then
+  if not require('noice.lsp').scroll(-4) then
     return '<C-k>'
   end
 end, { silent = true, expr = true })

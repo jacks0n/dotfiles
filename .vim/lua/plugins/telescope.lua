@@ -1,5 +1,4 @@
 local actions = require('telescope.actions')
--- local telescope_utils = require('telescope.utils')
 local telescope = require('telescope')
 local telescope_builtin = require('telescope.builtin')
 local utils = require('core.utils')
@@ -57,7 +56,7 @@ telescope.setup({
 
 telescope.load_extension('fzf')
 -- telescope.load_extension('frecency')
-telescope.load_extension('noice')
+-- telescope.load_extension('noice')
 
 local function git_files_all()
   local git_opts = {
@@ -102,11 +101,31 @@ local function call_telescope_vertical(callback)
 end
 
 vim.keymap.set('n', 'gr', call_telescope_vertical(telescope_builtin.lsp_references), { desc = 'LSP references' })
-vim.keymap.set('n', 'gt', call_telescope_vertical(telescope_builtin.lsp_type_definitions), { desc = 'LSP type definition(s)' })
+vim.keymap.set(
+  'n',
+  'gt',
+  call_telescope_vertical(telescope_builtin.lsp_type_definitions),
+  { desc = 'LSP type definition(s)' }
+)
 vim.keymap.set('n', 'gd', call_telescope_vertical(telescope_builtin.lsp_definitions), { desc = 'LSP definition(s)' })
-vim.keymap.set('n', 'gi', call_telescope_vertical(telescope_builtin.lsp_implementations), { desc = 'LSP implementation(s)' })
-vim.keymap.set('n', '<Leader>ic', call_telescope_vertical(telescope_builtin.lsp_incoming_calls), { desc = 'LSP incoming calls' })
-vim.keymap.set('n', '<Leader>oc', call_telescope_vertical(telescope_builtin.lsp_outgoing_calls), { desc = 'LSP outgoing calls' })
+vim.keymap.set(
+  'n',
+  'gi',
+  call_telescope_vertical(telescope_builtin.lsp_implementations),
+  { desc = 'LSP implementation(s)' }
+)
+vim.keymap.set(
+  'n',
+  '<Leader>ic',
+  call_telescope_vertical(telescope_builtin.lsp_incoming_calls),
+  { desc = 'LSP incoming calls' }
+)
+vim.keymap.set(
+  'n',
+  '<Leader>oc',
+  call_telescope_vertical(telescope_builtin.lsp_outgoing_calls),
+  { desc = 'LSP outgoing calls' }
+)
 vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
 vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
 vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
@@ -137,5 +156,19 @@ vim.keymap.set('n', '<Leader>p', function()
     prompt_title = 'Switch Project',
     layout_strategy = 'vertical',
     find_command = { 'fd', '--type', 'd', '--max-depth', '1' },
+    attach_mappings = function(prompt_bufnr, map)
+      local action_state = require('telescope.actions.state')
+      actions.select_default:replace(function()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        if selection then
+          telescope_builtin.find_files({
+            cwd = selection.value,
+            layout_strategy = 'vertical',
+          })
+        end
+      end)
+      return true
+    end,
   })
 end, { desc = 'Switch project' })
