@@ -1,67 +1,6 @@
 # Not a tty.
 [ -z "$PS1" ] && return
 
-#
-# zsh-autosuggestions
-#
-
-# Disable automatic widget re-binding on each precmd. This can be set when
-# zsh-users/zsh-autosuggestions is the last module in your ~/.zimrc.
-ZSH_AUTOSUGGEST_MANUAL_REBIND=1
-
-# Customize the style that the suggestions are shown with.
-# See https://github.com/zsh-users/zsh-autosuggestions/blob/master/README.md#suggestion-highlight-style
-# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
-
-#
-# zsh-syntax-highlighting
-#
-
-# Set what highlighters will be used.
-# See https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/docs/highlighters.md
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
-
-# ------------------
-# Initialise modules
-# ------------------
-
-ZIM_HOME=${ZDOTDIR:-${HOME}}/.zim
-# Download zimfw plugin manager if missing.
-if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
-  if (( ${+commands[curl]} )); then
-    curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  else
-    mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
-        https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-  fi
-fi
-
-# Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
-  source ${ZIM_HOME}/zimfw.zsh init -q
-fi
-
-# Initialize modules.
-source ${ZIM_HOME}/init.zsh
-
-# ------------------------------
-# Post-init module configuration
-# ------------------------------
-
-#
-# zsh-history-substring-search
-#
-
-zmodload -F zsh/terminfo +p:terminfo
-# Bind ^[[A/^[[B manually so up/down works both before and after zle-line-init
-for key ('^[[A' '^P' ${terminfo[kcuu1]}) bindkey ${key} history-substring-search-up
-for key ('^[[B' '^N' ${terminfo[kcud1]}) bindkey ${key} history-substring-search-down
-for key ('k') bindkey -M vicmd ${key} history-substring-search-up
-for key ('j') bindkey -M vicmd ${key} history-substring-search-down
-unset key
-
-
 ##
 # Zsh
 ##
@@ -76,13 +15,14 @@ HISTFILE="$HOME/.zsh_history"
 SAVEHIST=10000
 
 # History.
-setopt APPEND_HISTORY       # Sessions will append their history list to the history file, rather than replace it.
-setopt EXTENDED_HISTORY     # Save each command's beginning Unix timestamp and the duration (in seconds) to the history file.
-setopt HIST_IGNORE_ALL_DUPS # Prevent duplicate history items.
-setopt HIST_IGNORE_SPACE    # Don't add commands beginning with a space to the history.
-setopt HIST_REDUCE_BLANKS   # Remove superfluous blanks from each command line being added to the history list.
-setopt INC_APPEND_HISTORY   # Incrementally add to the history file after each command, instead of until the shell exists.
-setopt SHARE_HISTORY        # Share history between shell instances.
+setopt APPEND_HISTORY         # Sessions will append their history list to the history file, rather than replace it.
+setopt EXTENDED_HISTORY       # Save each command's beginning Unix timestamp and the duration (in seconds) to the history file.
+setopt HIST_IGNORE_ALL_DUPS   # Prevent duplicate history entries.
+setopt HIST_VERIFY            # Require confirmation before executing a history substitution.
+setopt HIST_IGNORE_SPACE      # Don't add commands beginning with a space to the history.
+setopt HIST_REDUCE_BLANKS     # Remove superfluous blanks from each command line being added to the history list.
+setopt INC_APPEND_HISTORY     # Incrementally add to the history file after each command, instead of until the shell exists.
+setopt SHARE_HISTORY          # Share history between shell instances.
 
 # Completion.
 setopt ALWAYS_TO_END        # Move cursor to the end of a completed word.
@@ -111,9 +51,6 @@ setopt PROMPT_SUBST         # Perform parameter expansion, command substitution 
 # Break at '/' on CTRL-W.
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
-# Remove path separator from WORDCHARS.
-# WORDCHARS=${WORDCHARS//[\/]}
-
 # Reduce Vim mode change to 0.1 seconds.
 # How long to wait (in hundredths of a second) for additional characters in sequence.
 export KEYTIMEOUT=1
@@ -137,27 +74,79 @@ export FORGIT_NO_ALIASES=1
 
 
 ##
-# zim packages.
+# zinit packages.
 ##
 
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+if [ ! -d "$ZSH_CACHE_DIR" ] ; then
+  mkdir -p "$ZSH_CACHE_DIR"
+fi
+
+if [[ ! -d "$ZINIT_HOME" ]] ; then
+  echo '=> Installing zinit'
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+source "$ZINIT_HOME/zinit.zsh"
+
+autoload -Uz compinit
+compinit -C
+
+zinit load 'mafredri/zsh-async'
+zinit ice pick'async.zsh' src'pure.zsh'; zinit light 'sindresorhus/pure'
+zinit load 'djui/alias-tips'
+if hash conda > /dev/null 2>&1 ; then
+  zinit load 'conda-incubator/conda-zsh-completion'
+fi
+if hash jupyter > /dev/null 2>&1 ; then
+  zinit load 'jupyter/jupyter_core'
+fi
+zinit load 'wfxr/forgit'
+zinit load 'b4b4r07/cli-finder'
+zinit load 'zsh-users/zsh-completions'
+zinit ice wait'1' lucid; zinit light 'lukechilds/zsh-better-npm-completion'
+zinit load 'changyuheng/fz'
+zinit load 'rupa/z'
+zinit light 'zsh-users/zsh-autosuggestions'
+zinit load 'docker/cli'
+zinit load 'docker/compose'
+zinit light 'zdharma-continuum/fast-syntax-highlighting'
+zinit light 'zsh-users/zsh-history-substring-search'
+zinit load 'hlissner/zsh-autopair'
+zinit load 'darvid/zsh-poetry'
+
+zinit ice haspoetry id-as'poetry---zsh-completions' as'completion' \
+  wait silent blockf nocompile \
+  atclone'poetry completions zsh >! _poetry' \
+  atpull'%atclone' run-atpull \
+  atinit'zinit cdreplay -q' \
+  pick'_poetry'
+
+# zinit light 'junegunn/fzf'
+# Not working. @see https://github.com/Aloxaf/fzf-tab/issues/336
+# zinit light 'Aloxaf/fzf-tab'
+# zinit light 'Freed-Wu/fzf-tab-source'
+if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
+  zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
+fi
 if hash saml2aws 2>/dev/null ; then
   eval "$(saml2aws --completion-script-zsh)"
 fi
 
-# https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-completion.html
+# AWS CLI completion
+# https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html
 # autoload bashcompinit && bashcompinit
 # complete -C '$(brew --prefix)/bin/aws_completer' aws
 
-# Install missing modules, and update ${zim_HOME}/init.zsh if missing or outdated.
-# if [[ ! "$zim_HOME/init.zsh" -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
-#   source "$zim_HOME/zimfw.zsh" init -q
-# fi
+# zsh-syntax-highlighting.
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
 
 # zsh-history-substring-search.
-# bindkey '^[[A' history-substring-search-up
-# bindkey '^[[B' history-substring-search-down
-# bindkey -M vicmd 'k' history-substring-search-up
-# bindkey -M vicmd 'j' history-substring-search-down
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
 
 ##
 # Autoloads.
@@ -171,39 +160,86 @@ autoload zmv
 ##
 
 source "$HOME/.shrc"
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
 
 
 ##
 # 3rd Party.
 ##
 
+# Automatically colors tabs based on ANY git repo - no setup needed per repo!
+auto-tab-color() {
+  if git rev-parse --git-dir > /dev/null 2>&1; then
+    repo_name="$(basename $(git rev-parse --show-toplevel))"
+
+    # Create a hash of the repo name to generate consistent colors.
+    hash=$(echo -n "$repo_name" | md5 | cut -c1-6)
+    r=$((16#${hash:0:2} + 100))  # Ensure colors aren't too dark.
+    g=$((16#${hash:2:2} + 100))
+    b=$((16#${hash:4:2} + 100))
+
+    echo -ne "\033]6;1;bg;red;brightness;$r\a"
+    echo -ne "\033]6;1;bg;green;brightness;$g\a"
+    echo -ne "\033]6;1;bg;blue;brightness;$b\a"
+
+    # Also set the tab title.
+    echo -ne "\033]0;📁 $repo_name\007"
+  else
+    # Reset to default when not in a git repo.
+    echo -ne "\033]6;1;bg;*;default\a"
+  fi
+}
+# if [[ "$TERM_PROGRAM" == 'iTerm.app' ]] ; then
+#   autoload -U add-zsh-hook
+#   add-zsh-hook chpwd auto-tab-color
+#   add-zsh-hook precmd auto-tab-color
+#   auto-tab-color
+# fi
+
 # Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
 autoload -U add-zsh-hook
 load-nvmrc() {
-  local node_version="$(nvm version)"
   local nvmrc_path="$(nvm_find_nvmrc)"
 
   # Set nvmrc version.
   if [ -n "$nvmrc_path" ]; then
     local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
 
-    if [ "$nvmrc_node_version" = "N/A" ]; then
+    if [ "$nvmrc_node_version" == 'N/A' ]; then
       nvm install
       nvm use --silent
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
+    elif [ "$nvmrc_node_version" != "${nvm version}" ]; then
       nvm use --silent
     fi
   # Revert to global node.
-  elif [ "$node_version" != 'system' ]; then
+  elif [ "$(nvm version)" != 'system' ]; then
     nvm deactivate --silent
   fi
 }
 add-zsh-hook chpwd load-nvmrc
-load-nvmrc
+if [[ -z $VIRTUAL_ENV ]] ; then
+  load-nvmrc
+fi
+
+# Ensure Python virtual environment always has PATH priority.
+if [[ -n "$VIRTUAL_ENV" ]]; then
+  PATH="${PATH//$VIRTUAL_ENV\/bin:/}"
+  PATH="$VIRTUAL_ENV/bin:$PATH"
+  export PATH
+fi
+
+# pip completion.
+eval "$(pip completion --zsh)"
+compctl -K _pip_completion pip3
 
 # bun completion.
 if [[ -s "$HOME/.bun/_bun" ]] ; then
   source "$HOME/.bun/_bun"
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if command -v fzf &> /dev/null; then
+  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+fi
+
+# Added by Windsurf
+export PATH="/Users/jackson/.codeium/windsurf/bin:$PATH"
