@@ -3,27 +3,8 @@ local lspkind = require('lspkind')
 local luasnip = require('luasnip')
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
 
--- cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({ map_char = { tex = '' }}))
--- If you want insert `(` after select function or method item
 local autopairs_handlers = require('nvim-autopairs.completion.handlers')
 cmp.event:on('confirm_done', function()
-  -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
-  cmp_autopairs.on_confirm_done({
-    filetypes = {
-      ['*'] = {
-        ['('] = {
-          kind = {
-            cmp.lsp.CompletionItemKind.Function,
-            cmp.lsp.CompletionItemKind.Method,
-          },
-          handler = autopairs_handlers['*'],
-        },
-      },
-    },
-  })
-end)
-cmp.event:on('complete_done', function()
-  -- cmp_autopairs.on_confirm_done({ map_char = { tex = '' }})
   cmp_autopairs.on_confirm_done({
     filetypes = {
       ['*'] = {
@@ -44,8 +25,6 @@ local function next_item_callback(fallback)
     cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
   elseif luasnip.expand_or_locally_jumpable() then
     luasnip.expand_or_jump()
-  -- elseif has_words_before() then
-  --   cmp.complete()
   else
     fallback()
   end
@@ -106,16 +85,15 @@ cmp.setup({
     end,
   },
   sources = cmp.config.sources({
-    { name = 'nvim_lsp_signature_help', priority_weight = 100 },
-    { name = 'nvim_lsp', priority_weight = 90 },
-    { name = 'nvim_lua', priority_weight = 90 },
-    { name = 'copilot', priority_weight = 70 }, -- group_index = 2,
-    { name = 'cmp_tabnine', priority_weight = 70 },
-    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2, priority_weight = 60 },
-    { name = 'path', priority_weight = 50 },
-    { name = 'buffer', priority_weight = 40 },
-    { name = 'npm', keyword_length = 4, priority_weight = 40 },
-    { name = 'spell', priority_weight = 30 },
+    { name = 'nvim_lsp', priority = 90 },
+    { name = 'nvim_lua', priority = 90 },
+    { name = 'lazydev', priority = 80, group_index = 0 },
+    { name = 'copilot', priority = 70 }, -- group_index = 2,
+    { name = 'luasnip', option = { show_autosnippets = true }, keyword_length = 2, priority = 60 },
+    { name = 'path', priority = 50 },
+    { name = 'buffer', priority = 40 },
+    { name = 'npm', keyword_length = 4, priority = 40 },
+    { name = 'spell', priority = 30 },
   }),
 })
 

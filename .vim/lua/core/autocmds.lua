@@ -150,9 +150,9 @@ M.setup = function()
     group = 'RestorePosition',
     pattern = '*',
     callback = function()
-      local line = vim.fn.line('\'"')
+      local line = vim.fn.line([["]])
       if line > 0 and line <= vim.fn.line('$') then
-        vim.cmd('normal! g`"')
+        vim.cmd([[normal! g`"]])
       end
     end,
   })
@@ -178,16 +178,6 @@ M.setup = function()
     autocmd('CmdlineLeave', {
       pattern = { '/', '?' },
       command = 'set hlsearch',
-    })
-  end
-
-  -- FZF specific settings
-  if vim.fn.has('nvim') == 1 then
-    augroup('FZF', { clear = true })
-    autocmd('FileType', {
-      group = 'FZF',
-      pattern = 'fzf',
-      command = 'tnoremap <buffer> <Esc> <Esc>',
     })
   end
 

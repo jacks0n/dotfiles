@@ -1,26 +1,15 @@
--- Configure diagnostic signs
-local signs = {
-  Error = '✘',
-  Warn = '▲',
-  Hint = '⚑',
-  Info = '',
-}
-
-for type, icon in pairs(signs) do
-  local hl = 'DiagnosticSign' .. type
-  vim.fn.sign_define(hl, {
-    text = icon,
-    texthl = hl,
-    numhl = hl,
-    linehl = '',
-  })
-end
-
 -- Configure diagnostic behavior
 vim.diagnostic.config({
+  virtual_lines = true,
   -- Disable virtual text to reduce clutter
   virtual_text = false,
   signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '✘',
+      [vim.diagnostic.severity.WARN] = '▲',
+      [vim.diagnostic.severity.INFO] = '',
+      [vim.diagnostic.severity.HINT] = '⚑',
+    },
     severity = { min = vim.diagnostic.severity.HINT },
     priority = 20,
   },
@@ -33,7 +22,7 @@ vim.diagnostic.config({
     focusable = false,
     style = 'minimal',
     border = 'rounded',
-    source = 'always',
+    source = 'if_many',
     header = '',
     prefix = '',
     max_width = 80,
@@ -45,25 +34,25 @@ vim.diagnostic.config({
 
 -- Set up diagnostic keymaps
 vim.keymap.set('n', '<leader>ld', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic' })
+vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1 }) end, { desc = 'Go to previous diagnostic' })
+vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
 
 -- Customize diagnostic severity navigation
 vim.keymap.set('n', '[e', function()
-  vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
+  vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
 end, { desc = 'Go to previous error' })
 
 vim.keymap.set('n', ']e', function()
-  vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+  vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
 end, { desc = 'Go to next error' })
 
 vim.keymap.set('n', '[w', function()
-  vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
+  vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN })
 end, { desc = 'Go to previous warning' })
 
 vim.keymap.set('n', ']w', function()
-  vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })
+  vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN })
 end, { desc = 'Go to next warning' })
 
 -- Toggle diagnostics

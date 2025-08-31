@@ -1,32 +1,39 @@
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter.configs').setup({
   ensure_installed = 'all',
+  auto_install = true,
 
   markid = { enable = true },
 
-  -- Install parsers synchronously (only applied to `ensure_installed`).
-  sync_install = false,
+  ignore_install = {},
+  modules = {},
 
-  -- List of parsers to ignore installing (for "all")
-  -- phpdoc isn't supported on Apple Silicon.
-  -- @see https://github.com/tree-sitter/tree-sitter/issues/942
-  ignore_install = { 'phpdoc' },
+  sync_install = false,
 
   highlight = {
     enable = true,
 
     additional_vim_regex_highlighting = false,
 
-    disable = { 'css' }
+    disable = function(_lang, buf)
+      local max_filesize = 100 * 1024 -- 100 KB
+      local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok and stats and stats.size > max_filesize then
+        return true
+      end
+    end,
   },
 
   indent = {
     enable = true,
-    disable = { 'json', 'typescript', 'javascript' },
   },
 
   refactor = {
     highlight_definitions = {
       enable = true,
+      clear_on_cursor_move = true,
+    },
+    highlight_current_scope = {
+      enable = false,
     },
   },
 
@@ -47,7 +54,7 @@ require('nvim-treesitter.configs').setup {
         ['[s'] = { query = '@scope', query_group = 'locals', desc = 'Previous scope' },
         ['[z'] = { query = '@fold', query_group = 'folds', desc = 'Previous fold' },
         ['[p'] = { query = '@parameter.outer', desc = 'Previous parameter' },
-      }
+      },
     },
     swap = {
       enable = true,
@@ -68,7 +75,6 @@ require('nvim-treesitter.configs').setup {
         ['ci'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
         ['ts'] = { query = '@scope', desc = 'Select language scope' },
       },
-      -- include_surrounding_whitespace = true,
     },
   },
-}
+})

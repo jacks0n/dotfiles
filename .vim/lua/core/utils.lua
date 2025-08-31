@@ -1,5 +1,3 @@
-local lspconfig_util = require('lspconfig.util')
-
 local M = {
   json = {},
   logger = {},
@@ -7,12 +5,24 @@ local M = {
 }
 
 function M.project_dir()
-  return lspconfig_util.find_git_ancestor(vim.fn.expand('%:p'))
+  local path = vim.fn.expand('%:p')
+  local found = vim.fs.find('.git', {
+    path = path,
+    upward = true,
+    stop = vim.loop.os_homedir(),
+  })[1]
+
+  if found then
+    return vim.fs.dirname(found)
+  end
+  return nil
 end
 
 function M.is_large_file(bufnr)
   local max_filesize = 1000 * 1024 -- 1MB
-  return (vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr)) > max_filesize or vim.api.nvim_buf_line_count(bufnr) > 10000)
+  local file_size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  return (file_size > max_filesize or line_count > 10000)
 end
 
 function M.is_in_undo_dir(bufnr)
@@ -58,15 +68,17 @@ end
 function M.file.append_line(filename, ...)
   local file = io.open(filename, 'a')
   local data = {}
-  for _index, value in pairs({ ... }) do
+  for _, value in pairs({ ... }) do
     if type(value) == 'boolean' or type(value) == 'number' or type(value) == 'string' then
       table.insert(data, tostring(value))
     else
       table.insert(data, M.json.encode(value))
     end
   end
-  file:write(table.concat(data, ', ') .. '\n')
-  file:close()
+  if file then
+    file:write(table.concat(data, ', ') .. '\n')
+    file:close()
+  end
 end
 
 --- Log an error message.
@@ -88,7 +100,7 @@ function M.to_file(data, filepath)
   if not file then
     error(string.format('Error opening file: %s', filepath))
   end
-  local ok, _error = file:write(data)
+  local ok, _ = file:write(data)
   if not ok then
     error(string.format('Error writing to file: %s', filepath))
   end
