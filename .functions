@@ -63,18 +63,7 @@ symfony-console-closet() {
 }
 
 random-joke() {
-  local jokes_path="$HOME/.config/jokes.py"
-  if [ ! -f "$jokes_path" ]; then
-    mkdir -p "$HOME/.config"
-    local curl_output="$(curl 'https://raw.githubusercontent.com/pyjokes/pyjokes/master/pyjokes/jokes_en.py' --silent -o "$jokes_path")"
-    if [ $? -ne 0 ]; then
-      echo "=> ERROR: Failed to fetch jokes. $curl_output"
-      return 1
-    fi
-  fi
-  echo "
-    $(cat ~/.config/jokes.py); import random; print(random.choice(jokes_en['all']))
-  " | python3 -
+  "$HOME/.dotfiles/bin/joke.py"
 }
 
 # Random joke, with random rainbow coloured ASCII art.
@@ -183,10 +172,6 @@ pubkey() {
 # Lists file & directory sizes (defaults to current path), sorted by size.
 dl() {
   du --human-readable --total --max-depth=1 "${1:-.}" | sort --human-numeric-sort --reverse
-}
-
-todo() {
-  echo "$@" >>~/.todo
 }
 
 # Get the public IP address from OpenDNS, print it and copy to clipboard.
