@@ -1,7 +1,5 @@
 " @todo
 " Get unit testing working with Jest.
-" Move all neovim plugin mappings to their lua file.
-" Do not attach LSP servers to large files.
 " Try to get NULL_LS to use the local binary.
 " Only include eslint and other linters if there's a config available in the repo.
 
@@ -57,24 +55,23 @@ endif
 " Plug: Completion/LSP.                                                  |
 " ========================================================================
 
-if has('nvim')
-  Plug 'aznhe21/actions-preview.nvim'
-endif
 if (has('nvim') && exists('g:use_coc') && g:use_coc) || !has('nvim')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 elseif has('nvim')
-  Plug 'SmiteshP/nvim-navic'
+  Plug 'aznhe21/actions-preview.nvim'
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'SmiteshP/nvim-navbuddy'
+    \| Plug 'SmiteshP/nvim-navic'
     \| Plug 'MunifTanjim/nui.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'terrortylor/nvim-comment'
+  Plug 'hrsh7th/nvim-cmp'
   Plug 'onsails/lspkind.nvim'
     \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
   Plug 'folke/lazydev.nvim'
+  Plug 'Bilal2453/luvit-meta'
   Plug 'stevearc/conform.nvim'
   Plug 'mfussenegger/nvim-lint'
   Plug 'neovim/nvim-lspconfig'
@@ -88,16 +85,13 @@ elseif has('nvim')
     \| Plug 'hrsh7th/cmp-nvim-lsp'
     \| Plug 'hrsh7th/cmp-nvim-lua'
     \| Plug 'hrsh7th/cmp-cmdline'
-    \| Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
-    \| Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
     \| Plug 'b0o/schemastore.nvim'
   Plug 'zbirenbaum/copilot-cmp'
     \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
+  " Plug 'ray-x/lsp_signature.nvim' " Show function signatures while typing
   " Plug 'yioneko/nvim-vtsls'
 endif
-
-Plug 'neovim/nvim-lspconfig'
 
 
 " ========================================================================
@@ -130,15 +124,12 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 Plug 'norcalli/nvim-colorizer.lua'
 Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
-Plug 'liuchengxu/vista.vim', { 'on': ['Vista', 'Vista!', 'Vista!!'] }
 Plug 'wuelnerdotexe/vim-enfocado'
 if has('nvim')
   Plug 'johnfrankmorgan/whitespace.nvim' " Whitespace highlighting and helper function.
   Plug 'kevinhwang91/nvim-ufo'
     \| Plug 'kevinhwang91/promise-async'
-  if exists('&statuscolumn')
-    Plug 'luukvbaal/statuscol.nvim'
-  endif
+  Plug 'luukvbaal/statuscol.nvim'
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'nvim-lualine/lualine.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
@@ -146,12 +137,10 @@ if has('nvim')
     \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
   Plug 'nvim-treesitter/nvim-treesitter-refactor'
-  Plug 'luochen1990/rainbow'
+  Plug 'JoosepAlviste/nvim-ts-context-commentstring'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
 else
-  Plug 'ntpeters/vim-better-whitespace' " Whitespace highlighting and helper function.
-  Plug 'Yggdroot/indentLine' " Adds vertical and/or horizontal alignment lines.
   Plug 'vim-airline/vim-airline'
     \| Plug 'vim-airline/vim-airline-themes'
 endif
@@ -161,16 +150,15 @@ endif
 " Plug: Utility.                                                         |
 " ========================================================================
 
-Plug 'nat-418/boole.nvim'
-Plug 'tpope/vim-commentary'
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
-Plug 'tpope/vim-repeat'              " Enable repeating supported plugin maps with '.'.
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
 if !has_key(g:plugs, 'nvim-treesitter')
-  Plug 'sheerun/vim-polyglot'          " Language pack collection (syntax, indent, ftplugin, ftdetect).
+  Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
+  Plug 'm4xshen/hardtime.nvim'
+  Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     \| Plug 'MunifTanjim/nui.nvim'
@@ -183,9 +171,9 @@ if has('nvim')
     \| Plug 'nvim-treesitter/nvim-treesitter'
   Plug 'nvim-treesitter/nvim-treesitter-textobjects'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'folke/noice.nvim'
-    \| Plug 'MunifTanjim/nui.nvim'
-    \| Plug 'rcarriga/nvim-notify'
+  " Plug 'folke/noice.nvim'
+  "   \| Plug 'MunifTanjim/nui.nvim'
+  "   \| Plug 'rcarriga/nvim-notify'
   Plug 'Wansmer/treesj'
   Plug 'nvim-neotest/neotest'
     \| Plug 'nvim-neotest/nvim-nio'
@@ -198,6 +186,8 @@ if has('nvim')
     \| Plug 'nvim-lua/plenary.nvim'
   Plug 'vuki656/package-info.nvim'
     \| Plug 'MunifTanjim/nui.nvim'
+else
+  Plug 'tpope/vim-commentary'
 endif
 
 
@@ -205,8 +195,9 @@ endif
 " Language: HTML, XML.                                                   |
 " ========================================================================
 
-Plug 'mattn/emmet-vim'       " Emmet for Vim.
-Plug 'docunext/closetag.vim' " Intelligently auto-close (X)HTML tags.
+if has('nvim')
+  Plug 'windwp/nvim-ts-autotag' " Intelligently auto-close (X)HTML tags.
+endif
 
 
 " ========================================================================
@@ -221,44 +212,12 @@ if has('nvim')
   Plug 'pmizio/typescript-tools.nvim'
 endif
 
-" ----------------------------------------
-" Features.                              |
-" ----------------------------------------
-
-" Generate function JSDoc docblocks with `:JsDoc`.
-Plug 'heavenshell/vim-jsdoc', {
-  \ 'for': ['javascript', 'javascriptreact', 'javascript.jsx','typescript', 'typescriptreact'],
-  \ 'do': 'make install'
-\}
-
 
 " ========================================================================
 " Plug: Markdown.                                                        |
 " ========================================================================
 
 Plug 'instant-markdown/vim-instant-markdown', {'for': 'markdown', 'do': 'yarn install'}
-
-
-" ========================================================================
-" Plug: Text.                                                            |
-" ========================================================================
-
-Plug 'junegunn/goyo.vim'
-Plug 'junegunn/limelight.vim'
-
-
-" ========================================================================
-" Plug: Twig.                                                            |
-" ========================================================================
-
-Plug 'nelsyeung/twig.vim'
-
-
-" ========================================================================
-" Plug: VimL.                                                            |
-" ========================================================================
-
-Plug 'Shougo/neco-vim', { 'for': 'vim' } " VimL completion.
 
 
 " ========================================================================
@@ -284,29 +243,12 @@ endif
 
 Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 if has('nvim')
-  " altermo/ultimate-autopair.nvim
   Plug 'kylechui/nvim-surround'
   Plug 'windwp/nvim-autopairs'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'tpope/vim-surround'
 end
-
-
-" ========================================================================
-" Plug: Sidebars.                                                        |
-" ========================================================================
-
-Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
-  \| Plug 'ryanoasis/vim-devicons'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
-Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTree'] }
-
-
-" ========================================================================
-" Plug: SQL.                                                             |
-" ========================================================================
-
 
 
 call plug#end() " Required.
@@ -497,15 +439,10 @@ set formatoptions+=q " Allow formatting of comments with 'gq" (not blank lines o
 set formatoptions+=n " When formatting text, recognise numbered lists (see 'formatlistpat' for list kinds).
 set formatoptions+=j " Delete comment character when joining commented lines.
 
-" For Neovim > 0.1.5 and Vim > patch 7.4.1799 (https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162).
-" Based on Vim patch 7.4.1770 (`guicolors` option) (https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd).
-" (https://github.com/neovim/neovim/wiki/Following-HEAD#20160511)
-if has('termguicolors')
-  set termguicolors
-endif
+set termguicolors
 
-if exists('&inccommand')
-  " Show a command's effects incrementally, as you type.
+" Show a command's effects incrementally, as you type.
+if has('nvim')
   set inccommand=nosplit
 endif
 
@@ -543,10 +480,6 @@ let g:loaded_perl_provider = 0
 " ========================================================================
 
 if has('gui_running')
-  " @todo Get working
-  " if !exists('g:neovide')
-  "   set guioptions+=c " Use console dialogs instead of popup dialogs for simple choices.
-  " endif
   set guioptions-=m " Disable menu bar.
   set guioptions-=L " Disable left-hand scrollbar when vertical split open.
   set guioptions-=r " Disable right-hand scrollbar.
@@ -899,41 +832,33 @@ if has('nvim')
   lua require('core.autocmds').setup()
 
   if !exists('g:use_coc') || !g:use_coc
-    " Core modules loaded immediately
     lua require('core.diagnostic')
     lua require('core.lsp')
     lua require('core.linters')
-    " Load mason integrations after conform and nvim-lint are configured
+    lua require('plugins.conform')
     lua require('plugins.mason-conform')
     lua require('plugins.mason-nvim-lint')
-
-    " Plugin modules loaded on demand
-    augroup LazyLoadLua
-      autocmd!
-      autocmd BufReadPre * ++once lua require('plugins.cmp-tabnine')
-      autocmd BufReadPre * ++once lua require('plugins.typescript-tools')
-      autocmd BufReadPre * ++once lua require('plugins.copilot-lua')
-      autocmd BufReadPre * ++once lua require('copilot_cmp').setup()
-      autocmd BufReadPre * ++once lua require('plugins.cmp')
-      autocmd BufReadPre * ++once lua require('plugins.nvim-navbuddy')
-      autocmd BufReadPre * ++once lua require('plugins.nvim-autopairs')
-      autocmd BufReadPre * ++once lua require('plugins.lspsaga')
-      autocmd BufReadPre * ++once lua require('plugins.package-info')
-      autocmd BufReadPre * ++once lua require('plugins.ts-node-action')
-      autocmd BufReadPre * ++once lua require('trouble').setup()
-    augroup END
+    lua require('plugins.cmp')
+    lua require('plugins.copilot-lua')
+    lua require('copilot_cmp').setup()
+    lua require('plugins.nvim-navbuddy')
+    lua require('plugins.nvim-autopairs')
+    " lua require('plugins.lsp_signature')
+    lua require('plugins.lspsaga')
+    lua require('trouble').setup()
+    lua require('plugins.actions-preview')
   endif
-  augroup LazyLoadLuaUI
+
+  augroup LazyLoadLua
     autocmd!
-    autocmd VimEnter * ++once lua require('plugins.actions-preview')
     autocmd VimEnter * ++once lua require('nvim-web-devicons').setup({})
     autocmd VimEnter * ++once lua require('plugins.printer')
     autocmd VimEnter * ++once lua require('plugins.neotest')
     autocmd VimEnter * ++once lua require('plugins.code_runner')
     autocmd VimEnter * ++once lua require('plugins.treesj')
     autocmd VimEnter * ++once lua require('plugins.regexplainer')
-    autocmd VimEnter * ++once lua require('plugins.notify')
-    autocmd VimEnter * ++once lua require('plugins.noice')
+    " autocmd VimEnter * ++once lua require('plugins.notify')
+    " autocmd VimEnter * ++once lua require('plugins.noice')
     autocmd VimEnter * ++once lua require('plugins.luasnip')
     autocmd VimEnter * ++once lua require('plugins.whitespace')
     autocmd VimEnter * ++once lua require('plugins.todo-comments')
@@ -941,63 +866,35 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.lualine')
     autocmd VimEnter * ++once lua require('plugins.treesitter')
     autocmd VimEnter * ++once lua require('plugins.telescope')
-    autocmd VimEnter * ++once lua require('plugins.markid')
     autocmd VimEnter * ++once lua require('plugins.telescope-file-browser')
     autocmd VimEnter * ++once lua require('plugins.leap')
-    autocmd VimEnter * ++once lua require('plugins.boole')
-    autocmd VimEnter * ++once lua require('plugins.nvim-comment')
     autocmd VimEnter * ++once lua require('plugins.tabout')
     autocmd VimEnter * ++once lua require('colorizer').setup({ '*' })
     autocmd VimEnter * ++once lua require('gruvbox').setup()
     autocmd VimEnter * ++once lua require('plugins.nvim-ufo')
     autocmd VimEnter * ++once lua require('nvim-surround').setup({})
     autocmd VimEnter * ++once lua require('ibl').setup()
-  augroup END
-
-  if exists('&statuscolumn')
     autocmd VimEnter * ++once lua require('plugins.statuscol')
-  endif
+    autocmd VimEnter * ++once lua require('plugins.package-info')
+    autocmd VimEnter * ++once lua require('plugins.dial')
+    autocmd VimEnter * ++once lua require('plugins.ts-node-action')
+    autocmd VimEnter * ++once lua require('plugins.nvim-ts-autotag')
+    autocmd VimEnter * ++once lua require('ts_context_commentstring').setup({})
+  augroup END
 endif
 
 let g:Hexokinase_highlighters = ['backgroundfull']
 
 let g:embark_terminal_italics = 1
 
-let g:rainbow_active = 1
-let g:rainbow_conf = {
-\	'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick'],
-\	'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
-\	'guis': [''],
-\	'cterms': [''],
-\	'operators': '_,_',
-\	'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
-\	'separately': {
-\		'*': {},
-\		'markdown': {
-\			'parentheses_options': 'containedin=markdownCode contained',
-\		},
-\		'vim': {
-\			'parentheses_options': 'containedin=vimFuncBody',
-\		},
-\		'css': 0,
-\		'nerdtree': 0,
-\	}
-\}
-
 let g:indexed_search_mappings = 0
 
 " vim-move.
 let g:move_map_keys = 0
-" let g:move_key_modifier = 'A'
+let g:move_key_modifier = 'A'
 nnoremap <silent> <A-j> <Plug>MoveLineDown
 nnoremap <silent> <A-k> <Plug>MoveLineUp
 
-
-" vim-jsdoc.
-let g:jsdoc_allow_input_prompt = 1 " Allow prompt for interactive input.
-let g:jsdoc_input_description  = 1 " Prompt for a function description.
-let g:jsdoc_underscore_private = 1 " Detect private functions starting with an underscore.
-let g:jsdoc_enable_es6         = 1 " Enable ECMAScript6 shorthand function, arrow function.
 
 " GitGutter.
 let g:gitgutter_max_signs               = 1000 " Bump up from default 500.
@@ -1008,12 +905,6 @@ let g:gitgutter_sign_removed            = '┃−'
 let g:gitgutter_sign_removed_first_line = '┃⇈'
 let g:gitgutter_map_keys                = 0
 highlight clear SignColumn
-
-" indentLine.
-let g:indentLine_char            = '│'
-let g:indentLine_fileTypeExclude = ['help', 'startify']
-let g:indentLine_faster          = 1
-let g:indentLine_setConceal      = 0 " Don't change the conceallevel setting.
 
 " startify.
 let g:startify_change_to_dir          = 1 " Change to selected file or bookmark's directory.
@@ -1060,7 +951,6 @@ let g:coc_global_extensions = [
   \ 'coc-stylua',
   \ 'coc-sumneko-lua',
   \ 'coc-syntax',
-  \ 'coc-tabnine',
   \ 'coc-tag',
   \ 'coc-tsserver',
   \ 'coc-ultisnips',
@@ -1092,35 +982,6 @@ let g:airline#extensions#tabline#enabled    = 1
 let g:airline#extensions#tabline#fnamemod   = ':t' " Only show filename.
 let g:airline#extensions#undotree#enabled   = 1
 let g:airline#extensions#whitespace#enabled = 0 " Makes scrolling super slow sometimes.
-
-" pangloss/vim-javascript.
-let g:javascript_enable_domhtmlcss = 1
-
-" Vdebug.
-" See: https://xdebug.org/docs-dbgp.php#feature-names
-let g:vdebug_options               = get(g:, 'vdebug_options', {})
-let g:vdebug_options.break_on_open = 1        " Don't stop on the first line of the script.
-let g:vdebug_options.timeout       = 120      " Seconds to wait for when listening for a connection (default 20).
-let g:vdebug_options.ide_key       = 'vdebug' " Xdebug client identifier.
-let g:vdebug_features = {
-\   'max_depth': 2048,
-\   'max_children': 1024
-\ }
-
-" vim-javascript.
-let g:javascript_plugin_jsdoc                      = 1 " Enable syntax highlighting for JSDoc.
-let g:javascript_conceal_function                  = 'ƒ'
-let g:javascript_conceal_null                      = 'ø'
-let g:javascript_conceal_this                      = '@'
-let g:javascript_conceal_return                    = '⇚'
-let g:javascript_conceal_undefined                 = '¿'
-let g:javascript_conceal_NaN                       = 'ℕ'
-let g:javascript_conceal_prototype                 = '¶'
-let g:javascript_conceal_static                    = '•'
-let g:javascript_conceal_super                     = 'Ω'
-let g:javascript_conceal_arrow_function            = '⇒'
-let g:javascript_conceal_noarg_arrow_function      = 'φ'
-let g:javascript_conceal_underscore_arrow_function = '?'
 
 
 " ========================================================================
@@ -1219,17 +1080,11 @@ if has_key(g:plugs, 'trouble.nvim')
   nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
 endif
 
-
-nmap <C-n> :NERDTreeToggle<CR>
-
-nmap <nowait> <Leader>gs :Vista!!<CR>
-
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)
 
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>).
 vmap <Enter> <Plug>(EasyAlign)
-
 
 
 " ========================================================================
