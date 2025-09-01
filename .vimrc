@@ -66,9 +66,6 @@ elseif has('nvim')
     \| Plug 'SmiteshP/nvim-navic'
     \| Plug 'MunifTanjim/nui.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'hrsh7th/nvim-cmp'
-  Plug 'onsails/lspkind.nvim'
-    \| Plug 'hrsh7th/nvim-cmp'
   Plug 'folke/trouble.nvim'
   Plug 'folke/lazydev.nvim'
   Plug 'Bilal2453/luvit-meta'
@@ -79,15 +76,10 @@ elseif has('nvim')
     \| Plug 'williamboman/mason-lspconfig.nvim'
     \| Plug 'zapling/mason-conform.nvim'
     \| Plug 'rshkarin/mason-nvim-lint'
-    \| Plug 'hrsh7th/nvim-cmp'
-    \| Plug 'hrsh7th/cmp-buffer'
-    \| Plug 'hrsh7th/cmp-path'
-    \| Plug 'hrsh7th/cmp-nvim-lsp'
-    \| Plug 'hrsh7th/cmp-nvim-lua'
-    \| Plug 'hrsh7th/cmp-cmdline'
     \| Plug 'b0o/schemastore.nvim'
-  Plug 'zbirenbaum/copilot-cmp'
-    \| Plug 'zbirenbaum/copilot.lua'
+  Plug 'saghen/blink.cmp', { 'tag': 'v1.*' }
+  Plug 'saghen/blink.compat'
+  Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   " Plug 'ray-x/lsp_signature.nvim' " Show function signatures while typing
   " Plug 'yioneko/nvim-vtsls'
@@ -104,9 +96,6 @@ if has('nvim')
     \| Plug 'honza/vim-snippets'
 endif
 
-if has('nvim') && (!exists('g:use_coc') || !g:use_coc)
-  Plug 'saadparwaiz1/cmp_luasnip'
-endif
 
 
 " ========================================================================
@@ -244,8 +233,9 @@ endif
 Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 if has('nvim')
   Plug 'kylechui/nvim-surround'
-  Plug 'windwp/nvim-autopairs'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  " Replaced by blink.cmp
+  " Plug 'windwp/nvim-autopairs'
+  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'tpope/vim-surround'
 end
@@ -607,15 +597,6 @@ highlight SignColumn ctermbg=NONE guibg=NONE
 " Autocommands.                                                          |
 " ========================================================================
 
-" This autocmd will set the current working directory as the current file
-" directory. The Vim, "set autochdir" exists to do the same,
-" but seems to confuse some plugins like LSP.
-" DISABLED for performance - this is also duplicated in lua/core/autocmds.lua
-" augroup autochdir
-"   autocmd!
-"   autocmd BufEnter * if &buftype !=# 'terminal' | silent! lcd %:p:h:gs/ /\\ / | endif
-" augroup END
-
 " Follow symlinks when opening files.
 function! FollowSymlink(...)
   let fname = a:0 ? a:1 : expand('%')
@@ -833,16 +814,15 @@ if has('nvim')
 
   if !exists('g:use_coc') || !g:use_coc
     lua require('core.diagnostic')
+    lua require('plugins.blink-cmp')
     lua require('core.lsp')
     lua require('core.linters')
     lua require('plugins.conform')
     lua require('plugins.mason-conform')
     lua require('plugins.mason-nvim-lint')
-    lua require('plugins.cmp')
     lua require('plugins.copilot-lua')
-    lua require('copilot_cmp').setup()
     lua require('plugins.nvim-navbuddy')
-    lua require('plugins.nvim-autopairs')
+    "lua require('plugins.nvim-autopairs')
     " lua require('plugins.lsp_signature')
     lua require('plugins.lspsaga')
     lua require('trouble').setup()

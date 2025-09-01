@@ -1,7 +1,19 @@
+local lazydev = require('lazydev')
+lazydev.setup({
+  library = {
+    vim.env.VIMRUNTIME,
+    { path = 'luvit-meta/library', words = { 'vim%.uv' } },
+  },
+  runtime = vim.env.VIMRUNTIME,
+  types = true,
+  integrations = {
+    lspconfig = true,
+    cmp = false,
+  },
+})
+
 local lspconfig = require('lspconfig')
 local navbuddy = require('nvim-navbuddy')
-
-require('plugins.lazydev')
 
 vim.lsp.set_log_level('warn')
 
@@ -13,10 +25,10 @@ require('mason').setup({
 
 require('mason-lspconfig').setup()
 
--- Set up capabilities for nvim-cmp
+-- Set up capabilities for blink.cmp
 local lsp_capabilities = vim.lsp.protocol.make_client_capabilities()
-local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities()
-local capabilities = vim.tbl_deep_extend('force', lsp_capabilities, cmp_capabilities)
+local blink_capabilities = require('blink.cmp').get_lsp_capabilities()
+local capabilities = vim.tbl_deep_extend('force', lsp_capabilities, blink_capabilities)
 
 -- TypeScript/JavaScript language server configuration
 local tsserver_lang_config = {
@@ -153,7 +165,6 @@ local lsp_configs = {
           pathStrict = true,
         },
         diagnostics = {
-          globals = { 'vim' }, -- Lazydev should handle this, but adding as fallback
           unusedLocalExclude = { '_*' },
           workspaceDelay = 3000,
           workspaceRate = 100,
@@ -165,7 +176,7 @@ local lsp_configs = {
         },
         workspace = {
           checkThirdParty = false,
-          library = {}, -- Let lazydev handle this completely
+          library = {},
           maxPreload = 10000,
           preloadFileSize = 1000,
           ignoreDir = {

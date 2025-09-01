@@ -28,7 +28,7 @@ vim.diagnostic.config({
     max_width = 80,
     max_height = 20,
     wrap = true,
-    close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
+    close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost', 'BufHidden', 'WinLeave' },
   },
 })
 
@@ -78,13 +78,11 @@ vim.cmd([[
   highlight DiagnosticUnderlineHint gui=underline guisp=#a6e3a1 cterm=underline
 ]])
 
--- Auto-show diagnostic in float when cursor holds
 vim.api.nvim_create_autocmd('CursorHold', {
-  -- Removed buffer = 0 to apply globally instead of just current buffer
   callback = function()
     local opts = {
       focusable = false,
-      close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
+      close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost', 'BufHidden', 'WinLeave' },
       border = 'rounded',
       source = 'always',
       prefix = ' ',

@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "Read(/Users/jackson/**)",
+      "Read(/Users/jackson/**)",
+      "Bash(time source:*)",
+      "Bash(time zsh:*)",
+      "Bash(/dev/null)"
+    ]
+  },
   "rules": [
     {
       "pattern": "**/*",

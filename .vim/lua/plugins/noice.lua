@@ -3,7 +3,7 @@ require('noice').setup({
     override = {
       ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
       ['vim.lsp.util.stylize_markdown'] = true,
-      ['cmp.entry.get_documentation'] = true,
+      ['blink.cmp.entry.get_documentation'] = true,
     },
     signature = {
       enabled = true,
@@ -22,7 +22,7 @@ require('noice').setup({
     enabled = true,
   },
   popupmenu = {
-    backend = 'cmp',
+    backend = 'blink',
   },
   cmdline = {
     enabled = false,
