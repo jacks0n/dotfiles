@@ -1,5 +1,5 @@
-local actions_preview = require("actions-preview")
-local telescope_themes = require("telescope.themes")
+local actions_preview = require('actions-preview')
+local telescope_themes = require('telescope.themes')
 
 actions_preview.setup({
   -- options for vim.diff(): https://neovim.io/doc/user/lua.html#vim.diff()
@@ -11,16 +11,16 @@ actions_preview.setup({
   -- disabled by defalt, must be set by yourself
   highlight_command = {
     -- require("actions-preview.highlight").delta(),
-    require("actions-preview.highlight").diff_so_fancy(),
+    require('actions-preview.highlight').diff_so_fancy(),
     -- require("actions-preview.highlight").diff_highlight(),
   },
 
   -- priority list of preferred backend
-  backend = { "telescope", "nui" },
+  backend = { 'telescope', 'nui' },
 
   -- options related to telescope.nvim
   telescope = vim.tbl_extend(
-    "force",
+    'force',
     -- telescope theme: https://github.com/nvim-telescope/telescope.nvim#themes
     telescope_themes.get_dropdown(),
     -- a table for customizing content
@@ -39,38 +39,37 @@ actions_preview.setup({
   -- options for nui.nvim components
   nui = {
     -- component direction. "col" or "row"
-    dir = "col",
+    dir = 'col',
     -- keymap for selection component: https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/menu#keymap
     keymap = nil,
     -- options for nui Layout component: https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/layout
     layout = {
-      position = "50%",
+      position = '50%',
       size = {
-        width = "60%",
-        height = "90%",
+        width = '60%',
+        height = '90%',
       },
       min_width = 40,
       min_height = 10,
-      relative = "editor",
+      relative = 'editor',
     },
     -- options for preview area: https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/popup
     preview = {
-      size = "60%",
+      size = '60%',
       border = {
-        style = "rounded",
+        style = 'rounded',
         padding = { 0, 1 },
       },
     },
     -- options for selection area: https://github.com/MunifTanjim/nui.nvim/tree/main/lua/nui/menu
     select = {
-      size = "40%",
+      size = '40%',
       border = {
-        style = "rounded",
+        style = 'rounded',
         padding = { 0, 1 },
       },
     },
   },
 })
 
-vim.keymap.set({ "v", "n" }, "ca", actions_preview.code_actions)
-vim.keymap.set("n", "<Leader>ca", actions_preview.code_actions)
+vim.keymap.set('n', '<Leader>ca', actions_preview.code_actions)
