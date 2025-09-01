@@ -1,16 +1,11 @@
 require('copilot').setup({
-  suggestion = { enabled = true },
-  panel = { enabled = true },
+  suggestion = { enabled = false }, -- Disable suggestions since blink.cmp will handle completion
+  panel = { enabled = false }, -- Disable panel to avoid conflicts with blink.cmp
   keymap = {},
   filetypes = {
     gitignore = false,
     ['.gitignore'] = false,
   },
-})
-
--- Setup copilot-cmp
-require('copilot_cmp').setup({
-  fix_pairs = true,
 })
 
 vim.api.nvim_create_autocmd('FileType', {
