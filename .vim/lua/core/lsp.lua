@@ -42,7 +42,7 @@ require('mason-lspconfig').setup({
     'sqlls',
     'intelephense',
   },
-  automatic_enable = true,
+  automatic_enable = false,
 })
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -139,15 +139,17 @@ lspconfig.basedpyright.setup({
     '.git'
   ),
   on_new_config = function(config, root_dir)
+    vim.notify('root_dir:' .. root_dir)
     -- Detect Python path
     local python_path = nil
 
     -- Check for local virtual environments
     local venv_dirs = { '.venv', 'venv', 'env', '.env' }
     for _, vdir in ipairs(venv_dirs) do
-      local venv_path = root_dir .. '/' .. vdir .. '/bin/python'
-      if vim.fn.filereadable(venv_path) == 1 then
-        python_path = venv_path
+      local venv_python = root_dir .. '/' .. vdir .. '/bin/python'
+      if vim.fn.filereadable(venv_python) == 1 then
+        vim.notify('venv_python:' .. venv_python)
+        python_path = venv_python
         break
       end
     end
@@ -200,6 +202,9 @@ lspconfig.basedpyright.setup({
           useLibraryCodeForTypes = true,
           diagnosticMode = 'workspace',
           typeCheckingMode = 'standard',
+          -- Let basedpyright automatically determine paths based on pythonPath
+          -- Only add project root as extra path for local module imports
+          extraPaths = { root_dir },
           diagnosticSeverityOverrides = {
             reportGeneralTypeIssues = 'none',
             reportOptionalMemberAccess = 'none',

@@ -28,7 +28,18 @@
       "Bash(git fetch:*)",
       "Read(/Users/jackson/.vim/plugged/blink.cmp/**)",
       "Read(/Users/jackson/.vim/lua/core/**)",
-      "Read(/Users/jackson/.vim/lua/core/**)"
+      "Read(/Users/jackson/.vim/lua/core/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Read(/Users/jackson/Code/quant-platform/engines/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "WebFetch(domain:docs.basedpyright.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:dev.to)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)"
     ],
     "deny": [],
     "ask": []

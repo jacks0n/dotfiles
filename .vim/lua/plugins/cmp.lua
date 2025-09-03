@@ -134,11 +134,12 @@ blink.setup({
   },
 
   completion = {
-    -- accept = {
-    --   auto_brackets = {
-    --     enabled = true,
-    --   },
-    -- },
+    accept = {
+      auto_brackets = {
+        enabled = true,
+        pairs = { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '"', '"' }, { "'", "'" } },
+      },
+    },
 
     trigger = {
       -- Enable path completion in strings by removing quotes from blocked characters
