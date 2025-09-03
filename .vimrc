@@ -72,17 +72,22 @@ elseif has('nvim')
   Plug 'stevearc/conform.nvim'
   Plug 'mfussenegger/nvim-lint'
   Plug 'neovim/nvim-lspconfig'
-    \| Plug 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
-    \| Plug 'williamboman/mason-lspconfig.nvim'
+    \| Plug 'mason-org/mason.nvim', { 'do': ':MasonUpdate' }
+    \| Plug 'mason-org/mason-lspconfig.nvim'
     \| Plug 'zapling/mason-conform.nvim'
     \| Plug 'rshkarin/mason-nvim-lint'
     \| Plug 'b0o/schemastore.nvim'
-  Plug 'saghen/blink.cmp', { 'tag': 'v1.*' }
+  " Using blink.cmp instead of nvim-cmp
+  Plug 'saghen/blink.cmp'
   Plug 'saghen/blink.compat'
+    \| Plug 'onsails/lspkind.nvim'
+  Plug 'giuxtaposition/blink-cmp-copilot'
+  " Keep these for other functionality
+  Plug 'windwp/nvim-autopairs'
   Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   " Plug 'ray-x/lsp_signature.nvim' " Show function signatures while typing
-  " Plug 'yioneko/nvim-vtsls'
+  Plug 'yioneko/nvim-vtsls'
 endif
 
 
@@ -197,9 +202,6 @@ endif
 " Syntax and Indent.                     |
 " ----------------------------------------
 
-if has('nvim')
-  Plug 'pmizio/typescript-tools.nvim'
-endif
 
 
 " ========================================================================
@@ -814,7 +816,7 @@ if has('nvim')
 
   if !exists('g:use_coc') || !g:use_coc
     lua require('core.diagnostic')
-    lua require('plugins.blink-cmp')
+    lua require('plugins.cmp')
     lua require('core.lsp')
     lua require('core.linters')
     lua require('plugins.conform')

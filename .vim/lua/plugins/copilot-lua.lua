@@ -8,6 +8,8 @@ require('copilot').setup({
   },
 })
 
+-- Note: copilot integration is handled by blink-cmp-copilot in the cmp.lua configuration
+
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('CopilotFiletype', {}),
   pattern = { 'csv', 'gitignore' },
