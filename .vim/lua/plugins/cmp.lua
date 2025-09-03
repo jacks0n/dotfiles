@@ -67,6 +67,11 @@ blink.setup({
     default = { 'lsp', 'copilot', 'path', 'buffer' },
 
     per_filetype = {
+      -- For TS/JS files, prioritize LSP for path completions
+      typescript = { 'lsp', 'copilot', 'buffer' },
+      typescriptreact = { 'lsp', 'copilot', 'buffer' },
+      javascript = { 'lsp', 'copilot', 'buffer' },
+      javascriptreact = { 'lsp', 'copilot', 'buffer' },
       gitcommit = { 'buffer' },
       sagarename = {},
       ['/'] = { 'buffer' },
@@ -134,6 +139,11 @@ blink.setup({
     --     enabled = true,
     --   },
     -- },
+
+    trigger = {
+      -- Enable path completion in strings by removing quotes from blocked characters
+      show_on_x_blocked_trigger_characters = { '(', '{', '[' },
+    },
 
     menu = {
       enabled = true,

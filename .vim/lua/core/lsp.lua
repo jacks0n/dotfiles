@@ -18,7 +18,6 @@ local schemastore = require('schemastore')
 
 vim.lsp.set_log_level('warn')
 
--- Setup Mason
 require('mason').setup({
   ui = {
     border = 'rounded',
@@ -46,20 +45,15 @@ require('mason-lspconfig').setup({
   automatic_enable = true,
 })
 
--- Setup capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
--- Use blink.cmp's capabilities
 local blink_capabilities = require('blink.cmp').get_lsp_capabilities()
 capabilities = vim.tbl_deep_extend('force', capabilities, blink_capabilities)
 
--- Common on_attach function
 local function on_attach(client, buffer)
-  -- Setup navbuddy
   if client.server_capabilities.documentSymbolProvider then
     navbuddy.attach(client, buffer)
   end
 
-  -- Setup key mappings
   local opts = { noremap = true, silent = true, buffer = buffer }
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
@@ -71,9 +65,11 @@ end
 -- TypeScript/JavaScript shared configuration
 local ts_js_settings = {
   preferences = {
-    importModuleSpecifier = 'shortest',
+    importModuleSpecifier = 'relative',
     importModuleSpecifierEnding = 'auto',
     includePackageJsonAutoImports = 'auto',
+    includeCompletionsForModuleExports = true,
+    includeCompletionsForImportStatements = true,
     quotePreference = 'auto',
   },
   inlayHints = {
@@ -89,9 +85,8 @@ local ts_js_settings = {
   suggest = {
     completeFunctionCalls = true,
     includeAutomaticOptionalChainCompletions = true,
-    includeCompletionsForModuleExports = true,
-    includeCompletionsForImportStatements = true,
     includeCompletionsWithInsertText = true,
+    paths = true,
   },
   updateImportsOnFileMove = {
     enabled = 'always',
@@ -110,7 +105,6 @@ local ts_js_settings = {
   },
 }
 
--- TypeScript/JavaScript
 lspconfig.vtsls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -131,7 +125,6 @@ lspconfig.vtsls.setup({
   },
 })
 
--- Python
 lspconfig.basedpyright.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -219,7 +212,6 @@ lspconfig.basedpyright.setup({
   end,
 })
 
--- Lua
 lspconfig.lua_ls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -270,7 +262,6 @@ lspconfig.lua_ls.setup({
   },
 })
 
--- JSON
 lspconfig.jsonls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -283,7 +274,6 @@ lspconfig.jsonls.setup({
   },
 })
 
--- YAML
 lspconfig.yamlls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -340,7 +330,6 @@ lspconfig.yamlls.setup({
   },
 })
 
--- Java
 lspconfig.jdtls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -351,14 +340,12 @@ lspconfig.jdtls.setup({
   },
 })
 
--- Vim
 lspconfig.vimls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
   init_options = { isNeovim = true },
 })
 
--- Simple servers
 lspconfig.bashls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
