@@ -22,7 +22,13 @@
       "mcp__serena__get_symbols_overview",
       "mcp__serena__list_dir",
       "mcp__serena__search_for_pattern",
-      "mcp__serena__think_about_collected_information"
+      "mcp__serena__think_about_collected_information",
+      "WebFetch(domain:**)",
+      "WebFetch(domain:github.com)",
+      "Bash(git fetch:*)",
+      "Read(/Users/jackson/.vim/plugged/blink.cmp/**)",
+      "Read(/Users/jackson/.vim/lua/core/**)",
+      "Read(/Users/jackson/.vim/lua/core/**)"
     ],
     "deny": [],
     "ask": []
