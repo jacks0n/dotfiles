@@ -1,10 +1,6 @@
 local M = {}
 
--- Setup conform.nvim for formatting
-local conform_ok, conform = pcall(require, 'conform')
-if not conform_ok then
-  return M
-end
+local conform = require('conform')
 
 conform.setup({
   formatters_by_ft = {
@@ -91,7 +87,6 @@ vim.api.nvim_create_autocmd('BufReadPre', {
   end,
 })
 
--- Key mappings for formatting
 vim.keymap.set('n', 'gf', function()
   conform.format({ timeout_ms = 3000 })
 end, { desc = 'Format buffer' })

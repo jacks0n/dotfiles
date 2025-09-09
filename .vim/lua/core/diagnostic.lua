@@ -32,28 +32,28 @@ vim.diagnostic.config({
   },
 })
 
--- Set up diagnostic keymaps
-vim.keymap.set('n', '<leader>ld', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
-vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1 }) end, { desc = 'Go to previous diagnostic' })
-vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
-
--- Customize diagnostic severity navigation
-vim.keymap.set('n', '[e', function()
-  vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
-end, { desc = 'Go to previous error' })
-
-vim.keymap.set('n', ']e', function()
-  vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
-end, { desc = 'Go to next error' })
-
-vim.keymap.set('n', '[w', function()
-  vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN })
-end, { desc = 'Go to previous warning' })
-
-vim.keymap.set('n', ']w', function()
-  vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN })
-end, { desc = 'Go to next warning' })
+-- -- Set up diagnostic keymaps
+-- vim.keymap.set('n', '<leader>ld', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
+-- vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1 }) end, { desc = 'Go to previous diagnostic' })
+-- vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, { desc = 'Go to next diagnostic' })
+-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
+--
+-- -- Customize diagnostic severity navigation
+-- vim.keymap.set('n', '[e', function()
+--   vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
+-- end, { desc = 'Go to previous error' })
+--
+-- vim.keymap.set('n', ']e', function()
+--   vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
+-- end, { desc = 'Go to next error' })
+--
+-- vim.keymap.set('n', '[w', function()
+--   vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN })
+-- end, { desc = 'Go to previous warning' })
+--
+-- vim.keymap.set('n', ']w', function()
+--   vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN })
+-- end, { desc = 'Go to next warning' })
 
 -- Toggle diagnostics
 -- vim.keymap.set('n', '<leader>dd', function()

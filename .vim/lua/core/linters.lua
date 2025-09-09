@@ -1,7 +1,7 @@
 local M = {}
 
--- Setup nvim-lint for linting
 local lint = require('lint')
+local utils = require('core.utils')
 
 lint.linters_by_ft = {
   javascript = { 'eslint_d' },
@@ -25,7 +25,6 @@ lint.linters_by_ft = {
   scss = { 'stylelint' },
 }
 
--- Custom linter configurations
 lint.linters.eslint_d.args = {
   '--no-warn-ignored',
   '--format',
@@ -48,7 +47,7 @@ lint.linters.luacheck.args = {
 }
 
 -- Configure mypy with dynamic Python environment detection
-lint.linters.mypy = vim.tbl_deep_extend('force', lint.linters.mypy, {
+lint.linters.mypy = vim.tbl_deep_extend('force', lint.linters.mypy or {}, {
   cmd = 'mypy',
   args = function()
     local args = {
@@ -64,70 +63,17 @@ lint.linters.mypy = vim.tbl_deep_extend('force', lint.linters.mypy, {
       '--ignore-missing-imports',
     }
 
-    -- Detect Python environment for current project
     local root_dir = vim.fn.getcwd()
-    local python_path = nil
+    local python_path = utils.detect_python_path(root_dir)
 
-    -- Check for local virtual environments
-    local venv_dirs = { '.venv', 'venv', 'env', '.env' }
-    for _, vdir in ipairs(venv_dirs) do
-      local venv_python = root_dir .. '/' .. vdir .. '/bin/python'
-      if vim.fn.filereadable(venv_python) == 1 then
-        python_path = venv_python
-        break
-      end
-    end
-
-    -- Try Poetry
-    if not python_path then
-      local poetry_cmd = string.format('cd %s && poetry env info --path 2>/dev/null', vim.fn.shellescape(root_dir))
-      local poetry_venv = vim.fn.system(poetry_cmd)
-      if vim.v.shell_error == 0 and poetry_venv ~= '' then
-        python_path = vim.trim(poetry_venv) .. '/bin/python'
-      end
-    end
-
-    -- Try Pipenv
-    if not python_path then
-      local pipenv_cmd = string.format('cd %s && pipenv --venv 2>/dev/null', vim.fn.shellescape(root_dir))
-      local pipenv_venv = vim.fn.system(pipenv_cmd)
-      if vim.v.shell_error == 0 and pipenv_venv ~= '' then
-        python_path = vim.trim(pipenv_venv) .. '/bin/python'
-      end
-    end
-
-    -- Check environment variables
-    if not python_path then
-      if vim.env.VIRTUAL_ENV then
-        python_path = vim.env.VIRTUAL_ENV .. '/bin/python'
-        if vim.fn.filereadable(python_path) ~= 1 then
-          python_path = nil
-        end
-      elseif vim.env.CONDA_PREFIX then
-        python_path = vim.env.CONDA_PREFIX .. '/bin/python'
-        if vim.fn.filereadable(python_path) ~= 1 then
-          python_path = nil
-        end
-      end
-    end
-
-    -- If we found a Python path, add it to args
-    if python_path then
-      table.insert(args, '--python-executable')
-      table.insert(args, python_path)
-    end
+    table.insert(args, '--python-executable')
+    table.insert(args, python_path)
 
     return args
   end,
   stdin = true,
 })
 
--- Function to check if a linter is available
-local function is_executable(name)
-  return vim.fn.executable(name) == 1
-end
-
--- Cache for config file detection
 local config_cache = {}
 
 -- Function to check if config files exist for linters
@@ -158,7 +104,7 @@ local function setup_conditional_linting()
   local available_linters = {}
 
   for _, linter in ipairs(linters) do
-    if linter == 'eslint_d' and is_executable('eslint_d') then
+    if linter == 'eslint_d' and utils.is_executable('eslint_d') then
       if
         has_config_file({
           '.eslintrc.js',
@@ -173,15 +119,15 @@ local function setup_conditional_linting()
       then
         table.insert(available_linters, linter)
       end
-    elseif linter == 'phpcs' and is_executable('phpcs') then
+    elseif linter == 'phpcs' and utils.is_executable('phpcs') then
       if has_config_file({ 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' }) then
         table.insert(available_linters, linter)
       end
-    elseif linter == 'flake8' and is_executable('flake8') then
+    elseif linter == 'flake8' and utils.is_executable('flake8') then
       if has_config_file({ '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' }) then
         table.insert(available_linters, linter)
       end
-    elseif is_executable(linter) then
+    elseif utils.is_executable(linter) then
       table.insert(available_linters, linter)
     end
   end
@@ -191,7 +137,6 @@ local function setup_conditional_linting()
   end
 end
 
--- Set up autocommands for linting
 vim.api.nvim_create_augroup('nvim_lint', { clear = true })
 
 -- Defer linting on file open to prevent blocking
@@ -208,10 +153,11 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
   end,
 })
 
--- Key mapping for manual linting
-vim.keymap.set('n', '<leader>fl', function()
-  lint.try_lint()
-end, { desc = 'Lint buffer' })
+-- vim.keymap.set('n', '<Leader>ll', function()
+--   lint.try_lint()
+-- end, { desc = 'Lint buffer' })
+
+vim.keymap.set('n', '<Leader>ll', lint.try_lint, { desc = 'Lint buffer' })
 
 M.lint = lint
 

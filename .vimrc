@@ -6,6 +6,32 @@
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
 filetype off
 
+" ========================================================================
+" GUI Mode Specific.                                                     |
+" ========================================================================
+
+if has('gui_running')
+  set guioptions-=m " Disable menu bar.
+  set guioptions-=L " Disable left-hand scrollbar when vertical split open.
+  set guioptions-=r " Disable right-hand scrollbar.
+endif
+
+if exists('g:neovide')
+  " Map OSX shortcuts.
+  let g:neovide_input_use_logo = v:true
+  let g:neovide_input_macos_option_key_is_meta = v:true
+  map <D-v> "+p<CR>
+  map! <D-v> <C-R>+
+  tmap <D-v> <C-R>+
+  vmap <D-c> "+y<CR>
+endif
+
+if has('gui_running') || exists('g:neovide')
+  " Change font size.
+  nmap <D-=> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<CR>
+  nmap <D--> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<CR>
+endif
+
 function! SynGroup()
   let l:s = synID(line('.'), col('.'), 1)
   echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
@@ -77,16 +103,12 @@ elseif has('nvim')
     \| Plug 'zapling/mason-conform.nvim'
     \| Plug 'rshkarin/mason-nvim-lint'
     \| Plug 'b0o/schemastore.nvim'
-  " Using blink.cmp instead of nvim-cmp
   Plug 'saghen/blink.cmp'
   Plug 'saghen/blink.compat'
     \| Plug 'onsails/lspkind.nvim'
   Plug 'giuxtaposition/blink-cmp-copilot'
-  " Keep these for other functionality
-  Plug 'windwp/nvim-autopairs'
   Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
-  " Plug 'ray-x/lsp_signature.nvim' " Show function signatures while typing
   Plug 'yioneko/nvim-vtsls'
 endif
 
@@ -116,7 +138,6 @@ Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
 " ========================================================================
 
 Plug 'norcalli/nvim-colorizer.lua'
-Plug 'matze/vim-move'                 " Move lines and selections up and down.
 Plug 'mhinz/vim-startify'             " Fancy start screen.
 Plug 'wuelnerdotexe/vim-enfocado'
 if has('nvim')
@@ -235,9 +256,6 @@ endif
 Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 if has('nvim')
   Plug 'kylechui/nvim-surround'
-  " Replaced by blink.cmp
-  " Plug 'windwp/nvim-autopairs'
-  "   \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'tpope/vim-surround'
 end
@@ -465,33 +483,6 @@ let g:python_recommended_style = 0
 
 let g:loaded_ruby_provider = 0
 let g:loaded_perl_provider = 0
-
-
-" ========================================================================
-" GUI Mode Specific.                                                     |
-" ========================================================================
-
-if has('gui_running')
-  set guioptions-=m " Disable menu bar.
-  set guioptions-=L " Disable left-hand scrollbar when vertical split open.
-  set guioptions-=r " Disable right-hand scrollbar.
-endif
-
-if exists('g:neovide')
-  " Map OSX shortcuts.
-  let g:neovide_input_use_logo = v:true
-  let g:neovide_input_macos_option_key_is_meta = v:true
-  map <D-v> "+p<CR>
-  map! <D-v> <C-R>+
-  tmap <D-v> <C-R>+
-  vmap <D-c> "+y<CR>
-endif
-
-if has('gui_running') || exists('g:neovide')
-  " Change font size.
-  nmap <D-=> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<CR>
-  nmap <D--> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<CR>
-endif
 
 
 " ========================================================================
@@ -824,10 +815,8 @@ if has('nvim')
     lua require('plugins.mason-nvim-lint')
     lua require('plugins.copilot-lua')
     lua require('plugins.nvim-navbuddy')
-    "lua require('plugins.nvim-autopairs')
-    " lua require('plugins.lsp_signature')
     lua require('plugins.lspsaga')
-    lua require('trouble').setup()
+    lua require('plugins.trouble')
     lua require('plugins.actions-preview')
   endif
 
@@ -871,13 +860,22 @@ let g:embark_terminal_italics = 1
 
 let g:indexed_search_mappings = 0
 
-" vim-move.
-let g:move_map_keys = 0
-let g:move_key_modifier = 'A'
-nnoremap <silent> <A-j> <Plug>MoveLineDown
-nnoremap <silent> <A-k> <Plug>MoveLineUp
-
-
+" Move line up.
+" nnoremap <Esc><Up> :m .-2<CR>==
+" vnoremap <Esc><Down> :m '>+1<CR>gv=gv
+" vnoremap <Esc><Up> :m '<-2<CR>gv=gv
+"
+" " Move line down.
+" nnoremap <M-j> :m .+1<CR>==       " Meta notation
+"
+" " Move selection up.
+" vnoremap <M-j> :m '>+1<CR>gv=gv
+" vnoremap ∆ :m '>+1<CR>gv=gv
+"
+" " Move selection down.
+" vnoremap <M-k> :m '<-2<CR>gv=gv
+" vnoremap ˚ :m '<-2<CR>gv=gv
+"
 " GitGutter.
 let g:gitgutter_max_signs               = 1000 " Bump up from default 500.
 let g:gitgutter_sign_added              = '┃+'
@@ -978,29 +976,29 @@ let g:gruvbox_contrast_dark = 'hard'
 " Plugin Mappings.                                                       |
 " ========================================================================
 
-if has_key(g:plugs, 'nvim-lspconfig') && !has_key(g:plugs, 'telescope.nvim')
-  nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
-  nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
-  nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
-  nmap <silent> gr :lua vim.lsp.buf.references()<CR>
-  nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
-  nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
-endif
-
-if !has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
-  nmap <silent> K :lua vim.lsp.buf.hover()<CR>
-  nmap <silent> [d :lua vim.diagnostic.goto_prev({ desc = 'Go to previous diagnostic message' })<CR>
-  nmap <silent> ]d :lua vim.diagnostic.goto_next({ desc = 'Go to next diagnostic message' })<CR>
-  nmap <silent> [e :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.ERROR })<CR>
-  nmap <silent> ]e :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.ERROR })<CR>
-  nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
-  nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
-  nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
-  nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
-  nmap <silent> gf :lua vim.lsp.buf.format()<CR>
-  nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
-  nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
-end
+" if has_key(g:plugs, 'nvim-lspconfig') && !has_key(g:plugs, 'telescope.nvim')
+"   nmap <silent> gd :lua vim.lsp.buf.definition()<CR>
+"   nmap <silent> gi :lua vim.lsp.buf.implementation()<CR>
+"   nmap <silent> gt :lua vim.lsp.buf.type_definition()<CR>
+"   nmap <silent> gr :lua vim.lsp.buf.references()<CR>
+"   nmap <Leader>ic :lua vim.lsp.buf.incoming_calls()<CR>
+"   nmap <Leader>oc :lua vim.lsp.buf.outgoing_calls()<CR>
+" endif
+"
+" if !has_key(g:plugs, 'coc.nvim') && has_key(g:plugs, 'nvim-lspconfig')
+"   nmap <silent> K :lua vim.lsp.buf.hover()<CR>
+"   nmap <silent> [d :lua vim.diagnostic.goto_prev({ desc = 'Go to previous diagnostic message' })<CR>
+"   nmap <silent> ]d :lua vim.diagnostic.goto_next({ desc = 'Go to next diagnostic message' })<CR>
+"   nmap <silent> [e :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.ERROR })<CR>
+"   nmap <silent> ]e :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.ERROR })<CR>
+"   nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
+"   nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
+"   nmap <silent> [w :lua vim.diagnostic.goto_prev({ desc = 'Go to previous error message', severity = vim.diagnostic.severity.WARN })<CR>
+"   nmap <silent> ]w :lua vim.diagnostic.goto_next({ desc = 'Go to next error message', severity = vim.diagnostic.severity.WARN })<CR>
+"   nmap <silent> gf :lua vim.lsp.buf.format()<CR>
+"   nmap <silent> [[ :lua vim.diagnostic.disable()<CR>
+"   nmap <silent> ]] :lua vim.diagnostic.enable()<CR>
+" end
 
 " coc.nvim.
 if has_key(g:plugs, 'coc.nvim')
@@ -1052,15 +1050,9 @@ endif
 
 nnoremap <A-h> :SidewaysLeft<cr>
 nnoremap <A-l> :SidewaysRight<cr>
-
-" Trouble.nvim.
-if has_key(g:plugs, 'trouble.nvim')
-  nnoremap <leader>xx <cmd>TroubleToggle<cr>
-  nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
-  nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
-  nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
-  nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
-endif
+nnoremap <A-h> :SidewaysLeft<cr>
+nnoremap ˙ :SidewaysLeft<cr> " Unicode character (Option+h on Mac)
+nnoremap ¬ :SidewaysLeft<cr> " Unicode character (Option+l on Mac)
 
 " Start interactive EasyAlign in visual mode (e.g. vipga).
 xmap ga <Plug>(EasyAlign)

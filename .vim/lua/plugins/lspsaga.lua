@@ -30,10 +30,20 @@ require('lspsaga').setup({
   },
 })
 
-vim.keymap.set('n', '<Leader>gp', ':Lspsaga lsp_finder<CR>', { desc = 'LSP finder', silent = true })
-vim.keymap.set('n', '<Leader>gd', ':Lspsaga peek_definition<CR>', { desc = 'Peek LSP definition', silent = true })
-vim.keymap.set('n', 'gd', ':Lspsaga peek_definition<CR>', { desc = 'Peek LSP definition', silent = true })
-vim.keymap.set('n', '<Leader>gt', ':Lspsaga peek_type_definition<CR>', { desc = 'Peek LSP type definition', silent = true })
-vim.keymap.set('n', 'gt', ':Lspsaga peek_type_definition<CR>', { desc = 'Peek LSP type definition', silent = true })
+vim.keymap.set('n', '<Leader>gp', ':Lspsaga finder<CR>', { desc = 'LSP finder', silent = true })
+vim.keymap.set('n', 'gpd', ':Lspsaga peek_definition<CR>', { desc = 'Peek LSP definition', silent = true })
+vim.keymap.set('n', 'gpt', ':Lspsaga peek_type_definition<CR>', { desc = 'Peek LSP type definition', silent = true })
 vim.keymap.set('n', '<Leader>go', ':Lspsaga outline<CR>', { desc = 'LSP outline', silent = true })
 vim.keymap.set('n', '<Leader>rn', ':Lspsaga rename<CR>', { desc = 'LSP rename', silent = true, noremap = true })
+vim.keymap.set(
+  'n',
+  '<Leader>ic',
+  ':Lspsaga incoming_calls<CR>',
+  { desc = 'LSP incoming calls', silent = true, noremap = true }
+)
+vim.keymap.set(
+  'n',
+  '<Leader>oc',
+  ':Lspsaga outgoing_calls<CR>',
+  { desc = 'LSP outgoing calls', silent = true, noremap = true }
+)

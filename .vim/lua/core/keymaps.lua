@@ -1,9 +1,8 @@
--- Keymaps
+local keymap = vim.keymap.set
+
 local M = {}
 
 M.setup = function()
-  local keymap = vim.keymap.set
-
   -- Better movement
   keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
   keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -35,45 +34,50 @@ M.setup = function()
   keymap('v', 'Y', 'y$', { desc = 'Yank to end of line' })
 
   -- Search and replace
-  keymap('n', '<leader>/', ':noh<CR>', { desc = 'Clear search highlight' })
-  keymap('n', '<leader>sr', ':%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>', { desc = 'Search and replace word under cursor' })
+  keymap('n', '<Leader>/', ':noh<CR>', { desc = 'Clear search highlight' })
+  keymap(
+    'n',
+    '<Leader>sr',
+    ':%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>',
+    { desc = 'Search and replace word under cursor' }
+  )
 
   -- Quick save and quit
-  keymap('n', '<leader>w', ':w<CR>', { desc = 'Save file' })
-  keymap('n', '<leader>q', ':q<CR>', { desc = 'Quit' })
-  keymap('n', '<leader>Q', ':qa<CR>', { desc = 'Quit all' })
+  keymap('n', '<Leader>w', ':w<CR>', { desc = 'Save file' })
+  keymap('n', '<Leader>q', ':q<CR>', { desc = 'Quit' })
+  keymap('n', '<Leader>Q', ':qa<CR>', { desc = 'Quit all' })
 
   -- Buffer navigation
-  keymap('n', '<leader>bd', ':bdelete<CR>', { desc = 'Delete buffer' })
-  keymap('n', '<leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
-  keymap('n', '<leader>bp', ':bprevious<CR>', { desc = 'Previous buffer' })
+  keymap('n', '<Leader>bd', ':bdelete<CR>', { desc = 'Delete buffer' })
+  keymap('n', '<Leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
+  keymap('n', '<Leader>bp', ':bprevious<CR>', { desc = 'Previous buffer' })
 
   -- Tab navigation
-  keymap('n', '<leader>tn', ':tabnew<CR>', { desc = 'New tab' })
-  keymap('n', '<leader>tc', ':tabclose<CR>', { desc = 'Close tab' })
-  keymap('n', '<leader>to', ':tabonly<CR>', { desc = 'Close other tabs' })
+  keymap('n', '<Leader>tn', ':tabnew<CR>', { desc = 'New tab' })
+  keymap('n', '<Leader>tc', ':tabclose<CR>', { desc = 'Close tab' })
+  keymap('n', '<Leader>to', ':tabonly<CR>', { desc = 'Close other tabs' })
 
   -- Toggle settings
-  keymap('n', '<leader>tw', ':set wrap!<CR>', { desc = 'Toggle word wrap' })
-  keymap('n', '<leader>ts', ':set spell!<CR>', { desc = 'Toggle spell check' })
-  keymap('n', '<leader>tn', ':set number!<CR>', { desc = 'Toggle line numbers' })
-  keymap('n', '<leader>tr', ':set relativenumber!<CR>', { desc = 'Toggle relative numbers' })
+  keymap('n', '<Leader>tw', ':set wrap!<CR>', { desc = 'Toggle word wrap' })
+  keymap('n', '<Leader>ts', ':set spell!<CR>', { desc = 'Toggle spell check' })
+  keymap('n', '<Leader>tn', ':set number!<CR>', { desc = 'Toggle line numbers' })
+  keymap('n', '<Leader>tr', ':set relativenumber!<CR>', { desc = 'Toggle relative numbers' })
 
   -- File operations
-  keymap('n', '<leader>e', ':enew<CR>', { desc = 'New empty buffer' })
-  keymap('n', '<leader>v', ':edit $MYVIMRC<CR>', { desc = 'Edit vimrc' })
-  keymap('n', '<leader>z', ':edit ~/.zshrc<CR>', { desc = 'Edit zshrc' })
+  keymap('n', '<Leader>e', ':enew<CR>', { desc = 'New empty buffer' })
+  keymap('n', '<Leader>v', ':edit $MYVIMRC<CR>', { desc = 'Edit vimrc' })
+  keymap('n', '<Leader>z', ':edit ~/.zshrc<CR>', { desc = 'Edit zshrc' })
 
   -- Folding
-  keymap('n', '<leader>fl-', ':setlocal nofoldenable<CR>', { desc = 'Disable folding' })
-  keymap('n', '<leader>fl=', ':setlocal foldenable<CR>', { desc = 'Enable folding' })
+  keymap('n', '<Leader>fl-', ':setlocal nofoldenable<CR>', { desc = 'Disable folding' })
+  keymap('n', '<Leader>fl=', ':setlocal foldenable<CR>', { desc = 'Enable folding' })
   for i = 0, 9 do
-    keymap('n', '<leader>fl' .. i, ':setlocal foldlevel=' .. i .. '<CR>', { desc = 'Set fold level ' .. i })
+    keymap('n', '<Leader>fl' .. i, ':setlocal foldlevel=' .. i .. '<CR>', { desc = 'Set fold level ' .. i })
   end
 
   -- Conceal level
   for i = 0, 3 do
-    keymap('n', '<leader>cl' .. i, ':setlocal conceallevel=' .. i .. '<CR>', { desc = 'Set conceal level ' .. i })
+    keymap('n', '<Leader>cl' .. i, ':setlocal conceallevel=' .. i .. '<CR>', { desc = 'Set conceal level ' .. i })
   end
 
   -- Better command line
@@ -99,35 +103,68 @@ M.setup = function()
   keymap('n', 'N', 'Nzzzv')
 
   -- Better paste
-  keymap('x', '<leader>p', '"_dP', { desc = 'Paste without yanking' })
+  keymap('x', '<Leader>p', '"_dP', { desc = 'Paste without yanking' })
 
   -- System clipboard
-  keymap('n', '<leader>y', '"+y', { desc = 'Yank to system clipboard' })
-  keymap('v', '<leader>y', '"+y', { desc = 'Yank to system clipboard' })
-  keymap('n', '<leader>Y', '"+Y', { desc = 'Yank line to system clipboard' })
-  keymap('n', '<leader>p', '"+p', { desc = 'Paste from system clipboard' })
-  keymap('n', '<leader>P', '"+P', { desc = 'Paste from system clipboard before' })
+  keymap('n', '<Leader>y', '"+y', { desc = 'Yank to system clipboard' })
+  keymap('v', '<Leader>y', '"+y', { desc = 'Yank to system clipboard' })
+  keymap('n', '<Leader>Y', '"+Y', { desc = 'Yank line to system clipboard' })
+  keymap('n', '<Leader>p', '"+p', { desc = 'Paste from system clipboard' })
+  keymap('n', '<Leader>P', '"+P', { desc = 'Paste from system clipboard before' })
 
   -- Quick fix navigation
   keymap('n', '[q', ':cprevious<CR>', { desc = 'Previous quickfix item' })
   keymap('n', ']q', ':cnext<CR>', { desc = 'Next quickfix item' })
-  keymap('n', '<leader>qo', ':copen<CR>', { desc = 'Open quickfix' })
-  keymap('n', '<leader>qc', ':cclose<CR>', { desc = 'Close quickfix' })
+  keymap('n', '<Leader>qo', ':copen<CR>', { desc = 'Open quickfix' })
+  keymap('n', '<Leader>qc', ':cclose<CR>', { desc = 'Close quickfix' })
 
   -- Location list navigation
   keymap('n', '[l', ':lprevious<CR>', { desc = 'Previous location item' })
   keymap('n', ']l', ':lnext<CR>', { desc = 'Next location item' })
-  keymap('n', '<leader>lo', ':lopen<CR>', { desc = 'Open location list' })
-  keymap('n', '<leader>lc', ':lclose<CR>', { desc = 'Close location list' })
+  keymap('n', '<Leader>lo', ':lopen<CR>', { desc = 'Open location list' })
+  keymap('n', '<Leader>lc', ':lclose<CR>', { desc = 'Close location list' })
 
   -- Terminal
-  if vim.fn.has('nvim') == 1 then
-    keymap('t', '<C-h>', '<C-\\><C-N><C-w>h', { desc = 'Terminal left window nav' })
-    keymap('t', '<C-j>', '<C-\\><C-N><C-w>j', { desc = 'Terminal down window nav' })
-    keymap('t', '<C-k>', '<C-\\><C-N><C-w>k', { desc = 'Terminal up window nav' })
-    keymap('t', '<C-l>', '<C-\\><C-N><C-w>l', { desc = 'Terminal right window nav' })
-    keymap('t', '<Esc>', '<C-\\><C-n>', { desc = 'Terminal normal mode' })
-  end
+  keymap('t', '<C-h>', '<C-\\><C-N><C-w>h', { desc = 'Terminal left window nav' })
+  keymap('t', '<C-j>', '<C-\\><C-N><C-w>j', { desc = 'Terminal down window nav' })
+  keymap('t', '<C-k>', '<C-\\><C-N><C-w>k', { desc = 'Terminal up window nav' })
+  keymap('t', '<C-l>', '<C-\\><C-N><C-w>l', { desc = 'Terminal right window nav' })
+  keymap('t', '<Esc>', '<C-\\><C-n>', { desc = 'Terminal normal mode' })
+
+  -- Set up diagnostic keymaps
+  keymap('n', '<leader>ld', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
+  keymap('n', '[d', function()
+    vim.diagnostic.jump({ count = -1 })
+  end, { desc = 'Go to previous diagnostic' })
+  keymap('n', ']d', function()
+    vim.diagnostic.jump({ count = 1 })
+  end, { desc = 'Go to next diagnostic' })
+  keymap('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
+
+  -- Toggle diagnostics
+  vim.keymap.set('n', '[[', function()
+    vim.diagnostic.enable(false)
+  end, { desc = 'Disable diagnostics' })
+  vim.keymap.set('n', ']]', function()
+    vim.diagnostic.enable(true)
+  end, { desc = 'Enable diagnostics' })
+
+  -- Customize diagnostic severity navigation
+  keymap('n', '[e', function()
+    vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
+  end, { desc = 'Go to previous error' })
+
+  keymap('n', ']e', function()
+    vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
+  end, { desc = 'Go to next error' })
+
+  keymap('n', '[w', function()
+    vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN })
+  end, { desc = 'Go to previous warning' })
+
+  keymap('n', ']w', function()
+    vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN })
+  end, { desc = 'Go to next warning' })
 end
 
 return M

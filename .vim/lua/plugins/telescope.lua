@@ -12,7 +12,6 @@ telescope.setup({
     },
   },
   defaults = {
-    -- @todo Is this the default?
     file_previewer = require('telescope.previewers').vim_buffer_cat.new,
     -- Show hidden files.
     vimgrep_arguments = {
@@ -55,8 +54,8 @@ telescope.setup({
 })
 
 telescope.load_extension('fzf')
--- telescope.load_extension('frecency')
--- telescope.load_extension('noice')
+
+local M = {}
 
 local function git_files_all()
   local git_opts = {
@@ -85,13 +84,11 @@ local function git_files_source()
 end
 
 vim.keymap.set('n', 'gs', function()
-  local query = vim.fn.input('LSP Workspace Symbols❯ ')
-  if query ~= '' then
-    telescope_builtin.lsp_workspace_symbols({
-      query = query,
-      layout_strategy = 'vertical',
-    })
-  end
+  telescope_builtin.lsp_workspace_symbols({
+    query = '',
+    layout_strategy = 'vertical',
+    path_display = { 'smart' },
+  })
 end)
 
 local function call_telescope_vertical(callback)
@@ -114,23 +111,12 @@ vim.keymap.set(
   call_telescope_vertical(telescope_builtin.lsp_implementations),
   { desc = 'LSP implementation(s)' }
 )
-vim.keymap.set(
-  'n',
-  '<Leader>ic',
-  call_telescope_vertical(telescope_builtin.lsp_incoming_calls),
-  { desc = 'LSP incoming calls' }
-)
-vim.keymap.set(
-  'n',
-  '<Leader>oc',
-  call_telescope_vertical(telescope_builtin.lsp_outgoing_calls),
-  { desc = 'LSP outgoing calls' }
-)
 vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
 vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
 vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
 vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files (all)' })
 vim.keymap.set('n', '<Leader>gg', grep_project, { desc = 'Git grep in project' })
+vim.keymap.set('n', '<C-p>', ':Telescope commands', { desc = 'Commands' })
 
 -- Project switching with configurable workspaces
 vim.keymap.set('n', '<Leader>p', function()

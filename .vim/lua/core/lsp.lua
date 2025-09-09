@@ -15,6 +15,7 @@ lazydev.setup({
 local lspconfig = require('lspconfig')
 local navbuddy = require('nvim-navbuddy')
 local schemastore = require('schemastore')
+local utils = require('core.utils')
 
 vim.lsp.set_log_level('warn')
 
@@ -56,6 +57,8 @@ local function on_attach(client, buffer)
 
   local opts = { noremap = true, silent = true, buffer = buffer }
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
   vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
@@ -139,58 +142,7 @@ lspconfig.basedpyright.setup({
     '.git'
   ),
   on_new_config = function(config, root_dir)
-    vim.notify('root_dir:' .. root_dir)
-    -- Detect Python path
-    local python_path = nil
-
-    -- Check for local virtual environments
-    local venv_dirs = { '.venv', 'venv', 'env', '.env' }
-    for _, vdir in ipairs(venv_dirs) do
-      local venv_python = root_dir .. '/' .. vdir .. '/bin/python'
-      if vim.fn.filereadable(venv_python) == 1 then
-        vim.notify('venv_python:' .. venv_python)
-        python_path = venv_python
-        break
-      end
-    end
-
-    -- Try Poetry
-    if not python_path then
-      local poetry_cmd = string.format('cd %s && poetry env info --path 2>/dev/null', vim.fn.shellescape(root_dir))
-      local poetry_venv = vim.fn.system(poetry_cmd)
-      if vim.v.shell_error == 0 and poetry_venv ~= '' then
-        python_path = vim.trim(poetry_venv) .. '/bin/python'
-      end
-    end
-
-    -- Try Pipenv
-    if not python_path then
-      local pipenv_cmd = string.format('cd %s && pipenv --venv 2>/dev/null', vim.fn.shellescape(root_dir))
-      local pipenv_venv = vim.fn.system(pipenv_cmd)
-      if vim.v.shell_error == 0 and pipenv_venv ~= '' then
-        python_path = vim.trim(pipenv_venv) .. '/bin/python'
-      end
-    end
-
-    -- Check environment variables
-    if not python_path then
-      if vim.env.VIRTUAL_ENV then
-        local env_path = vim.env.VIRTUAL_ENV .. '/bin/python'
-        if vim.fn.filereadable(env_path) == 1 then
-          python_path = env_path
-        end
-      elseif vim.env.CONDA_PREFIX then
-        local conda_path = vim.env.CONDA_PREFIX .. '/bin/python'
-        if vim.fn.filereadable(conda_path) == 1 then
-          python_path = conda_path
-        end
-      end
-    end
-
-    -- Default to system Python
-    if not python_path then
-      python_path = vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python3'
-    end
+    local python_path = utils.detect_python_path(root_dir)
 
     config.settings = vim.tbl_deep_extend('force', config.settings or {}, {
       python = {
