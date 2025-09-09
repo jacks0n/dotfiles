@@ -116,14 +116,14 @@ vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
 vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
 vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files (all)' })
 vim.keymap.set('n', '<Leader>gg', grep_project, { desc = 'Git grep in project' })
-vim.keymap.set('n', '<C-p>', ':Telescope commands', { desc = 'Commands' })
+vim.keymap.set('n', '<C-p>', telescope_builtin.commands, { desc = 'Commands' })
 
 -- Project switching with configurable workspaces
 vim.keymap.set('n', '<Leader>p', function()
   local workspaces = vim.g.telescope_project_workspaces
   local dirs = {}
 
-  -- Expand and collect all directories from workspaces
+  -- Expand and collect all directories from workspaces.
   for _, workspace in ipairs(workspaces) do
     local expanded = vim.fn.expand(workspace)
     if vim.fn.isdirectory(expanded) == 1 then
@@ -136,7 +136,7 @@ vim.keymap.set('n', '<Leader>p', function()
     return
   end
 
-  -- Use Telescope to find directories in workspaces
+  -- Use Telescope to find directories in workspaces.
   telescope_builtin.find_files({
     search_dirs = dirs,
     prompt_title = 'Switch Project',

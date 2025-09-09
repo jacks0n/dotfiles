@@ -144,10 +144,27 @@ M.setup = function()
   -- Toggle diagnostics
   vim.keymap.set('n', '[[', function()
     vim.diagnostic.enable(false)
-  end, { desc = 'Disable diagnostics' })
+  end, { desc = 'Disable diagnostics', noremap = true })
   vim.keymap.set('n', ']]', function()
     vim.diagnostic.enable(true)
-  end, { desc = 'Enable diagnostics' })
+  end, { desc = 'Enable diagnostics', noremap = true })
+
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'markdown',
+    callback = function()
+      -- Undo the core ftplugin/markdown.lua mappings.
+      vim.keymap.del('n', '[[', { buffer = true })
+      vim.keymap.del('n', ']]', { buffer = true })
+
+      -- Toggle diagnostics
+      vim.keymap.set('n', '[[', function()
+        vim.diagnostic.enable(false)
+      end, { desc = 'Disable diagnostics', noremap = true })
+      vim.keymap.set('n', ']]', function()
+        vim.diagnostic.enable(true)
+      end, { desc = 'Enable diagnostics', noremap = true })
+    end,
+  })
 
   -- Customize diagnostic severity navigation
   keymap('n', '[e', function()
