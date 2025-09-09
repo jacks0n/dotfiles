@@ -263,10 +263,10 @@ update() {
 # User wide update.
 update-user() {
   # Update Vim plugins.
-  # if command_exists vim; then
-  #   echo '=> Vim Plug install, update, upgrade, clean.'
-  #   vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
-  # fi
+  if command_exists vim; then
+    echo '=> Vim Plug install, update, upgrade, clean.'
+    vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+  fi
 
   # Update NeoVim plugins.
   if command_exists nvim; then
@@ -308,12 +308,6 @@ update-user() {
     echo "\n\n=> Updating Go packages."
     go get -u all
   fi
-
-  # Update Ruby Gems.
-  # if command_exists gem ; then
-  #   echo "\n\n Updating Gem packages."
-  #   gem update $(gem list | cut -d ' ' -f 1)
-  # fi
 
   # Update `~/bin` repositories.
   if [ -d "$HOME/bin/" ]; then
@@ -364,54 +358,23 @@ update-global() {
     sudo softwareupdate --install --all
   fi
 
-  # Update uv.
-  if command_exists uv; then
-    echo "\n\n=> Updating uv."
-    uv self update
-  fi
-
-  # @todo Fix
   # Update Gem and Gems.
-  # if command_exists gem ; then
-  #   echo "\n\n=> Updating Ruby Gems."
-  #   gem update --system
-  #   gem update
-  #   gem clean
-  # fi
-
-  # @todo Fix
-  # Update pip (2 and 3) core and packages.
-  # for PIP in pip2 pip3 ; do
-  #   if command_exists "$PIP" ; then
-  #     echo "\n\n=> Updating $PIP."
-  #     "$PIP" install --upgrade pip | \
-  #       grep -v 'Requirement already up-to-date'
-  #     "$PIP" freeze --local | \
-  #       grep -v '^\-e' | \
-  #       cut -d = -f 1  | \
-  #       xargs -n1 -H "$PIP" install --upgrade | \
-  #       grep -v 'Requirement already up-to-date'
-  #   fi
-  # done
+  if command_exists gem; then
+    echo "\n\n=> Updating Ruby Gems."
+    gem update --system
+    gem update
+    gem clean
+  fi
 
   # Update npm and npm packages.
   if command_exists npm; then
     echo "\n\n=> Updating npm and npm packages."
     npm install --global npm@latest
     npm update --global
+    ncu --global --upgrade
   fi
 
   echo "\n\n=> Done!"
-}
-
-drush7() {
-  PATH="/Applications/MAMP/Library/bin:$PATH"
-  ~/bin/drush7/vendor/bin/drush $@
-}
-
-drush8() {
-  PATH="/Applications/MAMP/Library/bin:$PATH"
-  ~/bin/drush8/vendor/bin/drush $@
 }
 
 # Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
