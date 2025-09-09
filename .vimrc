@@ -85,6 +85,7 @@ if (has('nvim') && exists('g:use_coc') && g:use_coc) || !has('nvim')
   Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 elseif has('nvim')
   Plug 'aznhe21/actions-preview.nvim'
+  Plug 'OXY2DEV/markview.nvim' " Must be loaded before treesitter.
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter'
@@ -172,6 +173,10 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
+  Plug 'Owen-Dechow/videre.nvim'       " JSON inline editing.
+    \| Plug 'Owen-Dechow/graph_view_yaml_parser'
+    \| Plug 'Owen-Dechow/graph_view_toml_parser'
+    \| Plug 'a-usr/xml2lua.nvim'
   Plug 'm4xshen/hardtime.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
@@ -473,7 +478,6 @@ let g:php_sync_method                 = -1 " Default, but it gives warnings with
 let php_sql_query                     = 1  " Enable SQL syntax highlighting inside strings.
 
 " Python.
-let g:no_plugin_maps = 1
 let g:python_recommended_style = 0
 
 
@@ -828,6 +832,7 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.code_runner')
     autocmd VimEnter * ++once lua require('plugins.treesj')
     autocmd VimEnter * ++once lua require('plugins.regexplainer')
+    autocmd VimEnter * ++once lua require('plugins.videre')
     " autocmd VimEnter * ++once lua require('plugins.notify')
     " autocmd VimEnter * ++once lua require('plugins.noice')
     autocmd VimEnter * ++once lua require('plugins.luasnip')
