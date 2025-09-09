@@ -39,6 +39,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:dev.to)",
       "Read(/Users/jackson/Code/quant-platform/**)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
+      "Bash(find:*)",
+      "Read(/Users/jackson/Code/quant-platform/**)",
       "Read(/Users/jackson/Code/quant-platform/**)"
     ],
     "deny": [],

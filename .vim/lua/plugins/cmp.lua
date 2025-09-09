@@ -82,7 +82,6 @@ blink.setup({
       lsp = {
         name = 'LSP',
         enabled = true,
-        fallbacks = { 'lazydev' },
         score_offset = 100, -- Give LSP higher priority
       },
       lazydev = {

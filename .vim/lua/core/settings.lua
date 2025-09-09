@@ -102,6 +102,7 @@ M.setup = function()
   vim.opt.conceallevel = 0
   vim.opt.synmaxcol = 500 -- Increased from 250
   vim.opt.display:append('lastline')
+  vim.o.winborder = 'rounded'
 
   -- Listchars
   vim.opt.listchars = {
