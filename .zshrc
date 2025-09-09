@@ -123,10 +123,6 @@ zinit ice haspoetry id-as'poetry---zsh-completions' as'completion' \
   atinit'zinit cdreplay -q' \
   pick'_poetry'
 
-# zinit light 'junegunn/fzf'
-# Not working. @see https://github.com/Aloxaf/fzf-tab/issues/336
-# zinit light 'Aloxaf/fzf-tab'
-# zinit light 'Freed-Wu/fzf-tab-source'
 if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
   zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
 fi
@@ -136,8 +132,8 @@ fi
 
 # AWS CLI completion
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html
-# autoload bashcompinit && bashcompinit
-# complete -C '$(brew --prefix)/bin/aws_completer' aws
+autoload bashcompinit && bashcompinit
+complete -C '$(brew --prefix)/bin/aws_completer' aws
 
 # zsh-syntax-highlighting.
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
@@ -166,35 +162,6 @@ source "$HOME/.shrc"
 ##
 # 3rd Party.
 ##
-
-# Automatically colors tabs based on ANY git repo - no setup needed per repo!
-auto-tab-color() {
-  if git rev-parse --git-dir > /dev/null 2>&1; then
-    repo_name="$(basename $(git rev-parse --show-toplevel))"
-
-    # Create a hash of the repo name to generate consistent colors.
-    hash=$(echo -n "$repo_name" | md5 | cut -c1-6)
-    r=$((16#${hash:0:2} + 100))  # Ensure colors aren't too dark.
-    g=$((16#${hash:2:2} + 100))
-    b=$((16#${hash:4:2} + 100))
-
-    echo -ne "\033]6;1;bg;red;brightness;$r\a"
-    echo -ne "\033]6;1;bg;green;brightness;$g\a"
-    echo -ne "\033]6;1;bg;blue;brightness;$b\a"
-
-    # Also set the tab title.
-    echo -ne "\033]0;📁 $repo_name\007"
-  else
-    # Reset to default when not in a git repo.
-    echo -ne "\033]6;1;bg;*;default\a"
-  fi
-}
-# if [[ "$TERM_PROGRAM" == 'iTerm.app' ]] ; then
-#   autoload -U add-zsh-hook
-#   add-zsh-hook chpwd auto-tab-color
-#   add-zsh-hook precmd auto-tab-color
-#   auto-tab-color
-# fi
 
 # Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
 autoload -U add-zsh-hook
@@ -243,3 +210,5 @@ fi
 
 # Added by Windsurf
 export PATH="/Users/jackson/.codeium/windsurf/bin:$PATH"
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
