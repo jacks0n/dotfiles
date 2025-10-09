@@ -121,6 +121,10 @@ git_no_assume_unchanged() {
   git update-index --really-refresh
 }
 
+groot() {
+  cd "$(git rev-parse --show-toplevel)"
+}
+
 # View `man` pages with Preview.app, fancy!
 gman() {
   local PS_FILEPATH='/tmp/man-to-ps.ps'
