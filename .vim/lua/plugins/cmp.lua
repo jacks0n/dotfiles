@@ -136,7 +136,8 @@ blink.setup({
     accept = {
       auto_brackets = {
         enabled = true,
-        pairs = { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '"', '"' }, { "'", "'" } },
+        -- Deprecated @todo fix.
+        -- pairs = { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '"', '"' }, { "'", "'" } },
       },
     },
 
@@ -173,8 +174,10 @@ blink.setup({
 
     keyword = {
       range = 'prefix',
-      regex = '[%w_\\-]',
-      exclude_from_prefix_regex = '[\\-]',
+      -- Deprecated. @todo fix
+      -- regex = '[%w_\\-]',
+      -- Deprecated. @todo fix
+      -- exclude_from_prefix_regex = '[\\-]',
     },
   },
 
