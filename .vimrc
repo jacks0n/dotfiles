@@ -1,6 +1,7 @@
 " @todo
 " Get unit testing working with Jest.
 " Try to get NULL_LS to use the local binary.
+" Make conform.nvim only run the relevant tools per project.
 " Only include eslint and other linters if there's a config available in the repo.
 
 set nocompatible " Enable Vim-specific features, disable Vi compatibility.
