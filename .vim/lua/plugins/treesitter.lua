@@ -4,7 +4,8 @@ require('nvim-treesitter.configs').setup({
 
   markid = { enable = true },
 
-  ignore_install = {},
+  -- ipkg is gone.
+  ignore_install = { 'ipkg' },
   modules = {},
 
   sync_install = false,
