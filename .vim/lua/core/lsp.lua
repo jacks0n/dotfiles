@@ -42,6 +42,7 @@ require('mason-lspconfig').setup({
     'marksman',
     'sqlls',
     'intelephense',
+    'omnisharp',
   },
   automatic_enable = false,
 })
@@ -112,6 +113,7 @@ local function on_attach_default(client, buffer)
   vim.keymap.set('n', '<C-g>', telescope_util.git_files_all, { desc = 'Git files (all)' })
   vim.keymap.set('n', '<Leader>gg', telescope_util.grep_project, { desc = 'Git grep in project' })
   vim.keymap.set('n', '<C-p>', telescope_builtin.commands, { desc = 'Commands' })
+  vim.keymap.set('n', '<Leader>ls', telescope_util.find_symbol_project, { desc = 'Find symbol in project' })
 
   -- Project switching with configurable workspaces
   vim.keymap.set('n', '<Leader>p', function()
@@ -380,6 +382,30 @@ local lsp_server_configs = {
 
   vimls = {
     init_options = { isNeovim = true },
+  },
+
+  omnisharp = {
+    root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'omnisharp.json', 'function.json'),
+    handlers = {
+      ['textDocument/definition'] = require('omnisharp_extended').handler,
+    },
+    enable_roslyn_analyzers = true,
+    organize_imports_on_format = true,
+    enable_import_completion = true,
+    settings = {
+      FormattingOptions = {
+        EnableEditorConfigSupport = true,
+        OrganizeImports = true,
+      },
+      RoslynExtensionsOptions = {
+        EnableAnalyzersSupport = true,
+        EnableImportCompletion = true,
+        AnalyzeOpenDocumentsOnly = false,
+      },
+      Sdk = {
+        IncludePrereleases = true,
+      },
+    },
   },
 
   bashls = {},
