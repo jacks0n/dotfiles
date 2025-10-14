@@ -100,4 +100,11 @@ M.call_telescope_vertical = function(callback)
   end
 end
 
+M.find_symbol_project = function()
+  telescope_builtin.lsp_dynamic_workspace_symbols({
+    layout_strategy = 'vertical',
+    path_display = { 'smart' },
+  })
+end
+
 return M

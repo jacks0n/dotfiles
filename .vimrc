@@ -112,6 +112,7 @@ elseif has('nvim')
   Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   Plug 'yioneko/nvim-vtsls'
+  Plug 'Hoffs/omnisharp-extended-lsp.nvim'
 endif
 
 
