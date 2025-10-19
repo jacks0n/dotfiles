@@ -75,6 +75,7 @@ brew install rsync
 brew install saulpw/vd/visidata
 brew install shellcheck
 brew install sqlite
+brew install sst/tap/opencode
 brew install stats
 brew install tccutil
 brew install tflint
