@@ -178,3 +178,5 @@ alias lg='lazygit'
 if ! hash pip 2>/dev/null; then
   alias pip='pip3'
 fi
+
+alias oc='opencode'
