@@ -1,6 +1,5 @@
 local M = {
   json = {},
-  logger = {},
   file = {},
 }
 
@@ -85,15 +84,7 @@ function M.file.append_line(filename, ...)
   end
 end
 
---- Log an error message.
--- @param string Message to log.
-function M.logger.error(message)
-  if vim then
-    vim.cmd('echom "' .. message .. '"')
-  else
-    io.stderr:write(string.format(message .. '\n', -2))
-  end
-end
+
 
 --- Write a string to a file.
 -- @param data Table to encode.
@@ -111,16 +102,26 @@ function M.to_file(data, filepath)
   file:close()
 end
 
---- Detect Python path for a given project root directory.
+-- Cache for Python settings keyed by root directory
+local _python_settings_cache = {}
+
+--- Detect Python settings for a given project root directory.
 -- Searches for Python binary in this order:
 -- 1. Local virtual environments (.venv, venv, env, .env)
 -- 2. Poetry environment
 -- 3. Pipenv environment
 -- 4. Environment variables (VIRTUAL_ENV, CONDA_PREFIX)
 -- 5. System Python (python3 or python)
+-- Results are cached per root directory.
 -- @param root_dir The root directory of the project
--- @return The path to the Python binary
-function M.detect_python_path(root_dir)
+-- @param force_refresh Optional: force cache refresh
+-- @return Table with pythonPath, venvPath (optional), and venv (optional)
+function M.detect_python_settings(root_dir, force_refresh)
+  -- Check cache first
+  if not force_refresh and _python_settings_cache[root_dir] then
+    return _python_settings_cache[root_dir]
+  end
+
   local python_path = nil
 
   -- Check for local virtual environments
@@ -128,7 +129,6 @@ function M.detect_python_path(root_dir)
   for _, vdir in ipairs(venv_dirs) do
     local venv_python = root_dir .. '/' .. vdir .. '/bin/python'
     if vim.fn.filereadable(venv_python) == 1 then
-      vim.notify('venv_python:' .. venv_python)
       python_path = venv_python
       break
     end
@@ -172,7 +172,72 @@ function M.detect_python_path(root_dir)
     python_path = vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python3'
   end
 
-  return python_path
+
+  -- Verify the path exists
+  if vim.fn.filereadable(python_path) ~= 1 and vim.fn.executable(python_path) ~= 1 then
+  end
+
+  -- Build settings object
+  local settings = {
+    pythonPath = python_path,
+  }
+
+  -- Extract venv information if python_path was found before falling back to system Python
+  -- This indicates it's a virtual environment
+  if python_path ~= vim.fn.exepath('python3') and python_path ~= vim.fn.exepath('python') then
+    local bin_python_pattern = '/bin/python'
+    local bin_idx = python_path:find(bin_python_pattern, 1, true)
+    if bin_idx then
+      local venv_root = python_path:sub(1, bin_idx - 1)
+      settings.venvPath = vim.fs.dirname(venv_root)
+      settings.venv = vim.fs.basename(venv_root)
+    end
+  end
+
+  -- Cache the result
+  _python_settings_cache[root_dir] = settings
+
+  return settings
+end
+
+function M.find_git_root(bufnr)
+  bufnr = bufnr or 0
+  local file = vim.api.nvim_buf_get_name(bufnr)
+  if file == '' then return nil end
+  local start = vim.fs.dirname(file)
+  local git_dir = vim.fs.find({ '.git' }, { path = start, upward = true })[1]
+  if not git_dir then return nil end
+  return vim.fs.dirname(git_dir)
+end
+
+function M.discover_python_extra_paths(root_dir, python_executable)
+  local paths = {}
+  -- Project root first
+  if vim.fn.isdirectory(root_dir) == 1 then
+    table.insert(paths, root_dir)
+  end
+  -- Site-packages locations from interpreter
+  if python_executable and vim.fn.filereadable(python_executable) == 1 then
+    local site_cmd = python_executable .. [[ -c 'import sys; [print(p) for p in sys.path if p.endswith("site-packages")]']]
+    local output = vim.fn.system(site_cmd)
+    if vim.v.shell_error == 0 and output ~= '' then
+      for line in output:gmatch('[^\n]+') do
+        if vim.fn.isdirectory(line) == 1 then
+          table.insert(paths, line)
+        end
+      end
+    end
+  end
+  -- Deduplicate
+  local dedup = {}
+  local final = {}
+  for _, p in ipairs(paths) do
+    if not dedup[p] then
+      dedup[p] = true
+      table.insert(final, p)
+    end
+  end
+  return final
 end
 
 return M

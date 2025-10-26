@@ -6,3 +6,4 @@ spell/
 swap/
 tmp/
 undo/
+*.pyc

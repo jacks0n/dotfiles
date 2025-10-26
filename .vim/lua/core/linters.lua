@@ -1,164 +1,193 @@
 local M = {}
 
-local lint = require('lint')
+-- Unified tool configuration (same structure). Only enabled when:
+-- 1. Buffer is inside a git repo (git root detected).
+-- 2. At least one listed pattern exists at that git root.
+-- 3. Executable for the tool is available.
+-- Each entry:
+--   filetypes: list of supported filetypes
+--   patterns: root-relative config filenames (any one enables tool)
+--   args: list OR function(context) -> list (optional)
+--   provides: { lint = bool, format = bool }
+--   command (optional): override executable name
+-- Context passed to args() includes { buf, root_dir }
+local tool_config = {
+  eslint_d = {
+    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+    patterns = {
+      '.eslintrc.js', '.eslintrc.cjs', '.eslintrc.mjs', '.eslintrc.json', '.eslintrc.yaml', '.eslintrc.yml',
+      'eslint.config.js', 'eslint.config.cjs', 'eslint.config.mjs', 'package.json',
+    },
+    provides = { lint = true, format = false },
+    args = {
+      '--no-warn-ignored', '--format', 'json', '--stdin', '--stdin-filename',
+      function(ctx) return vim.api.nvim_buf_get_name(ctx.buf) end,
+    },
+  },
+  stylelint = {
+    filetypes = { 'css', 'scss' },
+    patterns = {
+      '.stylelintrc', '.stylelintrc.js', '.stylelintrc.cjs', '.stylelintrc.mjs', '.stylelintrc.json',
+      '.stylelintrc.yaml', '.stylelintrc.yml', 'stylelint.config.js', 'stylelint.config.cjs', 'stylelint.config.mjs', 'package.json',
+    },
+    provides = { lint = true, format = false },
+  },
+  jsonlint = {
+    filetypes = { 'json' },
+    patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
+    provides = { lint = true, format = false },
+  },
+  yamllint = {
+    filetypes = { 'yaml' },
+    patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
+    provides = { lint = true, format = false },
+  },
+  flake8 = {
+    filetypes = { 'python' },
+    patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+    provides = { lint = true, format = false },
+  },
+  mypy = {
+    filetypes = { 'python' },
+    patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+    provides = { lint = true, format = false },
+    args = function(ctx)
+      local python_path = require('core.utils').detect_python_path(ctx.root_dir)
+      return {
+        '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
+        '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',
+        '--python-executable', python_path,
+      }
+    end,
+  },
+  ruff = {
+    filetypes = { 'python' },
+    patterns = { 'ruff.toml', 'pyproject.toml' },
+    provides = { lint = true, format = true },
+  },
+  shellcheck = {
+    filetypes = { 'sh', 'bash', 'zsh' },
+    patterns = { '.shellcheckrc' },
+    provides = { lint = true, format = false },
+  },
+  phpcs = {
+    filetypes = { 'php' },
+    patterns = { 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' },
+    provides = { lint = true, format = false },
+  },
+  phpstan = {
+    filetypes = { 'php' },
+    patterns = { 'phpstan.neon', 'phpstan.neon.dist' },
+    provides = { lint = true, format = false },
+  },
+  hadolint = {
+    filetypes = { 'dockerfile' },
+    patterns = { '.hadolint.yaml', '.hadolint.yml' },
+    provides = { lint = true, format = false },
+  },
+  sqlfluff = {
+    filetypes = { 'sql' },
+    patterns = { '.sqlfluff', '.sqlfluff.toml' },
+    provides = { lint = true, format = true },
+  },
+  tflint = {
+    filetypes = { 'terraform' },
+    patterns = { '.tflint.hcl' },
+    provides = { lint = true, format = false },
+  },
+  terraform_fmt = {
+    filetypes = { 'terraform' },
+    patterns = { '.terraform-version', 'versions.tf', 'main.tf' },
+    provides = { lint = false, format = true },
+  },
+  vint = {
+    filetypes = { 'vim' },
+    patterns = { '.vintrc', '.vintrc.yaml', '.vintrc.yml' },
+    provides = { lint = true, format = false },
+  },
+  luacheck = {
+    filetypes = { 'lua' },
+    patterns = { '.luacheckrc' },
+    provides = { lint = true, format = false },
+    args = { '--globals', 'vim', '--formatter', 'plain', '--codes', '--ranges', '-' },
+  },
+  stylua = {
+    filetypes = { 'lua' },
+    patterns = { 'stylua.toml', '.stylua.toml' },
+    provides = { lint = false, format = true },
+    args = function(ctx)
+      return { '--search-parent-directories', '--stdin-filepath', vim.api.nvim_buf_get_name(ctx.buf) }
+    end,
+  },
+  markdownlint = {
+    filetypes = { 'markdown' },
+    patterns = { '.markdownlint.yml', '.markdownlint.yaml', '.markdownlint.json', '.markdownlint.jsonc' },
+    provides = { lint = true, format = false },
+  },
+  prettierd = {
+    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'jsonc', 'html', 'css', 'scss', 'markdown' },
+    patterns = {
+      '.prettierrc', '.prettierrc.js', '.prettierrc.cjs', '.prettierrc.mjs', '.prettierrc.json', '.prettierrc.yaml', '.prettierrc.yml',
+      'prettier.config.js', 'prettier.config.cjs', 'prettier.config.mjs', 'package.json',
+    },
+    provides = { lint = false, format = true },
+  },
+  gofmt = {
+    filetypes = { 'go' },
+    patterns = { 'go.mod' },
+    provides = { lint = false, format = true },
+  },
+  rustfmt = {
+    filetypes = { 'rust' },
+    patterns = { 'Cargo.toml' },
+    provides = { lint = false, format = true },
+  },
+  clang_format = {
+    filetypes = { 'c', 'cpp' },
+    patterns = { '.clang-format', '_clang-format' },
+    provides = { lint = false, format = true },
+  },
+  xmlformat = {
+    filetypes = { 'xml' },
+    patterns = { '.xmlformatrc', '.xmlformatterrc', '.editorconfig' },
+    provides = { lint = false, format = true },
+  },
+}
+
 local utils = require('core.utils')
 
-lint.linters_by_ft = {
-  javascript = { 'eslint_d' },
-  javascriptreact = { 'eslint_d' },
-  typescript = { 'eslint_d' },
-  typescriptreact = { 'eslint_d' },
-  json = { 'jsonlint' },
-  yaml = { 'yamllint' },
-  python = { 'flake8', 'mypy' },
-  sh = { 'shellcheck' },
-  bash = { 'shellcheck' },
-  zsh = { 'shellcheck' },
-  php = { 'phpcs', 'phpstan' },
-  dockerfile = { 'hadolint' },
-  sql = { 'sqlfluff' },
-  terraform = { 'tflint' },
-  vim = { 'vint' },
-  lua = { 'luacheck' },
-  markdown = { 'markdownlint' },
-  css = { 'stylelint' },
-  scss = { 'stylelint' },
-}
+local function git_root(bufnr)
+  return utils.find_git_root(bufnr)
+end
 
-lint.linters.eslint_d.args = {
-  '--no-warn-ignored',
-  '--format',
-  'json',
-  '--stdin',
-  '--stdin-filename',
-  function()
-    return vim.api.nvim_buf_get_name(0)
-  end,
-}
-
-lint.linters.luacheck.args = {
-  '--globals',
-  'vim',
-  '--formatter',
-  'plain',
-  '--codes',
-  '--ranges',
-  '-',
-}
-
--- Configure mypy with dynamic Python environment detection
-lint.linters.mypy = vim.tbl_deep_extend('force', lint.linters.mypy or {}, {
-  cmd = 'mypy',
-  args = function()
-    local args = {
-      '--show-error-codes',
-      '--show-column-numbers',
-      '--show-error-end',
-      '--hide-error-context',
-      '--no-color-output',
-      '--no-error-summary',
-      '--no-pretty',
-      '--namespace-packages',
-      '--follow-imports=silent',
-      '--ignore-missing-imports',
-    }
-
-    local root_dir = vim.fn.getcwd()
-    local python_path = utils.detect_python_path(root_dir)
-
-    table.insert(args, '--python-executable')
-    table.insert(args, python_path)
-
-    return args
-  end,
-  stdin = true,
-})
-
-local config_cache = {}
-
--- Function to check if config files exist for linters
-local function has_config_file(patterns)
-  local cwd = vim.fn.getcwd()
-  local cache_key = cwd .. ':' .. table.concat(patterns, ',')
-
-  -- Check cache first
-  if config_cache[cache_key] ~= nil then
-    return config_cache[cache_key]
-  end
-
+local function has_config(patterns, root_dir)
+  if not patterns or not root_dir then return false end
   for _, pattern in ipairs(patterns) do
-    if vim.fn.glob(pattern) ~= '' then
-      config_cache[cache_key] = true
-      return true
-    end
+    if vim.fn.filereadable(root_dir .. '/' .. pattern) == 1 then return true end
   end
-
-  config_cache[cache_key] = false
   return false
 end
 
--- Only enable linters if they're installed and have config files
-local function setup_conditional_linting()
-  local ft = vim.bo.filetype
-  local linters = lint.linters_by_ft[ft] or {}
-  local available_linters = {}
+function M.get_config() return tool_config end
 
-  for _, linter in ipairs(linters) do
-    if linter == 'eslint_d' and utils.is_executable('eslint_d') then
-      if
-        has_config_file({
-          '.eslintrc.js',
-          '.eslintrc.json',
-          '.eslintrc.yaml',
-          '.eslintrc.yml',
-          'eslint.config.js',
-          'eslint.config.mjs',
-          'eslint.config.cjs',
-          'package.json',
-        })
-      then
-        table.insert(available_linters, linter)
-      end
-    elseif linter == 'phpcs' and utils.is_executable('phpcs') then
-      if has_config_file({ 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' }) then
-        table.insert(available_linters, linter)
-      end
-    elseif linter == 'flake8' and utils.is_executable('flake8') then
-      if has_config_file({ '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' }) then
-        table.insert(available_linters, linter)
-      end
-    elseif utils.is_executable(linter) then
-      table.insert(available_linters, linter)
-    end
-  end
-
-  if #available_linters > 0 then
-    lint.try_lint(available_linters)
-  end
+function M.tool_enabled(name, bufnr)
+  local cfg = tool_config[name]
+  if not cfg then return false end
+  local root_dir = git_root(bufnr)
+  if not root_dir then return false end
+  if not utils.is_executable(cfg.command or name) then return false end
+  if not has_config(cfg.patterns, root_dir) then return false end
+  return true
 end
 
-vim.api.nvim_create_augroup('nvim_lint', { clear = true })
-
--- Defer linting on file open to prevent blocking
-vim.api.nvim_create_autocmd({ 'BufWritePost', 'InsertLeave' }, {
-  group = 'nvim_lint',
-  callback = setup_conditional_linting,
-})
-
--- Use a timer to lint after buffer is loaded to avoid blocking
-vim.api.nvim_create_autocmd('BufWinEnter', {
-  group = 'nvim_lint',
-  callback = function()
-    vim.defer_fn(setup_conditional_linting, 100)
-  end,
-})
-
--- vim.keymap.set('n', '<Leader>ll', function()
---   lint.try_lint()
--- end, { desc = 'Lint buffer' })
-
-vim.keymap.set('n', '<Leader>ll', lint.try_lint, { desc = 'Lint buffer' })
-
-M.lint = lint
+function M.active_tools(ft, kind, bufnr)
+  local results = {}
+  for name, cfg in pairs(tool_config) do
+    if cfg.provides[kind] and vim.tbl_contains(cfg.filetypes, ft) and M.tool_enabled(name, bufnr) then
+      table.insert(results, name)
+    end
+  end
+  return results
+end
 
 return M
