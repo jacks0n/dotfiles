@@ -43,6 +43,7 @@ require('mason-lspconfig').setup({
     'sqlls',
     'intelephense',
     'omnisharp',
+    'roslyn',
   },
   automatic_enable = false,
 })
@@ -221,43 +222,60 @@ local lsp_server_configs = {
 
   basedpyright = {
     single_file_support = false,
-    root_dir = lspconfig_util.root_pattern(
-      -- @todo Setup for monorepos
-      -- 'pyproject.toml',
-      -- 'setup.py',
-      -- 'setup.cfg',
-      -- 'requirements.txt',
-      -- 'Pipfile',
-      -- 'pyrightconfig.json',
-      '.git'
-    ),
-    on_new_config = function(config, root_dir)
-      local python_path = utils.detect_python_path(root_dir)
+    filetypes = { 'python' },
+    root_markers = { 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', '.git' },
+    before_init = function(params, config)
+      local root_uri = params.rootUri or params.rootPath
+      local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+      if not root_dir then
+        return
+      end
 
-      config.settings = vim.tbl_deep_extend('force', config.settings or {}, {
-        python = {
-          pythonPath = python_path,
-        },
-        basedpyright = {
-          analysis = {
-            autoSearchPaths = true,
-            useLibraryCodeForTypes = true,
-            diagnosticMode = 'workspace',
-            indexing = true,
-            typeCheckingMode = 'standard',
-            completeFunctionParens = true,
-            autoImportCompletions = true,
-            extraPaths = { root_dir },
-            diagnosticSeverityOverrides = {
-              reportGeneralTypeIssues = 'none',
-              reportOptionalMemberAccess = 'none',
-              reportOptionalSubscript = 'none',
-              reportPrivateImportUsage = 'none',
-            },
-          },
-        },
+      local python_settings = utils.detect_python_settings(root_dir)
+
+      -- Discover extraPaths (project src + site-packages)
+      local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+
+      config.settings = config.settings or {}
+      config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+      config.settings.basedpyright = config.settings.basedpyright or {}
+      config.settings.basedpyright.analysis = vim.tbl_deep_extend('force', config.settings.basedpyright.analysis or {}, {
+        extraPaths = extra_paths,
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = 'workspace',
+        indexing = true,
+        typeCheckingMode = 'strict',
+        completeFunctionParens = true,
+        autoImportCompletions = true,
+      })
+
+      -- Mirror into initializationOptions to avoid race during startup
+      params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+        python = python_settings,
+        basedpyright = { analysis = { extraPaths = extra_paths } },
       })
     end,
+    on_init = function(client, _initialize_result)
+      vim.schedule(function()
+        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+      end)
+    end,
+    settings = {
+      python = {},
+      basedpyright = {
+        analysis = {
+          extraPaths = {},
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = true,
+          diagnosticMode = 'workspace',
+          indexing = true,
+          typeCheckingMode = 'strict',
+          completeFunctionParens = true,
+          autoImportCompletions = true,
+        },
+      },
+    },
   },
 
   lua_ls = {
@@ -309,7 +327,7 @@ local lsp_server_configs = {
   },
 
   jsonls = {
-    init_options = { provideFormatter = true },
+    init_options = { provideFormatter = false },
     settings = {
       json = {
         schemas = schemastore.json.schemas(),
@@ -318,57 +336,74 @@ local lsp_server_configs = {
     },
   },
 
-  yamlls = {
+  -- yamlls = {
+  --   settings = {
+  --     yaml = {
+  --       hover = true,
+  --       completion = true,
+  --       validate = true,
+  --       schemas = schemastore.json.schemas(),
+  --       customTags = {
+  --         '!And sequence',
+  --         '!And',
+  --         '!Base64 scalar',
+  --         '!Base64',
+  --         '!Cidr scalar',
+  --         '!Cidr sequence',
+  --         '!Cidr',
+  --         '!Condition scalar',
+  --         '!Contains scalar',
+  --         '!Contains sequence',
+  --         '!Contains',
+  --         '!Equals sequence',
+  --         '!Equals',
+  --         '!FindInMap sequence',
+  --         '!FindInMap',
+  --         '!ForEach mapping',
+  --         '!ForEach',
+  --         '!GetAZs scalar',
+  --         '!GetAZs',
+  --         '!GetAtt scalar',
+  --         '!GetAtt sequence',
+  --         '!GetAtt',
+  --         '!If sequence',
+  --         '!If',
+  --         '!ImportValue scalar',
+  --         '!ImportValue sequence',
+  --         '!ImportValue',
+  --         '!Join sequence',
+  --         '!Join',
+  --         '!Length scalar',
+  --         '!Length sequence',
+  --         '!Length',
+  --         '!Not sequence',
+  --         '!Not',
+  --         '!Or sequence',
+  --         '!Or',
+  --         '!Ref scalar',
+  --         '!Ref',
+  --         '!Select sequence',
+  --         '!Select',
+  --         '!Split sequence',
+  --         '!Split',
+  --         '!Sub scalar',
+  --         '!Sub sequence',
+  --         '!Sub',
+  --         '!ToJsonString scalar',
+  --         '!ToJsonString mapping',
+  --         '!ToJsonString sequence',
+  --         '!ToJsonString',
+  --         '!Transform mapping',
+  --       },
+  --     },
+  --   },
+  -- },
+
+  cfn_lsp_extra = {
+    filetypes = { 'yaml.cloudformation', 'json.cloudformation' },
+    root_dir = lspconfig_util.root_pattern('.git'),
     settings = {
-      yaml = {
-        hover = true,
-        completion = true,
-        validate = true,
-        schemas = schemastore.json.schemas(),
-        schemaStore = {
-          enable = true,
-        },
-        customTags = {
-          '!And sequence',
-          '!And',
-          '!Base64 scalar',
-          '!Base64',
-          '!Cidr scalar',
-          '!Cidr sequence',
-          '!Cidr',
-          '!Condition scalar',
-          '!Equals sequence',
-          '!Equals',
-          '!FindInMap sequence',
-          '!FindInMap',
-          '!GetAZs scalar',
-          '!GetAZs',
-          '!GetAtt scalar',
-          '!GetAtt sequence',
-          '!GetAtt',
-          '!If sequence',
-          '!If',
-          '!ImportValue scalar',
-          '!ImportValue sequence',
-          '!ImportValue',
-          '!Join sequence',
-          '!Join',
-          '!Not sequence',
-          '!Not',
-          '!Or sequence',
-          '!Or',
-          '!Ref scalar',
-          '!Ref',
-          '!Select sequence',
-          '!Select',
-          '!Split sequence',
-          '!Split',
-          '!Sub scalar',
-          '!Sub sequence',
-          '!Sub',
-          '!Transform mapping',
-        },
-      },
+      documentFormatting = false,
     },
   },
 
@@ -387,7 +422,10 @@ local lsp_server_configs = {
   omnisharp = {
     root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'omnisharp.json', 'function.json'),
     handlers = {
-      ['textDocument/definition'] = require('omnisharp_extended').handler,
+      ['textDocument/definition'] = require('omnisharp_extended').definition_handler,
+      ['textDocument/typeDefinition'] = require('omnisharp_extended').type_definition_handler,
+      ['textDocument/references'] = require('omnisharp_extended').references_handler,
+      ['textDocument/implementation'] = require('omnisharp_extended').implementation_handler,
     },
     enable_roslyn_analyzers = true,
     organize_imports_on_format = true,
@@ -401,9 +439,45 @@ local lsp_server_configs = {
         EnableAnalyzersSupport = true,
         EnableImportCompletion = true,
         AnalyzeOpenDocumentsOnly = false,
+        EnableDecompilationSupport = true,
       },
       Sdk = {
         IncludePrereleases = true,
+      },
+    },
+    on_attach = function(client, bufnr)
+      if client.server_capabilities.semanticTokensProvider then
+        client.server_capabilities.semanticTokensProvider = nil
+      end
+    end,
+  },
+
+  roslyn = {
+    root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj'),
+    filetypes = { 'cs', 'vb' },
+    settings = {
+      ['csharp|inlay_hints'] = {
+        csharp_enable_inlay_hints_for_implicit_object_creation = true,
+        csharp_enable_inlay_hints_for_implicit_variable_types = true,
+        csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+        csharp_enable_inlay_hints_for_types = true,
+        dotnet_enable_inlay_hints_for_indexer_parameters = true,
+        dotnet_enable_inlay_hints_for_literal_parameters = true,
+        dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+        dotnet_enable_inlay_hints_for_other_parameters = true,
+        dotnet_enable_inlay_hints_for_parameters = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+      },
+      ['csharp|code_lens'] = {
+        dotnet_enable_references_code_lens = true,
+        dotnet_enable_tests_code_lens = true,
+      },
+      ['csharp|completion'] = {
+        dotnet_provide_regex_completions = true,
+        dotnet_show_completion_items_from_unimported_namespaces = true,
+        dotnet_show_name_completion_suggestions = true,
       },
     },
   },
@@ -417,6 +491,15 @@ local lsp_server_configs = {
   sqlls = {},
   intelephense = {},
 }
+
+-- C# LSP selection: 'omnisharp', 'roslyn', or 'both' (default)
+-- Can be overridden in ~/.vimrc.local with: let g:csharp_lsp = 'roslyn'
+local csharp_lsp = vim.g.csharp_lsp or 'both'
+if csharp_lsp == 'omnisharp' then
+  lsp_server_configs.roslyn = nil
+elseif csharp_lsp == 'roslyn' then
+  lsp_server_configs.omnisharp = nil
+end
 
 for _server_name, config in pairs(lsp_server_configs) do
   local original_on_attach = config.on_attach
