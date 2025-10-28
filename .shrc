@@ -4,14 +4,18 @@
 # Dotfiles.
 ##
 
+[[ $(uname -r) =~ WSL ]] && IS_WSL=1 || IS_WSL=0
+
 dotfiles=(.aliases .functions .exports .shrc.local)
-for dotfile in "${dotfiles[@]}" ; do
+for dotfile in "${dotfiles[@]}"; do
   dotfile="$HOME/$dotfile"
-  if [ -f "$dotfile" ] ; then
+  if [ -f "$dotfile" ]; then
     source "$dotfile"
   fi
+  if [[ $IS_WSL == 1 && -f "$dotfile.windows" ]]; then
+    source "$dotfile.windows"
+  fi
 done
-
 
 ##
 # GPG Agent.
@@ -19,19 +23,17 @@ done
 
 export GPG_TTY=$(tty)
 
-
 ##
 # 3rd Party.
 ##
 
 # thefuck - https://github.com/nvbn/thefuck
-if hash thefuck 2>/dev/null ; then
+if hash thefuck 2>/dev/null; then
   eval "$(thefuck --alias)"
 fi
 
-[ -s "$(brew --prefix nvm)/nvm.sh" ] && \. "$(brew --prefix nvm)/nvm.sh" # This loads nvm
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-
 
 ##
 # Other.
