@@ -96,14 +96,16 @@ elseif has('nvim')
   Plug 'folke/trouble.nvim'
   Plug 'folke/lazydev.nvim'
   Plug 'Bilal2453/luvit-meta'
-  Plug 'stevearc/conform.nvim'
-  Plug 'mfussenegger/nvim-lint'
+  " Plug 'stevearc/conform.nvim'
+  " Plug 'mfussenegger/nvim-lint'
   Plug 'neovim/nvim-lspconfig'
     \| Plug 'mason-org/mason.nvim', { 'do': ':MasonUpdate' }
     \| Plug 'mason-org/mason-lspconfig.nvim'
-    \| Plug 'zapling/mason-conform.nvim'
-    \| Plug 'rshkarin/mason-nvim-lint'
     \| Plug 'b0o/schemastore.nvim'
+    " \| Plug 'zapling/mason-conform.nvim'
+    " \| Plug 'rshkarin/mason-nvim-lint'
+  Plug 'nvimtools/none-ls.nvim'
+    \| Plug 'nvim-lua/plenary.nvim'
   Plug 'saghen/blink.cmp'
   Plug 'saghen/blink.compat'
     \| Plug 'onsails/lspkind.nvim'
@@ -111,6 +113,7 @@ elseif has('nvim')
   Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   Plug 'yioneko/nvim-vtsls'
+  Plug 'Hoffs/omnisharp-extended-lsp.nvim'
 endif
 
 
@@ -813,15 +816,16 @@ if has('nvim')
     lua require('core.diagnostic')
     lua require('plugins.cmp')
     lua require('core.lsp')
-    lua require('core.linters')
-    lua require('plugins.conform')
-    lua require('plugins.mason-conform')
-    lua require('plugins.mason-nvim-lint')
+    " lua require('plugins.nvim-lint')
+    " lua require('plugins.conform')
+    " lua require('plugins.mason-conform')
+    " lua require('plugins.mason-nvim-lint')
     lua require('plugins.copilot-lua')
     lua require('plugins.nvim-navbuddy')
     lua require('plugins.lspsaga')
     lua require('plugins.trouble')
     lua require('plugins.actions-preview')
+    lua require('plugins.none-ls')
   endif
 
   augroup LazyLoadLua

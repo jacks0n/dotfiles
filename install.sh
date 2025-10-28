@@ -21,6 +21,7 @@ brew install betterzip
 brew install bfg
 brew install brew-cask-completion
 brew install ccat
+brew install chafa # Convert image to ASCII for ranger
 brew install charmbracelet/tap/crush
 brew install claude
 brew install colordiff
@@ -38,6 +39,8 @@ brew install docker
 brew install docker-compose
 brew install editorconfig
 brew install exa
+brew install exiftool # Extract file information for ranger
+brew install eza      # Pretty `ls` alternative for ranger
 brew install fd
 brew install findutils
 brew install fx
@@ -47,6 +50,7 @@ brew install gawk
 brew install gh
 brew install git
 brew install git-delta
+brew install glow # Render markdown for ranger
 brew install gnu-sed
 brew install gnu-tar
 brew install go # Required for SQL language server.
@@ -58,6 +62,7 @@ brew install jordanbaird-ice
 brew install jq
 brew install lolcat
 brew install lsd
+brew install mediainfo # Extract media information for ranger
 brew install ms-jpq/sad/sad
 brew install neovide
 brew install neovim
@@ -65,7 +70,9 @@ brew install netcat
 brew install nnn
 brew install node
 brew install nvm
+brew install odt2txt # Convert OpenDocument to txt for ranger
 brew install openjdk@11
+brew install pandoc # Convert documents for ranger
 brew install php
 brew install pure
 brew install python

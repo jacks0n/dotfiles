@@ -1,105 +1,73 @@
 local M = {}
 
 local conform = require('conform')
+local linters = require('core.linters')
+local utils = require('core.utils')
 
 conform.setup({
-  formatters_by_ft = {
-    lua = { 'stylua' },
-    javascript = { 'prettierd', 'prettier' },
-    javascriptreact = { 'prettierd', 'prettier' },
-    typescript = { 'prettierd', 'prettier' },
-    typescriptreact = { 'prettierd', 'prettier' },
-    json = { 'prettierd', 'prettier' },
-    jsonc = { 'prettierd', 'prettier' },
-    yaml = { 'prettierd', 'prettier' },
-    html = { 'prettierd', 'prettier' },
-    css = { 'prettierd', 'prettier' },
-    scss = { 'prettierd', 'prettier' },
-    markdown = { 'prettierd', 'prettier' },
-    python = { 'black', 'isort' },
-    sh = { 'shfmt' },
-    bash = { 'shfmt' },
-    zsh = { 'shfmt' },
-    php = { 'php_cs_fixer' },
-    go = { 'gofmt' },
-    rust = { 'rustfmt' },
-    c = { 'clang_format' },
-    cpp = { 'clang_format' },
-    xml = { 'xmlformat' },
-    sql = { 'sqlfluff' },
-    terraform = { 'terraform_fmt' },
-  },
-  default_format_opts = {
-    timeout_ms = 3000,
-    async = false,
-    quiet = false,
-    lsp_format = 'fallback',
-  },
-  format_on_save = {
-    timeout_ms = 500,
-    lsp_format = 'fallback',
-  },
-  format_after_save = {
-    lsp_format = 'fallback',
-  },
+  formatters_by_ft = {}, -- we resolve dynamically
+  default_format_opts = { timeout_ms = 3000, async = false, quiet = false, lsp_format = 'fallback' },
+  format_on_save = { timeout_ms = 500, lsp_format = 'fallback' },
+  format_after_save = { lsp_format = 'fallback' },
   log_level = vim.log.levels.ERROR,
   notify_on_error = true,
 })
 
--- Set up autocommands for formatting
+local function gather_args(name, bufnr)
+  local cfg = linters.get_config()[name]
+  if not cfg or not cfg.args then return nil end
+  local root = utils.find_git_root(bufnr)
+  local ctx = { buf = bufnr, root_dir = root }
+  if type(cfg.args) == 'function' then return cfg.args(ctx) end
+  local out = {}
+  for _, a in ipairs(cfg.args) do
+    if type(a) == 'function' then table.insert(out, a(ctx)) else table.insert(out, a) end
+  end
+  return out
+end
+
+local function format_names(bufnr)
+  local ft = vim.bo[bufnr].filetype
+  return linters.active_tools(ft, 'format', bufnr)
+end
+
+local function apply_overrides(names, bufnr)
+  local overrides = {}
+  for _, name in ipairs(names) do
+    local args = gather_args(name, bufnr)
+    if args then overrides[name] = { prepend_args = args } end
+  end
+  for k, v in pairs(overrides) do conform.formatters[k] = vim.tbl_extend('force', conform.formatters[k] or {}, v) end
+end
+
+local function do_format(bufnr, opts)
+  bufnr = bufnr or 0
+  if utils.is_large_file(bufnr) then return end
+  local names = format_names(bufnr)
+  apply_overrides(names, bufnr)
+  conform.format(vim.tbl_extend('force', { bufnr = bufnr, timeout_ms = 3000, quiet = true, formatters = names }, opts or {}))
+end
+
 vim.api.nvim_create_augroup('conform_format', { clear = true })
+vim.api.nvim_create_autocmd('BufWritePre', { group = 'conform_format', callback = function(args) if not vim.g.disable_autoformat then do_format(args.buf) end end })
 
-vim.api.nvim_create_autocmd('BufWritePre', {
-  group = 'conform_format',
-  callback = function(args)
-    -- Don't format if the file is too large
-    local max_filesize = 100 * 1024 -- 100KB
-    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
-    if ok and stats and stats.size > max_filesize then
-      return
-    end
-
-    -- Format the buffer
-    conform.format({
-      bufnr = args.buf,
-      timeout_ms = 3000,
-      quiet = true,
-    })
-  end,
-})
-
--- Set up file type detection for special cases
+-- Filetype tweaks
 vim.api.nvim_create_autocmd('BufReadPre', {
   group = 'conform_format',
-  desc = 'Set OpenAPI yaml file types',
   pattern = { '*.openapi.yaml', '*.openapi.yml', '*.swagger.yaml', '*.swagger.yml' },
-  callback = function(args)
-    vim.bo[args.buf].filetype = 'yaml.openapi'
-  end,
+  callback = function(args) vim.bo[args.buf].filetype = 'yaml.openapi' end,
 })
-
 vim.api.nvim_create_autocmd('BufReadPre', {
   group = 'conform_format',
-  desc = 'Set GitHub Actions workflow file types',
   pattern = { '.github/workflows/*.yml', '.github/workflows/*.yaml' },
-  callback = function(args)
-    vim.bo[args.buf].filetype = 'yaml.github'
-  end,
+  callback = function(args) vim.bo[args.buf].filetype = 'yaml.github' end,
 })
 
-vim.keymap.set('n', 'gf', function()
-  conform.format({ timeout_ms = 3000 })
-end, { desc = 'Format buffer' })
+-- Keymaps
+vim.keymap.set('n', 'gf', function() do_format(0) end, { desc = 'Format buffer' })
+vim.keymap.set('n', '<leader>fm', function() do_format(0) end, { desc = 'Format buffer' })
+vim.keymap.set('v', '<leader>fm', function() conform.format({ range = true }) end, { desc = 'Format selection' })
 
-vim.keymap.set('n', '<leader>fm', function()
-  conform.format({ timeout_ms = 3000 })
-end, { desc = 'Format buffer' })
-
-vim.keymap.set('v', '<leader>fm', function()
-  conform.format({ range = true })
-end, { desc = 'Format selection' })
-
--- Command to toggle format on save
 vim.api.nvim_create_user_command('FormatToggle', function()
   if vim.g.disable_autoformat then
     vim.g.disable_autoformat = false
@@ -113,5 +81,4 @@ vim.api.nvim_create_user_command('FormatToggle', function()
 end, { desc = 'Toggle format on save' })
 
 M.conform = conform
-
 return M

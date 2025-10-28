@@ -13,6 +13,8 @@ telescope.setup({
   },
   defaults = {
     file_previewer = require('telescope.previewers').vim_buffer_cat.new,
+    grep_previewer = require('telescope.previewers').vim_buffer_vimgrep.new,
+    qflist_previewer = require('telescope.previewers').vim_buffer_qflist.new,
     -- Show hidden files.
     vimgrep_arguments = {
       'rg',
@@ -57,7 +59,7 @@ telescope.load_extension('fzf')
 
 local M = {}
 
-local function git_files_all()
+M.git_files_all = function()
   local git_opts = {
     git_command = { 'git', 'ls-files', '--modified', '--cached', '--others', '--deduplicate' },
     layout_strategy = 'vertical',
@@ -68,13 +70,14 @@ local function git_files_all()
   end
 end
 
-local function grep_project()
+M.grep_project = function()
   telescope_builtin.live_grep({ cwd = utils.project_dir(), layout_strategy = 'vertical' })
 end
 
-local function git_files_source()
+M.git_files_source = function()
   local git_opts = {
-    git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate', '--others', '--exclude-standard' },
+    git_command = { 'fd', '--type', 'f', '--hidden', '--exclude', '.git' },
+    -- git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate', '--others', '--exclude-standard' },
     layout_strategy = 'vertical',
   }
   local ok = pcall(telescope_builtin.git_files, git_opts)
@@ -91,70 +94,17 @@ vim.keymap.set('n', 'gs', function()
   })
 end)
 
-local function call_telescope_vertical(callback)
+M.call_telescope_vertical = function(callback)
   return function()
-    callback({ layout_strategy = 'vertical', path_display = { 'smart' }, show_line = false })
+    callback({ layout_strategy = 'vertical', path_display = { 'smart' }, show_line = true })
   end
 end
 
-vim.keymap.set('n', 'gr', call_telescope_vertical(telescope_builtin.lsp_references), { desc = 'LSP references' })
-vim.keymap.set(
-  'n',
-  'gt',
-  call_telescope_vertical(telescope_builtin.lsp_type_definitions),
-  { desc = 'LSP type definition(s)' }
-)
-vim.keymap.set('n', 'gd', call_telescope_vertical(telescope_builtin.lsp_definitions), { desc = 'LSP definition(s)' })
-vim.keymap.set(
-  'n',
-  'gi',
-  call_telescope_vertical(telescope_builtin.lsp_implementations),
-  { desc = 'LSP implementation(s)' }
-)
-vim.keymap.set('n', '<Leader>b', call_telescope_vertical(telescope_builtin.buffers), { desc = 'LSP buffers' })
-vim.keymap.set('n', '<C-t>', grep_project, { desc = 'Grep project' })
-vim.keymap.set('n', '<Leader>h', git_files_source, { desc = 'Git source files' })
-vim.keymap.set('n', '<C-g>', git_files_all, { desc = 'Git files (all)' })
-vim.keymap.set('n', '<Leader>gg', grep_project, { desc = 'Git grep in project' })
-vim.keymap.set('n', '<C-p>', telescope_builtin.commands, { desc = 'Commands' })
-
--- Project switching with configurable workspaces
-vim.keymap.set('n', '<Leader>p', function()
-  local workspaces = vim.g.telescope_project_workspaces
-  local dirs = {}
-
-  -- Expand and collect all directories from workspaces.
-  for _, workspace in ipairs(workspaces) do
-    local expanded = vim.fn.expand(workspace)
-    if vim.fn.isdirectory(expanded) == 1 then
-      table.insert(dirs, expanded)
-    end
-  end
-
-  if #dirs == 0 then
-    vim.notify('No valid project workspaces found', vim.log.levels.WARN)
-    return
-  end
-
-  -- Use Telescope to find directories in workspaces.
-  telescope_builtin.find_files({
-    search_dirs = dirs,
-    prompt_title = 'Switch Project',
+M.find_symbol_project = function()
+  telescope_builtin.lsp_dynamic_workspace_symbols({
     layout_strategy = 'vertical',
-    find_command = { 'fd', '--type', 'd', '--max-depth', '1' },
-    attach_mappings = function(prompt_bufnr, map)
-      local action_state = require('telescope.actions.state')
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        if selection then
-          telescope_builtin.find_files({
-            cwd = selection.value,
-            layout_strategy = 'vertical',
-          })
-        end
-      end)
-      return true
-    end,
+    path_display = { 'smart' },
   })
-end, { desc = 'Switch project' })
+end
+
+return M

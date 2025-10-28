@@ -10,7 +10,7 @@ set viewmode miller
 #set viewmode multipane
 
 # How many columns are there, and what are their relative widths?
-set column_ratios 1,2,5
+set column_ratios 1,3,4
 
 # Which files should be hidden? (regular expression)
 set hidden_filter ^\.|\.(?:pyc|pyo|bak|swp)$|^lost\+found$|^__(py)?cache__$
@@ -70,28 +70,17 @@ set preview_images true
 # * urxvt-full:
 #   The same as urxvt but utilizing not only the preview pane but the
 #   whole terminal window.
-#
-# * kitty:
-#   Preview images in full color using kitty image protocol.
-#
-# Note: For WSL2, kitty or w3m works best. iterm2 only works on macOS.
-set preview_images_method kitty
+set preview_images_method iterm2
 
 # Use a unicode "..." character to mark cut-off filenames?
-# Moved to line 205 for better organization
+set unicode_ellipsis false
 
 # Show dotfiles in the bookmark preview box?
 set show_hidden_bookmarks true
 
 # Which colorscheme to use?  These colorschemes are available by default:
 # default, jungle, snow, solarized
-# set colorscheme solarized
-set colorscheme dracula        # Popular dark theme
-# set colorscheme gruvbox_real   # Actual gruvbox colors
-# set colorscheme zenburn        # Warm, low-contrast
-# set colorscheme default        # Original ranger
-# set colorscheme jungle         # Green tones
-# set colorscheme snow           # Light theme
+set colorscheme default
 
 # Preview files on the rightmost column?
 # And collapse (shrink) the last column if there is nothing to preview?
@@ -204,18 +193,7 @@ set metadata_deep_search false
 set clear_filters_on_dir_change false
 
 # Disable displaying line numbers in main column
-# Options: false, absolute, relative, relativenumber
-set line_numbers relative
-
-# Enable unicode ellipsis for better file name truncation
-set unicode_ellipsis true
-
-# Display file size in human readable format
-set size_in_bytes false
-
-# Default linemode - devicons requires ranger_devicons plugin
-# Default valid options: filename, metatitle, permissions, fileinfo, mtime, sizemtime
-default_linemode devicons
+set line_numbers false
 
 # ===================================================================
 # == Local Options
