@@ -13,3 +13,4 @@ vendor/
 .ac-php-conf.json
 build/
 node_modules/
+*.pyc
