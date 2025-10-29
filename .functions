@@ -70,7 +70,7 @@ random-joke() {
 cowjoke() {
   if command_exists cowsay && command_exists random-joke && command_exists lolcat; then
     local COWSAY_FILE="$(shuf -n1 -e $(cowsay -l | tail -n +2))"
-    random-joke | cowsay -f "$COWSAY_FILE" | lolcat
+    random-joke | cowsay -f "$COWSAY_FILE" | lolcat -f
   fi
 }
 
@@ -714,4 +714,70 @@ claude-code-mcp-setup() {
     -- uvx awslabs.aws-documentation-mcp-server@latest
   claude mcp add awslabs-aws-api-mcp-server \
     -- uvx awslabs.aws-api-mcp-server@latest
+}
+
+claude-copy-settings() {
+  [[ ! -d .claude ]] && mkdir .claude
+  cp ~/.claude/settings.json .claude/settings.local.json
+}
+
+claude-copy-settings-all() {
+  local ORIG_DIR="$(pwd)"
+  cd ~/Code
+
+  for dir in */; do
+    dir="${dir%/}"
+
+    [[ ! -d "$dir" ]] && continue
+
+    echo "Processing $dir..."
+
+    mkdir -p "$dir/.claude"
+
+    cp ~/.claude/settings.json "$dir/.claude/settings.json"
+
+    echo "  ✓ Copied settings to $dir/.claude/settings.json"
+  done
+
+  cd "$ORIG_DIR"
+  echo "Done! Copied Claude settings to all directories in ~/Code"
+}
+
+alias cwc='claude-whitelist-cmd'
+claude-whitelist-cmd() {
+  local cmd="$*"
+
+  if [[ -z "$cmd" ]]; then
+    echo "Error: Please provide a command to whitelist"
+    echo "Usage: claude-whitelist-cmd <command>"
+    echo "Examples:"
+    echo "  claude-whitelist-cmd npm run dev"
+    echo "  claude-whitelist-cmd 'docker compose up'"
+    return 1
+  fi
+
+  local settings_file="$HOME/.claude/settings.json"
+  if [[ ! -f "$settings_file" ]]; then
+    echo "Error: Claude settings file not found at $settings_file"
+    return 1
+  fi
+
+  local permission_entry="Bash(${cmd}:*)"
+  if jq -e ".permissions.allow | index(\"$permission_entry\")" "$settings_file" > /dev/null 2>&1; then
+    echo "Command '$cmd' is already whitelisted"
+    return 0
+  fi
+
+  local temp_file=$(mktemp)
+  if jq ".permissions.allow += [\"$permission_entry\"] | .permissions.allow |= sort" "$settings_file" > "$temp_file"; then
+    mv "$temp_file" "$settings_file"
+    echo "Successfully added '$cmd' to Claude whitelist as '$permission_entry'"
+    return 0
+  else
+    echo "Error: Failed to update Claude settings file"
+    rm -f "$temp_file"
+    return 1
+  fi
+
+  claude-copy-settings-all
 }

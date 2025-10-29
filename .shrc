@@ -6,6 +6,11 @@
 
 [[ $(uname -r) =~ WSL ]] && IS_WSL=1 || IS_WSL=0
 
+eval "$(pyenv init -)"
+
+# Cache brew prefix once to avoid multiple subprocess calls throughout shell startup
+export CACHED_BREW_PREFIX="${CACHED_BREW_PREFIX:-$(brew --prefix)}"
+
 dotfiles=(.aliases .functions .exports .shrc.local)
 for dotfile in "${dotfiles[@]}"; do
   dotfile="$HOME/$dotfile"
@@ -27,16 +32,23 @@ export GPG_TTY=$(tty)
 # 3rd Party.
 ##
 
-# thefuck - https://github.com/nvbn/thefuck
-if hash thefuck 2>/dev/null; then
-  eval "$(thefuck --alias)"
-fi
-
-[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh"
+[ -s "$CACHED_BREW_PREFIX/opt/nvm/nvm.sh" ] && . "$CACHED_BREW_PREFIX/opt/nvm/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
 ##
 # Other.
 ##
 
-cowjoke
+# Fast cowjoke with pre-caching - each shell gets a unique joke with colors preserved
+COWJOKE_CACHE="/tmp/.cowjoke_cache_${USER}"
+if [ -f "$COWJOKE_CACHE" ]; then
+  # Display the pre-cached joke instantly with colors (unique from last session)
+  cat "$COWJOKE_CACHE"
+  # Generate a NEW joke for the NEXT shell session (background, silent, with TERM set for colors)
+  (TERM=${TERM:-xterm-256color} cowjoke > "$COWJOKE_CACHE" 2>/dev/null) &!
+else
+  # First run or cache missing - generate and display, then pre-cache another
+  cowjoke
+  # Pre-cache a joke for next time (background, silent, with TERM set for colors)
+  (TERM=${TERM:-xterm-256color} cowjoke > "$COWJOKE_CACHE" 2>/dev/null) &!
+fi
