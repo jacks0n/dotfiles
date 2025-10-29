@@ -21,6 +21,7 @@ brew install betterzip
 brew install bfg
 brew install brew-cask-completion
 brew install ccat
+brew install cfn-lint
 brew install chafa # Convert image to ASCII for ranger
 brew install charmbracelet/tap/crush
 brew install claude
@@ -110,6 +111,7 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 
 # Install Brew cask packages.
 brew install --cask 1password
+brew install --cask macdown # Markdown with Mermaid support
 brew install --cask alfred
 brew install --cask alt-tab
 brew install --cask beekeeper-studio
@@ -259,22 +261,24 @@ npm install --global uv
 
 # Install LLM cli tools
 npm install --global @anthropic-ai/claude-code
+npm install --global @github/copilot
 npm install --global @google/gemini-cli
 npm install --global @openai/codex
 npm install --global @qwen-code/qwen-code@latest
+npm install --global opencode-ai
 
 # Install MCP servers.
-npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
-npm install -g gemini-mcp-tool
-npm install -g @upstash/context7-mcp
-npm install -g @playwright/mcp@latest
-npm install -g @modelcontextprotocol/server-filesystem
-pip install mcp-server-fetch
-npm install -g @modelcontextprotocol/server-memory
-pip install mcp-server-git
-npm install -g @cocal/google-calendar-mcp # Unused
 mkdir ~/.mcp                              # Used by @modelcontextprotocol/server-memory
+npm install -g @cocal/google-calendar-mcp
+npm install -g @modelcontextprotocol/server-filesystem
+npm install -g @modelcontextprotocol/server-memory
+npm install -g @playwright/mcp@latest
+npm install -g @upstash/context7-mcp
+npm install -g gemini-mcp-tool
+npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
 pip install lean
+pip install mcp-server-fetch
+pip install mcp-server-git
 uv tool install leann-core
 
 # Install coc.nvim plugins.

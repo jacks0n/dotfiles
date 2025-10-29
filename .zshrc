@@ -92,6 +92,8 @@ source "$ZINIT_HOME/zinit.zsh"
 
 autoload -Uz compinit
 compinit -C
+# Set HOMEBREW_PREFIX for later use
+export HOMEBREW_PREFIX="$(brew --prefix)"
 
 zinit load 'mafredri/zsh-async'
 zinit ice pick'async.zsh' src'pure.zsh'; zinit light 'sindresorhus/pure'
@@ -172,10 +174,10 @@ load-nvmrc() {
   if [ -n "$nvmrc_path" ]; then
     local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
 
-    if [ "$nvmrc_node_version" == 'N/A' ]; then
+    if [[ "$nvmrc_node_version" == 'N/A' ]]; then
       nvm install
       nvm use --silent
-    elif [ "$nvmrc_node_version" != "${nvm version}" ]; then
+    elif [[ "$nvmrc_node_version" != "$(nvm version)" ]]; then
       nvm use --silent
     fi
   # Revert to global node.
@@ -186,6 +188,48 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 if [[ -z $VIRTUAL_ENV ]] ; then
   load-nvmrc
+fi
+
+# Automatically call `pyenv local` when `cd`ing to a directory with a `.python-version` file.
+load-pyenv() {
+  # Find .python-version file in current or parent directories
+  local python_version_path=""
+  local dir="$PWD"
+
+  while [[ "$dir" != "/" ]]; do
+    if [[ -f "$dir/.python-version" ]]; then
+      python_version_path="$dir/.python-version"
+      break
+    fi
+    dir="$(dirname "$dir")"
+  done
+
+  # Set python version if .python-version found
+  if [[ -n "$python_version_path" ]]; then
+    local required_version=$(cat "$python_version_path")
+    local current_version=$(pyenv version-name 2>/dev/null)
+
+    # Only switch if the version is different
+    if [[ "$required_version" != "$current_version" ]]; then
+      # Check if the required version is installed
+      if ! pyenv versions --bare | grep -q "^${required_version}"; then
+        echo "Python $required_version is not installed. Installing..."
+        pyenv install "$required_version"
+      fi
+
+      # Set the local version silently
+      pyenv shell "$required_version" 2>/dev/null
+    fi
+  # Revert to global python version when leaving a project directory
+  elif [[ -n "$PYENV_VERSION" ]]; then
+    # Unset the shell-specific version to revert to global
+    unset PYENV_VERSION
+  fi
+}
+add-zsh-hook chpwd load-pyenv
+# Load pyenv for current directory on shell startup
+if [[ -z $VIRTUAL_ENV ]] ; then
+  load-pyenv
 fi
 
 # Ensure Python virtual environment always has PATH priority.
