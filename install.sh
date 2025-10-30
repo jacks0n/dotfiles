@@ -11,8 +11,22 @@ if ! type brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+# File managers
+brew install xplr
+brew install yazi
+brew install joshuto
+brew install clifm
+
+# yazi themes
+ya pkg add dangooddd/kanagawa
+
 # Install Brew packages.
 brew install ast-grep
+brew install 7zip    # Archive preview for cli file managers
+brew install poppler # PDR preview for cli file managers
+brew install rg
+brew install jnv
+brew install bun
 brew install awscli
 brew install bash
 brew install bash-completion
@@ -32,6 +46,7 @@ brew install coreutils
 brew install cowsay
 brew install curl
 brew install cw
+brew install jless
 brew install dateutils
 brew install devutils
 brew install diffr
@@ -45,6 +60,7 @@ brew install eza      # Pretty `ls` alternative for ranger
 brew install fd
 brew install findutils
 brew install fx
+brew install xq
 brew install fzf
 brew install fzy
 brew install gawk
@@ -100,7 +116,8 @@ brew install wget
 brew install whois
 brew install yarn
 brew install yq
-brew install z
+brew install zoxide
+brew install resvg # SVG preview for cli file managers/
 brew install zsh
 brew install zsh-autosuggestions
 brew link docker
@@ -112,7 +129,6 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 
 # Install Brew cask packages.
 brew install --cask 1password
-brew install --cask macdown # Markdown with Mermaid support
 brew install --cask alfred
 brew install --cask alt-tab
 brew install --cask beekeeper-studio
@@ -133,8 +149,10 @@ brew install --cask istat-menus
 brew install --cask iterm2
 brew install --cask jupyterlab
 brew install --cask kiro
+brew install --cask macdown # Markdown with Mermaid support
 brew install --cask macs-fan-control
 brew install --cask mark-text
+brew install --cask marta
 brew install --cask microsoft-teams
 brew install --cask notion
 brew install --cask ollama
@@ -261,6 +279,7 @@ npm install --global lehre # Required to generate JS docblocks in Vim (LJSDoc).
 npm install --global uv
 
 # Install LLM cli tools
+bunx ccusage
 npm install --global @anthropic-ai/claude-code
 npm install --global @github/copilot
 npm install --global @google/gemini-cli
@@ -281,6 +300,7 @@ pip install lean
 pip install mcp-server-fetch
 pip install mcp-server-git
 uv tool install leann-core
+uv tool install cased-kit
 
 # Install coc.nvim plugins.
 nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-css' +qall
