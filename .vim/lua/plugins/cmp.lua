@@ -28,6 +28,15 @@ blink.setup({
     ['<CR>'] = { 'accept', 'fallback' },
     ['<Tab>'] = { 'select_next', 'fallback' },
     ['<S-Tab>'] = { 'select_prev', 'fallback' },
+    ['/'] = {
+      function(cmp)
+        -- If the menu is visible and an item is selected, accept it and trigger again
+        if cmp.is_visible() then
+          cmp.accept()
+        end
+      end,
+      'fallback',
+    },
   },
 
   appearance = {
@@ -144,6 +153,15 @@ blink.setup({
     trigger = {
       -- Enable path completion in strings by removing quotes from blocked characters
       show_on_x_blocked_trigger_characters = { '(', '{', '[' },
+      -- Enable re-triggering on path separators
+      show_on_insert_on_trigger_character = true,
+    },
+
+    list = {
+      selection = {
+        preselect = false,
+        auto_insert = false,
+      },
     },
 
     menu = {
