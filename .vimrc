@@ -113,6 +113,7 @@ elseif has('nvim')
   Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   Plug 'yioneko/nvim-vtsls'
+  " Plug 'seblyng/roslyn.nvim'
   Plug 'Hoffs/omnisharp-extended-lsp.nvim'
 endif
 
@@ -176,10 +177,6 @@ if !has_key(g:plugs, 'nvim-treesitter')
   Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect).
 endif
 if has('nvim')
-  Plug 'Owen-Dechow/videre.nvim'       " JSON inline editing.
-    \| Plug 'Owen-Dechow/graph_view_yaml_parser'
-    \| Plug 'Owen-Dechow/graph_view_toml_parser'
-    \| Plug 'a-usr/xml2lua.nvim'
   Plug 'm4xshen/hardtime.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
@@ -786,6 +783,7 @@ elseif executable('python3')
   command! -bar FormatJson :%!python3 -m json.tool
 endif
 command! -bar FormatXml :%!xmllint --format --recover -
+command! -bar CopyMessages redir @+ | silent messages | redir END
 
 
 
@@ -826,6 +824,7 @@ if has('nvim')
     lua require('plugins.trouble')
     lua require('plugins.actions-preview')
     lua require('plugins.none-ls')
+    " lua require('plugins.roslyn')
   endif
 
   augroup LazyLoadLua
@@ -836,7 +835,6 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.code_runner')
     autocmd VimEnter * ++once lua require('plugins.treesj')
     autocmd VimEnter * ++once lua require('plugins.regexplainer')
-    autocmd VimEnter * ++once lua require('plugins.videre')
     " autocmd VimEnter * ++once lua require('plugins.notify')
     " autocmd VimEnter * ++once lua require('plugins.noice')
     autocmd VimEnter * ++once lua require('plugins.luasnip')
