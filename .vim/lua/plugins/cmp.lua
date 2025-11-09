@@ -26,17 +26,24 @@ blink.setup({
     ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
     ['<C-e>'] = { 'hide', 'fallback' },
     ['<CR>'] = { 'accept', 'fallback' },
-    ['<Tab>'] = { 'select_next', 'fallback' },
-    ['<S-Tab>'] = { 'select_prev', 'fallback' },
+    ['<Tab>'] = { 'accept', 'snippet_forward', 'fallback' },
+    ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
+    ['<Down>'] = { 'select_next', 'fallback' },
+    ['<Up>'] = { 'select_prev', 'fallback' },
     ['/'] = {
       function(cmp)
         -- If the menu is visible and an item is selected, accept it and trigger again
         if cmp.is_visible() then
           cmp.accept()
         end
+        -- Trigger completion after inserting /
+        vim.schedule(function()
+          cmp.show()
+        end)
       end,
       'fallback',
     },
+    ['<C-x><C-f>'] = { 'show', 'fallback' }, -- Manual path completion trigger
   },
 
   appearance = {
@@ -123,7 +130,23 @@ blink.setup({
         opts = {
           trailing_slash = false,
           label_trailing_slash = true,
-          get_cwd = vim.fn.getcwd,
+          get_cwd = function(ctx)
+            -- Expand environment variables in the current context
+            local line = vim.api.nvim_get_current_line()
+            local col = vim.api.nvim_win_get_cursor(0)[2]
+            local before_cursor = line:sub(1, col)
+
+            -- Check if we're after an environment variable like $HOME/
+            local env_path = before_cursor:match('%$([%w_]+)/[^%s"\']*$')
+            if env_path then
+              local expanded = vim.fn.expand('$' .. env_path)
+              if expanded ~= '$' .. env_path then
+                return expanded
+              end
+            end
+
+            return vim.fn.getcwd()
+          end,
           show_hidden_files_by_default = false,
         },
       },
@@ -155,12 +178,19 @@ blink.setup({
       show_on_x_blocked_trigger_characters = { '(', '{', '[' },
       -- Enable re-triggering on path separators
       show_on_insert_on_trigger_character = true,
+      -- Trigger immediately on these characters (includes path separators)
+      show_in_snippet = true,
+    },
+
+    context = {
+      -- Enable completion in strings for path completion
+      treesitter = {},
     },
 
     list = {
       selection = {
-        preselect = false,
-        auto_insert = false,
+        preselect = true, -- Auto-select first item like VSCode
+        auto_insert = false, -- Don't auto-insert, wait for Tab/Enter
       },
     },
 
