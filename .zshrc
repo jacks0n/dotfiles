@@ -30,11 +30,15 @@ setopt AUTO_LIST            # Automatically list choices on ambiguous completion
 setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
 setopt COMPLETE_ALIASES     # Enable completion for aliases. Enabling breaks completion with Fig.
 setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
+zstyle ':completion:*' completer _expand _complete _ignored _approximate
 zstyle ':completion:*' list-dirs-first yes        # Show directories first.
 zstyle ':completion:*' verbose yes                # Show descriptions for options.
 zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # Enable case-insensitive completion.
 zstyle ':completion:*' menu select                          # Enable menu-driven completion.
+zstyle ':completion:*' special-dirs true                    # Complete . and .. special directories.
+zstyle ':completion:*' squeeze-slashes true                 # Squeeze multiple slashes into one.
+zstyle ':completion:*' expand prefix suffix                  # Expand variables in completion.
 zstyle ':completion::complete:*' cache-path $ZSH_CACHE_DIR  # Set the completion caching directory.
 zstyle ':completion::complete:*' use-cache 1                # Enable completion caching.
 

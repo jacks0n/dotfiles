@@ -21,12 +21,8 @@ brew install clifm
 ya pkg add dangooddd/kanagawa
 
 # Install Brew packages.
-brew install ast-grep
 brew install 7zip    # Archive preview for cli file managers
-brew install poppler # PDR preview for cli file managers
-brew install rg
-brew install jnv
-brew install bun
+brew install ast-grep
 brew install awscli
 brew install bash
 brew install bash-completion
@@ -34,6 +30,7 @@ brew install bat
 brew install betterzip
 brew install bfg
 brew install brew-cask-completion
+brew install bun
 brew install ccat
 brew install cfn-lint
 brew install chafa # Convert image to ASCII for ranger
@@ -46,7 +43,6 @@ brew install coreutils
 brew install cowsay
 brew install curl
 brew install cw
-brew install jless
 brew install dateutils
 brew install devutils
 brew install diffr
@@ -60,7 +56,6 @@ brew install eza      # Pretty `ls` alternative for ranger
 brew install fd
 brew install findutils
 brew install fx
-brew install xq
 brew install fzf
 brew install fzy
 brew install gawk
@@ -75,6 +70,8 @@ brew install grep
 brew install htop
 brew install imagemagick
 brew install jesseduffield/lazygit/lazygit
+brew install jless
+brew install jnv
 brew install jordanbaird-ice
 brew install jq
 brew install lolcat
@@ -91,9 +88,13 @@ brew install odt2txt # Convert OpenDocument to txt for ranger
 brew install openjdk@11
 brew install pandoc # Convert documents for ranger
 brew install php
+brew install poppler # PDR preview for cli file managers
 brew install pure
 brew install python
 brew install ranger
+brew install repomix
+brew install resvg # SVG preview for cli file managers/
+brew install rg
 brew install ripgrep
 brew install rsync
 brew install saulpw/vd/visidata
@@ -114,10 +115,10 @@ brew install vim
 brew install viu
 brew install wget
 brew install whois
+brew install xq
 brew install yarn
 brew install yq
 brew install zoxide
-brew install resvg # SVG preview for cli file managers/
 brew install zsh
 brew install zsh-autosuggestions
 brew link docker
@@ -273,7 +274,6 @@ pip3 install saws
 brew install ts-node
 brew install typescript
 
-npm install --global bun
 npm install --global fix-package-conflicts
 npm install --global lehre # Required to generate JS docblocks in Vim (LJSDoc).
 npm install --global uv
@@ -286,6 +286,15 @@ npm install --global @google/gemini-cli
 npm install --global @openai/codex
 npm install --global @qwen-code/qwen-code@latest
 npm install --global opencode-ai
+
+# automem
+# https://github.com/verygoodplugins/automem
+mkdir -p ~/Code/vendor
+git clone https://github.com/verygoodplugins/automem ~/Code/vendor/automem
+cd ~/Code/vendor/automem
+make dev
+npm install -g @verygoodplugins/mcp-automem
+npx @verygoodplugins/mcp-automem setup # AutoMem Endpoint: http://localhost:8001
 
 # Install MCP servers.
 mkdir ~/.mcp                              # Used by @modelcontextprotocol/server-memory
@@ -300,7 +309,8 @@ pip install lean
 pip install mcp-server-fetch
 pip install mcp-server-git
 uv tool install leann-core
-uv tool install cased-kit
+uv tool install 'cased-kit[all]'
+uv tool install codetoprompt
 
 # Install coc.nvim plugins.
 nvim --cmd 'let g:use_coc = 1' +'CocInstall -sync coc-css' +qall

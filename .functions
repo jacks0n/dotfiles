@@ -679,6 +679,7 @@ git-refresh-branches() {
 }
 
 claude-code-mcp-setup() {
+  npx cclsp@latest setup
   claude mcp add todoist --env TODOIST_API_TOKEN="$TODOIST_API_TOKEN" -- npx -y @abhiz123/todoist-mcp-server
   claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   claude mcp add Context7 -- npx -y @upstash/context7-mcp
@@ -697,7 +698,6 @@ claude-code-mcp-setup() {
   claude mcp add memory --env MEMORY_FILE_PATH=$HOME/.mcp/memory.claude.json -- npx -y @modelcontextprotocol/server-memory
   claude mcp add git -- uvx mcp-server-git
   claude mcp add ddg-search -- uvx duckduckgo-mcp-server
-  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)"
   claude mcp add postgres-mcp -- uv run postgres-mcp --access-mode=unrestricted
   claude mcp add dbhub-postgres -- npx -y @bytebase/dbhub --transport stdio --dsn postgres://user:password@localhost:5432/dbname?sslmode=disable
   claude mcp add google-calendar -- npx -y @cocal/google-calendar-mcp
@@ -714,6 +714,20 @@ claude-code-mcp-setup() {
     -- uvx awslabs.aws-documentation-mcp-server@latest
   claude mcp add awslabs-aws-api-mcp-server \
     -- uvx awslabs.aws-api-mcp-server@latest
+  claude mcp add sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
+  claude mcp add serena -- \
+    uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
+    --context ide-assistant --project "$(pwd)"
+  claude mcp add automem \
+    --env AUTOMEM_ENDPOINT=http://127.0.0.1:8001 \
+    --env AUTOMEM_API_KEY='' \
+    -- npx @verygoodplugins/mcp-automem
+  claude mcp add kit-dev \
+    --env KIT_USE_CHROMA_CLOUD='false' \
+    --env KIT_GITHUB_TOKEN="$GITHUB_API_TOKEN" \
+    --env OPENAI_API_KEY="$OPENAI_API_KEY" \
+    --env GOOGLE_API_KEY="$GEMINI_API_KEY" \
+    -- uvx --from cased-kit kit-dev-mcp
 }
 
 claude-copy-settings() {

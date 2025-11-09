@@ -89,6 +89,9 @@ export ANDROID_HOME='/usr/local/opt/android-sdk'
 # User ~/bin directories.
 export PATH="$HOME/bin:$PATH"
 
+# llm-symbols - symbol extractor for LLM context.
+export PATH="$HOME/Code/llm-symbols/bin:$PATH"
+
 # Composer.
 export PATH="$HOME/.composer/vendor/bin:$PATH"
 
