@@ -44,6 +44,7 @@ require('mason-lspconfig').setup({
     'intelephense',
     'omnisharp',
     -- Note: roslyn is configured below but not auto-installed via Mason
+    -- 'pyrefly',
   },
   automatic_enable = false,
 })
@@ -219,6 +220,35 @@ local lsp_server_configs = {
       javascript = ts_js_settings,
     },
   },
+
+  -- pyrefly = {
+  --   filetypes = { 'python' },
+  --   root_markers = { 'pyproject.toml', 'requirements.txt', 'setup.py', '.git' },
+  --   single_file_support = false,
+  --   before_init = function(params, config)
+  --     local root_uri = params.rootUri or params.rootPath
+  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+  --     if not root_dir then
+  --       return
+  --     end
+  --
+  --     local python_settings = utils.detect_python_settings(root_dir)
+  --     config.settings = config.settings or {}
+  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+  --
+  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+  --       python = python_settings,
+  --     })
+  --   end,
+  --   on_init = function(client, _initialize_result)
+  --     vim.schedule(function()
+  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+  --     end)
+  --   end,
+  --   settings = {
+  --     python = {},
+  --   },
+  -- },
 
   basedpyright = {
     single_file_support = false,
@@ -422,7 +452,7 @@ local lsp_server_configs = {
   omnisharp = {
     root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'omnisharp.json', 'function.json'),
     handlers = (function()
-      local omnisharp_extended = require('omnisharp-extended-lsp')
+      local omnisharp_extended = require('omnisharp_extended')
       return {
         ['textDocument/definition'] = omnisharp_extended.definition_handler,
         ['textDocument/typeDefinition'] = omnisharp_extended.type_definition_handler,
