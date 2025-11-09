@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(/dev/null)",
+      "Bash(awk:*)",
       "Bash(aws acm describe-certificate:*)",
       "Bash(aws acm list-certificates:*)",
       "Bash(aws apigateway get-integration:*)",
@@ -195,6 +195,7 @@
       "Bash(info:*)",
       "Bash(iostat:*)",
       "Bash(ip addr:*)",
+      "Bash(jq:*)",
       "Bash(less:*)",
       "Bash(locate:*)",
       "Bash(ls:*)",
@@ -205,6 +206,7 @@
       "Bash(npx eslint:*)",
       "Bash(npx tsc:*)",
       "Bash(nslookup:*)",
+      "Bash(php -l:*)",
       "Bash(ping:*)",
       "Bash(pnpm add:*)",
       "Bash(pnpm exec:*)",
@@ -239,10 +241,19 @@
       "Bash(who:*)",
       "Bash(whoami:*)",
       "Bash(zipinfo:*)",
+      "Read",
       "Read(*)",
       "Read(/**)",
       "Search(*)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__memory__associate_memories",
+      "mcp__memory__check_database_health",
+      "mcp__memory__delete_memory",
+      "mcp__memory__recall_memory",
+      "mcp__memory__store_memory",
+      "mcp__memory__update_memory",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__serena__search_for_pattern"
     ]
   },
   "rules": [
