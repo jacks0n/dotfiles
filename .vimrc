@@ -106,6 +106,8 @@ elseif has('nvim')
     " \| Plug 'rshkarin/mason-nvim-lint'
   Plug 'nvimtools/none-ls.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
+    \| Plug 'nvimtools/none-ls-extras.nvim'
+    \| Plug 'jay-babu/mason-null-ls.nvim'
   Plug 'saghen/blink.cmp'
   Plug 'saghen/blink.compat'
     \| Plug 'onsails/lspkind.nvim'
@@ -173,8 +175,8 @@ endif
 Plug 'editorconfig/editorconfig-vim' " Some default configs.
 Plug 'tpope/vim-eunuch'              " Unix helpers. :Remove, :Move, :Rename, :Chmod, :SudoWrite, :SudoEdit, etc.
 Plug 'rhysd/committia.vim'           " Better `git commit` interface, with status and diff window.
-if !has_key(g:plugs, 'nvim-treesitter')
-  Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect).
+if !has('nvim')
+  Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect). NeoVim uses treesitter instead.
 endif
 if has('nvim')
   Plug 'm4xshen/hardtime.nvim'
@@ -824,6 +826,7 @@ if has('nvim')
     lua require('plugins.trouble')
     lua require('plugins.actions-preview')
     lua require('plugins.none-ls')
+    lua require('plugins.mason-null-ls')
     " lua require('plugins.roslyn')
   endif
 

@@ -28,7 +28,9 @@ require('mason').setup({
 require('mason-lspconfig').setup({
   ensure_installed = {
     'vtsls',
+    'eslint',
     'basedpyright',
+    'ruff',
     'lua_ls',
     'jsonls',
     'yamlls',
@@ -104,58 +106,6 @@ local function on_attach_default(client, buffer)
     telescope_util.call_telescope_vertical(telescope_builtin.lsp_implementations),
     { desc = 'LSP implementation(s)' }
   )
-  vim.keymap.set(
-    'n',
-    '<Leader>b',
-    telescope_util.call_telescope_vertical(telescope_builtin.buffers),
-    { desc = 'LSP buffers' }
-  )
-  vim.keymap.set('n', '<C-t>', telescope_util.grep_project, { desc = 'Grep project' })
-  vim.keymap.set('n', '<Leader>h', telescope_util.git_files_source, { desc = 'Git source files' })
-  vim.keymap.set('n', '<C-g>', telescope_util.git_files_all, { desc = 'Git files (all)' })
-  vim.keymap.set('n', '<Leader>gg', telescope_util.grep_project, { desc = 'Git grep in project' })
-  vim.keymap.set('n', '<C-p>', telescope_builtin.commands, { desc = 'Commands' })
-  vim.keymap.set('n', '<Leader>ls', telescope_util.find_symbol_project, { desc = 'Find symbol in project' })
-
-  -- Project switching with configurable workspaces
-  vim.keymap.set('n', '<Leader>p', function()
-    local workspaces = vim.g.telescope_project_workspaces
-    local dirs = {}
-
-    -- Expand and collect all directories from workspaces.
-    for _, workspace in ipairs(workspaces) do
-      local expanded = vim.fn.expand(workspace)
-      if vim.fn.isdirectory(expanded) == 1 then
-        table.insert(dirs, expanded)
-      end
-    end
-
-    if #dirs == 0 then
-      vim.notify('No valid project workspaces found', vim.log.levels.WARN)
-      return
-    end
-
-    -- Use Telescope to find directories in workspaces.
-    telescope_builtin.find_files({
-      search_dirs = dirs,
-      prompt_title = 'Switch Project',
-      layout_strategy = 'vertical',
-      find_command = { 'fd', '--type', 'd', '--max-depth', '1' },
-      attach_mappings = function(prompt_bufnr, map)
-        telescope_actions.select_default:replace(function()
-          telescope_actions.close(prompt_bufnr)
-          local selection = telescope_actions_state.get_selected_entry()
-          if selection then
-            telescope_builtin.find_files({
-              cwd = selection.value,
-              layout_strategy = 'vertical',
-            })
-          end
-        end)
-        return true
-      end,
-    })
-  end, { desc = 'Switch project' })
 end
 
 -- TypeScript/JavaScript shared configuration
@@ -218,6 +168,27 @@ local lsp_server_configs = {
       },
       typescript = ts_js_settings,
       javascript = ts_js_settings,
+    },
+  },
+
+  eslint = {
+    single_file_support = false,
+    root_dir = lspconfig_util.root_pattern(
+      '.eslintrc',
+      '.eslintrc.js',
+      '.eslintrc.cjs',
+      '.eslintrc.mjs',
+      '.eslintrc.json',
+      '.eslintrc.yaml',
+      '.eslintrc.yml',
+      'eslint.config.js',
+      'eslint.config.cjs',
+      'eslint.config.mjs',
+      'package.json'
+    ),
+    settings = {
+      format = false,
+      useESLintClass = true,
     },
   },
 
@@ -304,6 +275,18 @@ local lsp_server_configs = {
           completeFunctionParens = true,
           autoImportCompletions = true,
         },
+      },
+    },
+  },
+
+  ruff = {
+    single_file_support = false,
+    filetypes = { 'python' },
+    root_dir = lspconfig_util.root_pattern('pyproject.toml', 'ruff.toml', '.ruff.toml', '.git'),
+    init_options = {
+      settings = {
+        organizeImports = true,
+        fixAll = true,
       },
     },
   },
@@ -450,7 +433,7 @@ local lsp_server_configs = {
   },
 
   omnisharp = {
-    root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'omnisharp.json', 'function.json'),
+    root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'postsharp.config', 'Web.config', 'omnisharp.json'),
     handlers = (function()
       local omnisharp_extended = require('omnisharp_extended')
       return {
@@ -524,15 +507,6 @@ local lsp_server_configs = {
   sqlls = {},
   intelephense = {},
 }
-
--- C# LSP selection: 'omnisharp', 'roslyn', or 'both' (default)
--- Can be overridden in ~/.vimrc.local with: let g:csharp_lsp = 'roslyn'
-local csharp_lsp = vim.g.csharp_lsp or 'both'
-if csharp_lsp == 'omnisharp' then
-  lsp_server_configs.roslyn = nil
-elseif csharp_lsp == 'roslyn' then
-  lsp_server_configs.omnisharp = nil
-end
 
 for _server_name, config in pairs(lsp_server_configs) do
   local original_on_attach = config.on_attach

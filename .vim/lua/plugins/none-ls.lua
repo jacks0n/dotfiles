@@ -41,19 +41,19 @@ for name, cfg in pairs(config) do
 end
 
 -- Custom xmlformat source (not provided by none-ls)
-if config.xmlformat and utils.is_executable('xmlformat') then
-  local helpers = require('null-ls.helpers')
-  local methods = require('null-ls.methods')
-  local xml_cfg = config.xmlformat
-  local xml_source = helpers.make_builtin({
-    name = 'xmlformat',
-    meta = { url = 'https://github.com/chrisjenx/xmlformatter', description = 'Format XML via xmlformat' },
-    method = methods.internal.FORMATTING,
-    filetypes = xml_cfg.filetypes,
-    generator = helpers.formatter_factory({ command = 'xmlformat', args = {}, to_stdin = true }),
-  })
-  table.insert(sources, xml_source.with({ condition = build_condition(xml_cfg, 'xmlformat') }))
-end
+-- if config.xmlformat and utils.is_executable('xmlformat') then
+--   local helpers = require('null-ls.helpers')
+--   local methods = require('null-ls.methods')
+--   local xml_cfg = config.xmlformat
+--   local xml_source = helpers.make_builtin({
+--     name = 'xmlformat',
+--     meta = { url = 'https://github.com/chrisjenx/xmlformatter', description = 'Format XML via xmlformat' },
+--     method = methods.internal.FORMATTING,
+--     filetypes = xml_cfg.filetypes,
+--     generator = helpers.formatter_factory({ command = 'xmlformat', args = {}, to_stdin = true }),
+--   })
+--   table.insert(sources, xml_source.with({ condition = build_condition(xml_cfg, 'xmlformat') }))
+-- end
 
 null_ls.setup({
   sources = sources,

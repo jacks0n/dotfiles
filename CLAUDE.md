@@ -96,7 +96,7 @@ The NeoVim configuration supports dual completion systems:
 │   ├── diagnostic.lua # Diagnostic display and navigation
 │   ├── keymaps.lua    # Key mappings
 │   ├── autocmds.lua   # Auto commands
-│   └── linters.lua    # conform.nvim + nvim-lint setup
+│   └── linters.lua    # Unified tool configuration for none-ls
 └── plugins/
     ├── cmp.lua        # Completion configuration
     ├── telescope.lua  # Fuzzy finder
@@ -106,21 +106,26 @@ The NeoVim configuration supports dual completion systems:
 
 #### Key Features
 - **Lazy Loading**: Plugins load on demand for fast startup
-- **Mason Integration**: Automatic LSP server management
-- **Modern Formatting**: Uses conform.nvim (replaces null-ls)
-- **Modern Linting**: Uses nvim-lint with conditional config detection
+- **Mason Integration**: Automatic LSP server and tool management via mason-null-ls
+- **Unified Linting & Formatting**: Uses none-ls with pattern-based conditional tool loading
+- **Smart Tool Activation**: Tools only run when their config files exist in the repository
 - **AI Integration**: Copilot + TabNine for code completion
 
 ### Language Support
 
 Fully configured with LSP, formatting, and linting for:
-- **JavaScript/TypeScript**: ts_ls, eslint_d, prettier
-- **Python**: pyright, black, flake8, mypy
-- **PHP**: intelephense, phpcs, php-cs-fixer
+- **JavaScript/TypeScript**: ts_ls, eslint_d, prettierd
+- **Python**: pyright, ruff, flake8, mypy
+- **PHP**: intelephense, phpcs, phpstan, php-cs-fixer
 - **Lua**: lua_ls, stylua, luacheck
 - **Go**: gopls, gofmt
 - **Rust**: rust-analyzer, rustfmt
-- **And 10+ other languages**
+- **SQL**: sqlfluff
+- **Terraform**: terraform-ls, tflint, terraform fmt
+- **Shell**: shellcheck
+- **CSS/SCSS**: stylelint
+- **Markdown**: markdownlint
+- **And more...**
 
 ## Key Mappings (NeoVim)
 
@@ -167,7 +172,8 @@ Key environment variables defined in `.exports`:
 
 ### Plugin Management
 - NeoVim plugins managed via vim-plug
-- LSP servers managed via Mason
+- LSP servers managed via Mason (mason-lspconfig)
+- Linters/formatters managed via Mason (mason-null-ls)
 - System packages managed via Homebrew
 
 ### Configuration Updates
