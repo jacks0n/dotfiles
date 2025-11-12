@@ -182,11 +182,6 @@ blink.setup({
       show_in_snippet = true,
     },
 
-    context = {
-      -- Enable completion in strings for path completion
-      treesitter = {},
-    },
-
     list = {
       selection = {
         preselect = true, -- Auto-select first item like VSCode

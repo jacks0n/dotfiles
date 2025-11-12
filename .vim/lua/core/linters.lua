@@ -12,18 +12,6 @@ local M = {}
 --   command (optional): override executable name
 -- Context passed to args() includes { buf, root_dir }
 local tool_config = {
-  eslint_d = {
-    filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-    patterns = {
-      '.eslintrc.js', '.eslintrc.cjs', '.eslintrc.mjs', '.eslintrc.json', '.eslintrc.yaml', '.eslintrc.yml',
-      'eslint.config.js', 'eslint.config.cjs', 'eslint.config.mjs', 'package.json',
-    },
-    provides = { lint = true, format = false },
-    args = {
-      '--no-warn-ignored', '--format', 'json', '--stdin', '--stdin-filename',
-      function(ctx) return vim.api.nvim_buf_get_name(ctx.buf) end,
-    },
-  },
   stylelint = {
     filetypes = { 'css', 'scss' },
     patterns = {
@@ -32,44 +20,39 @@ local tool_config = {
     },
     provides = { lint = true, format = false },
   },
-  jsonlint = {
-    filetypes = { 'json' },
-    patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
-    provides = { lint = true, format = false },
-  },
-  yamllint = {
-    filetypes = { 'yaml' },
-    patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
-    provides = { lint = true, format = false },
-  },
-  flake8 = {
-    filetypes = { 'python' },
-    patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
-    provides = { lint = true, format = false },
-  },
-  mypy = {
-    filetypes = { 'python' },
-    patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
-    provides = { lint = true, format = false },
-    args = function(ctx)
-      local python_path = require('core.utils').detect_python_path(ctx.root_dir)
-      return {
-        '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
-        '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',
-        '--python-executable', python_path,
-      }
-    end,
-  },
-  ruff = {
-    filetypes = { 'python' },
-    patterns = { 'ruff.toml', 'pyproject.toml' },
-    provides = { lint = true, format = true },
-  },
-  shellcheck = {
-    filetypes = { 'sh', 'bash', 'zsh' },
-    patterns = { '.shellcheckrc' },
-    provides = { lint = true, format = false },
-  },
+  -- jsonlint = {
+  --   filetypes = { 'json' },
+  --   patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
+  --   provides = { lint = true, format = false },
+  -- },
+  -- yamllint = {
+  --   filetypes = { 'yaml' },
+  --   patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
+  --   provides = { lint = true, format = false },
+  -- },
+  -- flake8 = {
+  --   filetypes = { 'python' },
+  --   patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+  --   provides = { lint = true, format = false },
+  -- },
+  -- mypy = {
+  --   filetypes = { 'python' },
+  --   patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+  --   provides = { lint = true, format = false },
+  --   args = function(ctx)
+  --     local python_path = require('core.utils').detect_python_path(ctx.root_dir)
+  --     return {
+  --       '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
+  --       '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',
+  --       '--python-executable', python_path,
+  --     }
+  --   end,
+  -- },
+  -- shellcheck = {
+  --   filetypes = { 'sh', 'bash', 'zsh' },
+  --   patterns = { '.shellcheckrc' },
+  --   provides = { lint = true, format = false },
+  -- },
   phpcs = {
     filetypes = { 'php' },
     patterns = { 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' },
@@ -90,27 +73,28 @@ local tool_config = {
     patterns = { '.sqlfluff', '.sqlfluff.toml' },
     provides = { lint = true, format = true },
   },
-  tflint = {
-    filetypes = { 'terraform' },
-    patterns = { '.tflint.hcl' },
-    provides = { lint = true, format = false },
-  },
+  -- tflint = {
+  --   filetypes = { 'terraform' },
+  --   patterns = { '.tflint.hcl' },
+  --   provides = { lint = true, format = false },
+  -- },
   terraform_fmt = {
     filetypes = { 'terraform' },
     patterns = { '.terraform-version', 'versions.tf', 'main.tf' },
     provides = { lint = false, format = true },
+    mason_name = false,
   },
   vint = {
     filetypes = { 'vim' },
     patterns = { '.vintrc', '.vintrc.yaml', '.vintrc.yml' },
     provides = { lint = true, format = false },
   },
-  luacheck = {
-    filetypes = { 'lua' },
-    patterns = { '.luacheckrc' },
-    provides = { lint = true, format = false },
-    args = { '--globals', 'vim', '--formatter', 'plain', '--codes', '--ranges', '-' },
-  },
+  -- luacheck = {
+  --   filetypes = { 'lua' },
+  --   patterns = { '.luacheckrc' },
+  --   provides = { lint = true, format = false },
+  --   args = { '--globals', 'vim', '--formatter', 'plain', '--codes', '--ranges', '-' },
+  -- },
   stylua = {
     filetypes = { 'lua' },
     patterns = { 'stylua.toml', '.stylua.toml' },
@@ -136,22 +120,26 @@ local tool_config = {
     filetypes = { 'go' },
     patterns = { 'go.mod' },
     provides = { lint = false, format = true },
+    mason_name = false,
   },
-  rustfmt = {
-    filetypes = { 'rust' },
-    patterns = { 'Cargo.toml' },
-    provides = { lint = false, format = true },
-  },
+  -- rustfmt = {
+  --   filetypes = { 'rust' },
+  --   patterns = { 'Cargo.toml' },
+  --   provides = { lint = false, format = true },
+  --   mason_name = false,
+  -- },
   clang_format = {
     filetypes = { 'c', 'cpp' },
     patterns = { '.clang-format', '_clang-format' },
     provides = { lint = false, format = true },
+    mason_name = 'clang-format',
   },
-  xmlformat = {
-    filetypes = { 'xml' },
-    patterns = { '.xmlformatrc', '.xmlformatterrc', '.editorconfig' },
-    provides = { lint = false, format = true },
-  },
+  -- xmlformat = {
+  --   filetypes = { 'xml' },
+  --   patterns = { '.xmlformatrc', '.xmlformatterrc', '.editorconfig' },
+  --   provides = { lint = false, format = true },
+  --   mason_name = 'xmlformatter',
+  -- },
 }
 
 local utils = require('core.utils')
