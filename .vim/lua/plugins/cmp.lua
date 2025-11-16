@@ -32,11 +32,7 @@ blink.setup({
     ['<Up>'] = { 'select_prev', 'fallback' },
     ['/'] = {
       function(cmp)
-        -- If the menu is visible and an item is selected, accept it and trigger again
-        if cmp.is_visible() then
-          cmp.accept()
-        end
-        -- Trigger completion after inserting /
+        -- Trigger path completion after inserting /
         vim.schedule(function()
           cmp.show()
         end)
@@ -234,6 +230,21 @@ blink.setup({
     window = {
       border = 'rounded',
       winblend = 0,
+    },
+  },
+
+  cmdline = {
+    -- Inherit insert mode keymaps for consistent behavior
+    keymap = { preset = 'inherit' },
+    completion = {
+      menu = {
+        -- Only show autocomplete in command mode (:), not search mode (/ or ?)
+        auto_show = function(ctx)
+          local cmdtype = vim.fn.getcmdtype()
+          -- Enable for command mode (:) and input mode (@), disable for search (/, ?)
+          return cmdtype == ':' or cmdtype == '@'
+        end
+      },
     },
   },
 })
