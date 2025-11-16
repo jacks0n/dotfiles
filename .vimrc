@@ -179,6 +179,7 @@ if !has('nvim')
   Plug 'sheerun/vim-polyglot'        " Language pack collection (syntax, indent, ftplugin, ftdetect). NeoVim uses treesitter instead.
 endif
 if has('nvim')
+  Plug 'kevinhwang91/rnvimr'
   Plug 'm4xshen/hardtime.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
