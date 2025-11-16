@@ -52,7 +52,8 @@ local tool_config = {
     patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
     provides = { lint = true, format = false },
     args = function(ctx)
-      local python_path = require('core.utils').detect_python_path(ctx.root_dir)
+      local python_settings = require('core.utils').detect_python_settings(ctx.root_dir)
+      local python_path = python_settings.pythonPath
       return {
         '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
         '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',

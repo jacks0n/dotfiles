@@ -28,7 +28,6 @@ require('mason').setup({
 require('mason-lspconfig').setup({
   ensure_installed = {
     'vtsls',
-    'basedpyright',
     'lua_ls',
     'jsonls',
     'yamlls',
@@ -44,7 +43,9 @@ require('mason-lspconfig').setup({
     'intelephense',
     'omnisharp',
     -- Note: roslyn is configured below but not auto-installed via Mason
+    -- 'ty',
     -- 'pyrefly',
+    -- 'basedpyright',
   },
   automatic_enable = false,
 })
@@ -221,9 +222,10 @@ local lsp_server_configs = {
     },
   },
 
-  -- pyrefly = {
+  -- Doesn't appear to support pythonPath or  extraPaths.
+  -- ty = {
   --   filetypes = { 'python' },
-  --   root_markers = { 'pyproject.toml', 'requirements.txt', 'setup.py', '.git' },
+  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git' },
   --   single_file_support = false,
   --   before_init = function(params, config)
   --     local root_uri = params.rootUri or params.rootPath
@@ -233,11 +235,19 @@ local lsp_server_configs = {
   --     end
   --
   --     local python_settings = utils.detect_python_settings(root_dir)
+  --     -- Project root + site-packages
+  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+  --
   --     config.settings = config.settings or {}
   --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+  --     config.settings.ty = config.settings.ty or {}
+  --     config.settings.ty.extraPaths = extra_paths
   --
   --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
   --       python = python_settings,
+  --       ty = {
+  --         extraPaths = extra_paths,
+  --       },
   --     })
   --   end,
   --   on_init = function(client, _initialize_result)
@@ -247,13 +257,16 @@ local lsp_server_configs = {
   --   end,
   --   settings = {
   --     python = {},
+  --     ty = {
+  --       extraPaths = {},
+  --     },
   --   },
   -- },
 
-  basedpyright = {
-    single_file_support = false,
+  pyrefly = {
     filetypes = { 'python' },
-    root_markers = { 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', '.git' },
+    root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git' },
+    single_file_support = false,
     before_init = function(params, config)
       local root_uri = params.rootUri or params.rootPath
       local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
@@ -263,27 +276,19 @@ local lsp_server_configs = {
 
       local python_settings = utils.detect_python_settings(root_dir)
 
-      -- Discover extraPaths (project src + site-packages)
+      -- Discover extraPaths (project root + site-packages)
       local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
 
       config.settings = config.settings or {}
       config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
-      config.settings.basedpyright = config.settings.basedpyright or {}
-      config.settings.basedpyright.analysis = vim.tbl_deep_extend('force', config.settings.basedpyright.analysis or {}, {
-        extraPaths = extra_paths,
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-        diagnosticMode = 'workspace',
-        indexing = true,
-        typeCheckingMode = 'strict',
-        completeFunctionParens = true,
-        autoImportCompletions = true,
-      })
+      config.settings.pyrefly = config.settings.pyrefly or {}
+      config.settings.pyrefly.extraPaths = extra_paths
 
-      -- Mirror into initializationOptions to avoid race during startup
       params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
         python = python_settings,
-        basedpyright = { analysis = { extraPaths = extra_paths } },
+        pyrefly = {
+          extraPaths = extra_paths,
+        },
       })
     end,
     on_init = function(client, _initialize_result)
@@ -293,20 +298,69 @@ local lsp_server_configs = {
     end,
     settings = {
       python = {},
-      basedpyright = {
-        analysis = {
-          extraPaths = {},
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = true,
-          diagnosticMode = 'workspace',
-          indexing = true,
-          typeCheckingMode = 'strict',
-          completeFunctionParens = true,
-          autoImportCompletions = true,
-        },
+      pyrefly = {
+        extraPaths = {},
       },
     },
   },
+
+  -- basedpyright = {
+  --   single_file_support = false,
+  --   filetypes = { 'python' },
+  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'setup.py', 'setup.cfg', 'requirements.txt', '.git' },
+  --   before_init = function(params, config)
+  --     local root_uri = params.rootUri or params.rootPath
+  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+  --     if not root_dir then
+  --       return
+  --     end
+  --
+  --     local python_settings = utils.detect_python_settings(root_dir)
+  --
+  --     -- Discover extraPaths (project src + site-packages)
+  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+  --
+  --     config.settings = config.settings or {}
+  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+  --     config.settings.basedpyright = config.settings.basedpyright or {}
+  --     config.settings.basedpyright.analysis = vim.tbl_deep_extend('force', config.settings.basedpyright.analysis or {}, {
+  --       extraPaths = extra_paths,
+  --       autoSearchPaths = true,
+  --       useLibraryCodeForTypes = true,
+  --       diagnosticMode = 'workspace',
+  --       indexing = true,
+  --       typeCheckingMode = 'strict',
+  --       completeFunctionParens = true,
+  --       autoImportCompletions = true,
+  --     })
+  --
+  --     -- Mirror into initializationOptions to avoid race during startup
+  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+  --       python = python_settings,
+  --       basedpyright = { analysis = { extraPaths = extra_paths } },
+  --     })
+  --   end,
+  --   on_init = function(client, _initialize_result)
+  --     vim.schedule(function()
+  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+  --     end)
+  --   end,
+  --   settings = {
+  --     python = {},
+  --     basedpyright = {
+  --       analysis = {
+  --         extraPaths = {},
+  --         autoSearchPaths = true,
+  --         useLibraryCodeForTypes = true,
+  --         diagnosticMode = 'workspace',
+  --         indexing = true,
+  --         typeCheckingMode = 'strict',
+  --         completeFunctionParens = true,
+  --         autoImportCompletions = true,
+  --       },
+  --     },
+  --   },
+  -- },
 
   lua_ls = {
     root_dir = lspconfig_util.root_pattern('.luarc.json', '.luarc.jsonc', '.git'),
