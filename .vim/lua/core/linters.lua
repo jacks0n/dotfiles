@@ -20,39 +20,45 @@ local tool_config = {
     },
     provides = { lint = true, format = false },
   },
-  -- jsonlint = {
-  --   filetypes = { 'json' },
-  --   patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
-  --   provides = { lint = true, format = false },
-  -- },
-  -- yamllint = {
-  --   filetypes = { 'yaml' },
-  --   patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
-  --   provides = { lint = true, format = false },
-  -- },
-  -- flake8 = {
-  --   filetypes = { 'python' },
-  --   patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
-  --   provides = { lint = true, format = false },
-  -- },
-  -- mypy = {
-  --   filetypes = { 'python' },
-  --   patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
-  --   provides = { lint = true, format = false },
-  --   args = function(ctx)
-  --     local python_path = require('core.utils').detect_python_path(ctx.root_dir)
-  --     return {
-  --       '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
-  --       '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',
-  --       '--python-executable', python_path,
-  --     }
-  --   end,
-  -- },
-  -- shellcheck = {
-  --   filetypes = { 'sh', 'bash', 'zsh' },
-  --   patterns = { '.shellcheckrc' },
-  --   provides = { lint = true, format = false },
-  -- },
+  jsonlint = {
+    filetypes = { 'json' },
+    patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
+    provides = { lint = true, format = false },
+  },
+  yamllint = {
+    filetypes = { 'yaml' },
+    patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
+    provides = { lint = true, format = false },
+  },
+  flake8 = {
+    filetypes = { 'python' },
+    patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+    provides = { lint = true, format = false },
+  },
+  mypy = {
+    filetypes = { 'python' },
+    patterns = { 'mypy.ini', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
+    provides = { lint = true, format = false },
+    args = function(ctx)
+      local python_settings = require('core.utils').detect_python_settings(ctx.root_dir)
+      local python_path = python_settings.pythonPath
+      return {
+        '--show-error-codes', '--show-column-numbers', '--show-error-end', '--hide-error-context', '--no-color-output',
+        '--no-error-summary', '--no-pretty', '--namespace-packages', '--follow-imports=silent', '--ignore-missing-imports',
+        '--python-executable', python_path,
+      }
+    end,
+  },
+  ruff = {
+    filetypes = { 'python' },
+    patterns = { 'ruff.toml', 'pyproject.toml' },
+    provides = { lint = true, format = true },
+  },
+  shellcheck = {
+    filetypes = { 'sh', 'bash', 'zsh' },
+    patterns = { '.shellcheckrc' },
+    provides = { lint = true, format = false },
+  },
   phpcs = {
     filetypes = { 'php' },
     patterns = { 'phpcs.xml', 'phpcs.xml.dist', '.phpcs.xml' },

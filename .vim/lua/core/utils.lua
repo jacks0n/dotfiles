@@ -105,13 +105,41 @@ end
 -- Cache for Python settings keyed by root directory
 local _python_settings_cache = {}
 
+--- Check if a project uses UV package manager.
+-- Checks for uv.lock file or [tool.uv] section in pyproject.toml
+-- @param root_dir The root directory of the project
+-- @return Boolean indicating if UV is detected
+function M.is_uv_project(root_dir)
+  -- Check for uv.lock file
+  local uv_lock = root_dir .. '/uv.lock'
+  if vim.fn.filereadable(uv_lock) == 1 then
+    return true
+  end
+
+  -- Check for [tool.uv] in pyproject.toml
+  local pyproject = root_dir .. '/pyproject.toml'
+  if vim.fn.filereadable(pyproject) == 1 then
+    local file = io.open(pyproject, 'r')
+    if file then
+      local content = file:read('*all')
+      file:close()
+      if content:match('%[tool%.uv%]') then
+        return true
+      end
+    end
+  end
+
+  return false
+end
+
 --- Detect Python settings for a given project root directory.
 -- Searches for Python binary in this order:
 -- 1. Local virtual environments (.venv, venv, env, .env)
--- 2. Poetry environment
--- 3. Pipenv environment
--- 4. Environment variables (VIRTUAL_ENV, CONDA_PREFIX)
--- 5. System Python (python3 or python)
+-- 2. UV environment (if uv.lock or [tool.uv] detected)
+-- 3. Poetry environment
+-- 4. Pipenv environment
+-- 5. Environment variables (VIRTUAL_ENV, CONDA_PREFIX)
+-- 6. System Python (python3 or python)
 -- Results are cached per root directory.
 -- @param root_dir The root directory of the project
 -- @param force_refresh Optional: force cache refresh
@@ -131,6 +159,15 @@ function M.detect_python_settings(root_dir, force_refresh)
     if vim.fn.filereadable(venv_python) == 1 then
       python_path = venv_python
       break
+    end
+  end
+
+  -- Try UV
+  if not python_path and M.is_uv_project(root_dir) then
+    local uv_cmd = string.format('cd %s && uv run python -c "import sys; print(sys.prefix)" 2>/dev/null', vim.fn.shellescape(root_dir))
+    local uv_venv = vim.fn.system(uv_cmd)
+    if vim.v.shell_error == 0 and uv_venv ~= '' then
+      python_path = vim.trim(uv_venv) .. '/bin/python'
     end
   end
 
