@@ -30,15 +30,6 @@ blink.setup({
     ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
     ['<Down>'] = { 'select_next', 'fallback' },
     ['<Up>'] = { 'select_prev', 'fallback' },
-    ['/'] = {
-      function(cmp)
-        -- Trigger path completion after inserting /
-        vim.schedule(function()
-          cmp.show()
-        end)
-      end,
-      'fallback',
-    },
     ['<C-x><C-f>'] = { 'show', 'fallback' }, -- Manual path completion trigger
   },
 
@@ -87,7 +78,7 @@ blink.setup({
       gitcommit = { 'buffer' },
       sagarename = {},
       ['/'] = { 'buffer' },
-      [':'] = { 'cmdline' },
+      [':'] = { 'cmdline', 'path' },
     },
 
     providers = {
