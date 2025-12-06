@@ -19,36 +19,36 @@ lazydev.setup({
 
 vim.lsp.set_log_level('warn')
 
-require('mason').setup({
-  ui = {
-    border = 'rounded',
-  },
+vim.lsp.config('*', {
+  root_markers = { '.git' },
 })
 
+local lsp_servers = {
+  'vtsls',
+  'eslint',
+  'ruff',
+  'lua_ls',
+  'jsonls',
+  'yamlls',
+  'jdtls',
+  'vimls',
+  'bashls',
+  'cssls',
+  'html',
+  'dockerls',
+  'terraformls',
+  'marksman',
+  'sqlls',
+  'intelephense',
+  -- 'omnisharp',
+  -- Note: roslyn is configured below but not auto-installed via Mason
+  -- 'ty',
+  -- 'pyrefly',
+  'basedpyright',
+}
+
 require('mason-lspconfig').setup({
-  ensure_installed = {
-    'vtsls',
-    'eslint',
-    'ruff',
-    'lua_ls',
-    'jsonls',
-    'yamlls',
-    'jdtls',
-    'vimls',
-    'bashls',
-    'cssls',
-    'html',
-    'dockerls',
-    'terraformls',
-    'marksman',
-    'sqlls',
-    'intelephense',
-    'omnisharp',
-    -- Note: roslyn is configured below but not auto-installed via Mason
-    -- 'ty',
-    -- 'pyrefly',
-    -- 'basedpyright',
-  },
+  ensure_installed = lsp_servers,
   automatic_enable = false,
 })
 
@@ -58,8 +58,9 @@ capabilities = vim.tbl_deep_extend('force', capabilities, blink_capabilities)
 
 local telescope_builtin = require('telescope.builtin')
 local telescope_util = require('plugins.telescope')
-local telescope_actions = require('telescope.actions')
-local telescope_actions_state = require('telescope.actions.state')
+-- @todo Use actions?
+-- local telescope_actions = require('telescope.actions')
+-- local telescope_actions_state = require('telescope.actions.state')
 
 -- Delete the defaults.
 vim.keymap.del('n', 'grt')
@@ -74,10 +75,6 @@ local function on_attach_default(client, buffer)
   end
 
   local opts = { noremap = true, silent = true, buffer = buffer }
-  -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  -- vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
 
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
@@ -234,46 +231,47 @@ local lsp_server_configs = {
   --   },
   -- },
 
-  pyrefly = {
-    filetypes = { 'python' },
-    root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git' },
-    single_file_support = false,
-    before_init = function(params, config)
-      local root_uri = params.rootUri or params.rootPath
-      local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
-      if not root_dir then
-        return
-      end
-
-      local python_settings = utils.detect_python_settings(root_dir)
-
-      -- Discover extraPaths (project root + site-packages)
-      local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
-
-      config.settings = config.settings or {}
-      config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
-      config.settings.pyrefly = config.settings.pyrefly or {}
-      config.settings.pyrefly.extraPaths = extra_paths
-
-      params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-        python = python_settings,
-        pyrefly = {
-          extraPaths = extra_paths,
-        },
-      })
-    end,
-    on_init = function(client, _initialize_result)
-      vim.schedule(function()
-        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-      end)
-    end,
-    settings = {
-      python = {},
-      pyrefly = {
-        extraPaths = {},
-      },
-    },
-  },
+  -- Doesn't support incoming / outgoing calls.
+  -- pyrefly = {
+  --   filetypes = { 'python' },
+  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py' },
+  --   single_file_support = false,
+  --   before_init = function(params, config)
+  --     local root_uri = params.rootUri or params.rootPath
+  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+  --     if not root_dir then
+  --       return
+  --     end
+  --
+  --     local python_settings = utils.detect_python_settings(root_dir)
+  --
+  --     -- Discover extraPaths (project root + site-packages)
+  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+  --
+  --     config.settings = config.settings or {}
+  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+  --     config.settings.pyrefly = config.settings.pyrefly or {}
+  --     config.settings.pyrefly.extraPaths = extra_paths
+  --
+  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+  --       python = python_settings,
+  --       pyrefly = {
+  --         extraPaths = extra_paths,
+  --       },
+  --     })
+  --   end,
+  --   on_init = function(client, _initialize_result)
+  --     vim.schedule(function()
+  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+  --     end)
+  --   end,
+  --   settings = {
+  --     python = {},
+  --     pyrefly = {
+  --       extraPaths = {},
+  --     },
+  --   },
+  -- },
 
   ruff = {
     single_file_support = false,
@@ -287,63 +285,63 @@ local lsp_server_configs = {
     },
   },
 
-  -- basedpyright = {
-  --   single_file_support = false,
-  --   filetypes = { 'python' },
-  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'setup.py', 'setup.cfg', 'requirements.txt', '.git' },
-  --   before_init = function(params, config)
-  --     local root_uri = params.rootUri or params.rootPath
-  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
-  --     if not root_dir then
-  --       return
-  --     end
-  --
-  --     local python_settings = utils.detect_python_settings(root_dir)
-  --
-  --     -- Discover extraPaths (project src + site-packages)
-  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
-  --
-  --     config.settings = config.settings or {}
-  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
-  --     config.settings.basedpyright = config.settings.basedpyright or {}
-  --     config.settings.basedpyright.analysis = vim.tbl_deep_extend('force', config.settings.basedpyright.analysis or {}, {
-  --       extraPaths = extra_paths,
-  --       autoSearchPaths = true,
-  --       useLibraryCodeForTypes = true,
-  --       diagnosticMode = 'workspace',
-  --       indexing = true,
-  --       typeCheckingMode = 'strict',
-  --       completeFunctionParens = true,
-  --       autoImportCompletions = true,
-  --     })
-  --
-  --     -- Mirror into initializationOptions to avoid race during startup
-  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-  --       python = python_settings,
-  --       basedpyright = { analysis = { extraPaths = extra_paths } },
-  --     })
-  --   end,
-  --   on_init = function(client, _initialize_result)
-  --     vim.schedule(function()
-  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-  --     end)
-  --   end,
-  --   settings = {
-  --     python = {},
-  --     basedpyright = {
-  --       analysis = {
-  --         extraPaths = {},
-  --         autoSearchPaths = true,
-  --         useLibraryCodeForTypes = true,
-  --         diagnosticMode = 'workspace',
-  --         indexing = true,
-  --         typeCheckingMode = 'strict',
-  --         completeFunctionParens = true,
-  --         autoImportCompletions = true,
-  --       },
-  --     },
-  --   },
-  -- },
+  basedpyright = {
+    single_file_support = false,
+    filetypes = { 'python' },
+    root_dir = lspconfig_util.root_pattern('pyproject.toml', 'uv.lock', 'poetry.lock', 'setup.py', 'setup.cfg', 'requirements.txt', '.git'),
+    before_init = function(params, config)
+      local root_uri = params.rootUri or params.rootPath
+      local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+      if not root_dir then
+        return
+      end
+
+      local python_settings = utils.detect_python_settings(root_dir)
+
+      -- Discover extraPaths (project src + site-packages)
+      local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+
+      config.settings = config.settings or {}
+      config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+      config.settings.basedpyright = config.settings.basedpyright or {}
+      config.settings.basedpyright.analysis = vim.tbl_deep_extend('force', config.settings.basedpyright.analysis or {}, {
+        extraPaths = extra_paths,
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = 'workspace',
+        indexing = true,
+        typeCheckingMode = 'strict',
+        completeFunctionParens = true,
+        autoImportCompletions = true,
+      })
+
+      -- Mirror into initializationOptions to avoid race during startup
+      params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+        python = python_settings,
+        basedpyright = { analysis = { extraPaths = extra_paths } },
+      })
+    end,
+    on_init = function(client, _initialize_result)
+      vim.schedule(function()
+        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+      end)
+    end,
+    settings = {
+      python = {},
+      basedpyright = {
+        analysis = {
+          extraPaths = {},
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = true,
+          diagnosticMode = 'workspace',
+          indexing = true,
+          typeCheckingMode = 'strict',
+          completeFunctionParens = true,
+          autoImportCompletions = true,
+        },
+      },
+    },
+  },
 
   lua_ls = {
     root_dir = lspconfig_util.root_pattern('.luarc.json', '.luarc.jsonc', '.git'),
@@ -487,7 +485,7 @@ local lsp_server_configs = {
   },
 
   omnisharp = {
-    root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj', 'postsharp.config', 'Web.config', 'omnisharp.json'),
+    root_dir = lspconfig_util.root_pattern('*.csproj', '*.sln', 'omnisharp.json', 'postsharp.config', 'Web.config'),
     handlers = (function()
       local omnisharp_extended = require('omnisharp_extended')
       return {
@@ -497,6 +495,7 @@ local lsp_server_configs = {
         ['textDocument/implementation'] = omnisharp_extended.implementation_handler,
       }
     end)(),
+    enable_editorconfig_support = true,
     enable_roslyn_analyzers = true,
     organize_imports_on_format = true,
     enable_import_completion = true,
@@ -504,6 +503,9 @@ local lsp_server_configs = {
       FormattingOptions = {
         EnableEditorConfigSupport = true,
         OrganizeImports = true,
+      },
+      MsBuild = {
+        LoadProjectsOnDemand = false,
       },
       RoslynExtensionsOptions = {
         EnableAnalyzersSupport = true,
@@ -515,17 +517,19 @@ local lsp_server_configs = {
         IncludePrereleases = true,
       },
     },
-    on_attach = function(client, bufnr)
+    on_attach = function(client, _bufnr)
       if client.server_capabilities.semanticTokensProvider then
         client.server_capabilities.semanticTokensProvider = nil
       end
     end,
   },
 
+  -- Let rosyln.nvim handle this
   -- roslyn = {
   --   root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj'),
   --   filetypes = { 'cs', 'vb' },
   --   settings = {
+  --     broad_search = true,
   --     ['csharp|inlay_hints'] = {
   --       csharp_enable_inlay_hints_for_implicit_object_creation = true,
   --       csharp_enable_inlay_hints_for_implicit_variable_types = true,
@@ -548,6 +552,9 @@ local lsp_server_configs = {
   --       dotnet_provide_regex_completions = true,
   --       dotnet_show_completion_items_from_unimported_namespaces = true,
   --       dotnet_show_name_completion_suggestions = true,
+  --     },
+  --     ['csharp|formatting'] = {
+  --       dotnet_organize_imports_on_format = true,
   --     },
   --   },
   -- },
@@ -628,3 +635,9 @@ if vim.g.use_bun and vim.fn.executable('bun') == 1 then
     end
   end
 end
+
+-- Export for use in plugin configs
+return {
+  on_attach_default = on_attach_default,
+  lsp_servers = lsp_servers,
+}

@@ -156,6 +156,11 @@ M.setup = function()
   vim.g.is_posix = 1
   vim.g.no_plugin_maps = 1
   vim.g.python_recommended_style = 0
+
+  -- Disable Neovim 0.10+ default snippet Tab/S-Tab mappings
+  -- These interfere with tabout.nvim and completion plugins
+  pcall(vim.keymap.del, 'i', '<Tab>')
+  pcall(vim.keymap.del, 'i', '<S-Tab>')
 end
 
 return M

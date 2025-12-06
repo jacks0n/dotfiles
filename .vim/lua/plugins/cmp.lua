@@ -25,9 +25,10 @@ blink.setup({
     },
     ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
     ['<C-e>'] = { 'hide', 'fallback' },
+    ['<C-y>'] = { 'accept', 'fallback' },
     ['<CR>'] = { 'accept', 'fallback' },
-    ['<Tab>'] = { 'accept', 'snippet_forward', 'fallback' },
-    ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
+    ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
+    ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
     ['<Down>'] = { 'select_next', 'fallback' },
     ['<Up>'] = { 'select_prev', 'fallback' },
     ['<C-x><C-f>'] = { 'show', 'fallback' }, -- Manual path completion trigger
@@ -117,7 +118,7 @@ blink.setup({
         opts = {
           trailing_slash = false,
           label_trailing_slash = true,
-          get_cwd = function(ctx)
+          get_cwd = function(_ctx)
             -- Expand environment variables in the current context
             local line = vim.api.nvim_get_current_line()
             local col = vim.api.nvim_win_get_cursor(0)[2]
@@ -220,18 +221,30 @@ blink.setup({
   },
 
   cmdline = {
-    -- Inherit insert mode keymaps for consistent behavior
-    keymap = { preset = 'inherit' },
-    completion = {
-      menu = {
-        -- Only show autocomplete in command mode (:), not search mode (/ or ?)
-        auto_show = function(ctx)
-          local cmdtype = vim.fn.getcmdtype()
-          -- Enable for command mode (:) and input mode (@), disable for search (/, ?)
-          return cmdtype == ':' or cmdtype == '@'
-        end
-      },
-    },
+    enabled = false
+    -- keymap = {
+    --   preset = 'inherit',
+    --   ['<CR>'] = {
+    --     function(cmp)
+    --       if cmp.is_visible() then
+    --         return cmp.accept()
+    --       end
+    --     end,
+    --     'fallback',
+    --   },
+    --   ['<Tab>'] = { 'show', 'select_next', 'fallback' },
+    --   ['<S-Tab>'] = { 'select_prev', 'fallback' },
+    --   ['<C-y>'] = { 'accept', 'fallback' },
+    -- },
+    -- completion = {
+    --   menu = {
+    --     -- Only show autocomplete in command mode (:), not search mode (/ or ?)
+    --     auto_show = function(ctx)
+    --       local cmdtype = vim.fn.getcmdtype()
+    --       return cmdtype == ':' or cmdtype == '@'
+    --     end
+    --   },
+    -- },
   },
 })
 
