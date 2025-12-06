@@ -253,7 +253,8 @@
       "mcp__memory__store_memory",
       "mcp__memory__update_memory",
       "mcp__sequential-thinking__sequentialthinking",
-      "mcp__serena__search_for_pattern"
+      "mcp__serena__search_for_pattern",
+      "WebFetch(domain:github.com)"
     ]
   },
   "rules": [

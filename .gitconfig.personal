@@ -1,0 +1,13 @@
+; Personal git config - install to ~/.gitconfig.local for personal machines
+[user]
+  email = jackson@jacksonc.com
+  signingkey = A44F9DEE
+
+[github]
+  user = jacks0n
+
+[commit]
+  gpgsign = true
+
+[tag]
+  gpgsign = true

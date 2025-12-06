@@ -1,0 +1,10 @@
+[settings]
+# Enable reading legacy version files (.nvmrc, .python-version)
+idiomatic_version_file_enable_tools = ["node", "python"]
+
+# Auto-install missing versions when entering a directory
+not_found_auto_install = true
+
+[tools]
+node = "22"
+python = "3.12.12"

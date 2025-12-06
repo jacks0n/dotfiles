@@ -36,41 +36,15 @@ find-largest-file() {
   find "$1" -maxdepth "${2:-9999}" -type f -printf '%s %p\n' 2>/dev/null | sort -nr | sed 's/^[[:digit:]]* //g' | head -n "${3:-500}"
 }
 
-# Edit the selected file(s). USAGE: e FUZZY_PATTERN
-e() {
-  local SELECTED_FILE="$(fzf --query="$1" --select-1 --extended --cycle $2)"
-  [ -f "$SELECTED_FILE" ] && "$VISUAL" "$SELECTED_FILE"
-}
-
-# Alias for the nearest Symfony `bin/console`.
-symfony-console-closet() {
-  (
-    while true; do
-      local SEARCH_DIR="$(pwd)"
-      if [[ $SEARCH_DIR == "$HOME" || $SEARCH_DIR == '/' ]]; then
-        echo 'ERROR: Could not find `app/console`.' 2>&1
-        return 1
-      fi
-
-      if [ -f 'app/console' ]; then
-        app/console $@
-        return
-      fi
-
-      cd ..
-    done
-  )
-}
-
 random-joke() {
   "$HOME/.dotfiles/bin/joke.py"
 }
 
 # Random joke, with random rainbow coloured ASCII art.
 cowjoke() {
-  if command_exists cowsay && command_exists random-joke && command_exists lolcat; then
-    local COWSAY_FILE="$(shuf -n1 -e $(cowsay -l | tail -n +2))"
-    random-joke | cowsay -f "$COWSAY_FILE" | lolcat -f
+  if command_exists cowsay && command_exists random-joke && command_exists lolcrab; then
+    local COWSAY_FILE="$(shuf -n1 -e "$(cowsay -l | tail -n +2)")"
+    random-joke | cowsay -f "$COWSAY_FILE" | lolcrab
   fi
 }
 
@@ -108,30 +82,8 @@ git_maintain() {
   git gc --prune=now
 }
 
-git_assume_unchanged() {
-  # TDOO: check input, combine with `git-assume-changed()`.
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --assume-unchanged
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --skip-worktree
-  git update-index --really-refresh
-}
-
-git_no_assume_unchanged() {
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-assume-unchanged
-  git ls-files -z "${@:-.}" | xargs -0 git update-index --no-skip-worktree
-  git update-index --really-refresh
-}
-
 groot() {
   cd "$(git rev-parse --show-toplevel)"
-}
-
-# View `man` pages with Preview.app, fancy!
-gman() {
-  local PS_FILEPATH='/tmp/man-to-ps.ps'
-
-  # Output `man` as Postscript to a temporary file.
-  man -t "$@" >"$PS_FILEPATH"
-  open "$PS_FILEPATH"
 }
 
 # Add colours to man pages.
@@ -266,33 +218,29 @@ update() {
 
 # User wide update.
 update-user() {
-  # Update Vim plugins.
+  # Update Vim plugins + COC.
   if command_exists vim; then
     echo '=> Vim Plug install, update, upgrade, clean.'
     vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+
+    echo "\n\n=> Vim COC update."
+    vim -c 'CocUpdateSync|q'
   fi
 
-  # Update NeoVim plugins.
+  # Update NeoVim plugins + Mason + Treesitter.
   if command_exists nvim; then
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
-    nvim --headless +MasonUpdate +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
+    nvim --headless +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
 
-    echo "\n\n=> Vim Coc update."
-    vim -c 'CocUpdateSync|q'
-
-    echo "\n\n=> TSServer update."
+    echo "\n\n=> NVim Treesitter update."
     nvim --headless +TSUpdateSync +quitall
 
-    echo "\n\n=> Updating Mason and all packages."
-    # Update Mason registry first
-    nvim --headless -c 'MasonUpdate' -c 'qa'
-    # Update all installed packages
-    echo "=> Reinstalling all Mason packages to ensure latest versions."
-    nvim --headless -c "lua vim.defer_fn(function() for _, pkg in ipairs(require('mason-registry').get_installed_packages()) do pkg:install() end; vim.cmd('qa!') end, 1000)" 2>/dev/null
+    echo "\n\n=> NVim Mason update (LSP servers + tools)."
+    nvim --headless -c 'MasonUpdateAll'
   fi
 
   # Update zinit and packages.
-  if [[ $(command_exists zinit) -eq 0 && $(basename $SHELL) == 'zsh' ]]; then
+  if command_exists zinit && [[ $(basename "$SHELL") == 'zsh' ]]; then
     echo "\n\n=> Updating zinit and packages."
     zinit self-update --no-pager
     zinit update --all --no-pager
@@ -315,7 +263,7 @@ update-user() {
 
   # Update `~/bin` repositories.
   if [ -d "$HOME/bin/" ]; then
-    find "$HOME/bin/" -maxdepth 1 -type d | while read BIN_DIR; do
+    find "$HOME/bin/" -mindepth 1 -maxdepth 1 -type d | while read BIN_DIR; do
       (
         cd "$BIN_DIR"
         if [ -d .git ]; then
@@ -381,12 +329,6 @@ update-global() {
   echo "\n\n=> Done!"
 }
 
-# Fix the 'zsh compinit: insecure directories, run compaudit for list.' error.
-fix-zsh-permissions() {
-  compaudit 2>/dev/null | while read dir; do
-    sudo chmod g-w "$dir"
-  done
-}
 
 ##
 # Search and replace file contents and file paths.
@@ -502,9 +444,11 @@ docker-cleanup() {
   # Remove old volumes.
   docker volume ls --quiet --filter 'dangling=true' | xargs --no-run-if-empty docker volume rm --force
 
-  # Remove networks.
-  docker network ls | grep 'bridge' | cut -d' ' -f1 | xargs --no-run-if-empty docker network rm
+  # Remove unused networks (prune safely skips pre-defined and active networks).
   docker network prune --force
+
+  # Remove unused images (not just dangling).
+  docker image prune --all --force
 }
 
 ##
@@ -681,6 +625,9 @@ git-refresh-branches() {
 claude-code-mcp-setup() {
   npx cclsp@latest setup
   claude mcp add todoist --env TODOIST_API_TOKEN="$TODOIST_API_TOKEN" -- npx -y @abhiz123/todoist-mcp-server
+  claude mcp add notion \
+    --env OPENAPI_MCP_HEADERS="{\"Authorization\": \"Bearer $NOTION_TOKEN\", \"Notion-Version\": \"2022-06-28\" }" \
+    -- npx -y @notionhq/notion-mcp-server
   claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   claude mcp add Context7 -- npx -y @upstash/context7-mcp
   claude mcp add playwright -- npx @playwright/mcp@latest
@@ -727,7 +674,9 @@ claude-code-mcp-setup() {
     --env KIT_GITHUB_TOKEN="$GITHUB_API_TOKEN" \
     --env OPENAI_API_KEY="$OPENAI_API_KEY" \
     --env GOOGLE_API_KEY="$GEMINI_API_KEY" \
-    -- uvx --from cased-kit kit-dev-mcp
+    -- uvx --from 'cased-kit[all]' kit-dev-mcp
+  claude mcp add azure-mcp \
+    -- npx @azure/mcp@latest server start
 }
 
 claude-copy-settings() {

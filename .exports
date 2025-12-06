@@ -26,14 +26,16 @@ export BACKUP_DIR="$HOME/Google Drive/Backup"
 # Preferred editor for local and remote sessions.
 export EDITOR='vim'
 export VISUAL='vim'
-if [ $(command -v nvim) ] ; then
+if command -v nvim >/dev/null ; then
   export EDITOR='nvim'
   export VISUAL='nvim'
 fi
 
-if [[ $(command -v bat) ]] ; then
+if command -v bat >/dev/null ; then
   export MANPAGER='sh -c "col -bx | bat --language man --plain"'
   export PAGER='bat --paging=always'
+  # Prevent delta (git diff) from using bat, which adds duplicate line numbers.
+  export DELTA_PAGER='less'
 fi
 
 # Cross filesystem boundaries if the current directory isn't a Git repo.
@@ -61,20 +63,16 @@ if hash brew 2>/dev/null ; then
   )
   export HOMEBREW_CASK_OPTS="$(IFS=' '; echo ${HOMEBREW_CASK_OPTIONS[@]})"
 
-  # Homebrew GNU coreutils, sed & tar.
-  gnu_homebrew_packages=(gnu-sed gnu-tar grep findutils gawk gnu-sed)
+  # Homebrew GNU utilities (replaces BSD versions with GNU).
+  gnu_homebrew_packages=(coreutils gnu-sed gnu-tar grep findutils gawk make)
   for gnu_homebrew_package in "${gnu_homebrew_packages[@]}" ; do
     export PATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/libexec/gnubin:$PATH"
-    export MANPATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/share/man:$MANMANPATH"
+    export MANPATH="$HOMEBREW_PREFIX/opt/$gnu_homebrew_package/libexec/gnuman:$MANPATH"
   done
+  unset gnu_homebrew_package gnu_homebrew_packages
 
   # Curl.
   export PATH="$HOMEBREW_PREFIX/opt/curl/bin:$PATH"
-
-  # Node.js
-  export NODE_PATH='/usr/local/lib/node_modules'
-  export NODE_PATH="/usr/local/share/npm/lib/node_modules:$NODE_PATH"
-  export PATH="/usr/local/share/npm/bin:$PATH"
 
   # Ruby.
   export PATH="$HOMEBREW_PREFIX/opt/ruby/bin:$PATH"
@@ -83,20 +81,11 @@ if hash brew 2>/dev/null ; then
   export PATH="$HOMEBREW_PREFIX/opt/openjdk/bin:$PATH"
 fi
 
-# Android emulator / SDK.
-export ANDROID_HOME='/usr/local/opt/android-sdk'
-
 # User ~/bin directories.
 export PATH="$HOME/bin:$PATH"
 
-# llm-symbols - symbol extractor for LLM context.
-export PATH="$HOME/Code/llm-symbols/bin:$PATH"
-
 # Composer.
 export PATH="$HOME/.composer/vendor/bin:$PATH"
-
-# Git bins.
-export PATH="$HOMEBREW_PREFIX/opt/git/share/git-core/contrib/diff-highlight/diff-highlight:$PATH"
 
 # Docker.
 export PATH="$HOME/.docker/bin:$PATH"
@@ -132,16 +121,11 @@ export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT='1'
 export _Z_NO_RESOLVE_SYMLINKS=1
 
 # Python 3.
-export PATH="/usr/local/opt/python@3/bin:$PATH"
+export PATH="$HOMEBREW_PREFIX/opt/python@3/bin:$PATH"
 # export PATH="./.venv/bin:$PATH"
 
 # Cargo packages.
 
-# NVM.
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-
-# Anaconda.
-export PATH="$HOMEBREW_PREFIX/anaconda3/bin:$PATH"
 
 # icu4c
 export PATH="$HOMEBREW_PREFIX/opt/icu4c/bin:$PATH"
@@ -157,9 +141,6 @@ export PATH="/Applications/OrbStack.app/Contents/MacOS/bin:$PATH"
 
 # Visual Studio Code.
 export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
-
-# Dotnet.
-export PATH="/Users/jackson/.dotnet/tools:$PATH"
 
 # Local paths.
 export PATH="./vendor/bin:$PATH"

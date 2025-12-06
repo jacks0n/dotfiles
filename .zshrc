@@ -30,7 +30,7 @@ setopt AUTO_LIST            # Automatically list choices on ambiguous completion
 setopt AUTO_MENU            # Automatically use menu completion after the second consecutive request for completion.
 setopt COMPLETE_ALIASES     # Enable completion for aliases. Enabling breaks completion with Fig.
 setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
-zstyle ':completion:*' completer _expand _complete _ignored _approximate
+zstyle ':completion:*' completer _complete _expand _ignored _approximate
 zstyle ':completion:*' list-dirs-first yes        # Show directories first.
 zstyle ':completion:*' verbose yes                # Show descriptions for options.
 zstyle ':completion:*' list-colors '=(#b) #([0-9]#)*=36=31' # Colour code completion.
@@ -96,8 +96,8 @@ source "$ZINIT_HOME/zinit.zsh"
 
 autoload -Uz compinit
 compinit -C
-# Set HOMEBREW_PREFIX for later use
-export HOMEBREW_PREFIX="$(brew --prefix)"
+# Set HOMEBREW_PREFIX for later use (use cached value from .shrc if available)
+export HOMEBREW_PREFIX="${CACHED_BREW_PREFIX:-$(brew --prefix)}"
 
 zinit load 'mafredri/zsh-async'
 zinit ice pick'async.zsh' src'pure.zsh'; zinit light 'sindresorhus/pure'
@@ -139,7 +139,7 @@ fi
 # AWS CLI completion
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html
 autoload bashcompinit && bashcompinit
-complete -C '$(brew --prefix)/bin/aws_completer' aws
+complete -C "$CACHED_BREW_PREFIX/bin/aws_completer" aws
 
 # zsh-syntax-highlighting.
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
@@ -169,73 +169,6 @@ source "$HOME/.shrc"
 # 3rd Party.
 ##
 
-# Automatically call `nvm use` when `cd`ing to a directory with a `.nvmrc` file.
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  # Set nvmrc version.
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [[ "$nvmrc_node_version" == 'N/A' ]]; then
-      nvm install
-      nvm use --silent
-    elif [[ "$nvmrc_node_version" != "$(nvm version)" ]]; then
-      nvm use --silent
-    fi
-  # Revert to global node.
-  elif [ "$(nvm version)" != 'system' ]; then
-    nvm deactivate --silent
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-if [[ -z $VIRTUAL_ENV ]] ; then
-  load-nvmrc
-fi
-
-# Automatically call `pyenv local` when `cd`ing to a directory with a `.python-version` file.
-load-pyenv() {
-  # Find .python-version file in current or parent directories
-  local python_version_path=""
-  local dir="$PWD"
-
-  while [[ "$dir" != "/" ]]; do
-    if [[ -f "$dir/.python-version" ]]; then
-      python_version_path="$dir/.python-version"
-      break
-    fi
-    dir="$(dirname "$dir")"
-  done
-
-  # Set python version if .python-version found
-  if [[ -n "$python_version_path" ]]; then
-    local required_version=$(cat "$python_version_path")
-    local current_version=$(pyenv version-name 2>/dev/null)
-
-    # Only switch if the version is different
-    if [[ "$required_version" != "$current_version" ]]; then
-      # Check if the required version is installed
-      if ! pyenv versions --bare | grep -q "^${required_version}"; then
-        echo "Python $required_version is not installed. Installing..."
-        pyenv install "$required_version"
-      fi
-
-      # Set the local version silently
-      pyenv shell "$required_version" 2>/dev/null
-    fi
-  # Revert to global python version when leaving a project directory
-  elif [[ -n "$PYENV_VERSION" ]]; then
-    # Unset the shell-specific version to revert to global
-    unset PYENV_VERSION
-  fi
-}
-add-zsh-hook chpwd load-pyenv
-# Load pyenv for current directory on shell startup
-if [[ -z $VIRTUAL_ENV ]] ; then
-  load-pyenv
-fi
-
 # Ensure Python virtual environment always has PATH priority.
 if [[ -n "$VIRTUAL_ENV" ]]; then
   PATH="${PATH//$VIRTUAL_ENV\/bin:/}"
@@ -243,9 +176,9 @@ if [[ -n "$VIRTUAL_ENV" ]]; then
   export PATH
 fi
 
-# pip completion.
-eval "$(pip completion --zsh)"
-compctl -K _pip_completion pip3
+zinit ice wait'2' lucid id-as'pip-completion' as'null' \
+  atload'eval "$(pip completion --zsh)"; compctl -K _pip_completion pip3'
+zinit light zdharma-continuum/null
 
 # bun completion.
 if [[ -s "$HOME/.bun/_bun" ]] ; then
@@ -256,7 +189,6 @@ if command -v fzf &> /dev/null; then
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 fi
 
-# Added by Windsurf
 export PATH="/Users/jackson/.codeium/windsurf/bin:$PATH"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"

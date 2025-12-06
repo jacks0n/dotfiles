@@ -31,10 +31,10 @@ if hash lsd 2>/dev/null; then
   alias lfa='lsd --directory-only (.*|*)(^/) --oneline' # Only files, including dotfiles.
   alias ld='lsd --directory-only --oneline *(/)'        # Only directories.
   alias lda='lsd --directory-only --oneline .*(/) *(/)' # Only directories, including dotdirectories.
-# @see https://the.exa.website/
-elif hash exa 2>/dev/null; then
-  alias l='exa --long --binary --header --git'        # Files and directories in long format.
-  alias la='exa --long --binary --all --header --git' # Files and directories in long format, including dotfiles.
+# @see https://eza.rocks/
+elif hash eza 2>/dev/null; then
+  alias l='eza --long --binary --header --git'        # Files and directories in long format.
+  alias la='eza --long --binary --all --header --git' # Files and directories in long format, including dotfiles.
   alias lf='l | grep -v "^d"'                         # Only files.
   alias lfa='la | grep -v "^d"'                       # Only files, including dotfiles.
   alias ld='l | grep "^d"'                            # Only directories.
@@ -181,3 +181,5 @@ fi
 
 alias oc='opencode'
 alias y='yazi'
+alias t='zellij'
+alias ccd='claude --dangerously-skip-permissions'
