@@ -20,19 +20,9 @@ local tool_config = {
     },
     provides = { lint = true, format = false },
   },
-  jsonlint = {
-    filetypes = { 'json' },
-    patterns = { '.jsonlintrc', '.jsonlintrc.json', '.jsonlintrc.yaml', '.jsonlintrc.yml' },
-    provides = { lint = true, format = false },
-  },
   yamllint = {
     filetypes = { 'yaml' },
     patterns = { '.yamllint', '.yamllint.yaml', '.yamllint.yml' },
-    provides = { lint = true, format = false },
-  },
-  flake8 = {
-    filetypes = { 'python' },
-    patterns = { '.flake8', 'setup.cfg', 'tox.ini', 'pyproject.toml' },
     provides = { lint = true, format = false },
   },
   mypy = {
@@ -48,16 +38,6 @@ local tool_config = {
         '--python-executable', python_path,
       }
     end,
-  },
-  ruff = {
-    filetypes = { 'python' },
-    patterns = { 'ruff.toml', 'pyproject.toml' },
-    provides = { lint = true, format = true },
-  },
-  shellcheck = {
-    filetypes = { 'sh', 'bash', 'zsh' },
-    patterns = { '.shellcheckrc' },
-    provides = { lint = true, format = false },
   },
   phpcs = {
     filetypes = { 'php' },
@@ -140,6 +120,11 @@ local tool_config = {
     provides = { lint = false, format = true },
     mason_name = 'clang-format',
   },
+  shfmt = {
+    filetypes = { 'sh', 'bash', 'zsh' },
+    patterns = {},
+    provides = { lint = false, format = true },
+  },
   -- xmlformat = {
   --   filetypes = { 'xml' },
   --   patterns = { '.xmlformatrc', '.xmlformatterrc', '.editorconfig' },
@@ -156,6 +141,7 @@ end
 
 local function has_config(patterns, root_dir)
   if not patterns or not root_dir then return false end
+  if #patterns == 0 then return true end
   for _, pattern in ipairs(patterns) do
     if vim.fn.filereadable(root_dir .. '/' .. pattern) == 1 then return true end
   end

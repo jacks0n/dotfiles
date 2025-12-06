@@ -112,7 +112,7 @@ elseif has('nvim')
   Plug 'saghen/blink.compat'
     \| Plug 'onsails/lspkind.nvim'
   Plug 'giuxtaposition/blink-cmp-copilot'
-  Plug 'zbirenbaum/copilot.lua'
+    \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   Plug 'yioneko/nvim-vtsls'
   " Plug 'seblyng/roslyn.nvim'
@@ -138,6 +138,7 @@ endif
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
+Plug 'esmuellert/vscode-diff.nvim'
 
 
 " ========================================================================
@@ -181,6 +182,7 @@ endif
 if has('nvim')
   Plug 'kevinhwang91/rnvimr'
   Plug 'm4xshen/hardtime.nvim'
+        \| Plug 'MunifTanjim/nui.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
     \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -294,14 +296,16 @@ set updatetime=300            " Milliseconds to wait after typing to save the sw
 set t_vb=
 set noerrorbells              " Ring the bell (beep or screen flash) for error messages.
 set visualbell                " Use visual bell instead of beeping.
-set shortmess=aAI             " ┐ Avoid all the hit-enter prompts.
+set shortmess=aAIF            " ┐ Avoid all the hit-enter prompts.
                               " | a: All abbreviations.
                               " | A: No existing swap file 'ATTENTION' message.
-                              " ┘ I: No |:intro| starting message.
+                              " | I: No |:intro| starting message.
+                              " ┘ F: No file info when editing (for gd, etc).
 
 set iskeyword+=/              " Include slashes as part of a word
 set mousemoveevent            " Enable hover events.
 set confirm                   " Auto confirm.
+
 
 " Persistent undo.
 if has('persistent_undo')
@@ -349,6 +353,7 @@ set nosmartindent            " Doesn't work well with treesitter.
 set autoindent               " Auto-indent inserted lines.
 set magic                    " Enable extended regex.
 set copyindent               " Use current line indenting when starting a new line.
+set foldmethod=indent        " Fold based on indent.
 set hidden                   " Hide unsaved buffers instead of close on file open.
 set modeline                 " Enable modelines.
 set modelines=5              " Look for modelines in the first and last X lines.
@@ -389,7 +394,6 @@ set expandtab                  " Tabs are spaces.
 set shiftwidth=2               " Spaces per tab.
 set softtabstop=2              " Number of spaces in tab when editing.
 set tabstop=2                  " Number of visual spaces per tab.
-set cindent                    " Indent from previous line, with C syntax.
 set display+=lastline          " Display as much as possible of last line in window, '@@@' when truncated.
 set ruler                      " Show the line and column number of the cursor position.
 set viminfo^=%                 " Remember info about open buffers on close.
@@ -812,10 +816,12 @@ if has('nvim')
   lua require('core.settings').setup()
   lua require('core.keymaps').setup()
   lua require('core.autocmds').setup()
+  lua require('core.commands')
 
   if !exists('g:use_coc') || !g:use_coc
     lua require('core.diagnostic')
     lua require('plugins.cmp')
+    lua require('plugins.mason')
     lua require('core.lsp')
     " lua require('plugins.nvim-lint')
     " lua require('plugins.conform')
@@ -862,6 +868,7 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.ts-node-action')
     autocmd VimEnter * ++once lua require('plugins.nvim-ts-autotag')
     autocmd VimEnter * ++once lua require('ts_context_commentstring').setup({})
+    autocmd VimEnter * ++once lua require('plugins.vscode-diff')
   augroup END
 endif
 

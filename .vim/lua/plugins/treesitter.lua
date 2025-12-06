@@ -26,6 +26,8 @@ require('nvim-treesitter.configs').setup({
 
   indent = {
     enable = true,
+    -- Unreliable.
+    disable = { 'python', 'yaml' },
   },
 
   refactor = {
