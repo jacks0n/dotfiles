@@ -1,7 +1,7 @@
 *~
 .DS_Store
 .tern-port
-Icon
+Icon
 tags
 tags.temp
 tags.lock
@@ -14,3 +14,14 @@ vendor/
 build/
 node_modules/
 *.pyc
+
+# Claude / AI
+.claude/
+.claude
+.serena/
+ISSUES.md
+
+# Build artifacts
+build.txt
+junit.xml
+junit-*.xml

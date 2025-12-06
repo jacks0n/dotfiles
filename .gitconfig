@@ -1,10 +1,6 @@
 [user]
   name = Jackson Cooper
-  email = jackson@jacksonc.com
-  signingkey = A44F9DEE
-
-[includeIf "gitdir:~/Code/"]
-  path = ~/Code/.gitconfig
+  email = jackson.cooper@servictoria.com.au
 
 [alias]
   d  = diff
@@ -27,7 +23,7 @@
   ui = auto
 
 [core]
-	excludesfile = /Users/jackson/.gitignore_global
+  excludesfile = ~/.gitignore
   editor = nvim
   ; Enable additional caching of file system data for some operations.
   ; Git for Windows uses this to bulk-read and cache lstat data of
@@ -38,24 +34,37 @@
   ; https://github.com/dandavison/delta
   pager = delta
 
-[credential]
-  ; Cache authentication credentials in OS X's keychain.
-	helper = !aws codecommit credential-helper $@
-	UseHttpPath = true
+[include]
+  path = ~/.config/delta/themes.gitconfig
 
 [delta]
-  ; Use n and N to move between diff sections.
   navigate = true
   line-numbers = true
-
-[delta "decorations"]
-  commit-decoration-style = blue ol
-  commit-style = raw
-  file-style = omit
-  hunk-header-decoration-style = blue box
-  hunk-header-file-style = red
-  hunk-header-line-number-style = "#067a00"
-  hunk-header-style = file line-number syntax
+  dark = true
+  pager = less
+  hyperlinks = true
+  ; Pick a theme by uncommenting one:
+  ; features = collared-trogon
+  ; features = colibri
+  ; features = coracias-caudatus
+  ; features = hoopoe
+  ; features = tangara-chilensis
+  ; features = villsau
+  ; features = woolly-mammoth
+  ; features = calochortus-lyallii
+  ; features = mantis-shrimp
+  ; features = mantis-shrimp-lite
+  ; features = zebra-dark
+  ; features = zebra-light
+  ; features = chameleon
+  features = gruvmax-fang
+  ; features = discord
+  ; features = mellow-barbet
+  ; features = arctic-fox
+  ; features = corvus
+  ; features = platypus
+  ; features = weeping-willow
+  ; features = mirthful-willow
 
 [delta "interactive"]
   keep-plus-minus-markers = false
@@ -70,8 +79,8 @@
   prompt = false
 
 [difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+  path =
 
 [filter "media"]
   required = true
@@ -94,7 +103,7 @@
 [merge]
   tool = fugitive
   ; Display diffs between the ancestral commit and each of the two merge parents.
-  conflictstyle = diff3
+  conflictstyle = zdiff3
 
 [mergetool]
   ; Don't prompt before each invocation of the merge resolution program.
@@ -103,19 +112,13 @@
   ; with conflict markers as a file with a .orig extension.
   keepBackup = false
 
-[mergetool "fugitive"]
-  cmd = nvim -f -c \"Gvdiffsplit!\" \"$MERGED\"
-
-[mergetool "Kaleidoscope"]
-  cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
-  trustExitCode = true
-
 [mergetool "sourcetree"]
-	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+  trustExitCode = true
 
 [push]
   default = current
+  autoSetupRemote = true
 
 [rerere]
   enabled = true
@@ -129,3 +132,7 @@
 [init]
   defaultBranch = master
   templatedir = ~/.git-templates
+
+; Machine-specific config (user.email, credentials, etc.)
+[include]
+  path = ~/.gitconfig.local

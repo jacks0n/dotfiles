@@ -6,7 +6,6 @@
 
 [[ $(uname -r) =~ WSL ]] && IS_WSL=1 || IS_WSL=0
 
-eval "$(pyenv init -)"
 
 # Cache brew prefix once to avoid multiple subprocess calls throughout shell startup
 export CACHED_BREW_PREFIX="${CACHED_BREW_PREFIX:-$(brew --prefix)}"
@@ -32,8 +31,8 @@ export GPG_TTY=$(tty)
 # 3rd Party.
 ##
 
-[ -s "$CACHED_BREW_PREFIX/opt/nvm/nvm.sh" ] && . "$CACHED_BREW_PREFIX/opt/nvm/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+# mise - polyglot version manager (node, python, etc.)
+eval "$(mise activate zsh)"
 
 ##
 # Other.

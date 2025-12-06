@@ -1,82 +1,194 @@
 #!/usr/bin/env bash
 
-export DOTFILES_PATH=~/.dotfiles
+export DOTFILES_PATH="$HOME/.dotfiles"
 
-home_dotpaths=(
-  ~/.aliases
-  ~/.bashrc
-  ~/.ctags
-  ~/.editorconfig
-  ~/.curlrc
-  ~/.exports
-  ~/.functions
-  ~/.gitconfig
-  ~/.npmrc
-  ~/.shrc
-  ~/.spacemacs
-  ~/.osx
-  ~/.tmux.conf
-  ~/.inputrc
-  ~/.vim
-  ~/.vimrc
-  ~/.wgetrc
-  ~/.sshrc
-  ~/.hushlogin
-  ~/.zshrc
-  ~/.zprofile
-  ~/.zshenv
-  ~/.iterm2_shell_integration.zsh
+# =============================================================================
+# Helper Functions
+# =============================================================================
+
+# Prompt with default Y - returns 0 (true) if yes, 1 (false) if no
+prompt_yes() {
+  local message="$1"
+  read -p "$message [Y/n]: " -n 1 -r
+  echo
+  [[ ! $REPLY =~ ^[Nn]$ ]]
+}
+
+# Prompt with default N - returns 0 (true) if yes, 1 (false) if no
+prompt_no() {
+  local message="$1"
+  read -p "$message [y/N]: " -n 1 -r
+  echo
+  [[ $REPLY =~ ^[Yy]$ ]]
+}
+
+# Handle existing file/directory/symlink before creating symlink
+# Returns 0 if we should proceed with symlink, 1 if we should skip
+handle_existing() {
+  local target="$1"
+  if [[ -e "$target" || -L "$target" ]]; then
+    if [[ -L "$target" ]]; then
+      echo "  Symlink already exists: $target -> $(readlink "$target")"
+    elif [[ -d "$target" ]]; then
+      echo "  Directory already exists: $target"
+    else
+      echo "  File already exists: $target"
+    fi
+    if prompt_yes "  Delete it?"; then
+      rm -rf "$target"
+      return 0
+    fi
+    return 1
+  fi
+  return 0
+}
+
+# =============================================================================
+# Home Directory Dotfiles
+# =============================================================================
+
+home_dotfiles=(
+  .aliases
+  .bashrc
+  .ctags
+  .curlrc
+  .editorconfig
+  .exports
+  .functions
+  .gitconfig
+  .hushlogin
+  .inputrc
+  .npmrc
+  .osx
+  .shrc
+  .spacemacs
+  .sshrc
+  .tmux.conf
+  .vim
+  .vimrc
+  .wgetrc
+  .zprofile
+  .zshenv
+  .zshrc
 )
 
-# Delete existing dotfiles.
-for home_dotfile in ${home_dotpaths[@]} ; do
-  basename="$(basename "$home_dotfile")"
-  home_dotfile_path="$HOME/$basename"
-  if [[ -f "$home_dotfile_path" || -L "$home_dotfile_path" ]] ; then
-    read -e -p "Delete dotfile path '$home_dotfile_path'? [Y/N]: " delete_dotfile
-    if [[ "$delete_dotfile" == 'Y' ]] ; then
-      echo "=> Deleting '$home_dotfile_path"
-      rm -f "$home_dotfile_path"
+echo "=== Home Directory Dotfiles ==="
+for dotfile in "${home_dotfiles[@]}"; do
+  if prompt_yes "Symlink ~/$dotfile?"; then
+    if handle_existing "$HOME/$dotfile"; then
+      ln -s "$DOTFILES_PATH/$dotfile" "$HOME/$dotfile"
+      echo "  Created: ~/$dotfile -> $DOTFILES_PATH/$dotfile"
+    else
+      echo "  Skipped: ~/$dotfile"
     fi
   fi
 done
 
-# Check if any dotfile already exists.
-for dotfile_path in ${dotfile_paths[@]} ; do
-  basename="$(basename "$dotfile_path")"
-  dotfile_home_path="$HOME/$basename"
-  if [[ -f "$dotfile_home_path" || -L "$dotfile_home_path" ]] ; then
-    echo >&2 "ERROR: '$dotfile_home_path' already exists"
-    exit 1
+# =============================================================================
+# Config Directory Symlinks
+# =============================================================================
+
+config_dirs=(
+  delta
+  helix
+  litellm
+  mise
+  neovide
+  ranger
+  yamllint
+  yazi
+  zed
+)
+
+echo ""
+echo "=== Config Directory Symlinks ==="
+mkdir -p ~/.config
+
+for config_dir in "${config_dirs[@]}"; do
+  if prompt_yes "Symlink ~/.config/$config_dir?"; then
+    if handle_existing "$HOME/.config/$config_dir"; then
+      ln -s "$DOTFILES_PATH/.config/$config_dir" "$HOME/.config/$config_dir"
+      echo "  Created: ~/.config/$config_dir -> $DOTFILES_PATH/.config/$config_dir"
+    else
+      echo "  Skipped: ~/.config/$config_dir"
+    fi
   fi
 done
 
-echo '=> Linking dotfiles'
-for dotfile_path in ${home_dotpaths[@]} ; do
-  basename="$(basename "$dotfile_path")"
-  echo "Linking '$DOTFILES_PATH/$basename' -> '~/$basename'"
-  ln -s "$DOTFILES_PATH/$basename" ~/$basename
-done
+# =============================================================================
+# Special Setups
+# =============================================================================
 
-# Setup Neovim.
-ln -s ~/.vim ~/.config/nvim
-copy_vimrc_example='Y'
-if [ -f ~/.vimrc.local || -L ~/.vimrc.local ] ; then
-  read -e -p 'Copy "~/.dotfiles/.vimrc.local.example" => "~/.vimrc.local"? (Y/N): ' copy_vimrc_example
+echo ""
+echo "=== Special Setups ==="
+
+# Neovim config
+if prompt_yes "Setup Neovim config (~/.config/nvim -> ~/.dotfiles/.vim)?"; then
+  if handle_existing "$HOME/.config/nvim"; then
+    ln -s "$DOTFILES_PATH/.vim" "$HOME/.config/nvim"
+    echo "  Created: ~/.config/nvim -> $DOTFILES_PATH/.vim"
+  else
+    echo "  Skipped: ~/.config/nvim"
+  fi
 fi
-if [[ "$copy_vimrc_example" == 'Y' ]] ; then
-  cp ~/.dotfiles/.vimrc.local.example ~/.vimrc.local
+
+# Personal git config
+if prompt_yes "Setup personal git config (~/.gitconfig.local)?"; then
+  if [[ -f "$HOME/.gitconfig.local" ]]; then
+    echo "  File already exists: ~/.gitconfig.local"
+    if prompt_yes "  Overwrite it?"; then
+      cp "$DOTFILES_PATH/.gitconfig.personal" "$HOME/.gitconfig.local"
+      echo "  Copied: ~/.gitconfig.local"
+    else
+      echo "  Skipped: ~/.gitconfig.local"
+    fi
+  else
+    cp "$DOTFILES_PATH/.gitconfig.personal" "$HOME/.gitconfig.local"
+    echo "  Copied: ~/.gitconfig.local"
+  fi
 fi
 
-# Intelephense license.
-mkdir -p ~/intelephense
-read -e -p 'Intelephense license: ' intelephense_license
-echo "$intelephense_license" > ~/intelephense/license.txt
+# Vim local config
+if [[ ! -f "$HOME/.vimrc.local" ]]; then
+  if prompt_yes "Setup vim local config (~/.vimrc.local from example)?"; then
+    cp "$DOTFILES_PATH/.vimrc.local.example" "$HOME/.vimrc.local"
+    echo "  Copied: ~/.vimrc.local"
+  fi
+else
+  echo "Skipping ~/.vimrc.local (already exists)"
+fi
 
-# Sudoers.
-sudo cp ~/.dotfiles/private/etc/sudoers.d/timeout /private/etc/sudoers.d/timeout
-sudo chmod 440 /private/etc/sudoers.d/timeout
-sudo chown root:wheel /private/etc/sudoers.d/timeout
+# Intelephense license (optional - for PHP development)
+if prompt_no "Setup Intelephense license (PHP LSP)?"; then
+  mkdir -p ~/intelephense
+  read -p "Enter Intelephense license key: " -r intelephense_license
+  echo
+  if [[ -n "$intelephense_license" ]]; then
+    echo "$intelephense_license" > ~/intelephense/license.txt
+    echo "  Created: ~/intelephense/license.txt"
+  else
+    echo "  Skipped: No license key provided"
+  fi
+fi
 
-# Setup Git aliases.
-curl https://raw.githubusercontent.com/Git Alias/gitalias/main/gitalias.txt -o ~/.dotfiles/.gitalias
+# Sudoers timeout (optional - requires sudo)
+if prompt_no "Setup sudoers timeout (extends sudo timeout to 60min, requires sudo)?"; then
+  sudo cp "$DOTFILES_PATH/private/etc/sudoers.d/timeout" /private/etc/sudoers.d/timeout
+  sudo chmod 440 /private/etc/sudoers.d/timeout
+  sudo chown root:wheel /private/etc/sudoers.d/timeout
+  echo "  Installed: /private/etc/sudoers.d/timeout"
+fi
+
+# Git aliases
+if prompt_yes "Download GitAlias (extended git aliases)?"; then
+  curl -fsSL https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt -o "$DOTFILES_PATH/.gitalias"
+  echo "  Downloaded: $DOTFILES_PATH/.gitalias"
+fi
+
+# =============================================================================
+# Done
+# =============================================================================
+
+echo ""
+echo "=== Setup Complete ==="
+echo "You may need to restart your shell or run 'source ~/.zshrc' for changes to take effect."
