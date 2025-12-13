@@ -98,6 +98,7 @@ config_dirs=(
   yamllint
   yazi
   zed
+  zellij
 )
 
 echo ""
