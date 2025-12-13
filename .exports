@@ -104,12 +104,13 @@ fi
 
 # fzf - https://github.com/junegunn/fzf
 # --inline-info: Display the result number besides the query.
-export FZF_DEFAULT_OPTS="--inline-info --no-height --preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_DEFAULT_OPTS="--inline-info --preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
 # Use `ag` as the default source for `fzf`.
 if hash ag 2>/dev/null ; then
   export FZF_DEFAULT_COMMAND='ag -g ""'
 fi
-export FZF_ALT_C_OPTS="--select-1 --exit-0 --preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+export FZF_ALT_C_OPTS="--select-1 --exit-0 --scheme=path --preview 'tree -C {} | head -200'"
 
 # Surpress Wine debugging info.
 export WINEDEBUG=
