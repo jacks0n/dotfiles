@@ -630,9 +630,6 @@ claude-code-mcp-setup() {
     -- npx -y @notionhq/notion-mcp-server
   claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   claude mcp add Context7 -- npx -y @upstash/context7-mcp
-  claude mcp add playwright \
-    -- npx @playwright/mcp@latest
-    --user-data-dir '<path>'
   if [[ $(pwd) == $HOME ]]; then
     claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem \
       ~/Code \
@@ -647,7 +644,7 @@ claude-code-mcp-setup() {
   claude mcp add memory --env MEMORY_FILE_PATH=$HOME/.mcp/memory.claude.json -- npx -y @modelcontextprotocol/server-memory
   claude mcp add git -- uvx mcp-server-git
   claude mcp add ddg-search -- uvx duckduckgo-mcp-server
-  claude mcp add postgres-mcp -- uv run postgres-mcp --access-mode=unrestricted
+  claude mcp add postgres -- uv run postgres-mcp --access-mode=unrestricted
   claude mcp add dbhub-postgres -- npx -y @bytebase/dbhub --transport stdio --dsn postgres://user:password@localhost:5432/dbname?sslmode=disable
   claude mcp add google-calendar -- npx -y @cocal/google-calendar-mcp
   claude mcp add gmail -- npx -y @gongrzhe/server-gmail-autoauth-mcp
@@ -678,14 +675,14 @@ claude-code-mcp-setup() {
     --env GOOGLE_API_KEY="$GEMINI_API_KEY" \
     -- uvx --from 'cased-kit[all]' kit-dev-mcp
   # For Azure services not Azure DevOps.
-  claude mcp add azure-mcp \
+  claude mcp add azure \
     -- npx @azure/mcp@latest server start
   claude mcp add azure-devops \
     -- npx -y @azure-devops/mcp REPLACEME
   claude mcp add atlassian-official \
     -- npx -y mcp-remote https://mcp.atlassian.com/v1/sse
   docker pull ghcr.io/sooperset/mcp-atlassian:latest
-  claude mcp add mcp-atlassian \
+  claude mcp add atlassian \
     --env CONFLUENCE_URL="$CONFLUENCE_URL" \
     --env CONFLUENCE_USERNAME="$CONFLUENCE_USERNAME" \
     --env CONFLUENCE_API_TOKEN="$CONFLUENCE_API_TOKEN" \
@@ -700,6 +697,10 @@ claude-code-mcp-setup() {
     -e JIRA_USERNAME \
     -e JIRA_API_TOKEN \
     ghcr.io/sooperset/mcp-atlassian:latest
+  claude mcp add playwright-fast -- npx @tontoko/fast-playwright-mcp@latest
+  claude mcp add playwright \
+    -- npx @playwright/mcp@latest
+    --user-data-dir '<path>'
 }
 
 claude-copy-settings() {

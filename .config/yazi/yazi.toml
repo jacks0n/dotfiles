@@ -1,3 +1,6 @@
+[mgr]
+ratio = [1, 1, 6]  # Left: 12.5%, Center: 12.5%, Right: 75%
+
 [plugin]
 
 prepend_preloaders = [
@@ -10,7 +13,58 @@ prepend_preloaders = [
 ]
 
 prepend_previewers = [
-  # Office Documents
+  # Directories with eza
+  { mime = "inode/directory", run = 'piper -- eza --color=always --icons=always --git --group-directories-first --long "$1"' },
+
+  # Markdown with glow
+  { name = "*.md", run = 'piper -- glow --style=auto --width=$w "$1"' },
+  { name = "*.markdown", run = 'piper -- glow --style=auto --width=$w "$1"' },
+
+  # JSON with jq
+  { name = "*.json", run = 'piper -- jq --color-output . "$1"' },
+  { name = "*.jsonc", run = 'piper -- jq --color-output . "$1"' },
+  { name = "*.json5", run = 'piper -- jq --color-output . "$1"' },
+
+  # Code with bat
+  { name = "*.py", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.pyi", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.pyx", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.js", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.jsx", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.ts", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.tsx", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.mjs", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.cjs", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.html", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.htm", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.css", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.scss", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.sass", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.vue", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.rs", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.go", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.c", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.cpp", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.cc", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.h", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.hpp", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.sh", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.bash", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.zsh", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.fish", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.toml", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.yaml", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.yml", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.ini", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.conf", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.lua", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.rb", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.php", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.java", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.kt", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+  { name = "*.swift", run = 'piper -- bat --style=numbers,grid --color=always --wrap=never "$1"' },
+
+  # Office documents (existing - keep)
   { mime = "application/openxmlformats-officedocument.*", run = "office" },
   { mime = "application/oasis.opendocument.*", run = "office" },
   { mime = "application/ms-*", run = "office" },
