@@ -22,6 +22,14 @@ prompt_no() {
   [[ $REPLY =~ ^[Yy]$ ]]
 }
 
+# Check if symlink already points to correct target
+# Returns 0 (true) if already correct, 1 (false) otherwise
+is_correct_symlink() {
+  local target="$1"
+  local expected="$2"
+  [[ -L "$target" ]] && [[ "$(readlink "$target")" == "$expected" ]]
+}
+
 # Handle existing file/directory/symlink before creating symlink
 # Returns 0 if we should proceed with symlink, 1 if we should skip
 handle_existing() {
@@ -74,13 +82,17 @@ home_dotfiles=(
 
 echo "=== Home Directory Dotfiles ==="
 for dotfile in "${home_dotfiles[@]}"; do
+  if is_correct_symlink "$HOME/$dotfile" "$DOTFILES_PATH/$dotfile"; then
+    echo "Already linked: ~/$dotfile"
+    continue
+  fi
+  if ! handle_existing "$HOME/$dotfile"; then
+    echo "  Skipped: ~/$dotfile"
+    continue
+  fi
   if prompt_yes "Symlink ~/$dotfile?"; then
-    if handle_existing "$HOME/$dotfile"; then
-      ln -s "$DOTFILES_PATH/$dotfile" "$HOME/$dotfile"
-      echo "  Created: ~/$dotfile -> $DOTFILES_PATH/$dotfile"
-    else
-      echo "  Skipped: ~/$dotfile"
-    fi
+    ln -s "$DOTFILES_PATH/$dotfile" "$HOME/$dotfile"
+    echo "  Created: ~/$dotfile -> $DOTFILES_PATH/$dotfile"
   fi
 done
 
@@ -106,13 +118,17 @@ echo "=== Config Directory Symlinks ==="
 mkdir -p ~/.config
 
 for config_dir in "${config_dirs[@]}"; do
+  if is_correct_symlink "$HOME/.config/$config_dir" "$DOTFILES_PATH/.config/$config_dir"; then
+    echo "Already linked: ~/.config/$config_dir"
+    continue
+  fi
+  if ! handle_existing "$HOME/.config/$config_dir"; then
+    echo "  Skipped: ~/.config/$config_dir"
+    continue
+  fi
   if prompt_yes "Symlink ~/.config/$config_dir?"; then
-    if handle_existing "$HOME/.config/$config_dir"; then
-      ln -s "$DOTFILES_PATH/.config/$config_dir" "$HOME/.config/$config_dir"
-      echo "  Created: ~/.config/$config_dir -> $DOTFILES_PATH/.config/$config_dir"
-    else
-      echo "  Skipped: ~/.config/$config_dir"
-    fi
+    ln -s "$DOTFILES_PATH/.config/$config_dir" "$HOME/.config/$config_dir"
+    echo "  Created: ~/.config/$config_dir -> $DOTFILES_PATH/.config/$config_dir"
   fi
 done
 
@@ -124,13 +140,13 @@ echo ""
 echo "=== Special Setups ==="
 
 # Neovim config
-if prompt_yes "Setup Neovim config (~/.config/nvim -> ~/.dotfiles/.vim)?"; then
-  if handle_existing "$HOME/.config/nvim"; then
-    ln -s "$DOTFILES_PATH/.vim" "$HOME/.config/nvim"
-    echo "  Created: ~/.config/nvim -> $DOTFILES_PATH/.vim"
-  else
-    echo "  Skipped: ~/.config/nvim"
-  fi
+if is_correct_symlink "$HOME/.config/nvim" "$DOTFILES_PATH/.vim"; then
+  echo "Already linked: ~/.config/nvim"
+elif ! handle_existing "$HOME/.config/nvim"; then
+  echo "  Skipped: ~/.config/nvim"
+elif prompt_yes "Setup Neovim config (~/.config/nvim -> ~/.dotfiles/.vim)?"; then
+  ln -s "$DOTFILES_PATH/.vim" "$HOME/.config/nvim"
+  echo "  Created: ~/.config/nvim -> $DOTFILES_PATH/.vim"
 fi
 
 # Personal git config

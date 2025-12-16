@@ -41,6 +41,7 @@ zstyle ':completion:*' squeeze-slashes true                 # Squeeze multiple s
 zstyle ':completion:*' expand prefix suffix                  # Expand variables in completion.
 zstyle ':completion::complete:*' cache-path $ZSH_CACHE_DIR  # Set the completion caching directory.
 zstyle ':completion::complete:*' use-cache 1                # Enable completion caching.
+zstyle ':completion:*:approximate:*' max-errors 0 numeric   # Disable fuzzy/approximate completion.
 
 # Other.
 setopt AUTO_CD              # `cd` into directories.
