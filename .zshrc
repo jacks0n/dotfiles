@@ -94,8 +94,6 @@ fi
 
 source "$ZINIT_HOME/zinit.zsh"
 
-autoload -Uz compinit
-compinit -C
 # Set HOMEBREW_PREFIX for later use (use cached value from .shrc if available)
 export HOMEBREW_PREFIX="${CACHED_BREW_PREFIX:-$(brew --prefix)}"
 
@@ -110,17 +108,24 @@ if hash jupyter > /dev/null 2>&1 ; then
 fi
 zinit load 'wfxr/forgit'
 zinit load 'b4b4r07/cli-finder'
-zinit load 'zsh-users/zsh-completions'
+# zinit load 'zsh-users/zsh-completions'
 zinit ice wait'1' lucid; zinit light 'lukechilds/zsh-better-npm-completion'
-zinit load 'changyuheng/fz'
-zinit load 'rupa/z'
-zinit light 'zsh-users/zsh-autosuggestions'
+# zinit light 'zsh-users/zsh-autosuggestions'
 zinit load 'docker/cli'
 zinit load 'docker/compose'
 zinit light 'zdharma-continuum/fast-syntax-highlighting'
 zinit light 'zsh-users/zsh-history-substring-search'
 zinit load 'hlissner/zsh-autopair'
 zinit load 'darvid/zsh-poetry'
+
+autoload -Uz compinit
+compinit
+
+zinit cdreplay -q
+
+# fzf-tab: fzf for all completions
+# @todo Get working
+# zinit light Aloxaf/fzf-tab
 
 zinit ice haspoetry id-as'poetry---zsh-completions' as'completion' \
   wait silent blockf nocompile \
@@ -185,10 +190,22 @@ if [[ -s "$HOME/.bun/_bun" ]] ; then
   source "$HOME/.bun/_bun"
 fi
 
-if command -v fzf &> /dev/null; then
-  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-fi
+eval "$(zoxide init zsh)"
 
-export PATH="/Users/jackson/.codeium/windsurf/bin:$PATH"
+# Zellij auto-title: set tab/pane title to git repo name on directory change
+# if [[ -n "$ZELLIJ" ]]; then
+#   __zellij_set_title() {
+#     [[ "$ZELLIJ_AUTO" == "0" || "$ZELLIJ_AUTO" == "false" ]] && return
+#     local repo_name
+#     repo_name=$(git rev-parse --show-toplevel 2>/dev/null | xargs basename 2>/dev/null)
+#     [[ -n "$repo_name" ]] && command zellij action rename-pane "$repo_name"
+#   }
+#   add-zsh-hook chpwd __zellij_set_title
+#   __zellij_set_title  # Run once on shell startup
+# fi
 
-[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+# # fzf integration (Ctrl+T: files, Ctrl+R: history, Alt+C: cd directory)
+# if command -v fzf &> /dev/null; then
+#   source "$HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
+#   source "$HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh"
+# fi

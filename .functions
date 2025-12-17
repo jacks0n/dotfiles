@@ -233,7 +233,7 @@ update-user() {
     nvim --headless +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
 
     echo "\n\n=> NVim Treesitter update."
-    nvim --headless +TSUpdateSync +quitall
+    nvim --headless +'TSInstallAll --force' +quitall
 
     echo "\n\n=> NVim Mason update (LSP servers + tools)."
     nvim --headless -c 'MasonUpdateAll'
@@ -633,6 +633,7 @@ claude-code-mcp-setup() {
   claude mcp add playwright \
     -- npx @playwright/mcp@latest
     --user-data-dir '<path>'
+  claude mcp add playwright-fast -- npx @tontoko/fast-playwright-mcp@latest --user-data-dir '~/.playwright-mcp-user-data/foo'
   if [[ $(pwd) == $HOME ]]; then
     claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem \
       ~/Code \
@@ -700,6 +701,8 @@ claude-code-mcp-setup() {
     -e JIRA_USERNAME \
     -e JIRA_API_TOKEN \
     ghcr.io/sooperset/mcp-atlassian:latest
+  # Requires admin approval
+  claude mcp add ms-365 -- npx -y @softeria/ms-365-mcp-server --org-mode
 }
 
 claude-copy-settings() {
