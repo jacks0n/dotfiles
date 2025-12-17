@@ -296,5 +296,5 @@ uv tool install leann-core
 
 nvim --cmd 'let g:use_coc = 1' +'CocUpdateSync' +qall
 
-nvim --headless +TSUpdateSync +qall
+nvim --headless +TSInstallAll +qall
 nvim +'Copilot setup'
