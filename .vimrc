@@ -88,7 +88,7 @@ elseif has('nvim')
   Plug 'OXY2DEV/markview.nvim' " Must be loaded before treesitter.
   Plug 'glepnir/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main' }
   Plug 'SmiteshP/nvim-navbuddy'
     \| Plug 'SmiteshP/nvim-navic'
     \| Plug 'MunifTanjim/nui.nvim'
@@ -158,8 +158,7 @@ if has('nvim')
     \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'akinsho/bufferline.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
-  Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
-  Plug 'nvim-treesitter/nvim-treesitter-refactor'
+  Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
   Plug 'JoosepAlviste/nvim-ts-context-commentstring'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
@@ -185,7 +184,7 @@ if has('nvim')
         \| Plug 'MunifTanjim/nui.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
     \| Plug 'MunifTanjim/nui.nvim'
   Plug 'rareitems/printer.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
@@ -193,9 +192,9 @@ if has('nvim')
   Plug 'ggandor/leap.nvim'
     \| Plug 'tpope/vim-repeat'
   Plug 'CKolkey/ts-node-action'
-    \| Plug 'nvim-treesitter/nvim-treesitter'
-  Plug 'nvim-treesitter/nvim-treesitter-textobjects'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main' }
+  Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'main' }
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
   " Plug 'folke/noice.nvim'
   "   \| Plug 'MunifTanjim/nui.nvim'
   "   \| Plug 'rcarriga/nvim-notify'
@@ -204,7 +203,7 @@ if has('nvim')
     \| Plug 'nvim-neotest/nvim-nio'
     \| Plug 'nvim-lua/plenary.nvim'
     \| Plug 'antoinemadec/FixCursorHold.nvim'
-    \| Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
   Plug 'haydenmeade/neotest-jest'
   Plug 'abecodes/tabout.nvim'
   Plug 'CRAG666/code_runner.nvim'
@@ -411,7 +410,7 @@ set foldlevelstart=999
 set foldlevel=999
 if has('nvim')
   set foldmethod=expr
-  set foldexpr=nvim_treesitter#foldexpr()
+  set foldexpr=v:lua.vim.treesitter.foldexpr()
 else
   set foldmethod=manual
 endif
