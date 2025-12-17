@@ -47,8 +47,8 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool NO
 sudo systemsetup -setrestartfreeze on
 
 # Disable smart quotes as they're annoying when typing code.
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool NO
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled  -bool NO
+defaults write nsglobaldomain nsautomaticquotesubstitutionenabled -bool no
+defaults write nsglobaldomain nsautomaticdashsubstitutionenabled  -bool no
 
 # Disable automatic period substitution as it's annoying when typing code.
 defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool NO
@@ -502,6 +502,9 @@ defaults write com.apple.TextEdit RichText -int 0
 # Open and save files as UTF-8 in TextEdit.
 defaults write com.apple.TextEdit PlainTextEncoding         -int 4
 defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4
+
+# @todo Needed if disabled globally?
+# defaults write com.apple.TextEdit CorrectSpellingAutomatically -bool false
 
 
 ###############################################################################
