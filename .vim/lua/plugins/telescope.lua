@@ -30,11 +30,19 @@ telescope.setup({
       i = {
         ['<Esc>'] = actions.close,
         ['<C-j>'] = actions.move_selection_next,
-        ['<C-gg>'] = actions.move_to_top,
-        ['<C-G>'] = actions.move_to_bottom,
-        ['<Tab>'] = actions.move_selection_next,
         ['<C-k>'] = actions.move_selection_previous,
+        ['<Tab>'] = actions.move_selection_next,
         ['<S-Tab>'] = actions.move_selection_previous,
+        ['<C-d>'] = function(prompt_bufnr)
+          for _ = 1, 10 do
+            actions.move_selection_next(prompt_bufnr)
+          end
+        end,
+        ['<C-u>'] = function(prompt_bufnr)
+          for _ = 1, 10 do
+            actions.move_selection_previous(prompt_bufnr)
+          end
+        end,
       },
     },
     layout_config = {
