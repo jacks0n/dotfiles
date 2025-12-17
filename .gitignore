@@ -25,3 +25,5 @@ ISSUES.md
 build.txt
 junit.xml
 junit-*.xml
+
+.playwright-mcp/
