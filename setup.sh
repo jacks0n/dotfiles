@@ -102,6 +102,7 @@ done
 
 config_dirs=(
   delta
+  ghostty
   helix
   litellm
   mise
