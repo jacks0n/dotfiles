@@ -115,6 +115,12 @@ reload() {
   fi
 }
 
+# Clear scrollback buffer - works in plain terminal and zellij.
+clear-scrollback() {
+  [[ -n "$ZELLIJ" ]] && zellij action clear-screen
+  printf '\033[2J\033[3J\033[H'
+}
+
 # Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard.
 pubkey() {
   if [ -f "$HOME/.ssh/id_rsa.pub" ]; then
@@ -221,7 +227,7 @@ update-user() {
   # Update Vim plugins + COC.
   if command_exists vim; then
     echo '=> Vim Plug install, update, upgrade, clean.'
-    vim +PlugInstall +PlugUpdate +PlugUpgrade +qall
+    vim +'PlugInstall --sync' +'PlugUpdate --sync' +PlugUpgrade +qall
 
     echo "\n\n=> Vim COC update."
     vim -c 'CocUpdateSync|q'
@@ -230,13 +236,13 @@ update-user() {
   # Update NeoVim plugins + Mason + Treesitter.
   if command_exists nvim; then
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
-    nvim --headless +PlugInstall +PlugUpdate +PlugUpgrade +UpdateRemotePlugins +quitall
+    nvim --headless +'PlugInstall --sync' +'PlugUpdate --sync' +PlugUpgrade +UpdateRemotePlugins +quitall
 
     echo "\n\n=> NVim Treesitter update."
-    nvim --headless +'TSInstallAll --force' +quitall
+    nvim --headless -c 'lua require("nvim-treesitter.install").update():wait()' -c qall
 
     echo "\n\n=> NVim Mason update (LSP servers + tools)."
-    nvim --headless -c 'MasonUpdateAll'
+    nvim --headless -c 'lua require("plugins.mason")' -c MasonUpdateAll
   fi
 
   # Update zinit and packages.
@@ -259,6 +265,24 @@ update-user() {
   if command_exists go; then
     echo "\n\n=> Updating Go packages."
     go get -u all
+  fi
+
+  # Update uv global tools.
+  if command_exists uv; then
+    echo "\n\n=> Updating uv global tools."
+    uv tool upgrade --all
+  fi
+
+  # Update Rust toolchain and Cargo packages.
+  if command_exists rustup; then
+    echo "\n\n=> Updating Rust toolchain."
+    rustup update
+  fi
+  if command_exists cargo; then
+    echo "\n\n=> Updating Cargo packages."
+    # Ensure cargo-update is installed, then update all packages.
+    cargo install cargo-update 2>/dev/null
+    cargo install-update -a
   fi
 
   # Update `~/bin` repositories.
@@ -323,7 +347,9 @@ update-global() {
     echo "\n\n=> Updating npm and npm packages."
     npm install --global npm@latest
     npm update --global
-    ncu --global --upgrade
+    for pkg in $(npm outdated -g --parseable --depth=0 | cut -d: -f2); do
+      npm install -g "$pkg"
+    done
   fi
 
   echo "\n\n=> Done!"
@@ -703,6 +729,11 @@ claude-code-mcp-setup() {
     --user-data-dir '<path>'
   # Requires admin approval
   claude mcp add ms-365 -- npx -y @softeria/ms-365-mcp-server --org-mode
+  claude mcp add coderift -- uv run --directory /Users/jackson/Code/coderift coderift-mcp
+  claude mcp add ha-mcp \
+      -e HOMEASSISTANT_URL="$HOME_ASSISTANT_URL" \
+      -e HOMEASSISTANT_TOKEN="$HOME_ASSISTANT_API_TOKEN" \
+      -- uvx ha-mcp
 }
 
 claude-copy-settings() {
@@ -730,6 +761,11 @@ claude-copy-settings-all() {
 
   cd "$ORIG_DIR"
   echo "Done! Copied Claude settings to all directories in ~/Code"
+}
+
+# Start Claude Code with zellij pane tracking for auto-focus (via claude-focus plugin)
+ccd() {
+  claude --dangerously-skip-permissions "$@"
 }
 
 alias cwc='claude-whitelist-cmd'

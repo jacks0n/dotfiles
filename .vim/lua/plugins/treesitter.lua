@@ -1,39 +1,57 @@
 local ts = require('nvim-treesitter')
-local ts_textobjects = require('nvim-treesitter-textobjects')
 
 local config = {
   ignore_install = { 'rnoweb' },
   indent_disabled = { python = true, yaml = true },
 }
 
--- Setup nvim-treesitter (optional, defaults are fine)
-ts.setup({})
+local function is_headless()
+  return #vim.api.nvim_list_uis() == 0
+end
 
--- Setup textobjects
-ts_textobjects.setup({
-  select = {
-    lookahead = true,
-  },
-  move = {
-    set_jumps = true,
-  },
-})
+local function get_installable_parsers()
+  local installed = ts.get_installed()
+  local available = ts.get_available()
+  local to_install = {}
+
+  for _, parser in ipairs(available) do
+    if not vim.tbl_contains(config.ignore_install, parser) and not vim.tbl_contains(installed, parser) then
+      table.insert(to_install, parser)
+    end
+  end
+  return to_install
+end
 
 -- Install all parsers (run manually via :TSInstallAll [--force])
 local function install_all(opts)
   local force = opts.bang or vim.tbl_contains(opts.fargs, '--force')
-  local installed = ts.get_installed()
-  local available = ts.get_available()
-  local to_install = {}
-  for _, parser in ipairs(available) do
-    if vim.tbl_contains(config.ignore_install, parser) then
-      -- Skip ignored parsers
-    elseif force or not vim.tbl_contains(installed, parser) then
-      table.insert(to_install, parser)
-    end
+  local headless = is_headless()
+
+  local to_install
+  if force then
+    to_install = vim.tbl_filter(function(p)
+      return not vim.tbl_contains(config.ignore_install, p)
+    end, ts.get_available())
+  else
+    to_install = get_installable_parsers()
   end
-  if #to_install > 0 then
-    ts.install(to_install)
+
+  if #to_install == 0 then
+    vim.notify('Treesitter: all parsers already installed', vim.log.levels.INFO)
+    if headless then
+      vim.cmd('qa!')
+    end
+    return
+  end
+
+  vim.notify('Treesitter: installing ' .. #to_install .. ' parsers...', vim.log.levels.INFO)
+
+  local task = ts.install(to_install)
+
+  if headless then
+    task:wait()
+    vim.notify('Treesitter: completed installing parsers', vim.log.levels.INFO)
+    vim.cmd('qa!')
   end
 end
 
