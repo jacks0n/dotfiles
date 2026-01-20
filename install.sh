@@ -26,7 +26,7 @@ brew install betterzip
 brew install bfg
 brew install brew-cask-completion
 brew install bun
-brew install chafa # Convert image to ASCII for ranger
+brew install chafa # Convert image to ASCII for ranger/yazi
 brew install charmbracelet/tap/crush
 brew install claude
 brew install colordiff
@@ -42,7 +42,7 @@ brew install docker
 brew install docker-compose
 brew install editorconfig
 brew install exiftool # Extract file information for ranger
-brew install eza      # Pretty `ls` alternative (exa fork)
+brew install eza      # pretty `ls` alternative (exa fork)
 brew install fd
 brew install findutils
 brew install fx
