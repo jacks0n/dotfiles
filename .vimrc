@@ -86,7 +86,7 @@ if (has('nvim') && exists('g:use_coc') && g:use_coc) || !has('nvim')
 elseif has('nvim')
   Plug 'aznhe21/actions-preview.nvim'
   Plug 'OXY2DEV/markview.nvim' " Must be loaded before treesitter.
-  Plug 'glepnir/lspsaga.nvim'
+  Plug 'nvimdev/lspsaga.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
     \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main' }
   Plug 'SmiteshP/nvim-navbuddy'
@@ -542,6 +542,11 @@ nmap <Leader>fl7 :setlocal foldlevel=7<CR>
 nmap <Leader>fl8 :setlocal foldlevel=8<CR>
 nmap <Leader>fl9 :setlocal foldlevel=9<CR>
 
+" Collapse with preview
+nnoremap mp zMzv
+nnoremap mD DzMzv
+nnoremap mU uzMzv
+
 " Conceal lavel.
 nmap <Leader>cl0 :setlocal conceallevel=0<CR>
 nmap <Leader>cl1 :setlocal conceallevel=1<CR>
@@ -816,6 +821,7 @@ if has('nvim')
   lua require('core.keymaps').setup()
   lua require('core.autocmds').setup()
   lua require('core.commands')
+  lua require('core.perf-debug')
 
   if !exists('g:use_coc') || !g:use_coc
     lua require('core.diagnostic')
@@ -851,7 +857,8 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.todo-comments')
     autocmd VimEnter * ++once lua require('plugins.bufferline')
     autocmd VimEnter * ++once lua require('plugins.lualine')
-    autocmd VimEnter * ++once lua require('plugins.treesitter')
+    " Load treesitter immediately - its FileType autocmd must exist before any file is opened
+    lua require('plugins.treesitter')
     autocmd VimEnter * ++once lua require('plugins.telescope')
     autocmd VimEnter * ++once lua require('plugins.telescope-file-browser')
     autocmd VimEnter * ++once lua require('plugins.leap')
