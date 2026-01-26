@@ -147,15 +147,19 @@ vim.keymap.set('n', '<Leader>p', function()
     search_dirs = dirs,
     prompt_title = 'Switch Project',
     layout_strategy = 'vertical',
-    find_command = { 'fd', '--type', 'd', '--max-depth', '1' },
+    find_command = { 'fd', '--type', 'd', '--max-depth', '1', '--absolute-path' },
+    path_display = function(_, path)
+      return path:gsub('^' .. os.getenv('HOME'), '~')
+    end,
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = require('telescope.actions.state').get_selected_entry()
         if selection then
-          telescope_builtin.find_files({
+          telescope_builtin.git_files({
             cwd = selection.value,
             layout_strategy = 'vertical',
+            show_untracked = true,
           })
         end
       end)
