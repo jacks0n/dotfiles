@@ -5,6 +5,12 @@ local M = {
 
 function M.project_dir()
   local path = vim.fn.expand('%:p')
+
+  -- If current buffer has no path, start from cwd
+  if path == '' then
+    path = vim.fn.getcwd()
+  end
+
   local found = vim.fs.find('.git', {
     path = path,
     upward = true,
@@ -14,7 +20,9 @@ function M.project_dir()
   if found then
     return vim.fs.dirname(found)
   end
-  return nil
+
+  -- Fallback to cwd if no git root found
+  return vim.fn.getcwd()
 end
 
 function M.is_executable(name)

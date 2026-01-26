@@ -69,12 +69,13 @@ local M = {}
 
 M.git_files_all = function()
   local git_opts = {
+    cwd = utils.project_dir(),
     git_command = { 'git', 'ls-files', '--modified', '--cached', '--others', '--deduplicate' },
     layout_strategy = 'vertical',
   }
   local ok = pcall(require('telescope.builtin').git_files, git_opts)
   if not ok then
-    require('telescope.builtin').find_files({ layout_strategy = 'vertical' })
+    require('telescope.builtin').find_files({ cwd = utils.project_dir(), layout_strategy = 'vertical' })
   end
 end
 
@@ -83,15 +84,11 @@ M.grep_project = function()
 end
 
 M.git_files_source = function()
-  local git_opts = {
-    git_command = { 'fd', '--type', 'f', '--hidden', '--exclude', '.git' },
-    -- git_command = { 'git', 'ls-files', '--modified', '--cached', '--deduplicate', '--others', '--exclude-standard' },
+  telescope_builtin.find_files({
+    cwd = utils.project_dir(),
+    find_command = { 'fd', '--type', 'f', '--hidden', '--exclude', '.git' },
     layout_strategy = 'vertical',
-  }
-  local ok = pcall(telescope_builtin.git_files, git_opts)
-  if not ok then
-    telescope_builtin.find_files({ layout_strategy = 'vertical' })
-  end
+  })
 end
 
 vim.keymap.set('n', 'gs', function()

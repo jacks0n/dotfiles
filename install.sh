@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# vim: filetype=sh
 
 # Install Command Line Tools.
 sudo xcode-select --install
@@ -81,6 +82,7 @@ brew install ranger
 brew install resvg # SVG preview for cli file managers
 brew install ripgrep
 brew install rsync
+brew install rustup
 brew install saulpw/vd/visidata
 brew install shellcheck
 brew install shfmt
@@ -127,6 +129,9 @@ done
 # Setup Java.
 sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
+# Setup Rust.
+rustup default stable
+
 # Install Brew cask packages - core
 brew install --cask alfred
 brew install --cask alt-tab
@@ -139,6 +144,7 @@ brew install --cask google-chrome
 brew install --cask insomnia
 brew install --cask istat-menus
 brew install --cask iterm2
+brew install --cask libreoffice # Yazi preview
 brew install --cask macdown # Markdown with Mermaid support
 brew install --cask mark-text
 brew install --cask marta
@@ -290,10 +296,11 @@ npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
 uv pip install --system mcp-server-fetch
 uv pip install --system mcp-server-git
 uv tool install 'cased-kit[all]'
+uv tool install mcp-proxy
 uv tool install codetoprompt
 uv tool install leann-core
 
 nvim --cmd 'let g:use_coc = 1' +'CocUpdateSync' +qall
 
-nvim --headless +TSInstallAll +qall
+nvim --headless -c 'lua require("plugins.treesitter")' -c 'TSInstallAll' -c 'qall'
 nvim +'Copilot setup'
