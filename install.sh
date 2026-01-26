@@ -27,7 +27,6 @@ brew install brew-cask-completion
 brew install bun
 brew install chafa # Convert image to ASCII for ranger/yazi
 brew install charmbracelet/tap/crush
-brew install claude
 brew install colordiff
 brew install composer
 brew install coreutils
@@ -131,6 +130,7 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/Java
 # Install Brew cask packages - core
 brew install --cask alfred
 brew install --cask alt-tab
+brew install --cask claude-code
 brew install --cask dash
 brew install --cask dropbox
 brew install --cask firefox
@@ -271,7 +271,6 @@ npm install --global lehre # Required to generate JS docblocks in Vim (LJSDoc).
 
 # Install LLM cli tools
 bunx ccusage
-npm install --global @anthropic-ai/claude-code
 npm install --global @github/copilot
 npm install --global @google/gemini-cli
 npm install --global @openai/codex
