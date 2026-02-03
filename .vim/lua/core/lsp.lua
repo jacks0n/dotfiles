@@ -310,7 +310,6 @@ local lsp_server_configs = {
         useLibraryCodeForTypes = true,
         diagnosticMode = 'workspace',
         indexing = true,
-        typeCheckingMode = 'strict',
         completeFunctionParens = true,
         autoImportCompletions = true,
       })
@@ -335,7 +334,6 @@ local lsp_server_configs = {
           useLibraryCodeForTypes = true,
           diagnosticMode = 'workspace',
           indexing = true,
-          typeCheckingMode = 'strict',
           completeFunctionParens = true,
           autoImportCompletions = true,
         },

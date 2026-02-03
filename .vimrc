@@ -821,7 +821,6 @@ if has('nvim')
   lua require('core.keymaps').setup()
   lua require('core.autocmds').setup()
   lua require('core.commands')
-  lua require('core.perf-debug')
 
   if !exists('g:use_coc') || !g:use_coc
     lua require('core.diagnostic')
