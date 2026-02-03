@@ -1,45 +1,43 @@
 model_list:
-  # Claude Models (Anthropic)
+  # Claude Models (Anthropic) - thinking support via model capabilities, not params
   - model_name: github_copilot/claude-opus-4.5
     litellm_params:
       model: github_copilot/claude-opus-4.5
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
     model_info:
       supports_reasoning: true
+      supports_extended_thinking: true
   - model_name: github_copilot/claude-sonnet-4.5
     litellm_params:
       model: github_copilot/claude-sonnet-4.5
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
     model_info:
       supports_reasoning: true
+      supports_extended_thinking: true
   - model_name: github_copilot/claude-haiku-4.5
     litellm_params:
       model: github_copilot/claude-haiku-4.5
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
     model_info:
       supports_reasoning: true
+      supports_extended_thinking: true
 
   # OpenAI Models
   - model_name: github_copilot/gpt-5.1-codex
     litellm_params:
       model: github_copilot/gpt-5.1-codex
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
   - model_name: github_copilot/gpt-5.1-codex-mini
     litellm_params:
       model: github_copilot/gpt-5.1-codex-mini
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
@@ -48,7 +46,6 @@ model_list:
   - model_name: github_copilot/gemini-3-pro
     litellm_params:
       model: github_copilot/gemini-3-pro
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
@@ -57,7 +54,6 @@ model_list:
   - model_name: github_copilot/grok-code-fast-1
     litellm_params:
       model: github_copilot/grok-code-fast-1
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
@@ -66,9 +62,9 @@ model_list:
   - model_name: anthropic/*
     litellm_params:
       model: github_copilot/claude-opus-4.5
-      thinking: {"type": "enabled", "budget_tokens": 1024}
       extra_headers:
         editor-version: "vscode/1.85.1"
         Copilot-Integration-Id: "vscode-chat"
     model_info:
       supports_reasoning: true
+      supports_extended_thinking: true
