@@ -273,6 +273,12 @@ update-user() {
     uv tool upgrade --all
   fi
 
+  # Update yazi packages.
+  if command_exists ya; then
+    echo "\n\n=> Updating yazi packages."
+    ya pkg upgrade
+  fi
+
   # Update Rust toolchain and Cargo packages.
   if command_exists rustup; then
     echo "\n\n=> Updating Rust toolchain."
@@ -453,28 +459,76 @@ find-largest-files() {
 }
 
 ##
-# Remove old Docker images, containers, networks, and volumes.
+# Remove old Docker images, containers, networks, volumes, and build cache.
 ##
 docker-cleanup() {
-  # Remove stopped containers.
-  docker ps --quiet --all --no-trunc --filter 'status=exited' | xargs --no-run-if-empty docker rm --volumes --force
+  if ! docker info &>/dev/null; then
+    echo "Error: Docker daemon is not running" >&2
+    return 1
+  fi
 
-  # Delete all tagged images more than a month old
-  # (will fail to remove images still used).
-  docker images --all | grep ' months' | awk '{ print $3 }' | xargs --no-run-if-empty docker rmi --force
+  local running_containers
+  running_containers=$(docker ps -q)
 
-  # Delete all 'untagged/dangling' (<none>) images
-  # Those are used for Docker caching mechanism.
-  docker images --quiet --all --no-trunc --filter 'dangling=true' | xargs --no-run-if-empty docker rmi --force
+  if [[ -n "$running_containers" ]]; then
+    local count
+    count=$(echo "$running_containers" | wc -l | tr -d ' ')
+    echo "This will stop $count running container(s) and perform a full cleanup."
+    echo -n "Continue? [y/N] "
+    read -r response
+    [[ ! "$response" =~ ^[Yy]$ ]] && { echo "Aborted."; return 0; }
+  fi
 
-  # Remove old volumes.
-  docker volume ls --quiet --filter 'dangling=true' | xargs --no-run-if-empty docker volume rm --force
+  local before_size
+  before_size=$(docker system df --format '{{.Size}}' | head -1)
+  echo "=> Docker cleanup starting (before: $before_size used)"
 
-  # Remove unused networks (prune safely skips pre-defined and active networks).
-  docker network prune --force
+  if [[ -n "$running_containers" ]]; then
+    echo "=> Stopping running containers..."
+    echo "$running_containers" | xargs --no-run-if-empty docker stop
+  fi
 
-  # Remove unused images (not just dangling).
-  docker image prune --all --force
+  local stopped_containers
+  stopped_containers=$(docker ps -aq --filter 'status=exited' --filter 'status=dead' --filter 'status=created')
+  if [[ -n "$stopped_containers" ]]; then
+    echo "=> Removing stopped containers..."
+    echo "$stopped_containers" | xargs --no-run-if-empty docker rm -v -f
+  fi
+
+  local dangling_images
+  dangling_images=$(docker images -q --filter 'dangling=true')
+  if [[ -n "$dangling_images" ]]; then
+    echo "=> Removing dangling images..."
+    echo "$dangling_images" | xargs --no-run-if-empty docker rmi -f
+  fi
+
+  echo "=> Removing images older than 30 days..."
+  docker images --format '{{.ID}} {{.CreatedSince}}' | grep -E 'months|years' | awk '{print $1}' | xargs --no-run-if-empty docker rmi -f 2>/dev/null
+
+  local dangling_volumes
+  dangling_volumes=$(docker volume ls -q --filter 'dangling=true')
+  if [[ -n "$dangling_volumes" ]]; then
+    echo "=> Removing unused volumes..."
+    echo "$dangling_volumes" | xargs --no-run-if-empty docker volume rm -f
+  fi
+
+  echo "=> Removing unused networks..."
+  docker network prune -f >/dev/null
+
+  echo "=> Pruning build cache..."
+  docker builder prune --all --force >/dev/null 2>&1
+
+  echo "=> Running final system prune..."
+  docker system prune --all --volumes --force >/dev/null 2>&1
+
+  if [[ -n "$running_containers" ]]; then
+    echo "=> Restarting previously running containers..."
+    echo "$running_containers" | xargs --no-run-if-empty docker start
+  fi
+
+  local after_size
+  after_size=$(docker system df --format '{{.Size}}' | head -1)
+  echo "=> Cleanup complete (after: $after_size used)"
 }
 
 ##
@@ -761,11 +815,6 @@ claude-copy-settings-all() {
 
   cd "$ORIG_DIR"
   echo "Done! Copied Claude settings to all directories in ~/Code"
-}
-
-# Start Claude Code with zellij pane tracking for auto-focus (via claude-focus plugin)
-ccd() {
-  claude --dangerously-skip-permissions "$@"
 }
 
 alias cwc='claude-whitelist-cmd'

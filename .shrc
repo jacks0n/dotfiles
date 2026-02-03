@@ -28,13 +28,6 @@ done
 export GPG_TTY=$(tty)
 
 ##
-# 3rd Party.
-##
-
-# mise - polyglot version manager (node, python, etc.)
-eval "$(mise activate zsh)"
-
-##
 # Other.
 ##
 

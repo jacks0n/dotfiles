@@ -68,6 +68,14 @@ export KEYTIMEOUT=1
 # Use Emacs bindings.
 bindkey -e
 
+# Clear scrollback widget for CMD+k (iTerm sends ^K).
+clear-scrollback-widget() {
+  clear-scrollback
+  zle reset-prompt
+}
+zle -N clear-scrollback-widget
+bindkey '^K' clear-scrollback-widget
+
 ##
 # Package Settings.
 ##
@@ -138,6 +146,8 @@ zinit ice haspoetry id-as'poetry---zsh-completions' as'completion' \
 if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
   zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
 fi
+zinit snippet OMZ::lib/functions.zsh
+zinit snippet OMZ::lib/termsupport.zsh
 if hash saml2aws 2>/dev/null ; then
   eval "$(saml2aws --completion-script-zsh)"
 fi
@@ -175,6 +185,9 @@ source "$HOME/.shrc"
 # 3rd Party.
 ##
 
+# mise - polyglot version manager (node, python, etc.)
+eval "$(mise activate zsh)"
+
 # Ensure Python virtual environment always has PATH priority.
 if [[ -n "$VIRTUAL_ENV" ]]; then
   PATH="${PATH//$VIRTUAL_ENV\/bin:/}"
@@ -192,6 +205,11 @@ if [[ -s "$HOME/.bun/_bun" ]] ; then
 fi
 
 eval "$(zoxide init zsh)"
+
+# Zellij completion.
+if command -v zellij &> /dev/null; then
+  eval "$(zellij setup --generate-completion zsh | sed 's/^_zellij "\$@"$/compdef _zellij zellij/')"
+fi
 
 # Zellij auto-title: set tab/pane title to git repo name on directory change
 # if [[ -n "$ZELLIJ" ]]; then
