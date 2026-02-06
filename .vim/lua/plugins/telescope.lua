@@ -124,35 +124,31 @@ vim.keymap.set('n', '<Leader>b', M.call_telescope_vertical(telescope_builtin.buf
 -- Project switching with configurable workspaces
 vim.keymap.set('n', '<Leader>p', function()
   local workspaces = vim.g.telescope_project_workspaces
-  if not workspaces then
+  if type(workspaces) ~= 'table' then
     vim.notify('g:telescope_project_workspaces is not set', vim.log.levels.WARN)
     return
   end
 
-  local find_cmd = { 'fd', '.', '--type', 'd', '--max-depth', '1', '--absolute-path' }
-
-  -- Expand and add each workspace as a search path.
-  local has_valid = false
+  local dirs = {}
   for _, workspace in ipairs(workspaces) do
     local expanded = vim.fn.expand(workspace)
     if vim.fn.isdirectory(expanded) == 1 then
-      table.insert(find_cmd, expanded)
-      has_valid = true
+      table.insert(dirs, expanded)
     end
   end
 
-  if not has_valid then
+  if #dirs == 0 then
     vim.notify('No valid project workspaces found', vim.log.levels.WARN)
     return
   end
 
-  -- Use Telescope to find directories in workspaces.
   telescope_builtin.find_files({
+    search_dirs = dirs,
     prompt_title = 'Switch Project',
     layout_strategy = 'vertical',
-    find_command = find_cmd,
+    find_command = { 'fd', '--type', 'd', '--max-depth', '1', '--absolute-path' },
     path_display = function(_, path)
-      return path:gsub('^' .. os.getenv('HOME'), '~')
+      return (path:gsub('^' .. os.getenv('HOME'), '~'))
     end,
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()

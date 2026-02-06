@@ -189,7 +189,7 @@ if has('nvim')
   Plug 'rareitems/printer.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
     \| Plug 'nvim-telescope/telescope.nvim'
-  Plug 'ggandor/leap.nvim'
+  Plug 'https://codeberg.org/andyg/leap.nvim'
     \| Plug 'tpope/vim-repeat'
   Plug 'CKolkey/ts-node-action'
     \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main' }
