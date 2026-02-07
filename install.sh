@@ -108,7 +108,6 @@ brew install zoxide
 brew install zsh
 brew install zsh-autosuggestions
 brew link docker
-brew tap buo/cask-upgrade
 
 # Install Brew packages - optional
 brew_packages_optional=(

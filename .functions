@@ -236,13 +236,13 @@ update-user() {
   # Update NeoVim plugins + Mason + Treesitter.
   if command_exists nvim; then
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
-    nvim --headless +'PlugInstall --sync' +'PlugUpdate --sync' +PlugUpgrade +UpdateRemotePlugins +quitall
+    nvim --headless +'PlugInstall --sync' +'PlugUpdate --sync' +PlugUpgrade +UpdateRemotePlugins +quitall 2>&1
 
     echo "\n\n=> NVim Treesitter update."
-    nvim --headless -c 'lua require("nvim-treesitter.install").update():wait()' -c qall
+    nvim --headless -c 'lua require("nvim-treesitter.install").update():wait()' -c qall 2>&1
 
     echo "\n\n=> NVim Mason update (LSP servers + tools)."
-    nvim --headless -c 'lua require("plugins.mason")' -c MasonUpdateAll
+    nvim --headless -c 'lua require("plugins.mason")' -c 'autocmd User MasonUpdateAllComplete quitall' -c MasonUpdateAll 2>&1
   fi
 
   # Update zinit and packages.
@@ -326,8 +326,8 @@ update-global() {
     echo '=> Homebrew cleanup, update, repair and link fixes.'
     (
       brew update
-      brew cu --all --cleanup --yes
       brew upgrade
+      brew upgrade --cask --greedy
       brew autoremove
       brew cleanup -s --prune=all
       rm -rf "$(brew --cache)"
@@ -735,8 +735,8 @@ claude-code-mcp-setup() {
   claude mcp add leann-server -- leann_mcp
   lean build
   claude mcp add awslabs-aws-documentation-mcp-server \
-    -- env FASTMCP_LOG_LEVEL=ERROR \
-    -- env AWS_DOCUMENTATION_PARTITION=aws \
+    --env FASTMCP_LOG_LEVEL=ERROR \
+    --env AWS_DOCUMENTATION_PARTITION=aws \
     -- uvx awslabs.aws-documentation-mcp-server@latest
   claude mcp add awslabs-aws-api-mcp-server \
     -- uvx awslabs.aws-api-mcp-server@latest
