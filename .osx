@@ -556,3 +556,4 @@ CURRENT_SHELL=$(
 sudo dscl localhost change Local/Default/Users/$USER UserShell $CURRENT_SHELL "$(brew --prefix zsh)/bin/zsh"
 
 xcode-select --install
+softwareupdate --install-rosetta --agree-to-license
