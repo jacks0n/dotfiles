@@ -181,6 +181,7 @@ fi
 
 alias oc='opencode'
 alias y='yazi'
+alias ycd='yazicd'
 alias t='zellij'
 alias ccd='claude --dangerously-skip-permissions'
 alias lg='lazygit'
