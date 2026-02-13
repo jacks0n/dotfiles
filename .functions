@@ -216,6 +216,16 @@ rangercd() {
   rm -f -- "$TEMPFILE"
 }
 
+yazicd() {
+  local TEMPFILE="/tmp/yazi-$$-chosendir"
+  yazi --cwd-file="$TEMPFILE" "$@"
+  test -f "$TEMPFILE" &&
+    if [ "$(cat -- "$TEMPFILE")" != "$(echo -n "$(pwd)")" ]; then
+      cd -- "$(cat "$TEMPFILE")" || return 1
+    fi
+  rm -f -- "$TEMPFILE"
+}
+
 # Global and user updates.
 update() {
   update-global
