@@ -94,8 +94,15 @@ end
 vim.keymap.set('n', 'gs', function()
   telescope_builtin.lsp_workspace_symbols({
     query = '',
-    layout_strategy = 'vertical',
+    layout_strategy = 'horizontal',
+    layout_config = {
+      preview_width = 0.5,
+    },
     path_display = { 'smart' },
+    symbol_width = 40,
+    symbol_type_width = 12,
+    show_line = true,
+    sorter = require('telescope.sorters').get_fzy_sorter(),
   })
 end)
 
@@ -107,8 +114,15 @@ end
 
 M.find_symbol_project = function()
   telescope_builtin.lsp_dynamic_workspace_symbols({
-    layout_strategy = 'vertical',
+    layout_strategy = 'horizontal',
+    layout_config = {
+      preview_width = 0.5,
+    },
     path_display = { 'smart' },
+    symbol_width = 40,
+    symbol_type_width = 12,
+    show_line = true,
+    sorter = require('telescope.sorters').get_fzy_sorter(),
   })
 end
 
