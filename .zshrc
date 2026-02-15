@@ -68,13 +68,6 @@ export KEYTIMEOUT=1
 # Use Emacs bindings.
 bindkey -e
 
-# Clear scrollback widget for CMD+k (iTerm sends ^K).
-clear-scrollback-widget() {
-  clear-scrollback
-  zle reset-prompt
-}
-zle -N clear-scrollback-widget
-bindkey '^K' clear-scrollback-widget
 
 ##
 # Package Settings.
@@ -228,3 +221,12 @@ fi
 #   source "$HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh"
 #   source "$HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh"
 # fi
+
+# Clear scrollback widget for CMD+k (iTerm sends ^K).
+# Must be after all plugins to avoid keybinding being overridden.
+clear-scrollback-widget() {
+  clear-scrollback
+  zle reset-prompt
+}
+zle -N clear-scrollback-widget
+bindkey '^K' clear-scrollback-widget
