@@ -42,9 +42,9 @@ local lsp_servers = {
   'intelephense',
   -- 'omnisharp',
   -- Note: roslyn is configured below but not auto-installed via Mason
-  -- 'ty',
+  'ty',
   -- 'pyrefly',
-  'basedpyright',
+  -- 'basedpyright',
 }
 
 require('mason-lspconfig').setup({
@@ -190,10 +190,12 @@ local lsp_server_configs = {
     },
   },
 
-  -- Doesn't appear to support pythonPath or  extraPaths.
+  -- ty: Astral's fast Python type checker (Rust-based, incremental caching)
+  -- Supports: workspace diagnostics, find references, workspace symbols
+  -- Missing: call hierarchy (incoming/outgoing calls)
   -- ty = {
   --   filetypes = { 'python' },
-  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git' },
+  --   root_dir = lspconfig_util.root_pattern('pyproject.toml', 'ty.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git'),
   --   single_file_support = false,
   --   before_init = function(params, config)
   --     local root_uri = params.rootUri or params.rootPath
@@ -203,19 +205,21 @@ local lsp_server_configs = {
   --     end
   --
   --     local python_settings = utils.detect_python_settings(root_dir)
-  --     -- Project root + site-packages
   --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
   --
+  --     local ty_config = {
+  --       environment = {
+  --         python = python_settings.pythonPath,
+  --         ['extra-paths'] = extra_paths,
+  --       },
+  --     }
+  --
   --     config.settings = config.settings or {}
-  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
   --     config.settings.ty = config.settings.ty or {}
-  --     config.settings.ty.extraPaths = extra_paths
+  --     config.settings.ty.configuration = vim.tbl_deep_extend('force', config.settings.ty.configuration or {}, ty_config)
   --
   --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-  --       python = python_settings,
-  --       ty = {
-  --         extraPaths = extra_paths,
-  --       },
+  --       configuration = ty_config,
   --     })
   --   end,
   --   on_init = function(client, _initialize_result)
@@ -224,17 +228,17 @@ local lsp_server_configs = {
   --     end)
   --   end,
   --   settings = {
-  --     python = {},
   --     ty = {
-  --       extraPaths = {},
+  --       configuration = {},
   --     },
   --   },
   -- },
 
-  -- Doesn't support incoming / outgoing calls.
+  -- pyrefly: Meta's fast Python type checker (Rust-based)
+  -- Supports: workspace diagnostics, find references, workspace symbols, call hierarchy (incoming/outgoing)
   -- pyrefly = {
   --   filetypes = { 'python' },
-  --   root_markers = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py' },
+  --   root_dir = lspconfig_util.root_pattern('pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git'),
   --   single_file_support = false,
   --   before_init = function(params, config)
   --     local root_uri = params.rootUri or params.rootPath
@@ -244,8 +248,6 @@ local lsp_server_configs = {
   --     end
   --
   --     local python_settings = utils.detect_python_settings(root_dir)
-  --
-  --     -- Discover extraPaths (project root + site-packages)
   --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
   --
   --     config.settings = config.settings or {}
@@ -254,7 +256,7 @@ local lsp_server_configs = {
   --     config.settings.pyrefly.extraPaths = extra_paths
   --
   --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-  --       python = python_settings,
+  --       pythonPath = python_settings.pythonPath,
   --       pyrefly = {
   --         extraPaths = extra_paths,
   --       },
@@ -285,6 +287,8 @@ local lsp_server_configs = {
     },
   },
 
+  -- basedpyright: Pyright fork with additional features (slow, no persistent index cache)
+  -- Supports: all features including call hierarchy
   basedpyright = {
     single_file_support = false,
     filetypes = { 'python' },
@@ -310,6 +314,7 @@ local lsp_server_configs = {
         useLibraryCodeForTypes = true,
         diagnosticMode = 'workspace',
         indexing = true,
+        typeCheckingMode = 'strict',
         completeFunctionParens = true,
         autoImportCompletions = true,
       })
@@ -334,6 +339,7 @@ local lsp_server_configs = {
           useLibraryCodeForTypes = true,
           diagnosticMode = 'workspace',
           indexing = true,
+          typeCheckingMode = 'strict',
           completeFunctionParens = true,
           autoImportCompletions = true,
         },
@@ -616,7 +622,7 @@ if vim.g.use_bun and vim.fn.executable('bun') == 1 then
     for server_name, _config in pairs(lsp_server_configs) do
       if vim.lsp.config[server_name] and vim.lsp.config[server_name].cmd then
         local cmd = vim.lsp.config[server_name].cmd
-        if cmd and cmd[1] and string.match(cmd[1], 'node') then
+        if type(cmd) == 'table' and cmd[1] and string.match(cmd[1], 'node') then
           vim.lsp.config[server_name].cmd = vim.list_extend({ 'bun', 'run', '--bun' }, cmd)
         end
       end
