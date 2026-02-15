@@ -217,13 +217,15 @@ rangercd() {
 }
 
 yazicd() {
-  local TEMPFILE="/tmp/yazi-$$-chosendir"
+  local TEMPFILE="/tmp/yazi-$$-cwd"
   yazi --cwd-file="$TEMPFILE" "$@"
-  test -f "$TEMPFILE" &&
-    if [ "$(cat -- "$TEMPFILE")" != "$(echo -n "$(pwd)")" ]; then
-      cd -- "$(cat "$TEMPFILE")" || return 1
+  if [ -f "$TEMPFILE" ]; then
+    local TARGET="$(cat -- "$TEMPFILE")"
+    if [ "$TARGET" != "$(pwd)" ]; then
+      cd -- "$TARGET" || return 1
     fi
-  rm -f -- "$TEMPFILE"
+    rm -f -- "$TEMPFILE"
+  fi
 }
 
 # Global and user updates.
@@ -365,6 +367,15 @@ update-global() {
     npm update --global
     for pkg in $(npm outdated -g --parseable --depth=0 | cut -d: -f2); do
       npm install -g "$pkg"
+    done
+  fi
+
+  # Update bun and bun packages.
+  if command_exists bun; then
+    echo "\n\n=> Updating bun and bun packages."
+    bun upgrade
+    for pkg in $(bun pm ls -g 2>/dev/null | awk 'NR>1 && /^[├└]/ {print $2}' | sed 's/@[^@]*$//'); do
+      bun install -g "$pkg@latest"
     done
   fi
 

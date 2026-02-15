@@ -131,6 +131,7 @@ alias ag='ag --hidden'
 
 # Run ranger, `cd` into last working directory after exiting.
 alias rcd='rangercd'
+alias ycd='yazicd'
 
 # Flush Directory Service cache.
 alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder'
@@ -184,4 +185,5 @@ alias y='yazi'
 alias ycd='yazicd'
 alias t='zellij'
 alias ccd='claude --dangerously-skip-permissions'
+alias cf='beckon'
 alias lg='lazygit'
