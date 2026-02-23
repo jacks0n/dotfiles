@@ -29,6 +29,7 @@ brew install bun
 brew install chafa # Convert image to ASCII for ranger/yazi
 brew install charmbracelet/tap/crush
 brew install colordiff
+brew install comby
 brew install composer
 brew install coreutils
 brew install cowsay
@@ -84,6 +85,7 @@ brew install ripgrep
 brew install rsync
 brew install rustup
 brew install saulpw/vd/visidata
+brew install semgrep
 brew install shellcheck
 brew install shfmt
 brew install sqlite
@@ -108,6 +110,7 @@ brew install zoxide
 brew install zsh
 brew install zsh-autosuggestions
 brew link docker
+brew install tree-sitter-cli
 
 # Install Brew packages - optional
 brew_packages_optional=(

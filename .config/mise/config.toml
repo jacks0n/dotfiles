@@ -7,4 +7,4 @@ not_found_auto_install = true
 
 [tools]
 node = "22"
-python = "3.12.12"
+python = "3.9"
