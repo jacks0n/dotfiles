@@ -156,11 +156,11 @@ vim.keymap.set('n', '<Leader>p', function()
     return
   end
 
+  local find_cmd = { 'fd', '--type', 'd', '--max-depth', '1', '--absolute-path', '.', unpack(dirs) }
   telescope_builtin.find_files({
-    search_dirs = dirs,
     prompt_title = 'Switch Project',
     layout_strategy = 'vertical',
-    find_command = { 'fd', '--type', 'd', '--max-depth', '1', '--absolute-path' },
+    find_command = find_cmd,
     path_display = function(_, path)
       return (path:gsub('^' .. os.getenv('HOME'), '~'))
     end,
