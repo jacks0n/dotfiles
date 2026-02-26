@@ -1,8 +1,19 @@
 local lazydev = require('lazydev')
-local lspconfig_util = require('lspconfig.util')
 local navbuddy = require('nvim-navbuddy')
 local schemastore = require('schemastore')
 local utils = require('core.utils')
+
+-- Helper to create root_dir functions using the new API signature (bufnr, on_dir)
+-- Searches upward from the buffer's file for the first matching marker
+local function root_pattern(...)
+  local patterns = { ... }
+  return function(bufnr, on_dir)
+    local filename = vim.api.nvim_buf_get_name(bufnr)
+    local dir = vim.fs.dirname(filename)
+    local match = vim.fs.find(patterns, { upward = true, path = dir })[1]
+    on_dir(match and vim.fs.dirname(match) or nil)
+  end
+end
 
 lazydev.setup({
   library = {
@@ -24,27 +35,27 @@ vim.lsp.config('*', {
 })
 
 local lsp_servers = {
-  'vtsls',
-  'eslint',
-  'ruff',
-  'lua_ls',
-  'jsonls',
-  'yamlls',
-  'jdtls',
-  'vimls',
-  'bashls',
-  'cssls',
-  'html',
-  'dockerls',
-  'terraformls',
-  'marksman',
-  'sqlls',
-  'intelephense',
-  -- 'omnisharp',
+  vtsls = true,
+  eslint = true,
+  ruff = true,
+  lua_ls = true,
+  jsonls = true,
+  yamlls = true,
+  jdtls = true,
+  vimls = true,
+  bashls = true,
+  cssls = true,
+  html = true,
+  dockerls = true,
+  terraformls = true,
+  marksman = true,
+  sqlls = true,
+  intelephense = true,
+  -- omnisharp = true,
   -- Note: roslyn is configured below but not auto-installed via Mason
-  'ty',
-  -- 'pyrefly',
-  -- 'basedpyright',
+  -- ty = true,
+  pyrefly = true,
+  -- basedpyright = true,
 }
 
 require('mason-lspconfig').setup({
@@ -58,9 +69,6 @@ capabilities = vim.tbl_deep_extend('force', capabilities, blink_capabilities)
 
 local telescope_builtin = require('telescope.builtin')
 local telescope_util = require('plugins.telescope')
--- @todo Use actions?
--- local telescope_actions = require('telescope.actions')
--- local telescope_actions_state = require('telescope.actions.state')
 
 -- Delete the defaults.
 vim.keymap.del('n', 'grt')
@@ -104,6 +112,13 @@ local function on_attach_default(client, buffer)
     telescope_util.call_telescope_vertical(telescope_builtin.lsp_implementations),
     { desc = 'LSP implementation(s)' }
   )
+end
+
+local python_root_patterns = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', 'setup.cfg', '.git' }
+
+local function get_root_dir_from_params(params)
+  local root_uri = params.rootUri or params.rootPath
+  return root_uri and vim.uri_to_fname(root_uri) or nil
 end
 
 -- TypeScript/JavaScript shared configuration
@@ -171,7 +186,7 @@ local lsp_server_configs = {
 
   eslint = {
     single_file_support = false,
-    root_dir = lspconfig_util.root_pattern(
+    root_dir = root_pattern(
       '.eslintrc',
       '.eslintrc.js',
       '.eslintrc.cjs',
@@ -193,92 +208,92 @@ local lsp_server_configs = {
   -- ty: Astral's fast Python type checker (Rust-based, incremental caching)
   -- Supports: workspace diagnostics, find references, workspace symbols
   -- Missing: call hierarchy (incoming/outgoing calls)
-  -- ty = {
-  --   filetypes = { 'python' },
-  --   root_dir = lspconfig_util.root_pattern('pyproject.toml', 'ty.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git'),
-  --   single_file_support = false,
-  --   before_init = function(params, config)
-  --     local root_uri = params.rootUri or params.rootPath
-  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
-  --     if not root_dir then
-  --       return
-  --     end
-  --
-  --     local python_settings = utils.detect_python_settings(root_dir)
-  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
-  --
-  --     local ty_config = {
-  --       environment = {
-  --         python = python_settings.pythonPath,
-  --         ['extra-paths'] = extra_paths,
-  --       },
-  --     }
-  --
-  --     config.settings = config.settings or {}
-  --     config.settings.ty = config.settings.ty or {}
-  --     config.settings.ty.configuration = vim.tbl_deep_extend('force', config.settings.ty.configuration or {}, ty_config)
-  --
-  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-  --       configuration = ty_config,
-  --     })
-  --   end,
-  --   on_init = function(client, _initialize_result)
-  --     vim.schedule(function()
-  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-  --     end)
-  --   end,
-  --   settings = {
-  --     ty = {
-  --       configuration = {},
-  --     },
-  --   },
-  -- },
+  ty = {
+    capabilities = capabilities,
+    filetypes = { 'python' },
+    root_dir = root_pattern('ty.toml', unpack(python_root_patterns)),
+    single_file_support = false,
+    before_init = function(params, config)
+      local root_dir = get_root_dir_from_params(params)
+      if not root_dir then
+        return
+      end
+
+      local python_settings = utils.detect_python_settings(root_dir)
+      local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+
+      local ty_config = {
+        environment = {
+          python = python_settings.pythonPath,
+          ['extra-paths'] = extra_paths,
+        },
+      }
+
+      config.settings = config.settings or {}
+      config.settings.ty = config.settings.ty or {}
+      config.settings.ty.configuration = vim.tbl_deep_extend('force', config.settings.ty.configuration or {}, ty_config)
+
+      params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+        configuration = ty_config,
+      })
+    end,
+    on_init = function(client, _initialize_result)
+      vim.schedule(function()
+        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+      end)
+    end,
+    settings = {
+      ty = {
+        configuration = {},
+      },
+    },
+  },
 
   -- pyrefly: Meta's fast Python type checker (Rust-based)
   -- Supports: workspace diagnostics, find references, workspace symbols, call hierarchy (incoming/outgoing)
-  -- pyrefly = {
-  --   filetypes = { 'python' },
-  --   root_dir = lspconfig_util.root_pattern('pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', '.git'),
-  --   single_file_support = false,
-  --   before_init = function(params, config)
-  --     local root_uri = params.rootUri or params.rootPath
-  --     local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
-  --     if not root_dir then
-  --       return
-  --     end
-  --
-  --     local python_settings = utils.detect_python_settings(root_dir)
-  --     local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
-  --
-  --     config.settings = config.settings or {}
-  --     config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
-  --     config.settings.pyrefly = config.settings.pyrefly or {}
-  --     config.settings.pyrefly.extraPaths = extra_paths
-  --
-  --     params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
-  --       pythonPath = python_settings.pythonPath,
-  --       pyrefly = {
-  --         extraPaths = extra_paths,
-  --       },
-  --     })
-  --   end,
-  --   on_init = function(client, _initialize_result)
-  --     vim.schedule(function()
-  --       client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
-  --     end)
-  --   end,
-  --   settings = {
-  --     python = {},
-  --     pyrefly = {
-  --       extraPaths = {},
-  --     },
-  --   },
-  -- },
+  pyrefly = {
+    capabilities = capabilities,
+    filetypes = { 'python' },
+    root_dir = root_pattern(unpack(python_root_patterns)),
+    single_file_support = false,
+    before_init = function(params, config)
+      local root_dir = get_root_dir_from_params(params)
+      if not root_dir then
+        return
+      end
+
+      local python_settings = utils.detect_python_settings(root_dir)
+      local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
+
+      config.settings = config.settings or {}
+      config.settings.python = vim.tbl_deep_extend('force', config.settings.python or {}, python_settings)
+      config.settings.pyrefly = config.settings.pyrefly or {}
+      config.settings.pyrefly.extraPaths = extra_paths
+
+      params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
+        pythonPath = python_settings.pythonPath,
+        pyrefly = {
+          extraPaths = extra_paths,
+        },
+      })
+    end,
+    on_init = function(client, _initialize_result)
+      vim.schedule(function()
+        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+      end)
+    end,
+    settings = {
+      python = {},
+      pyrefly = {
+        extraPaths = {},
+      },
+    },
+  },
 
   ruff = {
     single_file_support = false,
     filetypes = { 'python' },
-    root_dir = lspconfig_util.root_pattern('pyproject.toml', 'ruff.toml', '.ruff.toml', '.git'),
+    root_dir = root_pattern('pyproject.toml', 'ruff.toml', '.ruff.toml', '.git'),
     init_options = {
       settings = {
         organizeImports = true,
@@ -290,19 +305,17 @@ local lsp_server_configs = {
   -- basedpyright: Pyright fork with additional features (slow, no persistent index cache)
   -- Supports: all features including call hierarchy
   basedpyright = {
+    capabilities = capabilities,
     single_file_support = false,
     filetypes = { 'python' },
-    root_dir = lspconfig_util.root_pattern('pyproject.toml', 'uv.lock', 'poetry.lock', 'setup.py', 'setup.cfg', 'requirements.txt', '.git'),
+    root_dir = root_pattern(unpack(python_root_patterns)),
     before_init = function(params, config)
-      local root_uri = params.rootUri or params.rootPath
-      local root_dir = root_uri and vim.uri_to_fname(root_uri) or nil
+      local root_dir = get_root_dir_from_params(params)
       if not root_dir then
         return
       end
 
       local python_settings = utils.detect_python_settings(root_dir)
-
-      -- Discover extraPaths (project src + site-packages)
       local extra_paths = utils.discover_python_extra_paths(root_dir, python_settings.pythonPath)
 
       config.settings = config.settings or {}
@@ -319,7 +332,6 @@ local lsp_server_configs = {
         autoImportCompletions = true,
       })
 
-      -- Mirror into initializationOptions to avoid race during startup
       params.initializationOptions = vim.tbl_deep_extend('force', params.initializationOptions or {}, {
         python = python_settings,
         basedpyright = { analysis = { extraPaths = extra_paths } },
@@ -348,7 +360,7 @@ local lsp_server_configs = {
   },
 
   lua_ls = {
-    root_dir = lspconfig_util.root_pattern('.luarc.json', '.luarc.jsonc', '.git'),
+    root_dir = root_pattern('.luarc.json', '.luarc.jsonc', '.git'),
     single_file_support = true,
     settings = {
       Lua = {
@@ -470,7 +482,7 @@ local lsp_server_configs = {
 
   cfn_lsp_extra = {
     filetypes = { 'yaml.cloudformation', 'json.cloudformation' },
-    root_dir = lspconfig_util.root_pattern('.git'),
+    root_dir = root_pattern('.git'),
     settings = {
       documentFormatting = false,
     },
@@ -489,7 +501,7 @@ local lsp_server_configs = {
   },
 
   omnisharp = {
-    root_dir = lspconfig_util.root_pattern('*.csproj', '*.sln', 'omnisharp.json', 'postsharp.config', 'Web.config'),
+    root_dir = root_pattern('*.csproj', '*.sln', 'omnisharp.json', 'postsharp.config', 'Web.config'),
     handlers = (function()
       local omnisharp_extended = require('omnisharp_extended')
       return {
@@ -528,40 +540,40 @@ local lsp_server_configs = {
     end,
   },
 
-  -- Let rosyln.nvim handle this
-  -- roslyn = {
-  --   root_dir = lspconfig_util.root_pattern('*.sln', '*.csproj'),
-  --   filetypes = { 'cs', 'vb' },
-  --   settings = {
-  --     broad_search = true,
-  --     ['csharp|inlay_hints'] = {
-  --       csharp_enable_inlay_hints_for_implicit_object_creation = true,
-  --       csharp_enable_inlay_hints_for_implicit_variable_types = true,
-  --       csharp_enable_inlay_hints_for_lambda_parameter_types = true,
-  --       csharp_enable_inlay_hints_for_types = true,
-  --       dotnet_enable_inlay_hints_for_indexer_parameters = true,
-  --       dotnet_enable_inlay_hints_for_literal_parameters = true,
-  --       dotnet_enable_inlay_hints_for_object_creation_parameters = true,
-  --       dotnet_enable_inlay_hints_for_other_parameters = true,
-  --       dotnet_enable_inlay_hints_for_parameters = true,
-  --       dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
-  --       dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
-  --       dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
-  --     },
-  --     ['csharp|code_lens'] = {
-  --       dotnet_enable_references_code_lens = true,
-  --       dotnet_enable_tests_code_lens = true,
-  --     },
-  --     ['csharp|completion'] = {
-  --       dotnet_provide_regex_completions = true,
-  --       dotnet_show_completion_items_from_unimported_namespaces = true,
-  --       dotnet_show_name_completion_suggestions = true,
-  --     },
-  --     ['csharp|formatting'] = {
-  --       dotnet_organize_imports_on_format = true,
-  --     },
-  --   },
-  -- },
+  -- Let roslyn.nvim handle this
+  roslyn = {
+    root_dir = root_pattern('*.sln', '*.csproj'),
+    filetypes = { 'cs', 'vb' },
+    settings = {
+      broad_search = true,
+      ['csharp|inlay_hints'] = {
+        csharp_enable_inlay_hints_for_implicit_object_creation = true,
+        csharp_enable_inlay_hints_for_implicit_variable_types = true,
+        csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+        csharp_enable_inlay_hints_for_types = true,
+        dotnet_enable_inlay_hints_for_indexer_parameters = true,
+        dotnet_enable_inlay_hints_for_literal_parameters = true,
+        dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+        dotnet_enable_inlay_hints_for_other_parameters = true,
+        dotnet_enable_inlay_hints_for_parameters = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+        dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+      },
+      ['csharp|code_lens'] = {
+        dotnet_enable_references_code_lens = true,
+        dotnet_enable_tests_code_lens = true,
+      },
+      ['csharp|completion'] = {
+        dotnet_provide_regex_completions = true,
+        dotnet_show_completion_items_from_unimported_namespaces = true,
+        dotnet_show_name_completion_suggestions = true,
+      },
+      ['csharp|formatting'] = {
+        dotnet_organize_imports_on_format = true,
+      },
+    },
+  },
 
   bashls = {},
   cssls = {},
@@ -587,31 +599,30 @@ end
 -- New API (Neovim 0.11+)
 if vim.lsp.config then
   for server_name, config in pairs(lsp_server_configs) do
-    local new_config = vim.deepcopy(config)
-
-    -- Convert lspconfig.util root_dir functions to new API format
-    if type(new_config.root_dir) == 'function' then
-      local old_root_dir = new_config.root_dir
-      new_config.root_dir = function(bufnr, on_dir)
-        local filename = vim.api.nvim_buf_get_name(bufnr)
-        local root = old_root_dir(filename)
-        on_dir(root)
-      end
+    if lsp_servers[server_name] then
+      vim.lsp.config[server_name] = config
+      vim.lsp.enable(server_name)
     end
-
-    vim.lsp.config[server_name] = new_config
-    vim.lsp.enable(server_name)
   end
 -- Old API (Neovim 0.10 and below)
 else
   local lspconfig = require('lspconfig')
 
-  -- For root_dir functions that need lspconfig.util, we need to convert them
   for server_name, config in pairs(lsp_server_configs) do
-    -- @todo Remove?
-    -- local server_config = vim.deepcopy(config)
-    -- lspconfig[server_name].setup(server_config)
-    lspconfig[server_name].setup(config)
+    if lsp_servers[server_name] then
+      local lspconfig_config = vim.deepcopy(config)
+      if type(lspconfig_config.root_dir) == 'function' then
+        local new_root_dir = lspconfig_config.root_dir
+        lspconfig_config.root_dir = function(filename)
+          local result
+          new_root_dir(vim.fn.bufnr(filename), function(root)
+            result = root
+          end)
+          return result
+        end
+      end
+      lspconfig[server_name].setup(lspconfig_config)
+    end
   end
 end
 
@@ -643,5 +654,5 @@ end
 -- Export for use in plugin configs
 return {
   on_attach_default = on_attach_default,
-  lsp_servers = lsp_servers,
+  lsp_servers = vim.tbl_keys(lsp_servers),
 }
