@@ -504,16 +504,16 @@ docker-cleanup() {
   before_size=$(docker system df --format '{{.Size}}' | head -1)
   echo "=> Docker cleanup starting (before: $before_size used)"
 
-  if [[ -n "$running_containers" ]]; then
-    echo "=> Stopping running containers..."
-    echo "$running_containers" | xargs --no-run-if-empty docker stop
-  fi
-
   local stopped_containers
   stopped_containers=$(docker ps -aq --filter 'status=exited' --filter 'status=dead' --filter 'status=created')
   if [[ -n "$stopped_containers" ]]; then
     echo "=> Removing stopped containers..."
     echo "$stopped_containers" | xargs --no-run-if-empty docker rm -v -f
+  fi
+
+  if [[ -n "$running_containers" ]]; then
+    echo "=> Stopping running containers..."
+    echo "$running_containers" | xargs --no-run-if-empty docker stop
   fi
 
   local dangling_images
