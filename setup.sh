@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-export DOTFILES_PATH="$HOME/.dotfiles"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/dotfiles.conf"
 
 # =============================================================================
 # Helper Functions
@@ -55,31 +56,6 @@ handle_existing() {
 # Home Directory Dotfiles
 # =============================================================================
 
-home_dotfiles=(
-  .aliases
-  .bashrc
-  .ctags
-  .curlrc
-  .editorconfig
-  .exports
-  .functions
-  .gitconfig
-  .hushlogin
-  .inputrc
-  .npmrc
-  .osx
-  .shrc
-  .spacemacs
-  .sshrc
-  .tmux.conf
-  .vim
-  .vimrc
-  .wgetrc
-  .zprofile
-  .zshenv
-  .zshrc
-)
-
 echo "=== Home Directory Dotfiles ==="
 for dotfile in "${home_dotfiles[@]}"; do
   if is_correct_symlink "$HOME/$dotfile" "$DOTFILES_PATH/$dotfile"; then
@@ -99,20 +75,6 @@ done
 # =============================================================================
 # Config Directory Symlinks
 # =============================================================================
-
-config_dirs=(
-  delta
-  ghostty
-  helix
-  litellm
-  mise
-  neovide
-  ranger
-  yamllint
-  yazi
-  zed
-  zellij
-)
 
 echo ""
 echo "=== Config Directory Symlinks ==="
