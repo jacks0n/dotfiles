@@ -1,0 +1,8 @@
+" Settings that need to be set BEFORE plugins load.
+" Examples: plugin toggles, global variables that affect plugin initialization.
+
+" Uncomment to use COC.nvim instead of native LSP:
+" let g:use_coc = 1
+
+" Uncomment to use bun instead of npm for JS tooling:
+" let g:use_bun = 1

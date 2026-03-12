@@ -128,15 +128,19 @@ if prompt_yes "Setup personal git config (~/.gitconfig.local)?"; then
   fi
 fi
 
-# Vim local config
-if [[ ! -f "$HOME/.vimrc.local" ]]; then
-  if prompt_yes "Setup vim local config (~/.vimrc.local from example)?"; then
-    cp "$DOTFILES_PATH/.vimrc.local.example" "$HOME/.vimrc.local"
-    echo "  Copied: ~/.vimrc.local"
+# Vim local config (before/after)
+for suffix in before after; do
+  local_file="$HOME/.vimrc.$suffix.local"
+  example_file="$DOTFILES_PATH/.vimrc.$suffix.local.example"
+  if [[ ! -f "$local_file" ]]; then
+    if prompt_yes "Setup vim local config (~/.vimrc.$suffix.local from example)?"; then
+      cp "$example_file" "$local_file"
+      echo "  Copied: ~/.vimrc.$suffix.local"
+    fi
+  else
+    echo "Skipping ~/.vimrc.$suffix.local (already exists)"
   fi
-else
-  echo "Skipping ~/.vimrc.local (already exists)"
-fi
+done
 
 # Intelephense license (optional - for PHP development)
 if prompt_no "Setup Intelephense license (PHP LSP)?"; then

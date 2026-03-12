@@ -191,11 +191,11 @@ Key environment variables defined in `.exports`:
 
 ### COC vs Native LSP
 The configuration can switch between completion systems:
-- Set `let g:use_coc = 1` in `~/.vimrc.local` for COC.nvim
+- Set `let g:use_coc = 1` in `~/.vimrc.before.local` for COC.nvim
 - Default (unset) uses native LSP with Mason
 
 ### Private Configuration
-- `~/.vimrc.local` - Local vim overrides
+- `~/.vimrc.before.local` / `~/.vimrc.after.local` - Local vim overrides (before/after plugins load)
 - `private/` directory - Personal configurations not committed
 - `~/intelephense/license.txt` - Intelephense Pro license
 
