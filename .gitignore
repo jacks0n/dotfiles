@@ -5,7 +5,8 @@ Icon
 tags
 tags.temp
 tags.lock
-.vimrc.local
+.vimrc.before.local
+.vimrc.after.local
 .padawan/
 .phpcd/
 vendor/
