@@ -122,6 +122,9 @@ osascript << EOF
   end tell
 EOF
 
+defaults write com.apple.universalaccess reduceTransparency -bool true
+defaults write com.apple.universalaccess reduceMotion -bool true
+
 
 ###############################################################################
 # Permissions and Access                                                      #
@@ -548,12 +551,10 @@ defaults write com.microsoft.Powerpoint UseOnlineContent -integer 0
 
 # Make Zsh the default shell.
 ZSH_BIN_PATH="$(brew --prefix zsh)/bin/zsh"
-chsh -s "$ZSH_BIN_PATH"
-sudo sh -c "echo '$ZSH_BIN_PATH' >> /etc/shells"
-CURRENT_SHELL=$(
-  sudo dscl localhost read Local/Default/Users/$USER UserShell
-)
-sudo dscl localhost change Local/Default/Users/$USER UserShell $CURRENT_SHELL "$(brew --prefix zsh)/bin/zsh"
+if ! grep -qF "$ZSH_BIN_PATH" /etc/shells; then
+  sudo sh -c "echo '$ZSH_BIN_PATH' >> /etc/shells"
+fi
+sudo dscl . -change /Users/$USER UserShell "$(dscl . -read /Users/$USER UserShell | awk '{print $2}')" "$ZSH_BIN_PATH"
 
 xcode-select --install
 softwareupdate --install-rosetta --agree-to-license
