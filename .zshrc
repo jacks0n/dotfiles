@@ -135,6 +135,7 @@ zinit ice haspoetry id-as'poetry---zsh-completions' as'completion' \
   atpull'%atclone' run-atpull \
   atinit'zinit cdreplay -q' \
   pick'_poetry'
+zinit light zdharma-continuum/null
 
 if [[ $TERM_PROGRAM == 'iTerm.app' ]] ; then
   zinit snippet OMZ::plugins/iterm2/iterm2.plugin.zsh
