@@ -161,7 +161,8 @@ keybinds clear-defaults=true {
         bind "Alt t" { NewTab { cwd "current"; }; }
         bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Alt x" { CloseFocus; }
-        bind "Ctrl q" { Quit; }
+        bind "Ctrl q" { Detach; }
+        bind "Ctrl Shift q" { Quit; }
     }
     shared_except "locked" "move" {
         bind "Ctrl h" { SwitchToMode "move"; }
@@ -352,7 +353,7 @@ web_client {
 //   - detach (Default)
 //   - quit
 //
-// on_force_close "quit"
+on_force_close "detach"
 
 // Configure the scroll back buffer size
 // This is the number of lines zellij stores for each pane in the scroll back
