@@ -262,6 +262,7 @@ update-user() {
     echo "\n\n=> Updating zinit and packages."
     zinit self-update --no-pager
     zinit update --all --no-pager
+    zinit cclear --no-pager
     # Force complete rebuild of cache (equivalent to removing and rebuilding).
     autoload -Uz compinit
     compinit -i -C -d
@@ -726,9 +727,7 @@ git-refresh-branches() {
 claude-code-mcp-setup() {
   npx cclsp@latest setup
   claude mcp add todoist --env TODOIST_API_TOKEN="$TODOIST_API_TOKEN" -- npx -y @abhiz123/todoist-mcp-server
-  claude mcp add notion \
-    --env OPENAPI_MCP_HEADERS="{\"Authorization\": \"Bearer $NOTION_TOKEN\", \"Notion-Version\": \"2022-06-28\" }" \
-    -- npx -y @notionhq/notion-mcp-server
+  claude mcp add --transport http notion https://mcp.notion.com/mcp
   claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   claude mcp add Context7 -- npx -y @upstash/context7-mcp
   if [[ $(pwd) == $HOME ]]; then
@@ -806,9 +805,11 @@ claude-code-mcp-setup() {
   claude mcp add ms-365 -- npx -y @softeria/ms-365-mcp-server --org-mode
   claude mcp add coderift -- uv run --directory /Users/jackson/Code/coderift coderift-mcp
   claude mcp add ha-mcp \
-      -e HOMEASSISTANT_URL="$HOME_ASSISTANT_URL" \
-      -e HOMEASSISTANT_TOKEN="$HOME_ASSISTANT_API_TOKEN" \
-      -- uvx ha-mcp
+    -e HOMEASSISTANT_URL="$HOME_ASSISTANT_URL" \
+    -e HOMEASSISTANT_TOKEN="$HOME_ASSISTANT_API_TOKEN" \
+    -- uvx ha-mcp
+  claude mcp add figma \
+    -- npx -y figma-developer-mcp --figma-api-key="$FIGMA_API_TOKEN" --stdio
 }
 
 claude-copy-settings() {
