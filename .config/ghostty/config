@@ -1,8 +1,8 @@
-# Font (matching iTerm)
+# Font
 font-family = Monaco
 font-size = 12
 
-# Light theme colors (matching iTerm light mode)
+# Light theme colors
 background = #fafafa
 foreground = #101010
 
@@ -16,7 +16,7 @@ cursor-style-blink = false
 selection-background = #b3d7ff
 selection-foreground = #000000
 
-# ANSI Colors (matching iTerm)
+# ANSI Colors
 palette = 0=#14191e
 palette = 1=#b43c2a
 palette = 2=#00c200
@@ -36,9 +36,10 @@ palette = 15=#ffffff
 
 # Window
 window-decoration = true
-macos-titlebar-style = native
+# macos-titlebar-style = native
+macos-titlebar-style = tabs
 
-# Bell (visual bell like iTerm)
+# Bell (visual bell)
 visual-bell = true
 audible-bell = false
 
