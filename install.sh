@@ -90,6 +90,7 @@ brew install shellcheck
 brew install shfmt
 brew install sqlite
 brew install stats
+brew install svgo
 brew install tccutil
 brew install the_silver_searcher
 brew install tmux
@@ -109,8 +110,8 @@ brew install zellij
 brew install zoxide
 brew install zsh
 brew install zsh-autosuggestions
-brew link docker
 brew install tree-sitter-cli
+brew link docker
 
 # Install Brew packages - optional
 brew_packages_optional=(
