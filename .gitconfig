@@ -79,8 +79,8 @@
   prompt = false
 
 [difftool "sourcetree"]
-  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-  path =
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
 
 [filter "media"]
   required = true
@@ -113,8 +113,8 @@
   keepBackup = false
 
 [mergetool "sourcetree"]
-  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-  trustExitCode = true
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
 
 [push]
   default = current
@@ -136,3 +136,9 @@
 ; Machine-specific config (user.email, credentials, etc.)
 [include]
   path = ~/.gitconfig.local
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
