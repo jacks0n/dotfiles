@@ -4,7 +4,7 @@
 # Install Command Line Tools.
 sudo xcode-select --install
 
-softwareupdate --all --install --force
+softwareupdate --all --install --force --install-rosetta --agree-to-license
 
 # Install Brew.
 if ! type brew &>/dev/null; then
@@ -21,6 +21,9 @@ brew install ast-grep
 brew install awscli
 brew install bash
 brew install bash-completion
+brew install ocrmypdf
+brew install qpdf
+brew install tesseract
 brew install bat
 brew install betterzip
 brew install bfg
@@ -45,6 +48,7 @@ brew install exiftool # Extract file information for ranger
 brew install eza      # pretty `ls` alternative (exa fork)
 brew install fd
 brew install findutils
+brew install duti # Set default apps for documents and URL schemes on macOS
 brew install fx
 brew install fzf
 brew install fzy
@@ -87,6 +91,7 @@ brew install rustup
 brew install saulpw/vd/visidata
 brew install semgrep
 brew install shellcheck
+brew install sd
 brew install shfmt
 brew install sqlite
 brew install stats
@@ -138,6 +143,8 @@ rustup default stable
 # Install Brew cask packages - core
 brew install --cask alfred
 brew install --cask alt-tab
+brew install --cask applite
+brew install --cask chromium     # Shared browser for Playwright MCP (CDP on port 9222)
 brew install --cask claude-code
 brew install --cask dash
 brew install --cask dropbox
@@ -166,15 +173,12 @@ brew install --cask zed
 brew_cask_packages_optional=(
   '1password'
   'beekeeper-studio'
-  'chatgpt'
   'db-browser-for-sqlite'
   'drawio'
   'google-drive'
   'jupyterlab'
-  'ollama'
   'oracle-jdk'
   'redisinsight'
-  'slack'
   'todoist'
   'visual-studio-code'
   'vlc'
@@ -203,8 +207,9 @@ brew_cask_packages_personal=(
   'betaflight-configurator'
   'ledger-live'
   'telegram-desktop'
-  'webtorrent'
   'whatsapp'
+  'orion'
+  'protonvpn'
 )
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   echo 'Installing personal Brew packages...'
@@ -285,6 +290,7 @@ npm install --global @google/gemini-cli
 npm install --global @openai/codex
 npm install --global @qwen-code/qwen-code@latest
 npm install --global opencode-ai
+npm install --global @musistudio/claude-code-router
 
 # Install MCP servers.
 mkdir -p ~/.mcp                           # Used by @modelcontextprotocol/server-memory
