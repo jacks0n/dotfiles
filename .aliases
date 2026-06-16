@@ -166,7 +166,7 @@ alias apachewatch="lnav $MAMP_LOG_PATH/apache_error.log"
 alias ungron='gron --ungron'
 
 # https://github.com/sharkdp/bat
-# alias cat='bat'
+alias batp='bat --paging=auto'
 
 alias gl='glow'
 
@@ -187,3 +187,8 @@ alias t='zellij'
 alias ccd='claude --dangerously-skip-permissions'
 alias cf='beckon'
 alias lg='lazygit'
+
+alias codex-safe='codex --ask-for-approval untrusted --sandbox danger-full-access --search'
+alias codex-yolo='codex --ask-for-approval never --sandbox danger-full-access --search'
+
+alias zjks='zellij kill-session --force'

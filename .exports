@@ -9,6 +9,24 @@ elif [ -x /usr/local/bin/brew ] ; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+# zsh ties fpath to FPATH, and `brew shellenv` exports FPATH - baking the
+# version-pinned Cellar function path into the environment of every child
+# process. When a brew upgrade replaces zsh, the old keg is deleted and any
+# shell inheriting the stale FPATH can no longer autoload core functions
+# (compinit, add-zsh-hook, is-at-least, colors). Repair: un-export FPATH so
+# stale paths cannot propagate, dedupe, drop dead directories, and restore
+# Homebrew's version-stable function dir. The zsh-only syntax is eval'd so
+# bash can parse this file.
+fpath_repair() {
+  [ -n "$ZSH_VERSION" ] || return 0
+  typeset +x FPATH
+  eval 'typeset -gU fpath; fpath=( ${^fpath}(N-/) )'
+  if [ -d "$HOMEBREW_PREFIX/share/zsh/functions" ] ; then
+    fpath+=( "$HOMEBREW_PREFIX/share/zsh/functions" )
+  fi
+}
+fpath_repair
+
 ##
 # Base - required when `login` isn't used.
 ##
@@ -33,7 +51,8 @@ fi
 
 if command -v bat >/dev/null ; then
   export MANPAGER='sh -c "col -bx | bat --language man --plain"'
-  export PAGER='bat --paging=always'
+  export PAGER='bat'
+  export BAT_PAGER=''
   # Prevent delta (git diff) from using bat, which adds duplicate line numbers.
   export DELTA_PAGER='less'
 fi

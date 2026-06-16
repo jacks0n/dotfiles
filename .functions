@@ -1,5 +1,36 @@
 # vim: filetype=sh
 
+# Remove quarantine and ad-hoc codesign an untrusted app or binary.
+# Usage: trust ~/Downloads/SomeApp.app
+#        trust ~/Downloads/outputCLI
+#        trust ~/Downloads/some-binary
+trust() {
+  local target="${1:?Usage: trust <path to .app, binary, or directory>}"
+
+  if [[ ! -e "$target" ]]; then
+    echo "Error: '$target' does not exist." >&2
+    return 1
+  fi
+
+  echo "=> Removing quarantine..."
+  xattr -dr com.apple.quarantine "$target" 2>/dev/null
+
+  if [[ -d "$target" ]]; then
+    # .app bundle or directory of binaries — deep sign everything.
+    echo "=> Codesigning (deep)..."
+    codesign --force --deep -s - "$target" 2>&1
+    # Ensure Mach-O files inside are executable.
+    find "$target" -type f -perm +0111 -exec chmod +x {} + 2>/dev/null
+  else
+    # Single binary.
+    chmod +x "$target"
+    echo "=> Codesigning..."
+    codesign --force -s - "$target" 2>&1
+  fi
+
+  echo "=> Done. '$target' is trusted."
+}
+
 # Helper function to check if a command exists.
 command_exists() {
   type "$1" &>/dev/null
@@ -119,6 +150,18 @@ reload() {
 clear-scrollback() {
   [[ -n "$ZELLIJ" ]] && zellij action clear-screen
   printf '\033[2J\033[3J\033[H'
+}
+
+# Start (or attach to) a zellij session named after the current directory.
+zj() {
+  zellij attach --create "$(basename "$PWD")"
+}
+
+# Delete a zellij session defaulting to the current directory name.
+zjds() {
+  local CURRENT_DIR="$(basename "$PWD")"
+  zellij delete-session --force "${1:-$CURRENT_DIR}" 2>/dev/null || true
+  zellij kill-session "${1:-$CURRENT_DIR}"
 }
 
 # Print the public key at ~/.ssh/id_rsa.pub, and copy to the clipboard.
@@ -345,6 +388,12 @@ update-global() {
       brew cleanup -s --prune=all
       rm -rf "$(brew --cache)"
     )
+
+    # If the upgrade replaced zsh, cleanup deleted the old keg this shell's
+    # fpath still points at - repair it so autoloads keep working.
+    if command_exists fpath_repair; then
+      fpath_repair
+    fi
   fi
 
   # Update OS X.
@@ -365,10 +414,11 @@ update-global() {
   if command_exists npm; then
     echo "\n\n=> Updating npm and npm packages."
     npm install --global npm@latest
-    npm update --global
-    for pkg in $(npm outdated -g --parseable --depth=0 | cut -d: -f2); do
-      npm install -g "$pkg"
-    done
+    local outdated
+    outdated="$(npm outdated -g --parseable --depth=0 2>/dev/null | cut -d: -f4)"
+    if [[ -n "$outdated" ]]; then
+      echo "$outdated" | xargs npm install -g
+    fi
   fi
 
   # Update bun and bun packages.
@@ -379,6 +429,8 @@ update-global() {
       bun install -g "$pkg@latest"
     done
   fi
+
+  claude upgrade
 
   echo "\n\n=> Done!"
 }
@@ -409,23 +461,14 @@ rename-and-replace() {
 # - Dir: Directory to search and replace in.
 ##
 replace() {
-  local FROM="$(preg-quote "$1")"
-  local TO="$(preg-quote "$2")"
+  local FROM="$1"
+  local TO="$2"
   local DIR="${3:-.}"
 
-  if [[ $(git rev-parse --is-inside-work-tree 2>/dev/null) == 'true' ]]; then
-    ag --hidden --files-with-matches "$FROM" "$DIR" | while read -r filepath; do
-      echo "=> Replaced in file '$filepath'"
-      sed -i'' -e "s/$FROM/$TO/g" "$filepath"
-    done
-  else
-    find "$DIR" -type f | while read -r filepath; do
-      if grep --quiet "$FROM" "$FILEPATH" 2>/dev/null; then
-        echo "=> Replaced in file '$FILEPATH'"
-        sed -i'' -e "s/$FROM/$TO/g" "$FILEPATH"
-      fi
-    done
-  fi
+  rg -l --hidden "$FROM" "$DIR" | while read -r filepath; do
+    echo "=> Replaced in file '$filepath'"
+    sd "$FROM" "$TO" "$filepath"
+  done
 }
 
 ##
@@ -725,8 +768,14 @@ git-refresh-branches() {
 }
 
 claude-code-mcp-setup() {
+  claude mcp add --scope project codex -- codex mcp-server
   npx cclsp@latest setup
-  claude mcp add todoist --env TODOIST_API_TOKEN="$TODOIST_API_TOKEN" -- npx -y @abhiz123/todoist-mcp-server
+  claude mcp add stitch \
+    --transport http https://stitch.googleapis.com/mcp \
+    --header "Authorization: Bearer <YOUR_ACCESS_TOKEN>" \
+    --header "X-Goog-User-Project: <YOUR_PROJECT_ID>" \
+    -s user
+  claude mcp add --transport http todoist https://ai.todoist.net/mcp
   claude mcp add --transport http notion https://mcp.notion.com/mcp
   claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   claude mcp add Context7 -- npx -y @upstash/context7-mcp
@@ -739,9 +788,12 @@ claude-code-mcp-setup() {
   else
     claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem "$(pwd)"
   fi
-  claude mcp add fetch -- uvx mcp-server-fetch
+  claude mcp add fetch \
+    -- uvx mcp-server-fetch \
+    --ignore-robots-txt \
+    --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
   [[ ! -d ~/.mcp ]] && mkdir ~/.mcp
-  claude mcp add memory --env MEMORY_FILE_PATH=$HOME/.mcp/memory.claude.json -- npx -y @modelcontextprotocol/server-memory
+  claude mcp add memory --env MEMORY_FILE_PATH="$HOME/.mcp/memory.claude.json" -- npx -y @modelcontextprotocol/server-memory
   claude mcp add git -- uvx mcp-server-git
   claude mcp add ddg-search -- uvx duckduckgo-mcp-server
   claude mcp add postgres -- uv run postgres-mcp --access-mode=unrestricted
@@ -799,7 +851,7 @@ claude-code-mcp-setup() {
     ghcr.io/sooperset/mcp-atlassian:latest
   claude mcp add playwright-fast -- npx @tontoko/fast-playwright-mcp@latest
   claude mcp add playwright \
-    -- npx @playwright/mcp@latest
+    -- npx @playwright/mcp@latest \
     --user-data-dir '<path>'
   # Requires admin approval
   claude mcp add ms-365 -- npx -y @softeria/ms-365-mcp-server --org-mode
@@ -815,6 +867,50 @@ claude-code-mcp-setup() {
 claude-copy-settings() {
   [[ ! -d .claude ]] && mkdir .claude
   cp ~/.claude/settings.json .claude/settings.local.json
+}
+
+# Delete Time Machine backups older than N days.
+# Usage: tm-prune 30    (deletes backups older than 30 days)
+tm-prune() {
+  local days="${1:?Usage: tm-prune <days>}"
+  local cutoff=$(date -d "-${days} days" +%Y-%m-%d 2>/dev/null || date -v-${days}d +%Y-%m-%d)
+  local mount=$(tmutil machinedirectory 2>/dev/null)
+
+  if [[ -z "$mount" || ! -d "$mount" ]]; then
+    echo "Error: No Time Machine backup volume mounted." >&2
+    return 1
+  fi
+
+  echo "Mount: $mount"
+  echo "Deleting backups older than $cutoff ($days days)..."
+
+  local timestamps=()
+  while IFS= read -r line; do
+    # Extract timestamp from the backup path (last component, strip .backup suffix)
+    local ts=$(basename "$(basename "$line")" .backup)
+    local backup_date="${ts:0:10}"
+    if [[ "$backup_date" < "$cutoff" ]]; then
+      timestamps+=("$ts")
+    fi
+  done < <(tmutil listbackups 2>/dev/null)
+
+  if [[ ${#timestamps[@]} -eq 0 ]]; then
+    echo "No backups older than $days days."
+    return 0
+  fi
+
+  echo "Found ${#timestamps[@]} backup(s) to delete:"
+  printf '  %s\n' "${timestamps[@]}"
+  echo -n "Continue? [y/N] "
+  read -r response
+  [[ ! "$response" =~ ^[Yy]$ ]] && { echo "Aborted."; return 0; }
+
+  local delete_args=(-d "$mount")
+  for ts in "${timestamps[@]}"; do
+    delete_args+=(-t "$ts")
+  done
+
+  sudo tmutil delete "${delete_args[@]}"
 }
 
 claude-copy-settings-all() {
@@ -839,46 +935,24 @@ claude-copy-settings-all() {
   echo "Done! Copied Claude settings to all directories in ~/Code"
 }
 
-alias cwc='claude-whitelist-cmd'
-claude-whitelist-cmd() {
-  local cmd="$*"
+llm-config-gen() {
+  local targets="claudecode,codexcli,opencode,geminicli"
 
-  if [[ -z "$cmd" ]]; then
-    echo "Error: Please provide a command to whitelist"
-    echo "Usage: claude-whitelist-cmd <command>"
-    echo "Examples:"
-    echo "  claude-whitelist-cmd npm run dev"
-    echo "  claude-whitelist-cmd 'docker compose up'"
-    return 1
-  fi
+  echo "Processing global LLM agent config..."
+  (
+    cd "$HOME" || exit 1
+    rulesync generate --global --features hooks,mcp --targets "$targets" --base-dir "$HOME"
+  ) || return
 
-  local settings_file="$HOME/.claude/settings.json"
-  if [[ ! -f "$settings_file" ]]; then
-    echo "Error: Claude settings file not found at $settings_file"
-    return 1
-  fi
+  local project
+  for project in "$HOME"/Code/*; do
+    [[ -d "$project" ]] || continue
+    [[ -f "$project/rulesync.jsonc" || -d "$project/.rulesync" ]] || continue
 
-  local permission_entry
-  if [[ "$cmd" == mcp__* ]]; then
-    permission_entry="$cmd"
-  else
-    permission_entry="Bash(${cmd}:*)"
-  fi
-  if jq -e ".permissions.allow | index(\"$permission_entry\")" "$settings_file" > /dev/null 2>&1; then
-    echo "Command '$cmd' is already whitelisted"
-    return 0
-  fi
-
-  local temp_file=$(mktemp)
-  if jq ".permissions.allow += [\"$permission_entry\"] | .permissions.allow |= sort" "$settings_file" > "$temp_file"; then
-    mv "$temp_file" "$settings_file"
-    echo "Successfully added '$cmd' to Claude whitelist as '$permission_entry'"
-    return 0
-  else
-    echo "Error: Failed to update Claude settings file"
-    rm -f "$temp_file"
-    return 1
-  fi
-
-  claude-copy-settings-all
+    echo "Processing ${project#$HOME/}..."
+    (
+      cd "$project" || exit 1
+      rulesync generate --features mcp,hooks --targets "$targets" --base-dir "$PWD"
+    ) || return
+  done
 }
