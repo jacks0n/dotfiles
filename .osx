@@ -413,11 +413,59 @@ sudo pmset -a sms 0
 #  Time Machine                                                               #
 ###############################################################################
 
-# Disable local Time Machine snapshots.
-sudo tmutil disablelocal
-
 # Prevent Time Machine from prompting to use new hard drives as a backup volume.
 defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool YES
+
+# Exclude common directories that don't need backing up.
+tmutil addexclusion -p ~/Library/Caches
+tmutil addexclusion -p ~/Downloads
+tmutil addexclusion -p ~/Library/Application\ Support/Docker
+tmutil addexclusion -p ~/.Trash
+tmutil addexclusion -p ~/Library/Containers/com.docker.docker
+
+echo ''
+echo 'Time Machine Setup'
+echo '==================='
+
+# Backup destination.
+echo ''
+echo 'Enter Time Machine backup destination (SMB/AFP URL or volume path).'
+echo 'Examples:'
+echo '  smb://user@nas.local./ShareName'
+echo '  /Volumes/BackupDrive'
+read -r "?Destination [skip]: " TM_DESTINATION
+if [[ -n "$TM_DESTINATION" ]]; then
+  if [[ "$TM_DESTINATION" == smb://* || "$TM_DESTINATION" == afp://* ]]; then
+    sudo tmutil setdestination -p "$TM_DESTINATION"
+  else
+    sudo tmutil setdestination "$TM_DESTINATION"
+  fi
+fi
+
+# Quota.
+read -r "?Max backup size in GB [2000]: " TM_QUOTA_GB
+TM_QUOTA_GB="${TM_QUOTA_GB:-2000}"
+TM_DEST_ID=$(tmutil destinationinfo -X 2>/dev/null | plutil -extract 'Destinations.0.ID' raw - 2>/dev/null)
+if [[ -n "$TM_DEST_ID" ]]; then
+  sudo tmutil setquota "$TM_DEST_ID" "$TM_QUOTA_GB"
+  echo "Set quota to ${TM_QUOTA_GB}GB on destination ${TM_DEST_ID}"
+else
+  echo 'Warning: No Time Machine destination configured, skipping quota.'
+fi
+
+# Auto-prune retention.
+read -r "?Delete backups older than N days [30]: " TM_RETAIN_DAYS
+TM_RETAIN_DAYS="${TM_RETAIN_DAYS:-30}"
+defaults write com.apple.TimeMachine MaxBackupRetentionDays -int "$TM_RETAIN_DAYS"
+echo "Set backup retention to ${TM_RETAIN_DAYS} days."
+echo '(Use tm-prune to manually prune old backups.)'
+
+sudo tmutil addexclusion -p "$HOME/Library/Caches"
+sudo tmutil addexclusion -p "$HOME/.Trash"
+sudo tmutil addexclusion -p "$HOME/.docker"
+sudo tmutil addexclusion -p "$HOME/Library/Application Support/Docker"
+sudo tmutil addexclusion -p "$HOME/.orbstack"
+sudo tmutil setquota FD0A4DF9-5527-437B-ABAB-309B1A2F61ED 2000
 
 
 ###############################################################################
@@ -543,6 +591,43 @@ defaults write com.microsoft.Office365ServiceV2 SendAllTelemetryEnabled -bool NO
 defaults write com.microsoft.Word UseOnlineContent -integer 0
 defaults write com.microsoft.Excel UseOnlineContent -integer 0
 defaults write com.microsoft.Powerpoint UseOnlineContent -integer 0
+
+
+###############################################################################
+#  Default Applications                                                       #
+###############################################################################
+
+# File-type and URL-scheme handlers (set via `duti`, installed by install.sh).
+# These override the macOS defaults; app self-registrations (alfred://,
+# postman://, etc.) are omitted because they happen automatically on install.
+
+# Default web browser -> Chrome.
+duti -s com.google.Chrome com.apple.default-app.web-browser all
+duti -s com.google.Chrome public.html all
+duti -s com.google.Chrome http
+duti -s com.google.Chrome https
+duti -s com.google.Chrome webcal
+
+# Default mail client -> Mimestream (mailto).
+# Note: Mimestream doesn't declare itself as a handler for `public.email-message`,
+# so .eml files can't be assigned to it (Launch Services error -50). Leaving .eml
+# unset. Also skipping `com.apple.default-app.mail-client` because duti rejects
+# that UTI; setting `mailto` is what actually drives the default mail behavior.
+duti -s com.mimestream.Mimestream mailto
+
+# PDF -> Preview (override Chrome if it grabs the association).
+duti -s com.apple.Preview com.adobe.pdf all
+
+# JSON -> Neovide.
+duti -s com.neovide.neovide public.json all
+
+# Markdown -> MarkText (and the stray `com.unknown.md` UTI -> MacDown).
+duti -s com.github.marktext.marktext net.daringfireball.markdown all
+duti -s com.uranusjr.macdown com.unknown.md all
+
+# Apple developer documentation -> Dash.
+duti -s com.kapeli.dashdoc com.apple.xcode.docset all
+duti -s com.kapeli.dashdoc com.apple.documentation.doccarchive all
 
 
 ###############################################################################
