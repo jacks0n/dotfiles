@@ -306,7 +306,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "beckon enqueue"
+            "command": "beckon enqueue --permission"
           }
         ]
       }
@@ -326,7 +326,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "beckon dequeue"
+            "command": "beckon tool-done"
           }
         ]
       }
