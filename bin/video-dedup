@@ -1,0 +1,645 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "opencv-python-headless",
+#     "imagehash",
+#     "Pillow",
+# ]
+# ///
+"""
+Find duplicate videos: exact matches and perceptual matches (different
+watermarks/encoding/intros). Keeps the longest, highest-res version.
+
+Usage:
+    video-dedup ~/Videos
+    video-dedup ~/Videos --trash
+    video-dedup ~/Videos --threshold 20
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+import cv2
+import imagehash
+from PIL import Image
+
+VIDEO_SUFFIXES = frozenset({
+    ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv",
+    ".webm", ".m4v", ".mpg", ".mpeg", ".3gp", ".ts",
+})
+
+FRAME_SAMPLE_INTERVAL_SEC = 2
+MAX_FRAME_SAMPLES = 300
+PHASH_SIZE = 16
+DEFAULT_HAMMING_THRESHOLD = 20
+FUZZY_MATCH_RATIO = 0.80
+SUBSEQUENCE_MATCH_RATIO = 0.80
+LOW_ENTROPY_FUZZY_MATCH_RATIO = 0.9
+LOW_ENTROPY_SUBSEQUENCE_MATCH_RATIO = 0.9
+TEMPORAL_WINDOW = 2
+MIN_DISTINCT_HASHES = 3
+MIN_HASHES_FOR_LOW_ENTROPY = 8
+MIN_DURATION_RATIO_FOR_SUBSEQUENCE = 0.15
+
+
+@dataclass(frozen=True, slots=True)
+class StreamInfo:
+    codec: str
+    bitrate_kbps: int
+
+    def __str__(self) -> str:
+        if not self.codec:
+            return "?"
+        br = f" {self.bitrate_kbps}k" if self.bitrate_kbps else ""
+        return f"{self.codec}{br}"
+
+
+@dataclass(frozen=True, slots=True)
+class VideoFingerprint:
+    path: Path
+    file_hash: str
+    duration_sec: float
+    file_size: int
+    resolution: tuple[int, int]
+    video_stream: StreamInfo
+    audio_stream: StreamInfo
+    frame_hashes: tuple[imagehash.ImageHash, ...]
+    low_entropy: bool
+
+
+@dataclass(frozen=True, slots=True)
+class Duplicate:
+    video: VideoFingerprint
+    match_type: str
+    similarity: float
+
+
+@dataclass(frozen=True, slots=True)
+class DuplicateGroup:
+    keep: VideoFingerprint
+    delete: tuple[Duplicate, ...]
+
+
+# --- Helpers ---
+
+
+def rel(path: Path, root: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
+
+
+def fmt_size(nbytes: int) -> str:
+    size = float(nbytes)
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} PB"
+
+
+def fmt_dur(sec: float) -> str:
+    if sec <= 0:
+        return "??:??"
+    m, s = divmod(int(sec), 60)
+    h, m = divmod(m, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
+def fmt_res(resolution: tuple[int, int]) -> str:
+    w, h = resolution
+    if w == 0 or h == 0:
+        return "????"
+    return f"{w}x{h}"
+
+
+def probe_streams(path: Path) -> tuple[StreamInfo, StreamInfo]:
+    """Extract video and audio stream info via ffprobe."""
+    unknown = StreamInfo(codec="", bitrate_kbps=0)
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe", "-v", "quiet", "-print_format", "json",
+                "-show_streams", str(path),
+            ],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            return unknown, unknown
+
+        data = json.loads(result.stdout)
+        streams = data.get("streams", [])
+    except (subprocess.TimeoutExpired, ValueError):
+        return unknown, unknown
+
+    video = unknown
+    audio = unknown
+    for s in streams:
+        codec = s.get("codec_name", "")
+        bitrate = int(s.get("bit_rate", 0)) // 1000
+        if s.get("codec_type") == "video" and video.codec == "":
+            video = StreamInfo(codec=codec, bitrate_kbps=bitrate)
+        elif s.get("codec_type") == "audio" and audio.codec == "":
+            audio = StreamInfo(codec=codec, bitrate_kbps=bitrate)
+    return video, audio
+
+
+# --- Fingerprinting ---
+
+
+def find_videos(directory: Path) -> list[Path]:
+    videos: list[Path] = []
+    for path in directory.rglob("*"):
+        try:
+            if (
+                path.is_file()
+                and not path.is_symlink()
+                and path.stat().st_size > 0
+                and path.suffix.lower() in VIDEO_SUFFIXES
+            ):
+                videos.append(path)
+        except OSError:
+            continue
+    return sorted(videos)
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _compute_low_entropy(
+    hashes: tuple[imagehash.ImageHash, ...],
+    hamming_threshold: int,
+) -> bool:
+    if len(hashes) < MIN_HASHES_FOR_LOW_ENTROPY:
+        return False
+    distinct = [hashes[0]]
+    for h in hashes[1:]:
+        if all((h - d) > hamming_threshold for d in distinct):
+            distinct.append(h)
+            if len(distinct) >= MIN_DISTINCT_HASHES:
+                return False
+    return True
+
+
+def extract_fingerprint(
+    path: Path,
+    file_hash: str,
+    file_size: int,
+    hamming_threshold: int,
+) -> VideoFingerprint:
+    video_stream, audio_stream = probe_streams(path)
+    empty = VideoFingerprint(
+        path=path, file_hash=file_hash, duration_sec=0,
+        file_size=file_size, resolution=(0, 0),
+        video_stream=video_stream, audio_stream=audio_stream,
+        frame_hashes=(), low_entropy=True,
+    )
+
+    cap = cv2.VideoCapture(str(path))
+    if not cap.isOpened():
+        return empty
+
+    try:
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if fps <= 0 or total_frames <= 0:
+            return empty
+
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        duration = total_frames / fps
+        interval = max(1, int(fps * FRAME_SAMPLE_INTERVAL_SEC))
+
+        if duration < 10:
+            interval = max(1, total_frames // 4)
+
+        sample_count = total_frames // interval
+        if sample_count > MAX_FRAME_SAMPLES:
+            interval = total_frames // MAX_FRAME_SAMPLES
+
+        hashes: list[imagehash.ImageHash] = []
+        for frame_idx in range(0, total_frames, interval):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+            ok, frame = cap.read()
+            if not ok:
+                continue
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            hashes.append(imagehash.phash(img, hash_size=PHASH_SIZE))
+
+        frame_hashes = tuple(hashes) if len(hashes) >= 2 else ()
+
+        return VideoFingerprint(
+            path=path, file_hash=file_hash, duration_sec=duration,
+            file_size=file_size, resolution=(width, height),
+            video_stream=video_stream, audio_stream=audio_stream,
+            frame_hashes=frame_hashes,
+            low_entropy=_compute_low_entropy(frame_hashes, hamming_threshold),
+        )
+    finally:
+        cap.release()
+
+
+# --- Comparison ---
+
+
+def hashes_match(a: imagehash.ImageHash, b: imagehash.ImageHash, threshold: int) -> bool:
+    return (a - b) <= threshold
+
+
+def fuzzy_similarity(
+    a: VideoFingerprint,
+    b: VideoFingerprint,
+    hamming_threshold: int,
+) -> float:
+    if not a.frame_hashes or not b.frame_hashes:
+        return 0.0
+
+    shorter, longer = (a, b) if len(a.frame_hashes) <= len(b.frame_hashes) else (b, a)
+    short_len = len(shorter.frame_hashes)
+    long_len = len(longer.frame_hashes)
+
+    matches = 0
+    for i, sh in enumerate(shorter.frame_hashes):
+        expected = int(i * long_len / short_len)
+        lo = max(0, expected - TEMPORAL_WINDOW)
+        hi = min(long_len, expected + TEMPORAL_WINDOW + 1)
+        if any(hashes_match(sh, longer.frame_hashes[j], hamming_threshold) for j in range(lo, hi)):
+            matches += 1
+
+    return matches / short_len
+
+
+def subsequence_similarity(
+    a: VideoFingerprint,
+    b: VideoFingerprint,
+    hamming_threshold: int,
+    early_exit_ratio: float | None = SUBSEQUENCE_MATCH_RATIO,
+) -> float:
+    if not a.frame_hashes or not b.frame_hashes:
+        return 0.0
+
+    shorter, longer = (a, b) if len(a.frame_hashes) <= len(b.frame_hashes) else (b, a)
+    window = len(shorter.frame_hashes)
+
+    if window < 3 or len(longer.frame_hashes) < window:
+        return 0.0
+
+    best = 0.0
+    for offset in range(len(longer.frame_hashes) - window + 1):
+        matches = sum(
+            1 for i, sh in enumerate(shorter.frame_hashes)
+            if hashes_match(sh, longer.frame_hashes[offset + i], hamming_threshold)
+        )
+        ratio = matches / window
+        if ratio > best:
+            best = ratio
+            if early_exit_ratio is not None and best >= early_exit_ratio:
+                return best
+
+    return best
+
+
+def match_pair(
+    a: VideoFingerprint,
+    b: VideoFingerprint,
+    hamming_threshold: int,
+) -> tuple[str, float] | None:
+    if a.file_hash == b.file_hash and not a.file_hash.startswith("unique-"):
+        return ("exact", 1.0)
+
+    low_entropy_pair = a.low_entropy or b.low_entropy
+    fuzzy_threshold = LOW_ENTROPY_FUZZY_MATCH_RATIO if low_entropy_pair else FUZZY_MATCH_RATIO
+    subsequence_threshold = (
+        LOW_ENTROPY_SUBSEQUENCE_MATCH_RATIO
+        if low_entropy_pair else SUBSEQUENCE_MATCH_RATIO
+    )
+
+    sim = fuzzy_similarity(a, b, hamming_threshold)
+    if sim >= fuzzy_threshold:
+        return ("fuzzy", sim)
+
+    min_dur = min(a.duration_sec, b.duration_sec)
+    max_dur = max(a.duration_sec, b.duration_sec)
+    if max_dur > 0 and (min_dur / max_dur) < MIN_DURATION_RATIO_FOR_SUBSEQUENCE:
+        return None
+
+    sub = subsequence_similarity(a, b, hamming_threshold, early_exit_ratio=subsequence_threshold)
+    if sub >= subsequence_threshold:
+        return ("subsequence", sub)
+
+    return None
+
+
+# --- Clustering ---
+
+
+def _round_to_macroblock(n: int) -> int:
+    """Round to nearest H.264 macroblock boundary (16px)."""
+    return (n + 8) // 16 * 16
+
+
+def _rank_video(fp: VideoFingerprint) -> tuple[int, int, int, int, str]:
+    w, h = fp.resolution
+    return (
+        round(fp.duration_sec),
+        _round_to_macroblock(w) * _round_to_macroblock(h),
+        fp.video_stream.bitrate_kbps,
+        fp.file_size,
+        str(fp.path),
+    )
+
+
+def find_duplicate_groups(
+    fingerprints: list[VideoFingerprint],
+    hamming_threshold: int,
+) -> list[DuplicateGroup]:
+    n = len(fingerprints)
+    parent_for: dict[int, tuple[int, tuple[str, float]]] = {}
+    members_by_parent: dict[int, list[Duplicate]] = {}
+    exact_members: set[int] = set()
+
+    # Pass 1 — exact file hash
+    by_hash: dict[str, list[int]] = {}
+    for i, fp in enumerate(fingerprints):
+        if not fp.file_hash.startswith("unique-"):
+            by_hash.setdefault(fp.file_hash, []).append(i)
+
+    exact_pairs: set[tuple[int, int]] = set()
+    for indices in by_hash.values():
+        if len(indices) < 2:
+            continue
+        ranked = sorted(indices, key=lambda i: _rank_video(fingerprints[i]), reverse=True)
+        keeper_idx = ranked[0]
+        exact_members.update(ranked)
+        members_by_parent[keeper_idx] = [
+            Duplicate(video=fingerprints[idx], match_type="exact", similarity=1.0)
+            for idx in ranked[1:]
+        ]
+        for idx in ranked[1:]:
+            parent_for[idx] = (keeper_idx, ("exact", 1.0))
+        for i, left in enumerate(indices):
+            for right in indices[i + 1:]:
+                exact_pairs.add((min(left, right), max(left, right)))
+
+    # Pass 2 — perceptual matching
+    total_pairs = n * (n - 1) // 2
+    checked = 0
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            checked += 1
+            if checked % max(1, total_pairs // 20) == 0 or checked == total_pairs:
+                print(f"\r  Comparing: {checked}/{total_pairs} pairs", end="", flush=True)
+
+            if (i, j) in exact_pairs:
+                continue
+
+            result = match_pair(fingerprints[i], fingerprints[j], hamming_threshold)
+            if result is None or result[0] == "exact":
+                continue
+
+            if _rank_video(fingerprints[i]) >= _rank_video(fingerprints[j]):
+                parent_idx, child_idx = i, j
+            else:
+                parent_idx, child_idx = j, i
+
+            existing = parent_for.get(child_idx)
+            if existing is None or existing[1][0] != "exact":
+                rank_better = existing is None or (
+                    _rank_video(fingerprints[parent_idx])
+                    > _rank_video(fingerprints[existing[0]])
+                )
+                if rank_better or result[1] > existing[1][1]:
+                    parent_for[child_idx] = (parent_idx, result)
+
+    if total_pairs > 0:
+        print()
+
+    for child_idx, (parent_idx, (match_type, similarity)) in parent_for.items():
+        if child_idx in exact_members:
+            continue
+        members_by_parent.setdefault(parent_idx, []).append(
+            Duplicate(
+                video=fingerprints[child_idx],
+                match_type=match_type,
+                similarity=similarity,
+            )
+        )
+
+    groups: list[DuplicateGroup] = []
+    for parent_idx, duplicates in members_by_parent.items():
+        if not duplicates:
+            continue
+        ordered = tuple(sorted(duplicates, key=lambda d: _rank_video(d.video)))
+        groups.append(DuplicateGroup(keep=fingerprints[parent_idx], delete=ordered))
+
+    return sorted(groups, key=lambda g: _rank_video(g.keep))
+
+
+# --- Interactive prompt ---
+
+
+MATCH_DESCRIPTIONS: dict[str, str] = {
+    "exact": "Identical file (same hash)",
+    "fuzzy": "Same content, different encoding/watermark",
+    "subsequence": "Same content, different intro/outro or trimmed",
+}
+
+
+def _remove_file(path: Path, use_trash: bool) -> tuple[bool, str]:
+    if use_trash:
+        result = subprocess.run(["trash", str(path)], capture_output=True)
+        if result.returncode == 0:
+            if path.exists():
+                return False, "trash returned success but file still exists"
+            return True, ""
+        return False, result.stderr.decode().strip()
+    path.unlink()
+    if path.exists():
+        return False, "unlink returned but file still exists"
+    return True, ""
+
+
+def prompt_deletions(groups: list[DuplicateGroup], root: Path, *, use_trash: bool) -> None:
+    deleted = 0
+    skipped = 0
+    freed = 0
+    verb = "Trash" if use_trash else "Delete"
+    past = "Trashed" if use_trash else "Deleted"
+    duplicated_keepers = {d.video.path for group in groups for d in group.delete}
+
+    for gi, group in enumerate(groups, 1):
+        print(f"\n{'=' * 72}")
+        print(f"  Group {gi}/{len(groups)}  ({len(group.delete)} duplicate{'s' if len(group.delete) != 1 else ''})")
+        keeper_label = "PREFERRED"
+        if group.keep.path in duplicated_keepers:
+            keeper_label += "  (also matched to a better video)"
+        print(f"  {keeper_label}  {rel(group.keep.path, root)}")
+        print(f"           {fmt_dur(group.keep.duration_sec)}  {fmt_res(group.keep.resolution)}  {fmt_size(group.keep.file_size)}  v:{group.keep.video_stream}  a:{group.keep.audio_stream}")
+
+        if not group.keep.path.exists():
+            print("  Reference file no longer exists. Skipping group.")
+            skipped += len(group.delete)
+            continue
+
+        skip_group = False
+        for d in group.delete:
+            if skip_group:
+                skipped += 1
+                continue
+
+            if not d.video.path.exists():
+                print(f"\n  GONE     {rel(d.video.path, root)}  (file no longer exists)")
+                continue
+
+            reason = MATCH_DESCRIPTIONS.get(d.match_type, d.match_type)
+            sim_label = "identical" if d.match_type == "exact" else f"{d.similarity:.0%} match"
+            print()
+            print(f"  {verb.upper()}?  {rel(d.video.path, root)}")
+            print(f"           {fmt_dur(d.video.duration_sec)}  {fmt_res(d.video.resolution)}  {fmt_size(d.video.file_size)}  v:{d.video.video_stream}  a:{d.video.audio_stream}")
+            print(f"           {reason} ({sim_label})")
+
+            while True:
+                try:
+                    answer = input(f"  {verb}? [Y/n/s=skip group/o=open both] ").strip().lower()
+                except (EOFError, KeyboardInterrupt):
+                    print("\n\nAborted.")
+                    _print_summary(deleted, skipped, freed, past)
+                    return
+
+                if answer == "o":
+                    subprocess.run(["open", str(group.keep.path)], check=False)
+                    subprocess.run(["open", str(d.video.path)], check=False)
+                    continue
+
+                break
+
+            if answer in ("s", "skip"):
+                print("  -> Skipping rest of group.")
+                skip_group = True
+                skipped += 1
+            elif answer in ("", "y", "yes"):
+                try:
+                    ok, err = _remove_file(d.video.path, use_trash)
+                    if ok:
+                        print(f"  -> {past}.")
+                        deleted += 1
+                        freed += d.video.file_size
+                    else:
+                        print(f"  -> FAILED: {err}" if err else "  -> FAILED.")
+                except OSError as e:
+                    print(f"  -> FAILED: {e}")
+            else:
+                print("  -> Skipped.")
+                skipped += 1
+
+    _print_summary(deleted, skipped, freed, past)
+
+
+def _print_summary(deleted: int, skipped: int, freed: int, verb: str) -> None:
+    print(f"\n{'=' * 72}")
+    print(f"  Done. {deleted} {verb.lower()}, {skipped} skipped, {fmt_size(freed)} freed.")
+    print(f"{'=' * 72}")
+
+
+# --- Main ---
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Find and remove duplicate videos (exact, fuzzy, and subsequence matching)",
+    )
+    parser.add_argument("directory", type=Path, help="Directory to scan (recursive)")
+    parser.add_argument("--trash", action="store_true",
+                        help="Move to trash instead of permanently deleting")
+    parser.add_argument("--threshold", "-t", type=int, default=DEFAULT_HAMMING_THRESHOLD,
+                        help=f"Hamming distance threshold for 256-bit phash (default: {DEFAULT_HAMMING_THRESHOLD}, lower=stricter)")
+    args = parser.parse_args()
+
+    if args.trash and not shutil.which("trash"):
+        print("Error: --trash requires the 'trash' command. Install with: brew install trash", file=sys.stderr)
+        sys.exit(1)
+
+    root = args.directory.expanduser().resolve()
+    if not root.is_dir():
+        print(f"Not a directory: {root}", file=sys.stderr)
+        sys.exit(1)
+
+    videos = find_videos(root)
+    print(f"Found {len(videos)} videos in {root}\n")
+
+    if len(videos) < 2:
+        print("Need at least 2 videos to find duplicates.")
+        return
+
+    sizes: dict[int, list[Path]] = {}
+    for v in videos:
+        try:
+            sizes.setdefault(v.stat().st_size, []).append(v)
+        except OSError as e:
+            print(f"Skipping {rel(v, root)}: {e}")
+    sizes_worth_hashing = {s for s, paths in sizes.items() if len(paths) > 1}
+
+    print("Extracting fingerprints...")
+    fingerprints: list[VideoFingerprint] = []
+    try:
+        for i, path in enumerate(videos, 1):
+            print(f"  [{i}/{len(videos)}] {rel(path, root)}")
+            try:
+                file_size = path.stat().st_size
+            except OSError as e:
+                print(f"           ^ skipped: {e}")
+                continue
+
+            try:
+                file_hash = sha256(path) if file_size in sizes_worth_hashing else f"unique-{i}"
+                fp = extract_fingerprint(path, file_hash, file_size, args.threshold)
+            except Exception as e:
+                print(f"           ^ error: {e}")
+                fp = VideoFingerprint(
+                    path=path, file_hash=file_hash, duration_sec=0,
+                    file_size=file_size, resolution=(0, 0),
+                    video_stream=StreamInfo(codec="", bitrate_kbps=0),
+                    audio_stream=StreamInfo(codec="", bitrate_kbps=0),
+                    frame_hashes=(), low_entropy=True,
+                )
+            fingerprints.append(fp)
+            if not fp.frame_hashes:
+                print(f"           ^ no frames extracted (exact matching only)")
+    except KeyboardInterrupt:
+        print(f"\n\nInterrupted. Continuing with {len(fingerprints)} fingerprinted videos...\n")
+        if len(fingerprints) < 2:
+            print("Not enough videos fingerprinted.")
+            return
+
+    print(f"\n{len(fingerprints)} indexed. Finding duplicates (threshold={args.threshold})...\n")
+
+    groups = find_duplicate_groups(fingerprints, args.threshold)
+    if not groups:
+        print("No duplicates found.")
+        return
+
+    total_dupes = sum(len(g.delete) for g in groups)
+    total_reclaimable = sum(d.video.file_size for g in groups for d in g.delete)
+    print(f"Found {len(groups)} duplicate groups ({total_dupes} files to review, ~{fmt_size(total_reclaimable)} reclaimable).\n")
+
+    prompt_deletions(groups, root, use_trash=args.trash)
+
+
+if __name__ == "__main__":
+    main()
