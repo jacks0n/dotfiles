@@ -63,19 +63,17 @@ blink.setup({
       Event = '󱐋',
       Operator = '󰪚',
       TypeParameter = '󰬛',
-      Copilot = '', -- Copilot icon
     },
   },
 
   sources = {
-    default = { 'lsp', 'copilot', 'path', 'buffer' },
+    default = { 'lsp', 'path', 'buffer' },
 
     per_filetype = {
-      -- For TS/JS files, prioritize LSP for path completions
-      typescript = { 'lsp', 'copilot', 'buffer' },
-      typescriptreact = { 'lsp', 'copilot', 'buffer' },
-      javascript = { 'lsp', 'copilot', 'buffer' },
-      javascriptreact = { 'lsp', 'copilot', 'buffer' },
+      typescript = { 'lsp', 'buffer' },
+      typescriptreact = { 'lsp', 'buffer' },
+      javascript = { 'lsp', 'buffer' },
+      javascriptreact = { 'lsp', 'buffer' },
       gitcommit = { 'buffer' },
       sagarename = {},
       ['/'] = { 'buffer' },
@@ -94,21 +92,6 @@ blink.setup({
         score_offset = 85,
         enabled = function()
           return vim.bo.filetype == 'lua'
-        end,
-      },
-      copilot = {
-        name = 'copilot',
-        module = 'blink-cmp-copilot',
-        score_offset = 100,
-        async = true,
-        transform_items = function(_, items)
-          local CompletionItemKind = require('blink.cmp.types').CompletionItemKind
-          local kind_idx = #CompletionItemKind + 1
-          CompletionItemKind[kind_idx] = 'Copilot'
-          for _, item in ipairs(items) do
-            item.kind = kind_idx
-          end
-          return items
         end,
       },
       path = {

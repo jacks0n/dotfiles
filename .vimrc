@@ -19,7 +19,7 @@ endif
 if exists('g:neovide')
   " Map OSX shortcuts.
   let g:neovide_input_use_logo = v:true
-  let g:neovide_input_macos_option_key_is_meta = v:true
+  let g:neovide_input_macos_option_key_is_meta = 'both'
   map <D-v> "+p<CR>
   map! <D-v> <C-R>+
   tmap <D-v> <C-R>+
@@ -109,10 +109,11 @@ elseif has('nvim')
     \| Plug 'nvimtools/none-ls-extras.nvim'
     \| Plug 'jay-babu/mason-null-ls.nvim'
   Plug 'saghen/blink.cmp'
+  Plug 'saghen/blink.lib'
   Plug 'saghen/blink.compat'
     \| Plug 'onsails/lspkind.nvim'
-  Plug 'giuxtaposition/blink-cmp-copilot'
-    \| Plug 'zbirenbaum/copilot.lua'
+  " Plug 'giuxtaposition/blink-cmp-copilot'
+  "   \| Plug 'zbirenbaum/copilot.lua'
   Plug 'AndrewRadev/sideways.vim' " Move function arguments.
   Plug 'yioneko/nvim-vtsls'
   " Plug 'seblyng/roslyn.nvim'
@@ -138,7 +139,7 @@ endif
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter' " Git gutter column diff signs.
-Plug 'esmuellert/vscode-diff.nvim'
+Plug 'esmuellert/codediff.nvim'
 
 
 " ========================================================================
@@ -328,6 +329,12 @@ if isdirectory($HOME . '/.vim/swap') == 0
   :silent !mkdir -p ~/.vim/swap >/dev/null 2>&1
 endif
 set directory=~/.vim/swap//,/tmp//,~/tmp//
+
+" Neovim 0.12 defaults 'fsync' on; on macOS that issues an F_FULLFSYNC (full
+" drive-cache flush) on every swap/backup/buffer write. Idle it is ~5ms, but
+" under disk contention (e.g. a running VM) it blocks for seconds, freezing the
+" UI on each vim-gitgutter CursorHold write. Restore the historical default.
+set nofsync
 
 " Better command-line completion, with menu
 set wildchar=<Tab>
@@ -817,6 +824,7 @@ let g:better_whitespace_filetypes_blacklist=['lspsagafinder', 'mason']
 " Import Lua plugin configs.
 if has('nvim')
   " Load core configuration
+  lua require('core.shims')
   lua require('core.settings').setup()
   lua require('core.keymaps').setup()
   lua require('core.autocmds').setup()
@@ -831,7 +839,7 @@ if has('nvim')
     " lua require('plugins.conform')
     " lua require('plugins.mason-conform')
     " lua require('plugins.mason-nvim-lint')
-    lua require('plugins.copilot-lua')
+    " lua require('plugins.copilot-lua')
     lua require('plugins.nvim-navbuddy')
     lua require('plugins.lspsaga')
     lua require('plugins.trouble')
@@ -873,7 +881,7 @@ if has('nvim')
     autocmd VimEnter * ++once lua require('plugins.ts-node-action')
     autocmd VimEnter * ++once lua require('plugins.nvim-ts-autotag')
     autocmd VimEnter * ++once lua require('ts_context_commentstring').setup({})
-    autocmd VimEnter * ++once lua require('plugins.vscode-diff')
+    autocmd VimEnter * ++once lua require('plugins.codediff')
   augroup END
 endif
 
@@ -927,7 +935,6 @@ let g:coc_global_extensions = [
   \ '@yaegassy/coc-phpstan',
   \ '@yaegassy/coc-pylsp',
   \ 'coc-cfn-lint',
-  \ 'coc-copilot',
   \ 'coc-css',
   \ 'coc-diagnostic',
   \ 'coc-dictionary',

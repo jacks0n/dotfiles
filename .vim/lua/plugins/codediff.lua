@@ -1,4 +1,4 @@
-require('vscode-diff').setup({
+require('codediff').setup({
   highlights = {
     -- Line-level: accepts highlight group names or hex colors (e.g., '#2ea043')
     line_insert = 'DiffAdd',      -- Line-level insertions

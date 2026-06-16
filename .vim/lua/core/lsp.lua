@@ -28,7 +28,7 @@ lazydev.setup({
   },
 })
 
-vim.lsp.set_log_level('warn')
+vim.lsp.log.set_level('warn')
 
 vim.lsp.config('*', {
   root_markers = { '.git' },
@@ -53,8 +53,8 @@ local lsp_servers = {
   intelephense = true,
   -- omnisharp = true,
   -- Note: roslyn is configured below but not auto-installed via Mason
-  -- ty = true,
-  pyrefly = true,
+  ty = true,
+  -- pyrefly = true,
   -- basedpyright = true,
 }
 
@@ -116,9 +116,23 @@ end
 
 local python_root_patterns = { 'pyproject.toml', 'uv.lock', 'poetry.lock', 'requirements.txt', 'setup.py', 'setup.cfg', '.git' }
 
+local function nilify(value)
+  if value == nil or value == vim.NIL then
+    return nil
+  end
+  return value
+end
+
 local function get_root_dir_from_params(params)
-  local root_uri = params.rootUri or params.rootPath
-  return root_uri and vim.uri_to_fname(root_uri) or nil
+  local folders = nilify(params.workspaceFolders)
+  if folders and folders[1] then
+    return vim.uri_to_fname(folders[1].uri)
+  end
+  local root_uri = nilify(params.rootUri)
+  if root_uri then
+    return vim.uri_to_fname(root_uri)
+  end
+  return nilify(params.rootPath)
 end
 
 -- TypeScript/JavaScript shared configuration
@@ -239,7 +253,7 @@ local lsp_server_configs = {
     end,
     on_init = function(client, _initialize_result)
       vim.schedule(function()
-        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+        client:notify('workspace/didChangeConfiguration', { settings = client.config.settings })
       end)
     end,
     settings = {
@@ -279,7 +293,7 @@ local lsp_server_configs = {
     end,
     on_init = function(client, _initialize_result)
       vim.schedule(function()
-        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+        client:notify('workspace/didChangeConfiguration', { settings = client.config.settings })
       end)
     end,
     settings = {
@@ -339,7 +353,7 @@ local lsp_server_configs = {
     end,
     on_init = function(client, _initialize_result)
       vim.schedule(function()
-        client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+        client:notify('workspace/didChangeConfiguration', { settings = client.config.settings })
       end)
     end,
     settings = {
@@ -596,57 +610,22 @@ for _server_name, config in pairs(lsp_server_configs) do
   config.capabilities = config.capabilities or capabilities
 end
 
--- New API (Neovim 0.11+)
-if vim.lsp.config then
-  for server_name, config in pairs(lsp_server_configs) do
-    if lsp_servers[server_name] then
-      vim.lsp.config[server_name] = config
-      vim.lsp.enable(server_name)
-    end
-  end
--- Old API (Neovim 0.10 and below)
-else
-  local lspconfig = require('lspconfig')
-
-  for server_name, config in pairs(lsp_server_configs) do
-    if lsp_servers[server_name] then
-      local lspconfig_config = vim.deepcopy(config)
-      if type(lspconfig_config.root_dir) == 'function' then
-        local new_root_dir = lspconfig_config.root_dir
-        lspconfig_config.root_dir = function(filename)
-          local result
-          new_root_dir(vim.fn.bufnr(filename), function(root)
-            result = root
-          end)
-          return result
-        end
-      end
-      lspconfig[server_name].setup(lspconfig_config)
-    end
+-- Native server-config API. core/shims.lua polyfills this on Neovim < 0.11.
+for server_name, config in pairs(lsp_server_configs) do
+  if lsp_servers[server_name] then
+    vim.lsp.config[server_name] = config
+    vim.lsp.enable(server_name)
   end
 end
 
--- Bun support - override Node.js runtime if enabled
+-- Bun support - override Node.js runtime if enabled.
 if vim.g.use_bun and vim.fn.executable('bun') == 1 then
-  if vim.lsp.config then
-    -- New API: Override cmd for applicable servers
-    for server_name, _config in pairs(lsp_server_configs) do
-      if vim.lsp.config[server_name] and vim.lsp.config[server_name].cmd then
-        local cmd = vim.lsp.config[server_name].cmd
-        if type(cmd) == 'table' and cmd[1] and string.match(cmd[1], 'node') then
-          vim.lsp.config[server_name].cmd = vim.list_extend({ 'bun', 'run', '--bun' }, cmd)
-        end
+  for server_name, _config in pairs(lsp_server_configs) do
+    if vim.lsp.config[server_name] and vim.lsp.config[server_name].cmd then
+      local cmd = vim.lsp.config[server_name].cmd
+      if type(cmd) == 'table' and cmd[1] and string.match(cmd[1], 'node') then
+        vim.lsp.config[server_name].cmd = vim.list_extend({ 'bun', 'run', '--bun' }, cmd)
       end
-    end
-  else
-    -- Old API: Use the original method
-    local lspconfig = require('lspconfig')
-    local original_setup = lspconfig.util.on_setup
-    lspconfig.util.on_setup = function(config)
-      if config.cmd and config.cmd[1] and string.match(config.cmd[1], 'node') then
-        config.cmd = vim.list_extend({ 'bun', 'run', '--bun' }, config.cmd)
-      end
-      return original_setup(config)
     end
   end
 end

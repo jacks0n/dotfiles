@@ -12,7 +12,7 @@ M.setup = function()
     group = 'YankHighlight',
     pattern = '*',
     callback = function()
-      vim.highlight.on_yank({ higroup = 'IncSearch', timeout = 200 })
+      vim.hl.on_yank({ higroup = 'IncSearch', timeout = 200 })
     end,
   })
 
