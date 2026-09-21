@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "permissions": {
+    "allow": [
+      "Glob",
+      "Grep",
+      "LS",
+      "Python(readonly)",
+      "Read",
+      "Search",
+      {
+        "SQL(postgres-inspect)": {
+          "dialect": "postgres",
+          "format": "psql",
+          "effects": {
+            "only": [
+              "read",
+              "session-change"
+            ]
+          },
+          "functions": {
+            "all": [
+              "builtin:*",
+              "postgres:current_setting",
+              "postgres:pg_get_*"
+            ]
+          }
+        }
+      },
+      {
+        "SQL(oracle-read-only)": {
+          "dialect": "oracle",
+          "format": "sqlplus",
+          "effects": {
+            "only": [
+              "read"
+            ]
+          },
+          "functions": {
+            "all": [
+              "builtin:*"
+            ]
+          }
+        }
+      },
+      {
+        "SQL(sqlite-read-only)": {
+          "dialect": "sqlite",
+          "format": "sqlite",
+          "effects": {
+            "only": [
+              "read"
+            ]
+          },
+          "functions": {
+            "all": [
+              "builtin:*"
+            ]
+          }
+        }
+      },
+      "Shell(... {--version,--help} !... !-*)",
+      "Shell(agentperm values(--agent,--event) check)",
+      "Shell(agentperm validate)",
+      "Shell(agentperm why ...)",
+      "Shell(az account show)",
+      "Shell(beckon status ?--json !... only(--json))",
+      "Shell(brew list)",
+      "Shell(codesign --verbose=4 only(-d,-v))",
+      "Shell(command -v * !... !-*)",
+      "Shell(defaults read)",
+      "Shell(docker compose {build,ls,up})",
+      "Shell(docker image {inspect,ls})",
+      "Shell(docker network {inspect,ls})",
+      "Shell(docker volume ls)",
+      "Shell(docker {inspect,logs,ps})",
+      "Shell(done !... !-*)",
+      "Shell(gh api values(--hostname) !{graphql} !{-X,--method,-f,--raw-field,-F,--field,--input,-H,--header})",
+      "Shell(gh auth status values(--hostname))",
+      "Shell(gh issue {list,view} values(--hostname))",
+      "Shell(gh pr {checks,diff,list,status,view} values(--hostname))",
+      "Shell(gh repo {list,view} values(--hostname,--json,--jq,--limit))",
+      "Shell(gh run {list,view,watch} values(--hostname))",
+      "Shell(gh search {code,issues,repos} values(--hostname))",
+      "Shell(gh variable {get,list} values(--hostname))",
+      "Shell(gh workflow {list,view} values(--hostname))",
+      "Shell(granted {-v,--version})",
+      "Shell(granted cache list)",
+      "Shell(granted credentials list)",
+      "Shell(granted doctor values(--profile))",
+      "Shell(granted settings print)",
+      "Shell(granted sso-tokens {expiry,list})",
+      "Shell(git stash {list,show} values(-C))",
+      "Shell(git worktree list values(-C))",
+      "Shell(git branch !... ?{-C,-a,-r,-l,-v,-vv,--all,--remotes,--list,--show-current} !-* values(-C))",
+      "Shell(git branch --contains !... only(-a,-r,--all,--remotes,--contains) values(-C,--contains))",
+      "Shell(git branch --list only(-a,-r,-l,--all,--remotes,--list,--sort) values(-C,--sort))",
+      "Shell(git remote ?-v !... !-* values(-C))",
+      "Shell(git remote {show,get-url} values(-C))",
+      "Shell(git tag --contains !... only(--contains) values(-C,--contains))",
+      "Shell(git tag {-l,--list} only(-l,--list,--sort) values(-C,--sort))",
+      "Shell(git tag --sort !... only(--sort) values(-C,--sort))",
+      "Shell(git {blame,cat-file,check-ignore,describe,diff,fetch,for-each-ref,grep,log,ls-files,ls-remote,ls-tree,merge-base,merge-tree,range-diff,rev-list,rev-parse,show,show-ref,status} values(-C))",
+      "Shell(ip addr)",
+      "Shell(just --list)",
+      "Shell(launchctl list !... !-*)",
+      "Shell(llm-context)",
+      "Shell(log show values(--last,--predicate,--style) only(--last,--predicate,--style))",
+      "Shell(make)",
+      "Shell(mise current)",
+      "Shell(mount !... !-*)",
+      "Shell(node)",
+      "Shell(npm root only(-g,--global))",
+      "Shell(npm {audit,search,view})",
+      "Shell(npx rulesync --version !... only(--no-install,--version))",
+      "Shell(npx {eslint,tsc})",
+      "Shell(nvim --version)",
+      "Shell(op item {get,list})",
+      "Shell({bash,zsh} -n !-*)",
+      "Shell(php -l)",
+      "Shell(pip cache {dir,info,list})",
+      "Shell(pip config {debug,get,list})",
+      "Shell(pip index versions)",
+      "Shell(pip {check,completion,debug,freeze,hash,help,inspect,list,show})",
+      "Shell(pip3 cache {dir,info,list})",
+      "Shell(pip3 config {debug,get,list})",
+      "Shell(pip3 index versions)",
+      "Shell(pip3 {check,completion,debug,freeze,hash,help,inspect,list,show})",
+      "Shell(plutil -p !-*)",
+      "Shell(pnpm run {build,lint,lint:fix})",
+      "Shell(pnpm {add,exec,install,list,test,why})",
+      "Shell(python -m pip cache {dir,info,list})",
+      "Shell(python -m pip config {debug,get,list})",
+      "Shell(python -m pip index versions)",
+      "Shell(python -m pip {check,completion,debug,freeze,hash,help,inspect,list,show})",
+      "Shell(python3 -m pip cache {dir,info,list})",
+      "Shell(python3 -m pip config {debug,get,list})",
+      "Shell(python3 -m pip index versions)",
+      "Shell(python3 -m pip {check,completion,debug,freeze,hash,help,inspect,list,show})",
+      "Shell(python3 -m py_compile)",
+      "Shell(rulesync doctor values(--config,--input-root))",
+      "Shell(rulesync docs values(--search))",
+      "Shell(rustup component list !... only(--installed,-q,--quiet,--toolchain) values(--toolchain))",
+      "Shell(rustup toolchain list)",
+      "Shell(set pipefail only(-e,-u,-o) !...)",
+      "Shell(source /Users/jackson/.config/private.env !... !-*)",
+      "Shell(source ~/.config/private.env !... !-*)",
+      "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) stdin(<SQL:postgres-inspect>) !{-c,--command,-f,--file,-L,--log-file,-o,--output})",
+      "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) sqlvalues(<SQL:postgres-inspect>,-c,--command) !{-f,--file,-L,--log-file,-o,--output})",
+      "Shell(sqlite3 * values(-cmd,-init,-maxsize,-mmap,-newline,-nonce,-nullvalue,-separator,-vfs) stdin(<SQL:sqlite-read-only>) !{-cmd,-init} !...)",
+      "Shell(sqlite3 * <SQL:sqlite-read-only> values(-cmd,-init,-maxsize,-mmap,-newline,-nonce,-nullvalue,-separator,-vfs) !{-cmd,-init} !...)",
+      "Shell(sqlplus * values(-C,-M,-R) stdin(<SQL:oracle-read-only>) !...)",
+      "Shell(shasum values(-a) ?-a !-*)",
+      "Shell(sleep)",
+      "Shell(sdef !-*)",
+      "Shell(time {source,zsh})",
+      "Shell(uv pip {check,freeze,list,show,tree})",
+      "Shell(uv python list --only-installed !... !-*)",
+      "Shell(uv run agentperm check ...)",
+      "Shell(uv run agentperm validate)",
+      "Shell(uv run agentperm why ...)",
+      "Shell(uv run pytest)",
+      "Shell(uv tool list)",
+      "Shell(xattr ?-l !-*)",
+      "Shell(zellij setup --check !... !-*)",
+      "Shell({./.venv/bin/python,python3} -m json.tool)",
+      "Shell({:,alias,cd,echo,exit,false,popd,printf,pushd,pwd,test,true,type})",
+      "Shell({ag,awk,cat,cmp,comm,cut,diff,du,egrep,fgrep,file,find,fold,grep,gsed,head,jq,less,locate,ls,more,nl,readlink,realpath,rg,sed,sort,stat,tail,tr,tree,uniq,wc,xargs,zipinfo})",
+      "Shell({claude,codex} mcp get !-*)",
+      "Shell({claude,codex} mcp list !... !-*)",
+      "Shell({date,df,dig,env,free,help,host,hostname,htop,id,ifconfig,info,iostat,lsof,man,mdfind,mdls,netstat,nslookup,pgrep,ping,printenv,ps,ss,top,traceroute,uname,uptime,vmstat,w,whatis,whereis,which,who,whoami})",
+      "WebFetch",
+      "WebSearch",
+      "MCP(Context7.query-docs)",
+      "MCP(anytype.{anytype_API_chat_message_stream,anytype_API_download_file,anytype_API_get_chat_message,anytype_API_get_chat_messages,anytype_API_get_list_objects,anytype_API_get_list_views,anytype_API_get_member,anytype_API_get_object,anytype_API_get_property,anytype_API_get_space,anytype_API_get_tag,anytype_API_get_template,anytype_API_get_type,anytype_API_list_chats,anytype_API_list_members,anytype_API_list_objects,anytype_API_list_properties,anytype_API_list_spaces,anytype_API_list_tags,anytype_API_list_templates,anytype_API_list_types,anytype_API_search_chat_messages,anytype_API_search_global,anytype_API_search_space})",
+      "MCP(claude_ai_Notion.notion-search)",
+      "MCP(coderift.{call_graph,call_hierarchy,close_repository,diagnostics,find_symbol,find_symbols,get_usages,implementations,indexing_status,list_repositories,list_workspace_symbols,open_repository,outline,path_between_symbols,query_codeql,symbol_context,type_hierarchy})",
+      "MCP(coderift.coderift_{call_graph,call_hierarchy,close_repository,diagnostics,find_symbol,find_symbols,get_usages,implementations,indexing_status,list_repositories,list_workspace_symbols,open_repository,outline,path_between_symbols,query_codeql,symbol_context,type_hierarchy})",
+      "MCP(ddg-search.{fetch_content,search})",
+      "MCP(miro.{board_search_boards,context_explore,context_get})",
+      "MCP(notion.{notion-download-attachment,notion-fetch,notion-get-async-task,notion-get-comments,notion-get-teams,notion-get-users,notion-list-favorite-pages,notion-list-private-pages,notion-list-recent-pages,notion-list-shared-pages,notion-query-data-sources,notion-query-meeting-notes,notion-search,notion-search-agents})",
+      "MCP(sequential-thinking.sequentialthinking)"
+    ],
+    "ask": [
+      {
+        "tool": "Bash",
+        "command": [
+          "sed",
+          "gsed"
+        ],
+        "when": {
+          "hasOption": [
+            "-i",
+            "--in-place"
+          ]
+        },
+        "reason": "sed in-place editing changes files"
+      }
+    ],
+    "deny": [
+      "Shell(sudo)",
+      "Shell(su)",
+      "Shell(rm -r -f /*)",
+      "Shell(format)",
+      "Shell(fdisk)"
+    ]
+  },
+  "shell": {
+    "redirection": {
+      "stderrToDevNull": "allow",
+      "stdoutToFile": "ask",
+      "appendToFile": "ask",
+      "allowPaths": [
+        "/tmp",
+        "/private/tmp/claude-*"
+      ]
+    }
+  }
+}

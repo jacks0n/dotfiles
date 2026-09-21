@@ -1,0 +1,17 @@
+{
+  "Label": "com.jackson.mcphub",
+  "ProgramArguments": ["__MCPHUB__"],
+  "EnvironmentVariables": {
+    "PATH": "__PATH__",
+    "NODE_ENV": "production",
+    "PORT": "3000",
+    "INSTALL_BASE_URL": "http://127.0.0.1:3000",
+    "MCPHUB_SETTING_PATH": "__HOME__/.config/mcphub/mcp_settings.json"
+  },
+  "WorkingDirectory": "__HOME__/.config/mcphub",
+  "RunAtLoad": true,
+  "KeepAlive": true,
+  "ThrottleInterval": 10,
+  "StandardOutPath": "__HOME__/Library/Logs/mcphub.log",
+  "StandardErrorPath": "__HOME__/Library/Logs/mcphub.error.log"
+}

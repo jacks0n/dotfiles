@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "hooks": {},
+  "claudecode": {
+    "hooks": {
+      "preToolUse": [
+        {
+          "type": "command",
+          "command": "agent-hook--pretool-python.py --provider claude",
+          "matcher": "Write|Edit",
+          "timeout": 10,
+          "statusMessage": "Checking for banned patterns..."
+        }
+      ]
+    }
+  },
+  "codexcli": {
+    "hooks": {
+      "preToolUse": [
+        {
+          "type": "command",
+          "command": "agent-hook--pretool-python.py --provider codex",
+          "matcher": "apply_patch",
+          "timeout": 10
+        }
+      ]
+    }
+  },
+  "geminicli": {
+    "hooks": {
+      "preToolUse": [
+        {
+          "type": "command",
+          "command": "agent-hook--pretool-python.py --provider gemini",
+          "matcher": "write_file|replace",
+          "timeout": 10000
+        }
+      ]
+    }
+  },
+  "kiro": {
+    "hooks": {
+      "preToolUse": [
+        {
+          "type": "command",
+          "command": "agent-hook--pretool-python.py --provider kiro",
+          "matcher": "write|fs_write",
+          "timeout": 10,
+          "statusMessage": "Checking for banned patterns..."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://github.com/dyoshikawa/rulesync/releases/latest/download/mcp-schema.json",
+  "mcpServers": {
+    "atlassian": {
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/atlassian",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    },
+    "ddg-search": {
+      "disabled": true,
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/ddg-search",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    },
+    "coderift": {
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/coderift",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    },
+    "miro": {
+      "disabled": true,
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/miro",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    },
+    "notion": {
+      "disabled": true,
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/notion",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    },
+    "anytype": {
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp/anytype",
+      "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+      "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+    }
+  },
+  "claudecode": { "mcpServers": {} },
+  "codexcli": {
+    "mcpServers": {
+      "playwright": {
+        "type": "http",
+        "url": "http://127.0.0.1:3000/mcp/playwright",
+        "headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" },
+        "http_headers": { "Authorization": "Bearer __MCPHUB_BEARER_TOKEN__" }
+      }
+    }
+  },
+  "kiro": { "mcpServers": { "atlassian": null } }
+}
