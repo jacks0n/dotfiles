@@ -149,20 +149,20 @@ M.setup = function()
     vim.diagnostic.enable(true)
   end, { desc = 'Enable diagnostics', noremap = true })
 
+  -- The core ftplugin/markdown.lua maps buffer-local [[ / ]] to heading jumps,
+  -- which shadow the global toggles above. Shadow them right back with our own
+  -- buffer-local mappings. Overwriting rather than deleting keeps this
+  -- idempotent: FileType can fire more than once per buffer, and the ftplugin
+  -- mappings are absent entirely if it bailed early (e.g. no markdown parser).
   vim.api.nvim_create_autocmd('FileType', {
     pattern = 'markdown',
-    callback = function()
-      -- Undo the core ftplugin/markdown.lua mappings.
-      vim.keymap.del('n', '[[', { buffer = true })
-      vim.keymap.del('n', ']]', { buffer = true })
-
-      -- Toggle diagnostics
+    callback = function(args)
       vim.keymap.set('n', '[[', function()
         vim.diagnostic.enable(false)
-      end, { desc = 'Disable diagnostics', noremap = true })
+      end, { desc = 'Disable diagnostics', noremap = true, buffer = args.buf })
       vim.keymap.set('n', ']]', function()
         vim.diagnostic.enable(true)
-      end, { desc = 'Enable diagnostics', noremap = true })
+      end, { desc = 'Enable diagnostics', noremap = true, buffer = args.buf })
     end,
   })
 

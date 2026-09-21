@@ -3,6 +3,11 @@ require('mason').setup({
     'github:mason-org/mason-registry',
     'github:Crashdummyy/mason-registry',
   },
+  -- Mason tools should resolve from public PyPI. A user-level pip config may
+  -- point at short-lived authenticated indexes such as AWS CodeArtifact.
+  pip = {
+    install_args = { '--index-url', 'https://pypi.org/simple' },
+  },
   PATH = 'prepend',
 })
 

@@ -159,7 +159,7 @@ if has('nvim')
     \| Plug 'nvim-tree/nvim-web-devicons'
   Plug 'akinsho/bufferline.nvim'
     \| Plug 'nvim-tree/nvim-web-devicons'
-  Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
+  Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSInstallAll' }
   Plug 'JoosepAlviste/nvim-ts-context-commentstring'
   Plug 'folke/todo-comments.nvim'
     \| Plug 'nvim-lua/plenary.nvim'
@@ -185,7 +185,7 @@ if has('nvim')
         \| Plug 'MunifTanjim/nui.nvim'
   Plug 'monaqa/dial.nvim'
   Plug 'bennypowers/nvim-regexplainer'
-    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSInstallAll' }
     \| Plug 'MunifTanjim/nui.nvim'
   Plug 'rareitems/printer.nvim'
   Plug 'nvim-telescope/telescope-file-browser.nvim'
@@ -195,7 +195,7 @@ if has('nvim')
   Plug 'CKolkey/ts-node-action'
     \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main' }
   Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'main' }
-    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSInstallAll' }
   " Plug 'folke/noice.nvim'
   "   \| Plug 'MunifTanjim/nui.nvim'
   "   \| Plug 'rcarriga/nvim-notify'
@@ -204,7 +204,7 @@ if has('nvim')
     \| Plug 'nvim-neotest/nvim-nio'
     \| Plug 'nvim-lua/plenary.nvim'
     \| Plug 'antoinemadec/FixCursorHold.nvim'
-    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' }
+    \| Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSInstallAll' }
   Plug 'haydenmeade/neotest-jest'
   Plug 'abecodes/tabout.nvim'
   Plug 'CRAG666/code_runner.nvim'
@@ -256,6 +256,14 @@ if has('nvim')
   Plug 'rebelot/kanagawa.nvim'
   Plug 'rose-pine/neovim'
   Plug 'ellisonleao/gruvbox.nvim'
+  Plug 'sainnhe/everforest'             " soft warm green; same author as the two below
+  Plug 'sainnhe/gruvbox-material'
+  Plug 'sainnhe/sonokai'
+  Plug 'nyoom-engineering/oxocarbon.nvim' " IBM Carbon-based modern dark
+  Plug 'savq/melange-nvim'              " warm, cozy, low-contrast
+  Plug 'shaunsingh/nord.nvim'           " classic cool-blue
+  Plug 'vague2k/vague.nvim'             " muted, desaturated minimalist
+  Plug 'bluz71/vim-moonfly-colors', { 'as': 'moonfly' } " deep saturated dark
 endif
 
 
