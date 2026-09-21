@@ -9,7 +9,7 @@ Usage:
 
 Refreshes the AWS CLI SSO cache through Granted's device-code flow. The
 Granted Chrome extension verifies and confirms the locally generated code.
-Defaults to AWS_PROFILE, then example-sso-profile.
+Pass a profile explicitly or set AWS_PROFILE.
 USAGE
 }
 
@@ -18,7 +18,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
-profile="${AWS_PROFILE}"
+profile="${AWS_PROFILE:-}"
 
 if [[ "${1:-}" == "--profile" ]]; then
   if [[ -z "${2:-}" ]]; then
@@ -30,6 +30,11 @@ if [[ "${1:-}" == "--profile" ]]; then
 elif [[ -n "${1:-}" && "${1:-}" != -* ]]; then
   profile="$1"
   shift
+fi
+
+if [[ -z "$profile" ]]; then
+  echo 'aws-sso-login: pass a profile or set AWS_PROFILE' >&2
+  exit 2
 fi
 
 sso_session="$(aws configure get sso_session --profile "$profile")"
