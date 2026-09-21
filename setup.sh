@@ -7,20 +7,19 @@ source "$SCRIPT_DIR/dotfiles.conf"
 # Helper Functions
 # =============================================================================
 
-# Prompt with default Y - returns 0 (true) if yes, 1 (false) if no
-prompt_yes() {
-  local message="$1"
-  read -p "$message [Y/n]: " -n 1 -r
-  echo
-  [[ ! $REPLY =~ ^[Nn]$ ]]
-}
+# Shell-portable prompt helpers (prompt_yes / prompt_no / prompt_line).
+source "${DOTFILES_PATH:-$HOME/.dotfiles}/lib.sh"
 
-# Prompt with default N - returns 0 (true) if yes, 1 (false) if no
-prompt_no() {
-  local message="$1"
-  read -p "$message [y/N]: " -n 1 -r
-  echo
-  [[ $REPLY =~ ^[Yy]$ ]]
+# Get the current login shell portably (Linux/WSL via getent, macOS via dscl,
+# fallback to $SHELL).
+current_login_shell() {
+  if command -v getent >/dev/null 2>&1; then
+    getent passwd "$USER" | cut -d: -f7
+  elif command -v dscl >/dev/null 2>&1; then
+    dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}'
+  else
+    echo "$SHELL"
+  fi
 }
 
 # Check if symlink already points to correct target
@@ -58,6 +57,7 @@ handle_existing() {
 
 echo "=== Home Directory Dotfiles ==="
 for dotfile in "${home_dotfiles[@]}"; do
+  mkdir -p "$(dirname "$HOME/$dotfile")"
   if is_correct_symlink "$HOME/$dotfile" "$DOTFILES_PATH/$dotfile"; then
     echo "Already linked: ~/$dotfile"
     continue
@@ -102,6 +102,126 @@ done
 echo ""
 echo "=== Special Setups ==="
 
+# Optional corporate CA. Copy it to a stable machine-local path, then generate
+# npm and shell configuration from that path.
+prompt_line "Corporate CA certificate path (Enter for none): " corporate_ca_source
+corporate_ca="$HOME/.config/corporate-ca.pem"
+
+if [[ -n "$corporate_ca_source" ]]; then
+  if [[ ! -f "$corporate_ca_source" ]]; then
+    echo "Corporate CA is not a file: $corporate_ca_source" >&2
+    exit 1
+  fi
+  if [[ -f "$corporate_ca" ]] && cmp -s "$corporate_ca_source" "$corporate_ca"; then
+    echo "  Corporate CA already copied: $corporate_ca"
+  elif handle_existing "$corporate_ca"; then
+    cp "$corporate_ca_source" "$corporate_ca"
+    echo "  Copied corporate CA to $corporate_ca"
+  else
+    echo "  Keeping existing corporate CA: $corporate_ca"
+  fi
+  chmod 600 "$corporate_ca"
+  touch "$HOME/.shrc.local"
+  printf '\nexport NODE_EXTRA_CA_CERTS="%s"\nexport npm_config_cafile="%s"\n' \
+    "$corporate_ca" "$corporate_ca" >> "$HOME/.shrc.local"
+  export NODE_EXTRA_CA_CERTS="$corporate_ca"
+  export npm_config_cafile="$corporate_ca"
+else
+  echo "  No corporate CA configured"
+fi
+
+if handle_existing "$HOME/.npmrc"; then
+  cp "$DOTFILES_PATH/.npmrc" "$HOME/.npmrc"
+  if [[ -n "$corporate_ca_source" ]]; then
+    printf '\ncafile=%s\n' "$corporate_ca" >> "$HOME/.npmrc"
+  fi
+  chmod 600 "$HOME/.npmrc"
+else
+  echo "  Skipped: ~/.npmrc"
+fi
+
+# Rulesync, Agentperm, Beckon and MCPHub are installed by install.sh. Their
+# source configuration is rendered here so secrets remain machine-local.
+if prompt_yes "Configure AI tooling and LaunchAgents?"; then
+  missing_ai_tools=()
+  for command_name in jq openssl uuidgen plutil rulesync agentperm beckon mcphub node; do
+    command -v "$command_name" >/dev/null 2>&1 || missing_ai_tools+=("$command_name")
+  done
+
+  if (( ${#missing_ai_tools[@]} )); then
+    echo "  Skipped: run install.sh first (missing: ${missing_ai_tools[*]})"
+  else
+    mkdir -p "$HOME/.rulesync" "$HOME/.config/mcphub" "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
+
+    mcphub_settings="$HOME/.config/mcphub/mcp_settings.json"
+    if [[ ! -f "$mcphub_settings" ]]; then
+      jq --arg home "$HOME" \
+        'walk(if type == "string" then gsub("__HOME__"; $home) else . end)' \
+        "$DOTFILES_PATH/mcphub/mcp_settings.json.in" > "$mcphub_settings"
+    fi
+
+    mcphub_token="$(jq -r '[.bearerKeys[]? | select(.enabled == true and .name == "Local Rulesync clients")][0].token // empty' "$mcphub_settings")"
+    if [[ -z "$mcphub_token" ]]; then
+      mcphub_token="mcphub_$(openssl rand -hex 32)"
+      mcphub_key_id="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+      jq --arg id "$mcphub_key_id" --arg token "$mcphub_token" \
+        '.bearerKeys = ((.bearerKeys // []) + [{id: $id, name: "Local Rulesync clients", token: $token, enabled: true, kind: "system", accessType: "all", allowedGroups: [], allowedServers: []}])' \
+        "$mcphub_settings" > "$mcphub_settings.tmp"
+      mv "$mcphub_settings.tmp" "$mcphub_settings"
+      echo "  Created private MCPHub bearer key"
+    fi
+    chmod 600 "$mcphub_settings"
+
+    rulesync_hooks="$HOME/.rulesync/hooks.json"
+    if handle_existing "$rulesync_hooks"; then
+      jq --arg dotfiles "$DOTFILES_PATH" \
+        'walk(if type == "string" then gsub("__DOTFILES_PATH__"; $dotfiles) else . end)' \
+        "$DOTFILES_PATH/rulesync/hooks.json.in" > "$rulesync_hooks"
+      chmod 600 "$rulesync_hooks"
+    else
+      echo "  Keeping existing Rulesync hooks"
+    fi
+
+    rulesync_mcp="$HOME/.rulesync/mcp.json"
+    if handle_existing "$rulesync_mcp"; then
+      jq --arg token "$mcphub_token" \
+        'walk(if type == "string" then gsub("__MCPHUB_BEARER_TOKEN__"; $token) else . end)' \
+        "$DOTFILES_PATH/rulesync/mcp.json.in" > "$rulesync_mcp"
+      chmod 600 "$rulesync_mcp"
+    else
+      echo "  Keeping existing Rulesync MCP configuration"
+    fi
+
+    agentperm install --mode rulesync
+    beckon hooks install claude
+    beckon hooks install codex
+    rulesync generate --global --input-roots "$HOME/.rulesync" \
+      --features mcp,hooks --targets claudecode,codexcli,opencode
+    beckon service install
+
+    launch_agent="$HOME/Library/LaunchAgents/com.jackson.mcphub.plist"
+    if handle_existing "$launch_agent"; then
+      mcphub_path="$(command -v mcphub)"
+      launch_path="$(dirname "$mcphub_path"):$(dirname "$(command -v node)"):$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      jq --arg home "$HOME" --arg mcphub "$mcphub_path" --arg path "$launch_path" \
+        --arg ca "$(test -n "$corporate_ca_source" && printf '%s' "$corporate_ca")" \
+        'walk(if type == "string" then gsub("__HOME__"; $home) | gsub("__MCPHUB__"; $mcphub) | gsub("__PATH__"; $path) else . end)
+         | if $ca == "" then . else .EnvironmentVariables.NODE_EXTRA_CA_CERTS = $ca end' \
+        "$DOTFILES_PATH/Library/LaunchAgents/com.jackson.mcphub.plist.json" \
+        | plutil -convert xml1 -o "$launch_agent" -
+      chmod 600 "$launch_agent"
+      plutil -lint "$launch_agent"
+      launchctl bootout "gui/$UID/com.jackson.mcphub" >/dev/null 2>&1 || true
+      launchctl bootstrap "gui/$UID" "$launch_agent"
+      launchctl enable "gui/$UID/com.jackson.mcphub"
+      echo "  MCPHub running at http://127.0.0.1:3000"
+      echo "  MCP servers are disabled by default; enable and authenticate this machine's servers in the MCPHub dashboard"
+    else
+      echo "  Skipped MCPHub LaunchAgent"
+    fi
+  fi
+fi
+
 # Neovim config
 if is_correct_symlink "$HOME/.config/nvim" "$DOTFILES_PATH/.vim"; then
   echo "Already linked: ~/.config/nvim"
@@ -145,7 +265,7 @@ done
 # Intelephense license (optional - for PHP development)
 if prompt_no "Setup Intelephense license (PHP LSP)?"; then
   mkdir -p ~/intelephense
-  read -p "Enter Intelephense license key: " -r intelephense_license
+  prompt_line "Enter Intelephense license key: " intelephense_license
   echo
   if [[ -n "$intelephense_license" ]]; then
     echo "$intelephense_license" > ~/intelephense/license.txt
@@ -161,6 +281,21 @@ if prompt_no "Setup sudoers timeout (extends sudo timeout to 60min, requires sud
   sudo chmod 440 /private/etc/sudoers.d/timeout
   sudo chown root:wheel /private/etc/sudoers.d/timeout
   echo "  Installed: /private/etc/sudoers.d/timeout"
+fi
+
+# Default login shell (portable: Linux, macOS, WSL)
+zsh_path="$(command -v zsh)"
+if [[ -z "$zsh_path" ]]; then
+  echo "Skipping default shell (zsh not found on PATH)"
+elif [[ "$(current_login_shell)" == "$zsh_path" ]]; then
+  echo "Default shell already zsh ($zsh_path)"
+elif prompt_yes "Set zsh ($zsh_path) as your default login shell?"; then
+  if ! grep -qFx "$zsh_path" /etc/shells 2>/dev/null; then
+    echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null
+    echo "  Added to /etc/shells: $zsh_path"
+  fi
+  sudo chsh -s "$zsh_path" "$USER"
+  echo "  Default shell set to $zsh_path (log out + back in to apply)"
 fi
 
 # Git aliases

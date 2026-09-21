@@ -6,6 +6,29 @@ sudo xcode-select --install
 
 softwareupdate --all --install --force --install-rosetta --agree-to-license
 
+# Skip all interactive prompts (Homebrew bootstrap + subsequent brew commands).
+export NONINTERACTIVE=1
+export HOMEBREW_NO_ASK=1
+export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+
+# Shared, shell-portable prompt helpers (prompt_yes / prompt_no / prompt_line).
+source "${DOTFILES_PATH:-$HOME/.dotfiles}/lib.sh"
+
+# Optional corporate CA trust for downloads performed by this installer.
+while :; do
+  prompt_line "Corporate CA certificate path (Enter for none): " corporate_ca_file
+  if [[ -z "$corporate_ca_file" || -f "$corporate_ca_file" ]]; then
+    break
+  fi
+  echo "Corporate CA is not a file: $corporate_ca_file" >&2
+done
+
+if [[ -n "$corporate_ca_file" ]]; then
+  export NODE_EXTRA_CA_CERTS="$corporate_ca_file"
+  export npm_config_cafile="$corporate_ca_file"
+  echo "Using optional corporate CA: $corporate_ca_file"
+fi
+
 # Install Brew.
 if ! type brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -59,6 +82,7 @@ brew install glow # Render markdown for ranger
 brew install gnu-sed
 brew install gnu-tar
 brew install go # Required for SQL language server.
+brew install fwdcloudsec/granted/granted
 brew install grep
 brew install htop
 brew install imagemagick
@@ -67,6 +91,7 @@ brew install jless # JSON viewer
 brew install jnv # Interactive JSON filter using jq
 brew install jordanbaird-ice
 brew install jq
+brew install libpq # PostgreSQL cli
 brew install lolcrab
 brew install lsd
 brew install mediainfo # Extract media information for ranger
@@ -118,6 +143,12 @@ brew install zsh-autosuggestions
 brew install tree-sitter-cli
 brew link docker
 
+# Unified agent configuration.
+if ! brew tap | grep -qx 'dyoshikawa/rulesync'; then
+  brew tap dyoshikawa/rulesync https://github.com/dyoshikawa/rulesync
+fi
+brew install rulesync
+
 # Install Brew packages - optional
 brew_packages_optional=(
   'cfn-lint'
@@ -127,34 +158,39 @@ brew_packages_optional=(
   'yarn'
 )
 for package in "${brew_packages_optional[@]}"; do
-  read -p "Install $package? [Y/n]: " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+  if prompt_yes "Install $package?"; then
     brew install "$package"
   fi
 done
 
 # Setup Java.
-sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+# sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 
 # Setup Rust.
+# Install only rustup, never the `rust` formula - a direct toolchain on PATH
+# shadows rustup's shims and silently ignores `rust-toolchain.toml` pins.
+# The `minimal` profile omits rust-docs (~44k tiny HTML files); rustup opens
+# every file individually when clearing the previous copy, which trips the
+# on-open AV scanners and makes each `rustup update` take ~30 minutes. Pinned
+# projects declare the components they need, so only the default toolchain's
+# are added here. Profile must be set before the toolchain is installed.
+rustup set profile minimal
 rustup default stable
+rustup component add clippy rustfmt rust-src
 
 # Install Brew cask packages - core
 brew install --cask alfred
 brew install --cask alt-tab
 brew install --cask applite
 brew install --cask chromium     # Shared browser for Playwright MCP (CDP on port 9222)
-brew install --cask claude-code
 brew install --cask dash
 brew install --cask dropbox
 brew install --cask firefox
 brew install --cask github
 brew install --cask google-chrome
 brew install --cask insomnia
-brew install --cask istat-menus
 brew install --cask iterm2
-brew install --cask libreoffice # Yazi preview
+brew install --cask kitty
 brew install --cask macdown # Markdown with Mermaid support
 brew install --cask mark-text
 brew install --cask marta
@@ -162,8 +198,8 @@ brew install --cask microsoft-teams
 brew install --cask notion
 brew install --cask orbstack
 brew install --cask postman
+brew install --cask rectangle
 brew install --cask sourcetree
-brew install --cask spectacle
 brew install --cask spotify
 brew install --cask tabby
 brew install --cask vimr
@@ -185,70 +221,96 @@ brew_cask_packages_optional=(
   'zoom'
 )
 for package in "${brew_cask_packages_optional[@]}"; do
-  read -p "Install $package? [Y/n]: " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+  if prompt_yes "Install $package?"; then
     brew install --cask "$package"
   fi
 done
 
 # Install personal git config.
-read -p 'Install personal git config? [Y/n]: ' -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+if prompt_yes 'Install personal git config?'; then
   ln -sf ~/.dotfiles/.gitconfig.personal ~/.gitconfig.local
   echo 'Personal git config linked to ~/.gitconfig.local'
 fi
 
 # Install Brew cask personal packages.
-read -p 'Install Brew personal packages? [y/n]: ' -n 1 -r
-echo
 brew_cask_packages_personal=(
   'betaflight-configurator'
   'ledger-live'
-  'telegram-desktop'
-  'whatsapp'
   'orion'
   'protonvpn'
+  'telegram-desktop'
+  'whatsapp'
 )
-if [[ $REPLY =~ ^[Yy]$ ]]; then
+if prompt_no 'Install Brew cask personal packages?'; then
   echo 'Installing personal Brew packages...'
 
   for package in "${brew_cask_packages_personal[@]}"; do
-    echo "Installing Brew cask package '$package'..."
+    echo "Installing personal Brew cask package '$package'..."
     brew install --cask "$package"
   done
 
   echo 'All packages installed successfully!'
 fi
 
+# Install Brew personal packages.
+brew_packages_personal=(
+  'normen/tap/whatscli'
+  'd99kris/tap/nchat'
+)
+if prompt_no 'Install Brew personal packages?'; then
+  echo 'Installing personal Brew packages...'
+
+  for package in "${brew_packages_personal[@]}"; do
+    echo "Installing personal Brew package '$package'..."
+    brew install "$package"
+  done
+
+  echo 'All packages installed successfully!'
+fi
+
+# Install Brew cask work packages.
+brew_cask_packages_work=(
+  'microsoft-outlook'
+  'slack'
+)
+if prompt_no 'Install Brew work packages?'; then
+  echo 'Installing work Brew packages...'
+
+  for package in "${brew_cask_packages_work[@]}"; do
+    echo "Installing work Brew cask package '$package'..."
+    brew install --cask "$package"
+  done
+
+  echo 'All work packages installed successfully!'
+fi
+
 # Install Brew cask fonts.
+brew install --cask font-0xproto-nerd-font         # purpose-built for code
+brew install --cask font-caskaydia-cove-nerd-font  # Microsoft Cascadia Code, nerd-patched
+brew install --cask font-commit-mono-nerd-font     # neutral, smart-kerned
+brew install --cask font-departure-mono-nerd-font  # retro pixel font (fun mode)
 brew install --cask font-droid-sans-mono-nerd-font
 brew install --cask font-fantasque-sans-mono-nerd-font
+brew install --cask font-fira-code-nerd-font       # FiraCode ligatures (distinct from FiraMono above)
 brew install --cask font-fira-mono-nerd-font
+brew install --cask font-geist-mono-nerd-font      # Vercel; crisp and minimal
 brew install --cask font-hack-nerd-font
 brew install --cask font-inconsolata-nerd-font
+brew install --cask font-iosevka-nerd-font         # ultra-narrow, fits lots of code per line
 brew install --cask font-jetbrains-mono-nerd-font
-brew install --cask font-liberation-mono-for-powerline
+brew install --cask font-liberation-nerd-font      # provides "LiterationMono Nerd Font" (the powerline cask does NOT)
+brew install --cask font-maple-mono-nf             # rounded, warm, great ligatures
+brew install --cask font-monaspace-nerd-font       # GitHub superfamily w/ texture healing (Neon/Argon/Xenon/Radon/Krypton)
 brew install --cask font-mononoki-nerd-font
-brew install --cask font-sf-mono-nerd-font
+brew install --cask font-sf-mono-nerd-font-ligaturized
 brew install --cask font-ubuntu-mono-nerd-font
+brew install --cask font-victor-mono-nerd-font     # semi-connected cursive italics
 
 # Install Quick Look plugins.
-brew install --cask QLPrettyPatch      # QuickLook generator for patch files.
 brew install --cask apparency          # Preview the contents of a macOS app.
-brew install --cask qladdict           # Preview subtitle (.srt) files.
-brew install --cask qlcolorcode        # Preview source code files with syntax highlighting.
-brew install --cask qlimagesize        # Display image size and resolution.
-brew install --cask qlmarkdown         # Preview Markdown files.
-brew install --cask qlstephen          # Preview plain text files without or with unknown file extension.
-brew install --cask qlvideo            # Preview most types of video files, as well as their thumbnails, cover art and metadata.
-brew install --cask quicklook-json     # Preview JSON files.
-brew install --cask quicklook-pat      # Preview Adobe Photoshop pattern files.
-brew install --cask quicklookapk       # Preview Android APK files.
-brew install --cask quicklookase       # Preview Adobe ASE Color Swatches.
+brew install --cask chamburr/tap/glance # Preview 200+ file types (source, JSON, Markdown, archives, etc.).
+brew install --cask quicklook-video    # Preview video files, thumbnails, cover art and metadata.
 brew install --cask suspicious-package # Preview the contents of a standard Apple installer package.
-brew install --cask syntax-highlight   # Preview many different source code files.
 sudo xattr -rd com.apple.quarantine /Library/QuickLook
 qlmanage -r
 qlmanage -r cache
@@ -273,9 +335,7 @@ pip_packages_optional=(
   'saws'
 )
 for package in "${pip_packages_optional[@]}"; do
-  read -p "Install $package? [Y/n]: " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+  if prompt_yes "Install $package?"; then
     uv pip install --system "$package"
   fi
 done
@@ -285,29 +345,21 @@ npm install --global lehre # Required to generate JS docblocks in Vim (LJSDoc).
 
 # Install LLM cli tools
 bunx ccusage
-npm install --global @github/copilot
-npm install --global @google/gemini-cli
 npm install --global @openai/codex
-npm install --global @qwen-code/qwen-code@latest
 npm install --global opencode-ai
-npm install --global @musistudio/claude-code-router
 
-# Install MCP servers.
-mkdir -p ~/.mcp                           # Used by @modelcontextprotocol/server-memory
-npm install -g @azure/mcp@latest
-npm install -g @cocal/google-calendar-mcp
-npm install -g @modelcontextprotocol/server-filesystem
-npm install -g @modelcontextprotocol/server-memory
-npm install -g @playwright/mcp@latest
-npm install -g @upstash/context7-mcp
-npm install -g gemini-mcp-tool
-npx -y @smithery/cli install @abhiz123/todoist-mcp-server --client claude
-uv pip install --system mcp-server-fetch
-uv pip install --system mcp-server-git
-uv tool install 'cased-kit[all]'
-uv tool install mcp-proxy
-uv tool install codetoprompt
-uv tool install leann-core
+mkdir -p "$HOME/Code/vendor"
+if [[ ! -d "$HOME/Code/vendor/agentperm/.git" ]]; then
+  git clone https://github.com/jacks0n/agentperm.git "$HOME/Code/vendor/agentperm"
+fi
+uv tool install --force --editable "$HOME/Code/vendor/agentperm"
+
+if [[ ! -d "$HOME/Code/vendor/beckon/.git" ]]; then
+  git clone https://github.com/jacks0n/beckon.git "$HOME/Code/vendor/beckon"
+fi
+uv tool install --force --editable "$HOME/Code/vendor/beckon"
+
+npm install --global @samanhappy/mcphub@latest
 
 nvim --cmd 'let g:use_coc = 1' +'CocUpdateSync' +qall
 

@@ -94,6 +94,29 @@ done
 remove_symlink "$HOME/.config/nvim" "$DOTFILES_PATH/.vim"
 
 # =============================================================================
+# LaunchAgents
+# =============================================================================
+
+echo ""
+echo "=== LaunchAgents ==="
+mcphub_agent="$HOME/Library/LaunchAgents/com.jackson.mcphub.plist"
+if [[ -e "$mcphub_agent" || -L "$mcphub_agent" ]]; then
+  if prompt_yes "  Unload and remove $mcphub_agent?"; then
+    launchctl bootout "gui/$UID/com.jackson.mcphub" >/dev/null 2>&1 || true
+    rm -f "$mcphub_agent"
+    echo -e "  ${GREEN}Removed${NC}: $mcphub_agent"
+    ((removed++))
+  else
+    echo -e "  ${YELLOW}Skipped${NC}: $mcphub_agent"
+    ((skipped++))
+  fi
+fi
+
+if command -v beckon >/dev/null 2>&1 && prompt_yes "  Uninstall the Beckon service?"; then
+  beckon service uninstall
+fi
+
+# =============================================================================
 # Copied Files
 # =============================================================================
 
@@ -103,6 +126,8 @@ remove_file "$HOME/.gitconfig.local"
 remove_file "$HOME/.vimrc.before.local"
 remove_file "$HOME/.vimrc.after.local"
 remove_file "$HOME/intelephense"
+remove_file "$HOME/.npmrc"
+remove_file "$HOME/.config/corporate-ca.pem"
 remove_file "$DOTFILES_PATH/.gitalias"
 
 # =============================================================================

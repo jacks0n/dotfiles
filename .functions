@@ -84,15 +84,36 @@ chownme() {
   sudo chown -R "${USER}:staff" "$@"
 }
 
-# cd to a previously visited directory matching FUZZY_PATTERN
-unalias z 2>/dev/null
-z() {
-  if [[ -z "$*" ]]; then
-    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
-  else
-    _last_z_args="$@"
-    _z "$@"
+# Use zoxide first, then search configured fallback directory roots with fzf.
+# Set ZOXIDE_FALLBACK_DIRS as an array in ~/.shrc.local on machines that need it.
+z_with_fallback() {
+  # Preserve normal zoxide behaviour when fallback search is not configured.
+  if ! typeset -p ZOXIDE_FALLBACK_DIRS &>/dev/null ||
+     (( ${#ZOXIDE_FALLBACK_DIRS[@]} == 0 )) ||
+     ! command -v fzf &>/dev/null; then
+    __zoxide_z "$@"
+    return
   fi
+
+  __zoxide_z "$@" 2>/dev/null && return 0
+
+  local selected
+  selected="$(
+    local root
+    for root in "${ZOXIDE_FALLBACK_DIRS[@]}"; do
+      [[ -d "$root" ]] &&
+        find "$root" -mindepth 1 -maxdepth 1 -type d -print
+    done |
+      fzf \
+        --query="$*" \
+        --select-1 \
+        --height=60% \
+        --layout=reverse \
+        --border \
+        --prompt='worktree> '
+  )" || return 1
+
+  [[ -n "$selected" ]] && builtin cd -- "$selected"
 }
 
 git_maintain() {
@@ -293,8 +314,14 @@ update-user() {
     echo "\n\n=> NVim Plug install, update, upgrade, clean."
     nvim --headless +'PlugInstall --sync' +'PlugUpdate --sync' +PlugUpgrade +UpdateRemotePlugins +quitall 2>&1
 
+    # update() only refreshes parsers that are already installed -- it resolves
+    # "all" to get_installed(), so it silently no-ops on a machine with none.
+    # Install anything missing first.
+    echo "\n\n=> NVim Treesitter install."
+    nvim --headless -c TSInstallAll -c qall 2>&1
+
     echo "\n\n=> NVim Treesitter update."
-    nvim --headless -c 'lua require("nvim-treesitter.install").update():wait()' -c qall 2>&1
+    nvim --headless -c 'lua require("nvim-treesitter").update():wait()' -c qall 2>&1
 
     echo "\n\n=> NVim Mason update (LSP servers + tools)."
     nvim --headless -c 'lua require("plugins.mason")' -c 'autocmd User MasonUpdateAllComplete quitall' -c MasonUpdateAll 2>&1
@@ -396,18 +423,34 @@ update-global() {
     fi
   fi
 
+  # Strip Gatekeeper quarantine from apps. Casks with `auto_updates` (e.g. Zed)
+  # self-update outside Homebrew, and greedy cask reinstalls can re-stamp
+  # com.apple.quarantine - which triggers the "cannot verify ... free of
+  # malware" dialog on next launch. HOMEBREW_CASK_OPTS=--no-quarantine only
+  # covers Homebrew-driven installs, so sweep here to cover the rest.
+  if command_exists xattr && [ -d /Applications ]; then
+    echo "\n\n=> Removing Gatekeeper quarantine from /Applications."
+    find /Applications -maxdepth 1 -name '*.app' \
+      -exec xattr -dr com.apple.quarantine {} + 2>/dev/null
+  fi
+
   # Update OS X.
   if command_exists softwareupdate; then
     echo "\n\n=> Running OS X Software Update."
     sudo softwareupdate --install --all
   fi
 
-  # Update Gem and Gems.
-  if command_exists gem; then
+  # Update Gem and Gems (skip macOS system Ruby — it's ancient and read-only).
+  # `command which` resolves the binary past the `gem` -> `sudo gem` alias that
+  # `command -v` reports instead; run that path directly so gems land in this
+  # PATH's prefix rather than root's.
+  local gem_bin
+  gem_bin="$(command which gem 2>/dev/null)"
+  if [[ -n "$gem_bin" && "$gem_bin" != /usr/bin/gem ]]; then
     echo "\n\n=> Updating Ruby Gems."
-    gem update --system
-    gem update
-    gem clean
+    "$gem_bin" update --system
+    "$gem_bin" update
+    "$gem_bin" clean
   fi
 
   # Update npm and npm packages.
@@ -768,6 +811,7 @@ git-refresh-branches() {
 }
 
 claude-code-mcp-setup() {
+  claude mcp add --transport http miro https://mcp.miro.com --scope project
   claude mcp add --scope project codex -- codex mcp-server
   npx cclsp@latest setup
   claude mcp add stitch \
@@ -841,6 +885,7 @@ claude-code-mcp-setup() {
     --env JIRA_URL="$JIRA_URL" \
     --env JIRA_USERNAME="$JIRA_USERNAME" \
     --env JIRA_API_TOKEN="$JIRA_API_TOKEN" \
+    --scope project \
     -- docker run -i --rm \
     -e CONFLUENCE_URL \
     -e CONFLUENCE_USERNAME \
@@ -851,22 +896,18 @@ claude-code-mcp-setup() {
     ghcr.io/sooperset/mcp-atlassian:latest
   claude mcp add playwright-fast -- npx @tontoko/fast-playwright-mcp@latest
   claude mcp add playwright \
+    --scope project \
     -- npx @playwright/mcp@latest \
-    --user-data-dir '<path>'
+    --user-data-dir '.git/playwright-data'
   # Requires admin approval
   claude mcp add ms-365 -- npx -y @softeria/ms-365-mcp-server --org-mode
-  claude mcp add coderift -- uv run --directory /Users/jackson/Code/coderift coderift-mcp
+  claude mcp add coderift -- uv run --directory "$HOME/coderift" coderift-mcp
   claude mcp add ha-mcp \
     -e HOMEASSISTANT_URL="$HOME_ASSISTANT_URL" \
     -e HOMEASSISTANT_TOKEN="$HOME_ASSISTANT_API_TOKEN" \
     -- uvx ha-mcp
   claude mcp add figma \
     -- npx -y figma-developer-mcp --figma-api-key="$FIGMA_API_TOKEN" --stdio
-}
-
-claude-copy-settings() {
-  [[ ! -d .claude ]] && mkdir .claude
-  cp ~/.claude/settings.json .claude/settings.local.json
 }
 
 # Delete Time Machine backups older than N days.
@@ -913,46 +954,80 @@ tm-prune() {
   sudo tmutil delete "${delete_args[@]}"
 }
 
-claude-copy-settings-all() {
-  local ORIG_DIR="$(pwd)"
-  cd ~/Code
+##
+# rulesync: regenerate AI-tool configs from their .rulesync/ sources.
+#
+# `--features '*'` makes each directory generate whatever it actually has
+# (mcp, hooks, rules, commands, skills, permissions, ...). Absent sources are
+# logged and skipped rather than failing, so every permutation — none, mcp
+# only, hooks only, both — works under the one command.
+#
+# Extra args pass through to `rulesync generate`:
+#   rulesync-gen --dry-run    # show what would change, write nothing
+#   rulesync-gen --check      # non-zero exit if any config is stale
+#   rulesync-gen --verbose
+# Override the tool list with $RULESYNC_TARGETS.
+##
 
-  for dir in */; do
-    dir="${dir%/}"
+# Run `rulesync generate` in one directory.
+# Usage: _rulesync-gen-dir <dir> <label> [rulesync args...]
+_rulesync-gen-dir() {
+  local dir="$1" label="$2"
+  shift 2
 
-    [[ ! -d "$dir" ]] && continue
-
-    echo "Processing $dir..."
-
-    mkdir -p "$dir/.claude"
-
-    cp ~/.claude/settings.json "$dir/.claude/settings.json"
-
-    echo "  ✓ Copied settings to $dir/.claude/settings.json"
-  done
-
-  cd "$ORIG_DIR"
-  echo "Done! Copied Claude settings to all directories in ~/Code"
+  echo "==> $label"
+  (
+    cd "$dir" || exit 1
+    rulesync generate \
+      --features '*' \
+      --targets "${RULESYNC_TARGETS:-claudecode,codexcli,opencode,geminicli,kiro-cli}" \
+      "$@"
+  )
 }
 
-llm-config-gen() {
-  local targets="claudecode,codexcli,opencode,geminicli"
+# Global (user-scope) config from ~/.rulesync/.
+rulesync-gen-global() {
+  _rulesync-gen-dir "$HOME" "global (~/.rulesync)" --global "$@"
+}
 
-  echo "Processing global LLM agent config..."
-  (
-    cd "$HOME" || exit 1
-    rulesync generate --global --features hooks,mcp --targets "$targets" --base-dir "$HOME"
-  ) || return
+# Every ~/Code/<project> that has its own rulesync sources.
+# A failing project is counted and reported, not fatal, so one bad directory
+# can't silently skip the rest.
+rulesync-gen-projects() {
+  local failed=0 found=0 project
 
-  local project
   for project in "$HOME"/Code/*; do
     [[ -d "$project" ]] || continue
-    [[ -f "$project/rulesync.jsonc" || -d "$project/.rulesync" ]] || continue
+    [[ -d "$project/.rulesync" || -f "$project/rulesync.jsonc" ]] || continue
 
-    echo "Processing ${project#$HOME/}..."
-    (
-      cd "$project" || exit 1
-      rulesync generate --features mcp,hooks --targets "$targets" --base-dir "$PWD"
-    ) || return
+    found=$((found + 1))
+    _rulesync-gen-dir "$project" "${project#$HOME/}" "$@" || failed=$((failed + 1))
   done
+
+  [[ $found -gt 0 ]] || echo "--> no rulesync projects found in ~/Code"
+
+  if [[ $failed -gt 0 ]]; then
+    echo "✗ rulesync: $failed of $found project(s) failed" >&2
+    return 1
+  fi
+}
+
+# Global config, then all projects.
+rulesync-gen() {
+  local failed=0
+
+  rulesync-gen-global "$@" || failed=$((failed + 1))
+  rulesync-gen-projects "$@" || failed=$((failed + 1))
+
+  if [[ $failed -gt 0 ]]; then
+    echo "✗ rulesync-gen: completed with failures" >&2
+    return 1
+  fi
+
+  echo "✓ rulesync-gen: configs regenerated"
+}
+
+# Report whether anything is stale without writing.
+rulesync-check() {
+  rulesync-gen --check "$@"
 }
