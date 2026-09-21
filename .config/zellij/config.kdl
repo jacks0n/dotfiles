@@ -290,8 +290,12 @@ web_client {
 
 // Choose the theme that is specified in the themes section.
 // Default: default
-//
+// @see https://rodbv.github.io/zellij-theme-gallery/index.html
 // theme "dracula"
+// theme "kanagawa"
+// theme "nightfox"
+// theme "gruber-darker"
+theme "tokyo-night-dark"
 
 // Choose the base input mode of zellij.
 // Default: normal

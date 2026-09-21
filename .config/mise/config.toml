@@ -6,5 +6,5 @@ idiomatic_version_file_enable_tools = ["node", "python"]
 not_found_auto_install = true
 
 [tools]
-node = "22"
-python = "3.12"
+node = "latest"
+python = "latest"
