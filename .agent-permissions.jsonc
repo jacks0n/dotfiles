@@ -2,6 +2,7 @@
   "version": 1,
   "include": [
     ".agent-permissions.d/default.jsonc",
-    ".agent-permissions.d/aws.jsonc"
+    ".agent-permissions.d/aws.jsonc",
+    "~/.agent-permissions.local.jsonc"
   ]
 }

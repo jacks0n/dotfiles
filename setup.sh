@@ -102,6 +102,15 @@ done
 echo ""
 echo "=== Special Setups ==="
 
+# Agentperm's global policy includes a machine-local overlay for settings that
+# should never be stored in the public dotfiles repository.
+agentperm_local_policy="$HOME/.agent-permissions.local.jsonc"
+if [[ ! -f "$agentperm_local_policy" ]]; then
+  printf '%s\n' '{"version":1,"permissions":{"allow":[]}}' > "$agentperm_local_policy"
+  chmod 600 "$agentperm_local_policy"
+  echo "  Created private Agentperm overlay: $agentperm_local_policy"
+fi
+
 # Optional corporate CA. Copy it to a stable machine-local path, then generate
 # npm and shell configuration from that path.
 prompt_line "Corporate CA certificate path (Enter for none): " corporate_ca_source

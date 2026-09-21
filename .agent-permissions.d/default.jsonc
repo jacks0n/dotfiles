@@ -143,8 +143,6 @@
       "Shell(rustup component list !... only(--installed,-q,--quiet,--toolchain) values(--toolchain))",
       "Shell(rustup toolchain list)",
       "Shell(set pipefail only(-e,-u,-o) !...)",
-      "Shell(source /Users/jackson/.config/private.env !... !-*)",
-      "Shell(source ~/.config/private.env !... !-*)",
       "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) stdin(<SQL:postgres-inspect>) !{-c,--command,-f,--file,-L,--log-file,-o,--output})",
       "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) sqlvalues(<SQL:postgres-inspect>,-c,--command) !{-f,--file,-L,--log-file,-o,--output})",
       "Shell(sqlite3 * values(-cmd,-init,-maxsize,-mmap,-newline,-nonce,-nullvalue,-separator,-vfs) stdin(<SQL:sqlite-read-only>) !{-cmd,-init} !...)",
