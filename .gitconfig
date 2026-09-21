@@ -1,6 +1,6 @@
 [user]
   name = Jackson Cooper
-  email = jackson@jacksonc.com
+  useConfigOnly = true
 
 [alias]
   d  = diff
@@ -86,9 +86,6 @@
   required = true
   clean = git media clean %f
   smudge = git media smudge %f
-
-[gpg]
-  program = /usr/local/bin/gpg
 
 [help]
   ; Automatically correct and execute mistyped commands.
