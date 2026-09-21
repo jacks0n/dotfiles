@@ -68,6 +68,22 @@ export KEYTIMEOUT=1
 # Use Emacs bindings.
 bindkey -e
 
+# Option+Arrow: fine word movement (vim w — stop at punctuation).
+my-forward-word()  { local WORDCHARS=''; zle forward-word; }
+my-backward-word() { local WORDCHARS=''; zle backward-word; }
+zle -N my-forward-word
+zle -N my-backward-word
+bindkey '^[[1;3C' my-forward-word
+bindkey '^[[1;3D' my-backward-word
+
+# Option+Shift+Arrow: WORD movement (vim W — stop at whitespace only).
+my-forward-bigword()  { local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:@,"'"'"'`+#'; zle forward-word; }
+my-backward-bigword() { local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:@,"'"'"'`+#'; zle backward-word; }
+zle -N my-forward-bigword
+zle -N my-backward-bigword
+bindkey '^[[1;4C' my-forward-bigword
+bindkey '^[[1;4D' my-backward-bigword
+
 
 ##
 # Package Settings.
@@ -182,6 +198,26 @@ source "$HOME/.shrc"
 # mise - polyglot version manager (node, python, etc.)
 eval "$(mise activate zsh)"
 
+# Keep the locally built Codex fork ahead of managed standalone installs.
+if [[ -n "$CODEX_REPO_BIN" && -d "$CODEX_REPO_BIN" ]]; then
+  PATH="${PATH//$CODEX_REPO_BIN\:/}"
+  PATH="$CODEX_REPO_BIN:$PATH"
+  export PATH
+fi
+
+# Auto-provision a project's pinned toolchain when entering its directory.
+# mise installs pinned tools on first *use*, but not on `cd` alone, so a freshly
+# cloned repo warns about missing tools until you run one. This closes that gap.
+_mise_auto_install() {
+  command -v mise >/dev/null 2>&1 || return
+  if mise current 2>&1 | grep -qi "missing"; then
+    echo "mise: provisioning project tools in the background…"
+    (mise install >/dev/null 2>&1 &)
+  fi
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _mise_auto_install
+
 # Ensure Python virtual environment always has PATH priority.
 if [[ -n "$VIRTUAL_ENV" ]]; then
   PATH="${PATH//$VIRTUAL_ENV\/bin:/}"
@@ -199,6 +235,9 @@ if [[ -s "$HOME/.bun/_bun" ]] ; then
 fi
 
 eval "$(zoxide init zsh)"
+
+# Extend zoxide with the reusable fallback search defined in ~/.functions.
+z() { z_with_fallback "$@"; }
 
 # Zellij completion.
 if command -v zellij &> /dev/null; then
@@ -231,3 +270,6 @@ clear-scrollback-widget() {
 }
 zle -N clear-scrollback-widget
 bindkey '^K' clear-scrollback-widget
+
+# bun completions
+[ -s "/Users/jackson/.bun/_bun" ] && source "/Users/jackson/.bun/_bun"

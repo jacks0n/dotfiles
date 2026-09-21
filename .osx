@@ -634,12 +634,17 @@ duti -s com.kapeli.dashdoc com.apple.documentation.doccarchive all
 #  Other                                                                      #
 ###############################################################################
 
-# Make Zsh the default shell.
+# Point the default shell at Homebrew's zsh (the generic /etc/shells + chsh
+# setup lives in setup.sh; this only upgrades macOS to the brewed zsh via dscl).
 ZSH_BIN_PATH="$(brew --prefix zsh)/bin/zsh"
-if ! grep -qF "$ZSH_BIN_PATH" /etc/shells; then
-  sudo sh -c "echo '$ZSH_BIN_PATH' >> /etc/shells"
+CURRENT_SHELL="$(dscl . -read /Users/$USER UserShell 2>/dev/null | awk '{print $2}')"
+if [[ -x "$ZSH_BIN_PATH" ]] && [[ "$CURRENT_SHELL" != "$ZSH_BIN_PATH" ]]; then
+  if ! grep -qFx "$ZSH_BIN_PATH" /etc/shells; then
+    echo "$ZSH_BIN_PATH" | sudo tee -a /etc/shells > /dev/null
+  fi
+  sudo dscl . -change /Users/$USER UserShell "$CURRENT_SHELL" "$ZSH_BIN_PATH"
+  echo "Default shell set to $ZSH_BIN_PATH (log out + back in to apply)"
 fi
-sudo dscl . -change /Users/$USER UserShell "$(dscl . -read /Users/$USER UserShell | awk '{print $2}')" "$ZSH_BIN_PATH"
 
 xcode-select --install
 softwareupdate --install-rosetta --agree-to-license

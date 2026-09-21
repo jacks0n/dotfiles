@@ -19,6 +19,5 @@ eval "$(mise activate bash)"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f $HOME/.config/cani/completions/_cani.bash ] && source $HOME/.config/cani/completions/_cani.bash
 
-. "$HOME/.cargo/env"
-
-[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path bash)"
+# Only present when Rust is installed via rustup-init (not Homebrew rustup).
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

@@ -13,6 +13,7 @@ alias s='subl'
 alias n='nvim'
 alias b='brew'
 alias o='open'
+alias assume='source "$CACHED_BREW_PREFIX/bin/assume"'
 
 # Pretty file sizes.
 alias du='du -h'

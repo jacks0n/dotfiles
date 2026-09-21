@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  aws-sso-login [profile] [Granted assume options...]
+  aws-sso-login [--profile profile] [Granted assume options...]
+
+Refreshes the AWS CLI SSO cache through Granted's device-code flow. The
+Granted Chrome extension verifies and confirms the locally generated code.
+Defaults to AWS_PROFILE, then example-sso-profile.
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+profile="${AWS_PROFILE}"
+
+if [[ "${1:-}" == "--profile" ]]; then
+  if [[ -z "${2:-}" ]]; then
+    echo 'aws-sso-login: --profile requires a value' >&2
+    exit 2
+  fi
+  profile="$2"
+  shift 2
+elif [[ -n "${1:-}" && "${1:-}" != -* ]]; then
+  profile="$1"
+  shift
+fi
+
+sso_session="$(aws configure get sso_session --profile "$profile")"
+if [[ -z "$sso_session" ]]; then
+  echo "aws-sso-login: profile '$profile' does not name an sso_session" >&2
+  exit 2
+fi
+
+aws_config_file="${AWS_CONFIG_FILE:-$HOME/.aws/config}"
+read_sso_session_value() {
+  local key="$1"
+  awk -F '=' -v target="[sso-session $sso_session]" -v key="$key" '
+    /^[[:space:]]*\[/ {
+      section = $0
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", section)
+      next
+    }
+    section == target {
+      name = $1
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+      if (name == key) {
+        value = substr($0, index($0, "=") + 1)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+        print value
+        exit
+      }
+    }
+  ' "$aws_config_file"
+}
+
+sso_start_url="$(read_sso_session_value sso_start_url)"
+sso_region="$(read_sso_session_value sso_region)"
+sso_browser_profile="${GRANTED_SSO_BROWSER_PROFILE:-Default}"
+if [[ -z "$sso_start_url" || -z "$sso_region" ]]; then
+  echo "aws-sso-login: incomplete [sso-session $sso_session] in $aws_config_file" >&2
+  exit 2
+fi
+
+assume_path="$(command -v assume 2>/dev/null || true)"
+if [[ -z "$assume_path" || ! -f "$assume_path" ]]; then
+  echo 'aws-sso-login: Granted is not installed; run brew install fwdcloudsec/granted/granted' >&2
+  exit 127
+fi
+
+# Login is separate from export because Granted 0.39.0 crashes when --no-cache
+# and --export-sso-token are combined. Login always uses the device-code flow.
+granted sso login \
+  --sso-start-url "$sso_start_url" \
+  --sso-region "$sso_region" \
+  --sso-browser-profile "$sso_browser_profile" \
+  --use-device-code
+
+# Sourcing the wrapper consumes its credential output without printing secrets.
+# Exporting the token keeps ordinary `aws --profile ...` commands working.
+GRANTED_ALIAS_CONFIGURED=true source "$assume_path" \
+  "$profile" --sso-browser-profile "$sso_browser_profile" --export-sso-token "$@"

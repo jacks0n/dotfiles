@@ -135,19 +135,12 @@ for package in "${brew_packages_optional[@]}"; do
   fi
 done
 
-# Setup Rust.
+# Setup Rust. See install.sh for why the profile is set before installing.
+rustup set profile minimal
 rustup default stable
+rustup component add clippy rustfmt rust-src
 
-# Set zsh as the default login shell.
-zsh_path="$(brew --prefix)/bin/zsh"
-current_shell="$(getent passwd "$USER" | cut -d: -f7)"
-if [[ -x "$zsh_path" ]] && [[ "$current_shell" != "$zsh_path" ]]; then
-  if ! grep -qFx "$zsh_path" /etc/shells; then
-    echo "$zsh_path" | sudo tee -a /etc/shells > /dev/null
-  fi
-  sudo chsh -s "$zsh_path" "$USER"
-  echo "Default shell set to $zsh_path (log out + back in to apply)"
-fi
+# Default login shell is handled portably by setup.sh.
 
 # Install personal git config.
 read -p 'Install personal git config? [Y/n]: ' -n 1 -r
