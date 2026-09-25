@@ -3,10 +3,12 @@
   "permissions": {
     "allow": [
       // Confluence read-only
-      "MCP(atlassian.atlassian-confluence_{download_attachment,download_content_attachments,get_attachments,get_comments,get_labels,get_page,get_page_children,get_page_diff,get_page_history,get_page_images,get_page_views,get_space_page_tree,search,search_user})",
+      "MCP(atlassian.atlassian-confluence_{check_content_permissions,download_*,get_*,list_*,search*})",
+      "MCP(atlassian.confluence_{check_content_permissions,download_*,get_*,list_*,search*})",
 
       // Jira read-only
-      "MCP(atlassian.atlassian-jira_{batch_get_changelogs,download_attachments,get_agile_boards,get_all_projects,get_board_issues,get_field_options,get_issue,get_issue_dates,get_issue_development_info,get_issue_images,get_issue_proforma_forms,get_issue_sla,get_issue_watchers,get_issues_development_info,get_link_types,get_proforma_form_details,get_project_components,get_project_issues,get_project_versions,get_queue_issues,get_service_desk_for_project,get_service_desk_queues,get_sprint_issues,get_sprints_from_board,get_transitions,get_user_profile,get_worklog,search,search_fields})"
+      "MCP(atlassian.atlassian-jira_{batch_get_changelogs,download_attachments,get_*,search*})",
+      "MCP(atlassian.jira_{batch_get_changelogs,download_attachments,get_*,search*})"
     ]
   }
 }

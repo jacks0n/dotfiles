@@ -2,12 +2,9 @@
   "version": 1,
   "permissions": {
     "allow": [
-      "Glob",
-      "Grep",
-      "LS",
       "Python(readonly)",
+      "Python(*.execute(<SQL>))",
       "Read",
-      "Search",
       {
         "SQL(postgres-inspect)": {
           "dialect": "postgres",
@@ -59,37 +56,79 @@
           }
         }
       },
+      {
+        "SQL(mysql-read-only)": {
+          "dialect": "mysql",
+          "format": "mysql",
+          "effects": {
+            "only": [
+              "read"
+            ]
+          },
+          "functions": {
+            "all": [
+              "builtin:*"
+            ]
+          }
+        }
+      },
+
+      // Shell builtins and inert commands
+      "Shell({:,alias,cd,echo,exit,false,popd,printf,pushd,pwd,test,true,type})",
+      "Shell(done !... !-*)",
+      "Shell(set pipefail only(-e,-u,-o) !...)",
+      "Shell(sleep)",
+      "Shell(time {source,zsh})",
       "Shell(... {--version,--help} !... !-*)",
+      "Shell(command -v * !... !-*)",
+      "Shell({bash,zsh} -n !-*)",
+
+      // Text processing
+      "Shell({awk,comm,cut,diff,fold,head,jq,nl,sed,sort,tail,tr,uniq,wc})",
+      "Shell({grep,egrep,fgrep,gsed,rg,ag})",
+
+      // File and path inspection
+      "Shell({cat,cmp,du,file,find,less,locate,ls,more})",
+      "Shell({readlink,realpath,stat,tree,xargs,zipinfo})",
+
+      // Linting and validation
+      "Shell(shellcheck)",
+      "Shell({bash,zsh} -n !-*)",
+      "Shell(plutil -p !-*)",
+
+      // System info
+      "Shell({date,df,env,free,help,hostname,id,info,man})",
+      "Shell({printenv,uname,uptime,vmstat,w,whatis,whereis,which,who,whoami})",
+      "Shell({iostat,lsof,mdfind,mdls,mount} !... !-*)",
+      "Shell(mount !... !-*)",
+      "Shell(launchctl list !... !-*)",
+      "Shell(log show values(--last,--predicate,--style) only(--last,--predicate,--style))",
+      "Shell(defaults read)",
+      "Shell(sdef !-*)",
+      "Shell(xattr ?-l !-*)",
+      "Shell(codesign --verbose=4 only(-d,-v))",
+      "Shell(shasum values(-a) ?-a !-*)",
+
+      // Network diagnostics
+      "Shell({dig,host,ifconfig,netstat,nslookup,ping,ss,traceroute})",
+      "Shell(ip addr)",
+
+      // Process inspection
+      "Shell({htop,pgrep,ps,top})",
+
+      // agentperm
       "Shell(agentperm values(--agent,--event) check)",
       "Shell(agentperm validate)",
       "Shell(agentperm why ...)",
-      "Shell(az account show)",
-      "Shell(beckon status ?--json !... only(--json))",
-      "Shell(brew list)",
-      "Shell(codesign --verbose=4 only(-d,-v))",
-      "Shell(command -v * !... !-*)",
-      "Shell(defaults read)",
-      "Shell(docker compose {build,ls,up})",
-      "Shell(docker image {inspect,ls})",
-      "Shell(docker network {inspect,ls})",
-      "Shell(docker volume ls)",
-      "Shell(docker {inspect,logs,ps})",
-      "Shell(done !... !-*)",
-      "Shell(gh api values(--hostname) !{graphql} !{-X,--method,-f,--raw-field,-F,--field,--input,-H,--header})",
-      "Shell(gh auth status values(--hostname))",
-      "Shell(gh issue {list,view} values(--hostname))",
-      "Shell(gh pr {checks,diff,list,status,view} values(--hostname))",
-      "Shell(gh repo {list,view} values(--hostname,--json,--jq,--limit))",
-      "Shell(gh run {list,view,watch} values(--hostname))",
-      "Shell(gh search {code,issues,repos} values(--hostname))",
-      "Shell(gh variable {get,list} values(--hostname))",
-      "Shell(gh workflow {list,view} values(--hostname))",
-      "Shell(granted {-v,--version})",
-      "Shell(granted cache list)",
-      "Shell(granted credentials list)",
-      "Shell(granted doctor values(--profile))",
-      "Shell(granted settings print)",
-      "Shell(granted sso-tokens {expiry,list})",
+      "Shell(uv run agentperm check ...)",
+      "Shell(uv run agentperm validate)",
+      "Shell(uv run agentperm why ...)",
+
+      // git — read-only
+      "Shell(git {blame,describe,log,rev-list,rev-parse,show,show-ref} values(-C))",
+      "Shell(git {diff,merge-base,merge-tree,range-diff} values(-C))",
+      "Shell(git {cat-file,check-ignore,fetch,for-each-ref,grep} values(-C))",
+      "Shell(git {ls-files,ls-remote,ls-tree,status} values(-C))",
       "Shell(git stash {list,show} values(-C))",
       "Shell(git worktree list values(-C))",
       "Shell(git branch !... ?{-C,-a,-r,-l,-v,-vv,--all,--remotes,--list,--show-current} !-* values(-C))",
@@ -100,24 +139,47 @@
       "Shell(git tag --contains !... only(--contains) values(-C,--contains))",
       "Shell(git tag {-l,--list} only(-l,--list,--sort) values(-C,--sort))",
       "Shell(git tag --sort !... only(--sort) values(-C,--sort))",
-      "Shell(git {blame,cat-file,check-ignore,describe,diff,fetch,for-each-ref,grep,log,ls-files,ls-remote,ls-tree,merge-base,merge-tree,range-diff,rev-list,rev-parse,show,show-ref,status} values(-C))",
-      "Shell(ip addr)",
-      "Shell(just --list)",
-      "Shell(launchctl list !... !-*)",
-      "Shell(llm-context)",
-      "Shell(log show values(--last,--predicate,--style) only(--last,--predicate,--style))",
-      "Shell(make)",
-      "Shell(mise current)",
-      "Shell(mount !... !-*)",
+
+      // GitHub CLI — read-only
+      "Shell(gh api values(--hostname) !{graphql} !{-X,--method,-f,--raw-field,-F,--field,--input,-H,--header})",
+      "Shell(gh auth status values(--hostname))",
+      "Shell(gh issue {list,view} values(--hostname))",
+      "Shell(gh pr {checks,diff,list,status,view} values(--hostname))",
+      "Shell(gh repo {list,view} values(--hostname,--json,--jq,--limit))",
+      "Shell(gh run {list,view,watch} values(--hostname))",
+      "Shell(gh search {code,issues,repos} values(--hostname))",
+      "Shell(gh variable {get,list} values(--hostname))",
+      "Shell(gh workflow {list,view} values(--hostname))",
+
+      // Docker — read-only
+      "Shell(docker compose {build,ls,up})",
+      "Shell(docker image {inspect,ls})",
+      "Shell(docker network {inspect,ls})",
+      "Shell(docker volume ls)",
+      "Shell(docker {inspect,logs,ps})",
+
+      // Granted / AWS SSO
+      "Shell(granted {-v,--version})",
+      "Shell(granted cache list)",
+      "Shell(granted credentials list)",
+      "Shell(granted doctor values(--profile))",
+      "Shell(granted settings print)",
+      "Shell(granted sso-tokens {expiry,list})",
+      "Shell(az account show)",
+
+      // Homebrew
+      "Shell(brew {info,list})",
+
+      // Node / npm / bun
       "Shell(node)",
       "Shell(npm root only(-g,--global))",
-      "Shell(npm {audit,search,view})",
+      "Shell(npm {audit,list,search,view})",
       "Shell(npx rulesync --version !... only(--no-install,--version))",
       "Shell(npx {eslint,tsc})",
+      "Shell(bun)",
       "Shell(nvim --version)",
-      "Shell(op item {get,list})",
-      "Shell({bash,zsh} -n !-*)",
-      "Shell(php -l)",
+
+      // Python / pip
       "Shell(pip cache {dir,info,list})",
       "Shell(pip config {debug,get,list})",
       "Shell(pip index versions)",
@@ -126,9 +188,6 @@
       "Shell(pip3 config {debug,get,list})",
       "Shell(pip3 index versions)",
       "Shell(pip3 {check,completion,debug,freeze,hash,help,inspect,list,show})",
-      "Shell(plutil -p !-*)",
-      "Shell(pnpm run {build,lint,lint:fix})",
-      "Shell(pnpm {add,exec,install,list,test,why})",
       "Shell(python -m pip cache {dir,info,list})",
       "Shell(python -m pip config {debug,get,list})",
       "Shell(python -m pip index versions)",
@@ -138,45 +197,79 @@
       "Shell(python3 -m pip index versions)",
       "Shell(python3 -m pip {check,completion,debug,freeze,hash,help,inspect,list,show})",
       "Shell(python3 -m py_compile)",
-      "Shell(rulesync doctor values(--config,--input-root))",
-      "Shell(rulesync docs values(--search))",
+      "Shell({./.venv/bin/python,python3} -m json.tool)",
+
+      // uv
+      "Shell(uv pip {check,freeze,list,show,tree})",
+      "Shell(uv python list --only-installed !... !-*)",
+      "Shell(uv run pytest)",
+      "Shell(uv run ruff check !{--fix,--fix-only,--add-noqa,--unsafe-fixes})",
+      "Shell(uv tool list)",
+
+      // pnpm
+      "Shell(pnpm run {build,lint,lint:fix})",
+      "Shell(pnpm {add,exec,install,list,test,why})",
+
+      // Rust
       "Shell(rustup component list !... only(--installed,-q,--quiet,--toolchain) values(--toolchain))",
       "Shell(rustup toolchain list)",
-      "Shell(set pipefail only(-e,-u,-o) !...)",
+
+      // Misc tools
+      "Shell(beckon status ?--json !... only(--json))",
+      "Shell(just --list)",
+      "Shell(llm-context)",
+      "Shell(make)",
+      "Shell(mise current)",
+      "Shell(op item {get,list})",
+      "Shell(php -l)",
+      "Shell(rulesync doctor values(--config,--input-root))",
+      "Shell(rulesync docs values(--search))",
+      "Shell(security find-generic-password values(-a,-s,-l))",
+      "Shell(zellij setup --check !... !-*)",
+      "Shell({claude,codex} mcp get !-*)",
+      "Shell({claude,codex} mcp list !... !-*)",
+
+      // Database clients (SQL-policy gated)
       "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) stdin(<SQL:postgres-inspect>) !{-c,--command,-f,--file,-L,--log-file,-o,--output})",
       "Shell({psql,/opt/homebrew/opt/libpq/bin/psql} values(-d,-F,-h,-L,-o,-p,-P,-R,-T,-U,-v,--dbname,--field-separator,--host,--log-file,--output,--port,--pset,--record-separator,--set,--table-attr,--username,--variable) sqlvalues(<SQL:postgres-inspect>,-c,--command) !{-f,--file,-L,--log-file,-o,--output})",
       "Shell(sqlite3 * values(-cmd,-init,-maxsize,-mmap,-newline,-nonce,-nullvalue,-separator,-vfs) stdin(<SQL:sqlite-read-only>) !{-cmd,-init} !...)",
       "Shell(sqlite3 * <SQL:sqlite-read-only> values(-cmd,-init,-maxsize,-mmap,-newline,-nonce,-nullvalue,-separator,-vfs) !{-cmd,-init} !...)",
       "Shell(sqlplus * values(-C,-M,-R) stdin(<SQL:oracle-read-only>) !...)",
-      "Shell(shasum values(-a) ?-a !-*)",
-      "Shell(sleep)",
-      "Shell(sdef !-*)",
-      "Shell(time {source,zsh})",
-      "Shell(uv pip {check,freeze,list,show,tree})",
-      "Shell(uv python list --only-installed !... !-*)",
-      "Shell(uv run agentperm check ...)",
-      "Shell(uv run agentperm validate)",
-      "Shell(uv run agentperm why ...)",
-      "Shell(uv run pytest)",
-      "Shell(uv tool list)",
-      "Shell(xattr ?-l !-*)",
-      "Shell(zellij setup --check !... !-*)",
-      "Shell({./.venv/bin/python,python3} -m json.tool)",
-      "Shell({:,alias,cd,echo,exit,false,popd,printf,pushd,pwd,test,true,type})",
-      "Shell({ag,awk,cat,cmp,comm,cut,diff,du,egrep,fgrep,file,find,fold,grep,gsed,head,jq,less,locate,ls,more,nl,readlink,realpath,rg,sed,sort,stat,tail,tr,tree,uniq,wc,xargs,zipinfo})",
-      "Shell({claude,codex} mcp get !-*)",
-      "Shell({claude,codex} mcp list !... !-*)",
-      "Shell({date,df,dig,env,free,help,host,hostname,htop,id,ifconfig,info,iostat,lsof,man,mdfind,mdls,netstat,nslookup,pgrep,ping,printenv,ps,ss,top,traceroute,uname,uptime,vmstat,w,whatis,whereis,which,who,whoami})",
+
+      // Web
       "WebFetch",
       "WebSearch",
+
+      // MCP — read-only
       "MCP(Context7.query-docs)",
-      "MCP(anytype.{anytype_API_chat_message_stream,anytype_API_download_file,anytype_API_get_chat_message,anytype_API_get_chat_messages,anytype_API_get_list_objects,anytype_API_get_list_views,anytype_API_get_member,anytype_API_get_object,anytype_API_get_property,anytype_API_get_space,anytype_API_get_tag,anytype_API_get_template,anytype_API_get_type,anytype_API_list_chats,anytype_API_list_members,anytype_API_list_objects,anytype_API_list_properties,anytype_API_list_spaces,anytype_API_list_tags,anytype_API_list_templates,anytype_API_list_types,anytype_API_search_chat_messages,anytype_API_search_global,anytype_API_search_space})",
+      "MCP(anytype.anytype_API_{chat_message_stream,download_file})",
+      "MCP(anytype.anytype_API_get_{chat_message,chat_messages,list_objects,list_views,member,object,property,space,tag,template,type})",
+      "MCP(anytype.anytype_API_list_{chats,members,objects,properties,spaces,tags,templates,types})",
+      "MCP(anytype.anytype_API_search_{chat_messages,global,space})",
       "MCP(claude_ai_Notion.notion-search)",
-      "MCP(coderift.{call_graph,call_hierarchy,close_repository,diagnostics,find_symbol,find_symbols,get_usages,implementations,indexing_status,list_repositories,list_workspace_symbols,open_repository,outline,path_between_symbols,query_codeql,symbol_context,type_hierarchy})",
-      "MCP(coderift.coderift_{call_graph,call_hierarchy,close_repository,diagnostics,find_symbol,find_symbols,get_usages,implementations,indexing_status,list_repositories,list_workspace_symbols,open_repository,outline,path_between_symbols,query_codeql,symbol_context,type_hierarchy})",
+      "MCP(coderift.{call_graph,call_hierarchy,close_repository,diagnostics})",
+      "MCP(coderift.{find_symbol,find_symbols,get_usages,implementations})",
+      "MCP(coderift.{indexing_status,list_repositories,list_workspace_symbols})",
+      "MCP(coderift.{open_repository,outline,path_between_symbols})",
+      "MCP(coderift.{query_codeql,symbol_context,type_hierarchy})",
+      "MCP(coderift.coderift_{call_graph,call_hierarchy,close_repository,diagnostics})",
+      "MCP(coderift.coderift_{find_symbol,find_symbols,get_usages,implementations})",
+      "MCP(coderift.coderift_{indexing_status,list_repositories,list_workspace_symbols})",
+      "MCP(coderift.coderift_{open_repository,outline,path_between_symbols})",
+      "MCP(coderift.coderift_{query_codeql,symbol_context,type_hierarchy})",
+      "MCP(coderift.coderift-{call_graph,call_hierarchy,close_repository,diagnostics})",
+      "MCP(coderift.coderift-{find_symbol,find_symbols,get_usages,implementations})",
+      "MCP(coderift.coderift-{indexing_status,list_repositories,list_workspace_symbols})",
+      "MCP(coderift.coderift-{open_repository,outline,path_between_symbols})",
+      "MCP(coderift.coderift-{query_codeql,symbol_context,type_hierarchy})",
       "MCP(ddg-search.{fetch_content,search})",
       "MCP(miro.{board_search_boards,context_explore,context_get})",
-      "MCP(notion.{notion-download-attachment,notion-fetch,notion-get-async-task,notion-get-comments,notion-get-teams,notion-get-users,notion-list-favorite-pages,notion-list-private-pages,notion-list-recent-pages,notion-list-shared-pages,notion-query-data-sources,notion-query-meeting-notes,notion-search,notion-search-agents})",
+      "MCP(notion.{notion-download-attachment,notion-fetch,notion-get-async-task})",
+      "MCP(notion.{notion-get-comments,notion-get-teams,notion-get-users})",
+      "MCP(notion.{notion-list-favorite-pages,notion-list-private-pages})",
+      "MCP(notion.{notion-list-recent-pages,notion-list-shared-pages})",
+      "MCP(notion.{notion-query-data-sources,notion-query-meeting-notes})",
+      "MCP(notion.{notion-search,notion-search-agents})",
       "MCP(sequential-thinking.sequentialthinking)"
     ],
     "ask": [
