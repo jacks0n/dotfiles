@@ -112,6 +112,19 @@ if [[ -e "$mcphub_agent" || -L "$mcphub_agent" ]]; then
   fi
 fi
 
+codex_cli_path_agent="$HOME/Library/LaunchAgents/com.jackson.codex-cli-path.plist"
+if [[ -e "$codex_cli_path_agent" || -L "$codex_cli_path_agent" ]]; then
+  if prompt_yes "  Unload and remove $codex_cli_path_agent?"; then
+    launchctl bootout "gui/$UID/com.jackson.codex-cli-path" >/dev/null 2>&1 || true
+    rm -f "$codex_cli_path_agent"
+    echo -e "  ${GREEN}Removed${NC}: $codex_cli_path_agent"
+    ((removed++))
+  else
+    echo -e "  ${YELLOW}Skipped${NC}: $codex_cli_path_agent"
+    ((skipped++))
+  fi
+fi
+
 if command -v beckon >/dev/null 2>&1 && prompt_yes "  Uninstall the Beckon service?"; then
   beckon service uninstall
 fi

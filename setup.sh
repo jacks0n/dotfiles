@@ -228,6 +228,22 @@ if prompt_yes "Configure AI tooling and LaunchAgents?"; then
     else
       echo "  Skipped MCPHub LaunchAgent"
     fi
+
+    codex_launch_agent="$HOME/Library/LaunchAgents/com.jackson.codex-cli-path.plist"
+    if handle_existing "$codex_launch_agent"; then
+      jq --arg home "$HOME" \
+        'walk(if type == "string" then gsub("__HOME__"; $home) else . end)' \
+        "$DOTFILES_PATH/Library/LaunchAgents/com.jackson.codex-cli-path.plist.json" \
+        | plutil -convert xml1 -o "$codex_launch_agent" -
+      chmod 600 "$codex_launch_agent"
+      plutil -lint "$codex_launch_agent"
+      launchctl bootout "gui/$UID/com.jackson.codex-cli-path" >/dev/null 2>&1 || true
+      launchctl bootstrap "gui/$UID" "$codex_launch_agent"
+      launchctl enable "gui/$UID/com.jackson.codex-cli-path"
+      echo "  ChatGPT Desktop configured to use the locally assembled Codex package"
+    else
+      echo "  Skipped Codex CLI path LaunchAgent"
+    fi
   fi
 fi
 

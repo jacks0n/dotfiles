@@ -1,0 +1,10 @@
+{
+  "Label": "com.jackson.codex-cli-path",
+  "ProgramArguments": [
+    "/bin/launchctl",
+    "setenv",
+    "CODEX_CLI_PATH",
+    "__HOME__/Code/vendor/codex/codex-rs/target/local-release-package/bin/codex"
+  ],
+  "RunAtLoad": true
+}
