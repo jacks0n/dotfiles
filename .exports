@@ -56,7 +56,6 @@ fi
 if command -v bat >/dev/null ; then
   export MANPAGER='sh -c "col -bx | bat --language man --plain"'
   export PAGER='bat'
-  export BAT_PAGER=''
   # Prevent delta (git diff) from using bat, which adds duplicate line numbers.
   export DELTA_PAGER='less'
 fi

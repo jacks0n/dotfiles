@@ -1,0 +1,5 @@
+# Output like cat: no header, grid, line numbers or git-changes gutter (the slowest part).
+--style=plain
+
+# Print straight to the terminal; `batp` overrides this when a pager is wanted.
+--paging=never
