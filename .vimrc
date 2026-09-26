@@ -346,7 +346,7 @@ set nofsync
 
 " Better command-line completion, with menu
 set wildchar=<Tab>
-set wildmode=longest,list,full
+set wildmode=longest:full,full
 set wildmenu
 set pumheight=20             " Maximum number of items to show in the omni complete menu.
 

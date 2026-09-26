@@ -83,6 +83,14 @@ M.setup = function()
   -- Better command line
   keymap('n', ';', ':', { desc = 'Enter command mode' })
   keymap('n', '\\', ';', { desc = 'Repeat f/t command' })
+  -- Typing '/' on a completed directory accepts it, so <Tab> then descends
+  -- into it rather than cycling to the next sibling.
+  keymap('c', '/', function()
+    if vim.fn.wildmenumode() == 1 and vim.fn.getcmdline():sub(-1) == '/' then
+      return '<C-y>'
+    end
+    return '/'
+  end, { expr = true, desc = 'Accept directory completion' })
 
   -- Disable arrow keys in normal mode
   keymap('n', '<Up>', '<NOP>')

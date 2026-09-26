@@ -68,9 +68,6 @@ M.setup = function()
   -- Completion
   vim.opt.completeopt = { 'menu', 'menuone', 'preview' }
   vim.opt.pumheight = 20
-  vim.opt.wildmode = { 'longest', 'list', 'full' }
-  vim.opt.wildmenu = true
-  vim.opt.wildignorecase = true
 
   -- Behavior
   vim.opt.hidden = true
