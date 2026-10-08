@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+# The KiroStudio gateway, and the agents that talk to it.
+#
+# KiroStudio is a protocol gateway: it serves the Anthropic Messages API and
+# the OpenAI Responses API over Kiro / AWS Q, so Claude Code and Codex can both
+# run against the same models and the same quota. `models` lists what it serves
+# (Claude, GPT, DeepSeek, MiniMax, Qwen, GLM).
+#
+# Works on the Mac and in the dev container. The container shares the Mac's
+# localhost, so the gateway's address needs no special case; its key does, and
+# `key` explains why.
+set -euo pipefail
+
+URL=${KIROSTUDIO_URL:-http://127.0.0.1:8990}
+STATE=${KIROSTUDIO_STATE:-$HOME/.local/share/kirostudio}
+CONTAINER=${KIROSTUDIO_CONTAINER:-kirostudio-local}
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  kirostudio key                  print the gateway's API key
+  kirostudio up                   start the gateway and wait for it (Mac only)
+  kirostudio models               list the models it serves, by provider
+  kirostudio balance              quota used and remaining, per credential
+  kirostudio claude  [args...]    Claude Code against it          (alias: ccks)
+  kirostudio codex   [args...]    Codex against it                (alias: cxks)
+  kirostudio review  [args...]    Codex review of this repository (alias: cxksr)
+
+Environment:
+  KIROSTUDIO_API_KEY        use this key instead of discovering one
+  KIROSTUDIO_URL            gateway address (default http://127.0.0.1:8990)
+  KIROSTUDIO_SKIP_QUOTA_CHECK  launch without the pre-launch quota check
+  CLAUDE_KIROSTUDIO_OPUS    model behind `--model opus`   (default claude-opus-5)
+  CLAUDE_KIROSTUDIO_SONNET  model behind `--model sonnet` (default claude-sonnet-5)
+  CLAUDE_KIROSTUDIO_SMALL   model for background work  (default claude-haiku-4.5)
+  CODEX_KIROSTUDIO_MODEL    model Codex runs on          (default claude-opus-5)
+  CODEX_KIROSTUDIO_CONTEXT  context window to declare; 0 leaves Codex's own
+USAGE
+}
+
+die() { printf 'kirostudio: %s\n' "$1" >&2; exit "${2:-1}"; }
+
+need() {
+  command -v "$1" >/dev/null 2>&1 \
+    || die "$1 is required${2:+ ($2)}" 127
+}
+
+# The key, wherever this machine can see it.
+#
+# On the Mac it is a file under ~/.local/share/kirostudio. In the dev container
+# that path is the Linux-only `dev-local` volume, so the Mac's copy is not
+# there — but the gateway's own container bind-mounts the same directory and
+# dev drives the Mac's Docker engine, so asking it is the way in. An exported
+# key wins over both, which is what a one-off override or a runner would set.
+config_field() {
+  local field=$1 file="$STATE/config/config.json"
+  if [ -r "$file" ] && jq -re ".$field" "$file" 2>/dev/null; then
+    return 0
+  fi
+  if command -v docker >/dev/null 2>&1 &&
+    docker exec "$CONTAINER" cat /app/config/config.json 2>/dev/null |
+      jq -re ".$field" 2>/dev/null; then
+    return 0
+  fi
+  return 1
+}
+
+key() {
+  if [ -n "${KIROSTUDIO_API_KEY:-}" ]; then
+    printf '%s\n' "$KIROSTUDIO_API_KEY"
+    return 0
+  fi
+  config_field apiKey ||
+    die 'no key; set KIROSTUDIO_API_KEY, or start the gateway on the Mac'
+}
+
+healthy() {
+  # 401 counts: the gateway answered, it just wants the key.
+  curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$URL/v1/models" 2>/dev/null |
+    grep -Eq '^(200|401)$'
+}
+
+up() {
+  need docker
+  docker image inspect kirostudio:local >/dev/null 2>&1 || "$STATE/build.sh"
+  KIROSTUDIO_UID="$(id -u)" KIROSTUDIO_GID="$(id -g)" \
+    docker compose -f "$STATE/compose.yaml" up -d --quiet-pull
+  local deadline=$((SECONDS + 30))
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    healthy && return 0
+    sleep 1
+  done
+  die "not healthy at $URL; see: docker logs $CONTAINER"
+}
+
+# The compose file and build context are Mac paths, absent from the container's
+# own ~/.local volume, so starting the gateway is the Mac's job. Elsewhere an
+# unreachable gateway is reported rather than guessed at.
+ensure_up() {
+  if ! healthy; then
+    if [ -r "$STATE/compose.yaml" ]; then
+      up
+    else
+      die "$URL unreachable; start the gateway on the Mac"
+    fi
+  fi
+  [ -n "${KIROSTUDIO_SKIP_QUOTA_CHECK:-}" ] || quota
+}
+
+# Monthly request quota, pool-wide. Separate from token refresh, which the
+# gateway's own background task owns: an expired token is renewed silently,
+# while exhausted quota cannot be renewed at all until the cycle resets.
+#
+# Read from the admin API's cached balances, which costs no quota — unlike
+# discovering the same thing from a 402 after an agent has already started,
+# five reconnect attempts in. A pool with no readable balance is not treated
+# as exhausted: an unreachable check must never block work that would succeed.
+quota() {
+  local admin balances remaining reset
+  admin=$(config_field adminApiKey) || return 0
+  balances=$(curl -s --max-time 5 -H "Authorization: Bearer $admin" \
+    "$URL/api/admin/credentials/balances/cached" 2>/dev/null) || return 0
+  remaining=$(printf '%s' "$balances" |
+    jq -r '[.balances // {} | .[] | .remaining] | add // empty' 2>/dev/null) || return 0
+  [ -n "$remaining" ] || return 0
+  case $remaining in
+    0 | 0.0 | -*) ;;
+    *) return 0 ;;
+  esac
+  reset=$(printf '%s' "$balances" |
+    jq -r '[.balances // {} | .[] | .nextResetAt] | min // empty' 2>/dev/null)
+  if [ -n "$reset" ] && command -v python3 >/dev/null 2>&1; then
+    reset=$(python3 -c 'import sys,datetime;print(datetime.datetime.fromtimestamp(float(sys.argv[1])).strftime("%a %d %b %H:%M"))' "$reset" 2>/dev/null)
+  fi
+  die "monthly quota exhausted for every credential in the pool.
+  It cannot be refreshed; add a credential, or wait for the reset${reset:+ ($reset)}.
+  Usage per credential: kirostudio balance"
+}
+
+balance() {
+  local admin
+  admin=$(config_field adminApiKey) || die 'no admin key in the gateway config'
+  curl -s --max-time 6 -H "Authorization: Bearer $admin" \
+    "$URL/api/admin/credentials/balances/cached" |
+    jq -r '.balances // {} | to_entries[] | .value |
+      "\(.subscriptionTitle)\tused \(.currentUsage|floor) of \(.effectiveLimit|floor)\t\(.usagePercentage)%\tremaining \(.remaining)"'
+}
+
+models() {
+  local token
+  token=$(key)
+  curl -s --max-time 5 -H "Authorization: Bearer $token" "$URL/v1/models" |
+    jq -r '.data[] | "\(.owned_by)\t\(.id)\tmax=\(.max_tokens)"' | sort
+}
+
+# `--model opus` resolves through ANTHROPIC_DEFAULT_*_MODEL, so the tier names
+# keep working against the gateway's own ids; a --model in "$@" still wins.
+claude_code() {
+  need claude
+  ensure_up
+  ANTHROPIC_BASE_URL="$URL" \
+  ANTHROPIC_AUTH_TOKEN="$(key)" \
+  ANTHROPIC_DEFAULT_OPUS_MODEL="${CLAUDE_KIROSTUDIO_OPUS:-claude-opus-5}" \
+  ANTHROPIC_DEFAULT_SONNET_MODEL="${CLAUDE_KIROSTUDIO_SONNET:-claude-sonnet-5}" \
+  ANTHROPIC_DEFAULT_HAIKU_MODEL="${CLAUDE_KIROSTUDIO_SMALL:-claude-haiku-4.5}" \
+  ANTHROPIC_SMALL_FAST_MODEL="${CLAUDE_KIROSTUDIO_SMALL:-claude-haiku-4.5}" \
+    exec claude --dangerously-skip-permissions --model opus "$@"
+}
+
+# The provider is passed per invocation rather than written into
+# ~/.codex/config.toml, so a plain `codex` keeps its own account and model.
+#
+# Codex does not know the gateway's model ids, so it warns about missing
+# metadata and falls back to a default context window. `model_context_window`
+# is the only override it accepts — verified with --strict-config, which
+# rejects `model_max_output_tokens` outright in 0.160 — so the window is set
+# and the warning is expected. Codex knows its own GPT models, where its own
+# figure is the better one.
+codex_cli() {
+  need codex 'in the dev container: codex-compile'
+  ensure_up
+  local model=${CODEX_KIROSTUDIO_MODEL:-claude-opus-5}
+  local window=${CODEX_KIROSTUDIO_CONTEXT:-200000}
+  local -a metadata=()
+  case $model in
+    gpt-*) ;;
+    *) [ "$window" != 0 ] && metadata+=(-c "model_context_window=$window") ;;
+  esac
+  KIROSTUDIO_API_KEY="$(key)" \
+    exec codex \
+      -c model_provider=kirostudio \
+      -c model_providers.kirostudio.name=KiroStudio \
+      -c model_providers.kirostudio.base_url="$URL/v1" \
+      -c model_providers.kirostudio.env_key=KIROSTUDIO_API_KEY \
+      -c model_providers.kirostudio.wire_api=responses \
+      -c model="$model" \
+      "${metadata[@]}" \
+      "$@"
+}
+
+# `codex exec review` insists on being told what to look at, so with no
+# arguments this reviews the working tree. Anything passed goes through:
+# --base <ref>, --commit <sha>, or review instructions in prose.
+review() {
+  if [ "$#" -eq 0 ]; then
+    codex_cli exec review --uncommitted
+  else
+    codex_cli exec review "$@"
+  fi
+}
+
+main() {
+  need curl
+  need jq
+  local command=${1:-}
+  [ "$#" -gt 0 ] && shift
+  case $command in
+    key) key ;;
+    up) up ;;
+    models) models ;;
+    balance | quota) balance ;;
+    claude) claude_code "$@" ;;
+    codex) codex_cli "$@" ;;
+    review) review "$@" ;;
+    -h | --help | help | '') usage ;;
+    *) usage >&2; die "unknown command: $command" 2 ;;
+  esac
+}
+
+main "$@"
