@@ -1,0 +1,49 @@
+{
+  "marketplaces": {
+    "ponytail": { "repo": "DietrichGebert/ponytail" }
+  },
+  "codex": {
+    "plugins": {
+      "code-review@openai-bundled": true,
+      "ponytail@ponytail": true
+    },
+    "features": {
+      "plugins": true,
+      "remote_plugin": false,
+      "apps": false,
+      "browser_use": false,
+      "browser_use_external": false,
+      "browser_use_full_cdp_access": false,
+      "computer_use": false,
+      "hooks": true
+    }
+  },
+  "claude": {
+    "plugins": {
+      "ponytail@ponytail": true,
+      "typescript-lsp@claude-plugins-official": false,
+      "productivity@synced": false,
+      "design@synced": false,
+      "engineering@synced": false,
+      "product-management@synced": false
+    },
+    "settings": {
+      "disableClaudeAiConnectors": true,
+      "syncClaudeAiSkills": false,
+      "syncClaudeAiPlugins": false,
+      "disableBundledSkills": true,
+      "skillOverrides": {
+        "gi-review": "on",
+        "develop": "user-invocable-only",
+        "review": "user-invocable-only",
+        "review:peer": "user-invocable-only",
+        "review:code": "user-invocable-only",
+        "investigate": "user-invocable-only",
+        "address-feedback": "user-invocable-only",
+        "pr-comments": "user-invocable-only",
+        "jira-comments": "user-invocable-only",
+        "whitelist-read-only": "user-invocable-only"
+      }
+    }
+  }
+}

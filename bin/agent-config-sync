@@ -1,0 +1,114 @@
+#!/usr/bin/env -S -u VIRTUAL_ENV uv run --python 3.13 --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["tomlkit>=0.13,<1"]
+# ///
+"""Regenerate Rulesync configuration and restore personal agent preferences."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+import time
+
+import tomlkit
+
+
+def plugin_states(declared, existing):
+    """Resolve each plugin to its declared state; anything undeclared is off."""
+    return {name: bool(declared.get(name, False)) for name in sorted(set(existing) | set(declared))}
+
+
+def configure_codex(text, policy, marketplaces):
+    config = tomlkit.parse(text)
+    plugins = config.setdefault("plugins", tomlkit.table())
+    for name, state in plugin_states(policy["plugins"], plugins).items():
+        plugins.setdefault(name, tomlkit.table())["enabled"] = state
+    config.setdefault("features", tomlkit.table()).update(policy["features"])
+    # Declare git marketplaces; leave bundled "local" entries as Codex wrote them.
+    declared = config.setdefault("marketplaces", tomlkit.table())
+    for name, source in marketplaces.items():
+        entry = declared.setdefault(name, tomlkit.table())
+        entry["source_type"] = "git"
+        entry["source"] = f"https://github.com/{source['repo']}.git"
+    return tomlkit.dumps(config)
+
+
+def configure_claude(text, policy, marketplaces):
+    config = json.loads(text or "{}")
+    config["enabledPlugins"] = plugin_states(policy["plugins"], config.get("enabledPlugins", {}))
+    config.update(policy["settings"])
+    config["extraKnownMarketplaces"] = {
+        name: {"source": {"source": "github", "repo": source["repo"]}}
+        for name, source in marketplaces.items()
+    }
+    return json.dumps(config, indent=2) + "\n"
+
+
+def save(path, original, updated):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(dir=path.parent, prefix=".agent-config-sync-")
+    try:
+        with os.fdopen(fd, "w") as output:
+            output.write(updated)
+        if (path.read_text() if path.exists() else "") != original:
+            raise RuntimeError(f"{path} changed during reconciliation; rerun the script")
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="Report drift; exit 1 if changes are needed")
+    mode.add_argument("--dry-run", action="store_true", help="Preview which files would change")
+    parser.add_argument("--policy", type=Path, default=Path(__file__).resolve().parent.parent / "rulesync/agent-settings.json")
+    args = parser.parse_args()
+    policy = json.loads(args.policy.read_text())
+    marketplaces = policy.get("marketplaces", {})
+    home = Path.home()
+    paths = [
+        (home / ".codex/config.toml", configure_codex, policy["codex"]),
+        (home / ".claude/settings.json", configure_claude, policy["claude"]),
+    ]
+    preview = args.check or args.dry_run
+    backup_dir = home / ".local/state/agent-config-sync" / str(time.time_ns())
+    plans = [(p.resolve(), fn, rules) for p, fn, rules in paths]
+    for path, _, _ in plans:
+        if path.exists() and not preview:
+            backup_dir.mkdir(parents=True, mode=0o700, exist_ok=True)
+            backup = backup_dir / (path.parent.name + "-" + path.name)
+            shutil.copy2(path, backup)
+            backup.chmod(0o600)
+    command = ["rulesync", "generate", "--global", "--input-roots", str(home / ".rulesync"),
+               "--features", "mcp,hooks,skills", "--targets", "claudecode,codexcli"]
+    if args.check:
+        command.append("--check")
+    elif args.dry_run:
+        command.append("--dry-run")
+    result = subprocess.run(command, check=False)
+    if result.returncode and not (args.check and result.returncode == 1):
+        return result.returncode
+    drift = result.returncode != 0
+    for path, configure, rules in plans:
+        original = path.read_text() if path.exists() else ""
+        updated = configure(original, rules, marketplaces)
+        if updated == original:
+            print(f"Up to date: {path}")
+            continue
+        drift = True
+        print(f"{'Would update' if preview else 'Updating'}: {path}")
+        if not preview:
+            save(path, original, updated)
+    if not preview:
+        print(f"Backups: {backup_dir}")
+        print("Restart running agents to load changes.")
+    return int(args.check and drift)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
